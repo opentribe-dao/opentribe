@@ -1,0 +1,15 @@
+{
+  "extends": "@tooling/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "target": "ES2022"
+  },
+  "include": ["./*.ts", "./src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

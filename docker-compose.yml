@@ -1,0 +1,180 @@
+# Docker Compose configuration for Opentribe development environment
+# Version field is omitted as per 2025 best practices
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: opentribe-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: opentribe
+      POSTGRES_PASSWORD: opentribe_dev
+      POSTGRES_DB: opentribe
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./packages/db/prisma/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opentribe"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - opentribe-network
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        APP: api
+    container_name: opentribe-api
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://opentribe:opentribe_dev@postgres:5432/opentribe
+      BETTER_AUTH_SECRET: rq+MmXcamqhjGCda/lW1sd6H9PiUYu4Vzlw51c0ohjg=
+      BETTER_AUTH_URL: http://localhost:3002
+      RESEND_FROM: hello@opentribe.io
+      RESEND_TOKEN: re_hN2zcNEh_MAdkQQqMjj7BerPVjXC45UL3
+      NEXT_PUBLIC_API_URL: http://localhost:3002
+      NEXT_PUBLIC_WEB_URL: http://localhost:3000
+      NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
+      NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3002
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - opentribe-network
+    volumes:
+      # For development: mount source code for hot reload
+      - ./apps/api:/app/apps/api:delegated
+      - ./packages:/app/packages:delegated
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      - /app/apps/api/.next
+
+  # Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        APP: web
+    container_name: opentribe-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://opentribe:opentribe_dev@postgres:5432/opentribe
+      BETTER_AUTH_SECRET: rq+MmXcamqhjGCda/lW1sd6H9PiUYu4Vzlw51c0ohjg=
+      BETTER_AUTH_URL: http://localhost:3002
+      NEXT_PUBLIC_API_URL: http://localhost:3002
+      NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
+      NEXT_PUBLIC_DOCS_URL: https://docs.opentribe.io
+      NEXT_PUBLIC_WEB_URL: http://localhost:3000
+      NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3002
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - opentribe-network
+    volumes:
+      # For development: mount source code for hot reload
+      - ./apps/web:/app/apps/web:delegated
+      - ./packages:/app/packages:delegated
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
+
+  # Dashboard Application
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        APP: dashboard
+    container_name: opentribe-dashboard
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://opentribe:opentribe_dev@postgres:5432/opentribe
+      BETTER_AUTH_SECRET: rq+MmXcamqhjGCda/lW1sd6H9PiUYu4Vzlw51c0ohjg=
+      BETTER_AUTH_URL: http://localhost:3002
+      NEXT_PUBLIC_API_URL: http://localhost:3002
+      NEXT_PUBLIC_WEB_URL: http://localhost:3000
+      NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
+      NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3002
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - opentribe-network
+    volumes:
+      # For development: mount source code for hot reload
+      - ./apps/dashboard:/app/apps/dashboard:delegated
+      - ./packages:/app/packages:delegated
+      - /app/node_modules
+      - /app/apps/dashboard/node_modules
+      - /app/apps/dashboard/.next
+
+  # Test Database for Integration Tests
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: opentribe-postgres-test
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: opentribe_test
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - opentribe-network
+    profiles:
+      - test
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+  postgres_test_data:
+    driver: local
+
+# Network configuration
+networks:
+  opentribe-network:
+    driver: bridge

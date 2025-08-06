@@ -1,0 +1,83 @@
+# Copilot Guidelines
+
+This project <PROJECT_NAME> uses **Next.js 15, Turborepo, TypeScript, Prisma, Better Auth, and Tailwind CSS**.
+
+## Project Structure
+Structure of how project files are setup. Making changes to files should be in their respected directory.
+
+### Apps
+```
+| App  | Port | Description                                                                 |
+|------|------|-----------------------------------------------------------------------------|
+| api  | 3002 | API routes, webhooks, and serverless functions. Contains Prisma schema.    |
+| app  | 3000 | Main application with authentication, dashboard, and core features.         |
+| docs | 3004 | Documentation site built with Fumadocs for guides and API references.      |
+| web  | 3001 | Marketing website with landing pages, blog, and public content.            |
+```
+
+### Packages
+```
+| Package       | Description                                                               |
+|---------------|---------------------------------------------------------------------------|
+| analytics     | PostHog integration and analytics utilities                              |
+| auth          | Better Auth configuration and authentication logic                       |
+| base          | shadcn/ui components and design system                                   |
+| cms           | Content management with content-collections (file-based)                |
+| db            | Prisma client, schema, and database utilities                           |
+| email         | React Email templates and email utilities                               |
+| feature-flags | Feature flag management and configuration                               |
+| i18n          | Internationalization utilities and language management                  |
+| logging       | Sentry integration and logging utilities                                |
+| payments      | Stripe integration and payment processing                               |
+| security      | Rate limiting, CORS, and security middleware                            |
+| seo           | SEO utilities, metadata generation, and JSON-LD                        |
+| storage       | File storage utilities and cloud storage integration                    |
+| testing       | Shared testing utilities and configurations                             |
+```
+
+### Tooling
+```
+| Package           | Description                                           |
+|-------------------|-------------------------------------------------------|
+| next-config       | Shared Next.js configuration                        |
+| typescript-config | Shared TypeScript configurations                    |
+```
+
+## Development Commands
+- `pnpm dev` - Start all apps in development mode
+- `pnpm build` - Build all apps and packages  
+- `pnpm test` - Run tests across all packages
+- `pnpm migrate` - Run Prisma migrations
+- `pnpm db:studio` - Open Prisma Studio on port 5555
+- `pnpm email:dev` - Preview email templates on port 3003
+
+## Nesting
+- Avoid deeply nested code. Break down logic into smaller functions.
+- Opening curly braces should be on the same line as the statement.
+- Prefer composition over inheritance.
+
+## Error Handling
+- Always catch specific errors instead of generic ones.
+- Use Zod for runtime validation and type safety.
+- Log errors using the logging package (Sentry integration).
+- Provide user-friendly error messages through toast notifications.
+
+## Authentication
+- Use Better Auth for all authentication needs.
+- Session management is handled automatically.
+- Check authentication status using `auth()` from `@packages/auth`.
+
+## Database
+- All database operations go through Prisma in the `@packages/db` package.
+- Database schema is located in `packages/db/prisma/schema.prisma`.
+- Use transactions for complex operations.
+- Always handle database errors gracefully.
+
+## Environment Variables
+- **NEVER use `process.env` directly** - always use the typed `env` object from `@/env`
+- All environment variables MUST be defined in the appropriate `keys.ts` file with Zod validation
+- Add new env vars to both the schema and `runtimeEnv` object in keys.ts
+- Use proper validation (e.g., `z.string().url()` for URLs, `z.string().email()` for emails)
+- Example: `import { env } from '@/env'; if (env.VERCEL) { ... }`
+- This ensures type safety and runtime validation of all environment variables
+

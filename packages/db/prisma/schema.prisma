@@ -1,0 +1,595 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../generated/client"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String                @id @default(cuid())
+  name                 String
+  email                String                @unique
+  emailVerified        Boolean               @default(false)
+  image                String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  role                 String                @default("user")
+  banned               Boolean               @default(false)
+  banReason            String?
+  banExpires           DateTime?
+  firstName            String?
+  lastName             String?
+  username             String?               @unique
+  avatarUrl            String?
+  headline             String?
+  bio                  String?
+  interests            String[]              @default([])
+  location             String?
+  skills               Json?
+  walletAddress        String?               @unique
+  twitter              String?
+  discord              String?
+  github               String?
+  linkedin             String?
+  website              String?
+  telegram             String?
+  employer             String?
+  workExperience       String?
+  cryptoExperience     String?
+  workPreference       String?
+  profileCompleted     Boolean               @default(false)
+  private              Boolean               @default(false)
+  acceptedTOS          DateTime?
+  preferences          Json?
+  lastSeen             DateTime?
+  accounts             Account[]
+  comments             Comment[]             @relation("CommentAuthor")
+  curations            Curator[]             @relation("UserCurations")
+  applications         GrantApplication[]    @relation("GrantApplicant")
+  invitations          Invitation[]          @relation("InvitedBy")
+  likes                Like[]                @relation("UserLikes")
+  members              Member[]              @relation("UserMemberships")
+  notificationSettings NotificationSetting[] @relation("UserSetting")
+  payments             Payment[]             @relation("UserPayments")
+  sessions             Session[]
+  submissions          Submission[]          @relation("SubmissionSubmitter")
+  wonSubmissions       Submission[]          @relation("BountyWinnerSubmission")
+  votes                Vote[]                @relation("UserVote")
+
+  @@map("user")
+}
+
+model Session {
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String   @unique
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  activeOrganizationId String?
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
+  @@map("verification")
+}
+
+model Organization {
+  id          String              @id @default(cuid())
+  name        String
+  slug        String              @unique
+  logo        String?
+  metadata    String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  legalName   String?
+  headline    String?
+  description String?
+  industry    String[]            @default([])
+  twitter     String?
+  github      String?
+  linkedin    String?
+  location    String?
+  websiteUrl  String?
+  contact     String?
+  visibility  OrgVisibilityStatus @default(ACTIVE)
+  isVerified  Boolean             @default(false)
+  bounties    Bounty[]            @relation("OrgCreatedBounty")
+  grants      Grant[]             @relation("OrganizationGrants")
+  invitations Invitation[]        @relation("OrganizationInvitations")
+  members     Member[]            @relation("OrganizationMembers")
+  payments    Payment[]           @relation("OrganizationPayments")
+
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation("OrganizationMembers", fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation("UserMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@index([organizationId])
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  email          String
+  role           String?
+  status         String       @default("pending")
+  expiresAt      DateTime
+  inviterId      String
+  inviter        User         @relation("InvitedBy", fields: [inviterId], references: [id], onDelete: Cascade)
+  organization   Organization @relation("OrganizationInvitations", fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([email])
+  @@map("invitation")
+}
+
+model Grant {
+  id               String                 @id @default(cuid())
+  title            String
+  slug             String                 @unique
+  logoUrl          String?
+  bannerUrl        String?
+  description      String
+  summary          String?
+  instructions     String?
+  resources        Json?
+  screening        Json?
+  applicationUrl   String?
+  token            String?                @default("DOT")
+  skills           String[]               @default([])
+  organizationId   String
+  minAmount        Decimal?
+  maxAmount        Decimal?
+  totalFunds       Decimal?
+  status           GrantStatus            @default(OPEN)
+  visibility       GrantVisibilityStatus? @default(DRAFT)
+  source           GrantSource            @default(NATIVE)
+  publishedAt      DateTime?
+  viewCount        Int                    @default(0)
+  applicationCount Int                    @default(0)
+  rfpCount         Int                    @default(0)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  curators         Curator[]              @relation("GrantCurators")
+  organization     Organization           @relation("OrganizationGrants", fields: [organizationId], references: [id], onDelete: Cascade)
+  applications     GrantApplication[]     @relation("GrantApplications")
+  rfps             RFP[]                  @relation("GrantRFPs")
+
+  @@index([organizationId, status, visibility])
+  @@map("grant")
+}
+
+model RFP {
+  id               String              @id @default(cuid())
+  title            String
+  slug             String              @unique
+  description      String
+  resources        Json?
+  grantId          String
+  status           RFPStatus           @default(OPEN)
+  visibility       RFPVisibilityStatus @default(DRAFT)
+  publishedAt      DateTime?
+  viewCount        Int                 @default(0)
+  commentCount     Int                 @default(0)
+  voteCount        Int                 @default(0)
+  applicationCount Int                 @default(0)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  comments         Comment[]           @relation("RfpComments")
+  applications     GrantApplication[]  @relation("BasedOnRFP")
+  grant            Grant               @relation("GrantRFPs", fields: [grantId], references: [id], onDelete: Cascade)
+  votes            Vote[]              @relation("RfpVotes")
+
+  @@index([grantId, status, visibility])
+  @@map("rfp")
+}
+
+model Bounty {
+  id                       String                 @id @default(cuid())
+  title                    String
+  slug                     String                 @unique
+  description              String
+  resources                Json?
+  screening                Json?
+  applicationUrl           String?
+  skills                   String[]               @default([])
+  organizationId           String
+  amount                   Decimal?
+  amountUSD                Decimal?
+  token                    String                 @default("DOT")
+  winnings                 Json?
+  split                    CompensationType       @default(FIXED)
+  status                   BountyStatus           @default(OPEN)
+  visibility               BountyVisibilityStatus @default(DRAFT)
+  deadline                 DateTime?
+  publishedAt              DateTime?
+  winnersAnnouncedAt       DateTime?
+  viewCount                Int                    @default(0)
+  submissionCount          Int                    @default(0)
+  commentCount             Int                    @default(0)
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+  lastReminderSentAt       DateTime?
+  lastWinnerReminderSentAt DateTime?
+  organization             Organization           @relation("OrgCreatedBounty", fields: [organizationId], references: [id], onDelete: Cascade)
+  comments                 Comment[]              @relation("BountyComments")
+  curators                 Curator[]              @relation("BountyCurators")
+  submissions              Submission[]           @relation("BountySubmissions")
+
+  @@index([organizationId, status, visibility])
+  @@map("bounty")
+}
+
+model GrantApplication {
+  id           String                 @id @default(cuid())
+  userId       String
+  grantId      String
+  rfpId        String?
+  title        String
+  summary      String?
+  description  String
+  timeline     Json?
+  milestones   Json?
+  budget       Decimal?
+  responses    Json?
+  status       GrantApplicationStatus @default(DRAFT)
+  label        ApplicationLabel?
+  approverId   String?
+  notes        String?
+  likesCount   Int                    @default(0)
+  viewsCount   Int                    @default(0)
+  commentCount Int                    @default(0)
+  submittedAt  DateTime?
+  reviewedAt   DateTime?
+  decidedAt    DateTime?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  comments     Comment[]              @relation("GrantAppComments")
+  grant        Grant                  @relation("GrantApplications", fields: [grantId], references: [id], onDelete: Cascade)
+  rfp          RFP?                   @relation("BasedOnRFP", fields: [rfpId], references: [id])
+  applicant    User                   @relation("GrantApplicant", fields: [userId], references: [id], onDelete: Cascade)
+  likes        Like[]                 @relation("GrantAppLikes")
+
+  @@index([grantId, status])
+  @@index([userId])
+  @@map("grant_application")
+}
+
+model Submission {
+  id            String           @id @default(cuid())
+  bountyId      String
+  userId        String
+  submissionUrl String?
+  bannerUrl     String?
+  responses     Json?
+  title         String?
+  description   String?
+  status        SubmissionStatus @default(DRAFT)
+  label         SubmissionLabel?
+  notes         String?
+  isWinner      Boolean?         @default(false)
+  isPaid        Boolean?         @default(false)
+  position      Int?
+  winningAmount Decimal?
+  winnerUserId  String?
+  likesCount    Int              @default(0)
+  viewsCount    Int              @default(0)
+  commentCount  Int              @default(0)
+  submittedAt   DateTime?
+  reviewedAt    DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  comments      Comment[]        @relation("SubmissionComments")
+  likes         Like[]           @relation("SubmissionLikes")
+  payments      Payment[]        @relation("SubmissionPayments")
+  bounty        Bounty           @relation("BountySubmissions", fields: [bountyId], references: [id], onDelete: Cascade)
+  submitter     User             @relation("SubmissionSubmitter", fields: [userId], references: [id], onDelete: Cascade)
+  winnerUser    User?            @relation("BountyWinnerSubmission", fields: [winnerUserId], references: [id])
+
+  @@index([bountyId, status])
+  @@index([userId])
+  @@index([winnerUserId])
+  @@map("submission")
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  submissionId     String
+  organizationId   String
+  recipientAddress String
+  amount           Decimal
+  token            String        @default("DOT")
+  extrinsicHash    String?       @unique
+  blockNumber      Int?
+  status           PaymentStatus @default(PENDING)
+  paidBy           String
+  paidAt           DateTime?
+  verifiedAt       DateTime?
+  metadata         Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  organization     Organization  @relation("OrganizationPayments", fields: [organizationId], references: [id], onDelete: Cascade)
+  payer            User          @relation("UserPayments", fields: [paidBy], references: [id], onDelete: Cascade)
+  submission       Submission    @relation("SubmissionPayments", fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@index([organizationId])
+  @@index([extrinsicHash])
+  @@map("payment")
+}
+
+model Curator {
+  id        String   @id @default(cuid())
+  userId    String
+  grantId   String?
+  bountyId  String?
+  contact   String?
+  createdAt DateTime @default(now())
+  bounty    Bounty?  @relation("BountyCurators", fields: [bountyId], references: [id], onDelete: Cascade)
+  grant     Grant?   @relation("GrantCurators", fields: [grantId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserCurations", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([grantId])
+  @@index([bountyId])
+  @@index([userId])
+  @@map("curator")
+}
+
+model Comment {
+  id            String            @id @default(cuid())
+  body          String
+  authorId      String
+  parentId      String?
+  rfpId         String?
+  bountyId      String?
+  applicationId String?
+  submissionId  String?
+  type          CommentType       @default(NORMAL)
+  isEdited      Boolean           @default(false)
+  isHidden      Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  application   GrantApplication? @relation("GrantAppComments", fields: [applicationId], references: [id], onDelete: Cascade)
+  author        User              @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  bounty        Bounty?           @relation("BountyComments", fields: [bountyId], references: [id], onDelete: Cascade)
+  parent        Comment?          @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies       Comment[]         @relation("Replies")
+  rfp           RFP?              @relation("RfpComments", fields: [rfpId], references: [id], onDelete: Cascade)
+  submission    Submission?       @relation("SubmissionComments", fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([rfpId])
+  @@index([bountyId])
+  @@index([applicationId])
+  @@index([submissionId])
+  @@index([parentId])
+  @@index([authorId])
+  @@map("comment")
+}
+
+model Like {
+  id               String            @id @default(cuid())
+  userId           String
+  submissionId     String?
+  applicationId    String?
+  createdAt        DateTime          @default(now())
+  grantApplication GrantApplication? @relation("GrantAppLikes", fields: [applicationId], references: [id], onDelete: Cascade)
+  submission       Submission?       @relation("SubmissionLikes", fields: [submissionId], references: [id], onDelete: Cascade)
+  user             User              @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([submissionId])
+  @@index([userId])
+  @@map("like")
+}
+
+model Vote {
+  id        String        @id @default(cuid())
+  userId    String
+  rfpId     String
+  direction VoteDirection @default(UP)
+  createdAt DateTime      @default(now())
+  rfp       RFP           @relation("RfpVotes", fields: [rfpId], references: [id], onDelete: Cascade)
+  user      User          @relation("UserVote", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rfpId])
+  @@map("vote")
+}
+
+model NotificationSetting {
+  id        String              @id @default(cuid())
+  userId    String
+  channel   NotificationChannel
+  type      NotificationType
+  isEnabled Boolean             @default(true)
+  user      User                @relation("UserSetting", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel, type])
+  @@map("notification_setting")
+}
+
+model UnsubscribedEmail {
+  email          String   @id @unique
+  reason         String?
+  unsubscribedAt DateTime @default(now())
+
+  @@map("unsubscribed_email")
+}
+
+model BouncedEmail {
+  email         String   @id @unique
+  bounceType    String
+  lastBouncedAt DateTime
+  bounceCount   Int      @default(1)
+
+  @@index([lastBouncedAt])
+  @@map("bounced_email")
+}
+
+enum OrgVisibilityStatus {
+  ACTIVE
+  UNDER_REVIEW
+  ARCHIVED
+  VERIFIED
+}
+
+enum BountyVisibilityStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum GrantVisibilityStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum GrantSource {
+  NATIVE
+  EXTERNAL
+}
+
+enum ApplicationLabel {
+  Unreviewed
+  Reviewed
+  Shortlisted
+  Spam
+  Pending
+}
+
+enum SubmissionLabel {
+  Unreviewed
+  Reviewed
+  Shortlisted
+  Spam
+  Pending
+}
+
+enum NotificationType {
+  GRANT_APP_UPDATE
+  BOUNTY_SUBMISSION
+  COMMENT_REPLY
+  NEW_BOUNTY_MATCHING_SKILLS
+}
+
+enum CommentType {
+  NORMAL
+  SUBMISSION
+  DEADLINE_EXTENSION
+  WINNER_ANNOUNCEMENT
+}
+
+enum CompensationType {
+  FIXED
+  EQUAL_SPLIT
+  VARIABLE
+}
+
+enum NotificationChannel {
+  EMAIL
+  IN_APP
+}
+
+enum RFPStatus {
+  OPEN
+  PAUSED
+  CLOSED
+}
+
+enum RFPVisibilityStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BountyStatus {
+  OPEN
+  REVIEWING
+  COMPLETED
+  CLOSED
+  CANCELLED
+}
+
+enum GrantStatus {
+  OPEN
+  PAUSED
+  CLOSED
+}
+
+enum GrantApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum VoteDirection {
+  UP
+  DOWN
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  CONFIRMED
+  FAILED
+}

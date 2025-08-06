@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@import "@packages/base/styles/globals.css";
+
+/* Override sidebar backgrounds to be transparent */
+[data-sidebar="sidebar"] {
+  background-color: transparent !important;
+}
+
+[data-sidebar="sidebar-inner"] {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Ensure the main content area is transparent */
+[data-slot="sidebar-inset"] {
+  background-color: transparent !important;
+}

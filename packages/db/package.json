@@ -29,10 +29,10 @@
   },
   "devDependencies": {
     "@tooling/typescript-config": "workspace:*",
-    "@types/bcryptjs": "^2.4.6",
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "22.15.21",
     "@types/ws": "^8.18.1",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.2",
     "bufferutil": "^4.0.9",
     "prisma": "6.4.1",
     "tsx": "^4.19.2",

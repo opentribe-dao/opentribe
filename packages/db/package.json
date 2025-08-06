@@ -30,7 +30,7 @@
   "devDependencies": {
     "@tooling/typescript-config": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "22.15.21",
+    "@types/node": "24.2.0",
     "@types/ws": "^8.18.1",
     "bcryptjs": "^2.4.3",
     "bufferutil": "^4.0.9",

@@ -1,17 +1,9 @@
-import { database as prisma } from "./index";
-import crypto from "crypto";
-
-// Simple hash function for seed data
-function simpleHash(password: string): string {
-  // This creates a deterministic hash for seed data
-  // In production, Better Auth will use proper bcrypt hashing
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
+import { database as prisma } from './index';
 
 async function main() {
-  console.log("🌱 Starting database seed...");
-  
-  // Clean existing data
+  console.log('🌱 Starting database seed...');
+
+  // Clean existing data (but NOT users/accounts - they're created by seed-auth.ts)
   await prisma.$transaction([
     prisma.submission.deleteMany(),
     prisma.grantApplication.deleteMany(),
@@ -26,293 +18,119 @@ async function main() {
     prisma.member.deleteMany(),
     prisma.organization.deleteMany(),
     prisma.invitation.deleteMany(),
-    prisma.session.deleteMany(),
-    prisma.account.deleteMany(),
-    prisma.user.deleteMany(),
+    // Don't delete sessions, accounts, or users - they're managed by seed-auth.ts
   ]);
 
-  // Create test users with realistic profiles
-  const users = await Promise.all([
-    // Regular builders
-    prisma.user.create({
-      data: {
-        email: "alice.rust@example.com",
-        name: "Alice Chen",
-        username: "alice_substrate",
-        emailVerified: true,
-        role: "user",
-        headline: "Substrate Runtime Developer",
-        bio: "Building the future of Web3 with Rust and Substrate. Previously at Parity Technologies.",
-        skills: {
-          languages: ["Rust", "TypeScript", "Go"],
-          frameworks: ["Substrate", "ink!", "React"],
-          expertise: ["Runtime Development", "Smart Contracts", "Consensus Mechanisms"]
-        },
-        interests: ["DeFi", "Governance", "Cross-chain"],
-        location: "Berlin, Germany",
-        walletAddress: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-        github: "alice-substrate",
-        twitter: "alice_web3",
-        profileCompleted: true,
-        accounts: {
-          create: {
-            providerId: "credential",
-            accountId: "alice.rust@example.com",
-            password: simpleHash("password123"),
-          },
-        },
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "bob.ui@example.com",
-        name: "Bob Martinez",
-        username: "bob_designer",
-        emailVerified: true,
-        role: "user",
-        headline: "Web3 UI/UX Designer & Frontend Dev",
-        bio: "Crafting beautiful and intuitive interfaces for dApps. Passionate about making blockchain accessible.",
-        skills: {
-          design: ["Figma", "Framer", "Adobe XD"],
-          languages: ["TypeScript", "JavaScript"],
-          frameworks: ["React", "Next.js", "Vue"],
-          expertise: ["UI/UX Design", "Design Systems", "Frontend Architecture"]
-        },
-        interests: ["NFTs", "Gaming", "Social"],
-        location: "San Francisco, USA",
-        walletAddress: "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty",
-        twitter: "bob_designs",
-        website: "https://bobmartinez.design",
-        profileCompleted: true,
-        accounts: {
-          create: {
-            providerId: "credential",
-            accountId: "bob.ui@example.com",
-            password: simpleHash("password123"),
-          },
-        },
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "carol.writer@example.com",
-        name: "Carol Thompson",
-        username: "carol_docs",
-        emailVerified: true,
-        role: "user",
-        headline: "Technical Writer & Developer Advocate",
-        bio: "Making complex blockchain concepts simple. Writing docs, tutorials, and educational content for Web3.",
-        skills: {
-          writing: ["Technical Documentation", "Tutorials", "API Docs"],
-          languages: ["JavaScript", "Python"],
-          expertise: ["Developer Relations", "Content Strategy", "Community Building"]
-        },
-        interests: ["Education", "Documentation", "Community"],
-        location: "London, UK",
-        walletAddress: "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y",
-        github: "carol-docs",
-        twitter: "carol_web3_docs",
-        linkedin: "carol-thompson-web3",
-        profileCompleted: true,
-        accounts: {
-          create: {
-            providerId: "credential",
-            accountId: "carol.writer@example.com",
-            password: simpleHash("password123"),
-          },
-        },
-      },
-    }),
+  // Get existing users created by seed-auth.ts
+  // If running seed.ts standalone, it will fail - run seed-auth.ts first!
+  const userEmails = [
+    'alice.rust@example.com',
+    'bob.ui@example.com',
+    'carol.writer@example.com',
+    'david.w3f@example.com',
+    'emma.moonbeam@example.com',
+    'frank.acala@example.com',
+    'admin@opentribe.io',
+  ];
 
-    // Organization admins
-    prisma.user.create({
-      data: {
-        email: "david.w3f@example.com",
-        name: "David Kumar",
-        username: "david_w3f",
-        emailVerified: true,
-        role: "admin",
-        headline: "Grants Program Manager at Web3 Foundation",
-        bio: "Managing the Web3 Foundation Grants Program. Helping builders create the decentralized web.",
-        skills: {
-          expertise: ["Grant Management", "Project Evaluation", "Ecosystem Development"],
-          domains: ["DeFi", "Infrastructure", "Tooling"]
-        },
-        location: "Zug, Switzerland",
-        walletAddress: "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy",
-        twitter: "david_w3f",
-        linkedin: "david-kumar-web3",
-        profileCompleted: true,
-        accounts: {
-          create: {
-            providerId: "credential",
-            accountId: "david.w3f@example.com",
-            password: simpleHash("password123"),
-          },
-        },
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "emma.moonbeam@example.com",
-        name: "Emma Rodriguez",
-        username: "emma_moonbeam",
-        emailVerified: true,
-        role: "admin",
-        headline: "Developer Relations Lead at Moonbeam",
-        bio: "Building bridges between Ethereum and Polkadot. Helping developers deploy cross-chain dApps.",
-        skills: {
-          expertise: ["Developer Relations", "Smart Contracts", "Cross-chain"],
-          languages: ["Solidity", "JavaScript", "Rust"]
-        },
-        location: "Miami, USA",
-        walletAddress: "5HGjWAeFDfFCWPsjFQdVV2Msvz2XtMktvgocEZcCj68kUMaw",
-        github: "emma-moonbeam",
-        twitter: "emma_moonbeam",
-        profileCompleted: true,
-        accounts: {
-          create: {
-            providerId: "credential",
-            accountId: "emma.moonbeam@example.com",
-            password: simpleHash("password123"),
-          },
-        },
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "frank.acala@example.com",
-        name: "Frank Zhang",
-        username: "frank_acala",
-        emailVerified: true,
-        role: "admin",
-        headline: "Ecosystem Growth at Acala Network",
-        bio: "Growing the Acala ecosystem. DeFi enthusiast. Building the financial layer of Web3.",
-        skills: {
-          expertise: ["DeFi", "Liquidity Management", "Ecosystem Growth"],
-          domains: ["Stablecoins", "DEX", "Liquid Staking"]
-        },
-        location: "Singapore",
-        walletAddress: "5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL",
-        twitter: "frank_acala",
-        telegram: "frank_acala",
-        profileCompleted: true,
-        accounts: {
-          create: {
-            providerId: "credential",
-            accountId: "frank.acala@example.com",
-            password: simpleHash("password123"),
-          },
-        },
-      },
-    }),
+  const users = await Promise.all(
+    userEmails.map((email) =>
+      prisma.user.findUniqueOrThrow({ where: { email } })
+    )
+  );
 
-    // Platform superadmin
-    prisma.user.create({
-      data: {
-        email: "admin@opentribe.io",
-        name: "Platform Admin",
-        username: "admin",
-        emailVerified: true,
-        role: "superadmin",
-        headline: "Opentribe Platform Administrator",
-        bio: "Managing the Opentribe platform.",
-        location: "Global",
-        walletAddress: "5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY",
-        profileCompleted: true,
-        accounts: {
-          create: {
-            providerId: "credential",
-            accountId: "admin@opentribe.io",
-            password: simpleHash("admin123"),
-          },
-        },
-      },
-    }),
-  ]);
+  if (users.length !== 7) {
+    throw new Error(
+      "Users not found! Please run 'pnpm db:seed:auth' first to create users."
+    );
+  }
 
-  console.log(`✅ Created ${users.length} users`);
+  console.log(`✅ Found ${users.length} existing users`);
 
   // Create real organizations
   const organizations = await Promise.all([
     prisma.organization.create({
       data: {
-        name: "Web3 Foundation",
-        slug: "web3-foundation",
-        headline: "Funding the decentralized web",
-        description: "The Web3 Foundation nurtures and stewards technologies and applications in the fields of decentralized web software protocols.",
-        logo: "https://web3.foundation/images/w3f-logo.svg",
-        twitter: "web3foundation",
-        github: "w3f",
-        websiteUrl: "https://web3.foundation",
-        location: "Zug, Switzerland",
+        name: 'Web3 Foundation',
+        slug: 'web3-foundation',
+        headline: 'Funding the decentralized web',
+        description:
+          'The Web3 Foundation nurtures and stewards technologies and applications in the fields of decentralized web software protocols.',
+        logo: 'https://web3.foundation/images/w3f-logo.svg',
+        twitter: 'web3foundation',
+        github: 'w3f',
+        websiteUrl: 'https://web3.foundation',
+        location: 'Zug, Switzerland',
         isVerified: true,
-        visibility: "VERIFIED",
+        visibility: 'VERIFIED',
         members: {
           create: {
             userId: users[3].id, // David
-            role: "owner",
+            role: 'owner',
           },
         },
       },
     }),
     prisma.organization.create({
       data: {
-        name: "Moonbeam Network",
-        slug: "moonbeam",
-        headline: "Ethereum-compatible smart contract platform on Polkadot",
-        description: "Moonbeam is a smart contract platform for building cross-chain connected applications that can access users, assets, and services on any chain.",
-        twitter: "MoonbeamNetwork",
-        github: "PureStake",
-        websiteUrl: "https://moonbeam.network",
-        location: "Boston, USA",
+        name: 'Moonbeam Network',
+        slug: 'moonbeam',
+        headline: 'Ethereum-compatible smart contract platform on Polkadot',
+        description:
+          'Moonbeam is a smart contract platform for building cross-chain connected applications that can access users, assets, and services on any chain.',
+        twitter: 'MoonbeamNetwork',
+        github: 'PureStake',
+        websiteUrl: 'https://moonbeam.network',
+        location: 'Boston, USA',
         isVerified: true,
-        visibility: "VERIFIED",
+        visibility: 'VERIFIED',
         members: {
           create: {
             userId: users[4].id, // Emma
-            role: "owner",
+            role: 'owner',
           },
         },
       },
     }),
     prisma.organization.create({
       data: {
-        name: "Acala Network",
-        slug: "acala",
-        headline: "The DeFi Hub of Polkadot",
-        description: "Acala is the all-in-one DeFi hub of Polkadot. A blockchain platform for financial applications to use smart contracts or built-in protocols.",
-        twitter: "AcalaNetwork",
-        github: "AcalaNetwork",
-        websiteUrl: "https://acala.network",
-        location: "Global",
+        name: 'Acala Network',
+        slug: 'acala',
+        headline: 'The DeFi Hub of Polkadot',
+        description:
+          'Acala is the all-in-one DeFi hub of Polkadot. A blockchain platform for financial applications to use smart contracts or built-in protocols.',
+        twitter: 'AcalaNetwork',
+        github: 'AcalaNetwork',
+        websiteUrl: 'https://acala.network',
+        location: 'Global',
         isVerified: true,
-        visibility: "VERIFIED",
+        visibility: 'VERIFIED',
         members: {
           create: {
             userId: users[5].id, // Frank
-            role: "owner",
+            role: 'owner',
           },
         },
       },
     }),
     prisma.organization.create({
       data: {
-        name: "Community DAO",
-        slug: "community-dao",
-        headline: "Supporting grassroots Polkadot initiatives",
-        description: "A community-driven organization supporting small but impactful projects in the Polkadot ecosystem.",
+        name: 'Community DAO',
+        slug: 'community-dao',
+        headline: 'Supporting grassroots Polkadot initiatives',
+        description:
+          'A community-driven organization supporting small but impactful projects in the Polkadot ecosystem.',
         isVerified: false,
-        visibility: "ACTIVE",
+        visibility: 'ACTIVE',
         members: {
           create: [
             {
               userId: users[1].id, // Bob
-              role: "owner",
+              role: 'owner',
             },
             {
               userId: users[2].id, // Carol
-              role: "admin",
+              role: 'admin',
             },
           ],
         },
@@ -327,8 +145,8 @@ async function main() {
     // Web3 Foundation Grants
     prisma.grant.create({
       data: {
-        title: "Decentralized Futures Program",
-        slug: "decentralized-futures-2024",
+        title: 'Decentralized Futures Program',
+        slug: 'decentralized-futures-2024',
         description: `The Decentralized Futures Program provides funding to kickstart teams and individuals building ambitious projects that contribute to the growth of the Polkadot ecosystem. 
 
 This flagship initiative is backed by 20M USD and 5M DOT throughout 2024, supporting multiple funding mechanisms including grants, investments, and service agreements.
@@ -339,8 +157,9 @@ We're looking for projects that:
 - Create innovative applications
 - Expand developer tooling
 - Enhance user experience`,
-        summary: "Web3 Foundation's flagship $45M funding program for ambitious Polkadot ecosystem projects",
-        logoUrl: "https://futures.web3.foundation/logo.png",
+        summary:
+          "Web3 Foundation's flagship $45M funding program for ambitious Polkadot ecosystem projects",
+        logoUrl: 'https://futures.web3.foundation/logo.png',
         instructions: `## Application Process
 
 1. Submit initial proposal outlining your project vision
@@ -356,28 +175,47 @@ We're looking for projects that:
 - Long-term vision
 - Community benefit`,
         resources: [
-          { title: "Program Overview", url: "https://futures.web3.foundation", description: "Official program website" },
-          { title: "Application Guide", url: "https://futures.web3.foundation/apply", description: "Step-by-step application instructions" },
-          { title: "FAQ", url: "https://futures.web3.foundation/faq", description: "Frequently asked questions" }
+          {
+            title: 'Program Overview',
+            url: 'https://futures.web3.foundation',
+            description: 'Official program website',
+          },
+          {
+            title: 'Application Guide',
+            url: 'https://futures.web3.foundation/apply',
+            description: 'Step-by-step application instructions',
+          },
+          {
+            title: 'FAQ',
+            url: 'https://futures.web3.foundation/faq',
+            description: 'Frequently asked questions',
+          },
         ],
-        skills: ["Rust", "Substrate", "Smart Contracts", "Infrastructure", "DeFi", "Tooling"],
+        skills: [
+          'Rust',
+          'Substrate',
+          'Smart Contracts',
+          'Infrastructure',
+          'DeFi',
+          'Tooling',
+        ],
         minAmount: 50000,
         maxAmount: 500000,
         totalFunds: 45000000,
-        token: "DOT",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        source: "NATIVE",
+        token: 'DOT',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        source: 'NATIVE',
         organizationId: organizations[0].id,
-        publishedAt: new Date("2024-01-15"),
+        publishedAt: new Date('2024-01-15'),
         viewCount: 342,
         applicationCount: 28,
       },
     }),
     prisma.grant.create({
       data: {
-        title: "Web3 Foundation Open Grants",
-        slug: "w3f-open-grants",
+        title: 'Web3 Foundation Open Grants',
+        slug: 'w3f-open-grants',
         description: `The Web3 Foundation Grants Program funds software development and research efforts related to Polkadot, Kusama and Substrate.
 
 We prioritize technical projects that add value to the ecosystem and present a compelling long-term vision.
@@ -389,7 +227,8 @@ Focus areas include:
 - System integration
 - Research projects
 - Community education`,
-        summary: "Technical grants for Polkadot and Substrate development projects",
+        summary:
+          'Technical grants for Polkadot and Substrate development projects',
         instructions: `## How to Apply
 
 1. **Check Eligibility**: Review our focus areas and requirements
@@ -403,19 +242,31 @@ Focus areas include:
 - Documentation and testing
 - No token sales or ICOs`,
         resources: [
-          { title: "Application Template", url: "https://github.com/w3f/Grants-Program/blob/master/applications/template.md" },
-          { title: "Grant Guidelines", url: "https://grants.web3.foundation/docs/Process/how-to-apply" }
+          {
+            title: 'Application Template',
+            url: 'https://github.com/w3f/Grants-Program/blob/master/applications/template.md',
+          },
+          {
+            title: 'Grant Guidelines',
+            url: 'https://grants.web3.foundation/docs/Process/how-to-apply',
+          },
         ],
-        skills: ["Rust", "TypeScript", "Documentation", "Testing", "Open Source"],
+        skills: [
+          'Rust',
+          'TypeScript',
+          'Documentation',
+          'Testing',
+          'Open Source',
+        ],
         minAmount: 10000,
         maxAmount: 100000,
         totalFunds: 10000000,
-        token: "DOT",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        source: "NATIVE",
+        token: 'DOT',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        source: 'NATIVE',
         organizationId: organizations[0].id,
-        publishedAt: new Date("2023-06-01"),
+        publishedAt: new Date('2023-06-01'),
         viewCount: 523,
         applicationCount: 45,
       },
@@ -424,8 +275,8 @@ Focus areas include:
     // Moonbeam Grants
     prisma.grant.create({
       data: {
-        title: "Moonbeam Ecosystem Grants",
-        slug: "moonbeam-ecosystem-grants",
+        title: 'Moonbeam Ecosystem Grants',
+        slug: 'moonbeam-ecosystem-grants',
         description: `The Moonbeam Grants Program accelerates the growth of the Moonbeam ecosystem by funding projects that enhance our cross-chain connected contracts platform.
 
 We support projects building:
@@ -436,7 +287,7 @@ We support projects building:
 - Educational content and resources
 
 Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features creates unique opportunities for innovative applications.`,
-        summary: "Funding cross-chain dApps and tools on Moonbeam",
+        summary: 'Funding cross-chain dApps and tools on Moonbeam',
         instructions: `Submit your application through our grants portal with:
 - Project overview and objectives
 - Technical architecture
@@ -444,15 +295,15 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
 - Development roadmap
 - Budget breakdown
 - How you'll leverage Moonbeam's unique features`,
-        skills: ["Solidity", "Web3.js", "Cross-chain", "DeFi", "NFTs"],
+        skills: ['Solidity', 'Web3.js', 'Cross-chain', 'DeFi', 'NFTs'],
         minAmount: 5000,
         maxAmount: 50000,
-        token: "GLMR",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        source: "NATIVE",
+        token: 'GLMR',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        source: 'NATIVE',
         organizationId: organizations[1].id,
-        publishedAt: new Date("2024-02-01"),
+        publishedAt: new Date('2024-02-01'),
         viewCount: 287,
         applicationCount: 19,
       },
@@ -461,8 +312,8 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
     // Acala Grants
     prisma.grant.create({
       data: {
-        title: "aUSD Ecosystem Fund",
-        slug: "ausd-ecosystem-fund",
+        title: 'aUSD Ecosystem Fund',
+        slug: 'ausd-ecosystem-fund',
         description: `The $250M aUSD Ecosystem Fund supports projects building on Acala and leveraging the aUSD stablecoin.
 
 Focus areas:
@@ -473,20 +324,21 @@ Focus areas:
 - Infrastructure and tooling
 
 Join leading projects already building with aUSD across Polkadot parachains.`,
-        summary: "$250M fund for projects building with Acala's aUSD stablecoin",
-        logoUrl: "https://acala.network/ausd-logo.png",
+        summary:
+          "$250M fund for projects building with Acala's aUSD stablecoin",
+        logoUrl: 'https://acala.network/ausd-logo.png',
         minAmount: 25000,
         maxAmount: 1000000,
         totalFunds: 250000000,
-        token: "aUSD",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        source: "NATIVE",
+        token: 'aUSD',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        source: 'NATIVE',
         organizationId: organizations[2].id,
-        publishedAt: new Date("2024-03-01"),
+        publishedAt: new Date('2024-03-01'),
         viewCount: 412,
         applicationCount: 33,
-        skills: ["DeFi", "Rust", "Solidity", "Cross-chain", "Stablecoins"],
+        skills: ['DeFi', 'Rust', 'Solidity', 'Cross-chain', 'Stablecoins'],
       },
     }),
   ]);
@@ -497,8 +349,8 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
   const bounties = await Promise.all([
     prisma.bounty.create({
       data: {
-        title: "Polkadot.js Extension UI/UX Improvements",
-        slug: "polkadotjs-extension-ui",
+        title: 'Polkadot.js Extension UI/UX Improvements',
+        slug: 'polkadotjs-extension-ui',
         description: `We're looking for talented designers and developers to improve the Polkadot.js browser extension user experience.
 
 ## Objectives:
@@ -520,27 +372,35 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
 - Code quality and documentation
 - Community feedback`,
         resources: [
-          { title: "Current Extension", url: "https://github.com/polkadot-js/extension", description: "Source code" },
-          { title: "Design Guidelines", url: "https://polkadot.network/brand", description: "Polkadot brand assets" }
+          {
+            title: 'Current Extension',
+            url: 'https://github.com/polkadot-js/extension',
+            description: 'Source code',
+          },
+          {
+            title: 'Design Guidelines',
+            url: 'https://polkadot.network/brand',
+            description: 'Polkadot brand assets',
+          },
         ],
-        skills: ["UI/UX Design", "React", "TypeScript", "Browser Extensions"],
+        skills: ['UI/UX Design', 'React', 'TypeScript', 'Browser Extensions'],
         amount: 15000,
-        token: "DOT",
-        winnings: { "1": 8000, "2": 5000, "3": 2000 },
-        split: "FIXED",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        deadline: new Date("2024-04-30"),
+        token: 'DOT',
+        winnings: { '1': 8000, '2': 5000, '3': 2000 },
+        split: 'FIXED',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        deadline: new Date('2024-04-30'),
         organizationId: organizations[0].id,
-        publishedAt: new Date("2024-03-15"),
+        publishedAt: new Date('2024-03-15'),
         viewCount: 156,
         submissionCount: 8,
       },
     }),
     prisma.bounty.create({
       data: {
-        title: "Create Substrate Pallet Tutorial Series",
-        slug: "substrate-pallet-tutorials",
+        title: 'Create Substrate Pallet Tutorial Series',
+        slug: 'substrate-pallet-tutorials',
         description: `Create a comprehensive tutorial series teaching developers how to build custom Substrate pallets.
 
 ## Requirements:
@@ -562,23 +422,23 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
 - Working code examples
 - Best practices and common pitfalls
 - Real-world use cases`,
-        skills: ["Technical Writing", "Rust", "Substrate", "Documentation"],
+        skills: ['Technical Writing', 'Rust', 'Substrate', 'Documentation'],
         amount: 10000,
-        token: "DOT",
-        split: "EQUAL_SPLIT",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        deadline: new Date("2024-05-15"),
+        token: 'DOT',
+        split: 'EQUAL_SPLIT',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        deadline: new Date('2024-05-15'),
         organizationId: organizations[3].id,
-        publishedAt: new Date("2024-03-20"),
+        publishedAt: new Date('2024-03-20'),
         viewCount: 98,
         submissionCount: 5,
       },
     }),
     prisma.bounty.create({
       data: {
-        title: "Cross-chain DEX Aggregator Research",
-        slug: "cross-chain-dex-research",
+        title: 'Cross-chain DEX Aggregator Research',
+        slug: 'cross-chain-dex-research',
         description: `Research and document cross-chain DEX aggregation strategies for the Polkadot ecosystem.
 
 ## Scope:
@@ -593,16 +453,16 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
 - Technical architecture proposal
 - Proof of concept code (optional)
 - Presentation slides`,
-        skills: ["DeFi", "Research", "Cross-chain", "Technical Writing"],
+        skills: ['DeFi', 'Research', 'Cross-chain', 'Technical Writing'],
         amount: 7500,
-        token: "DOT",
-        winnings: { "1": 5000, "2": 2500 },
-        split: "FIXED",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        deadline: new Date("2024-04-20"),
+        token: 'DOT',
+        winnings: { '1': 5000, '2': 2500 },
+        split: 'FIXED',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        deadline: new Date('2024-04-20'),
         organizationId: organizations[2].id,
-        publishedAt: new Date("2024-03-10"),
+        publishedAt: new Date('2024-03-10'),
         viewCount: 73,
         submissionCount: 3,
       },
@@ -615,8 +475,8 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
   const rfps = await Promise.all([
     prisma.rFP.create({
       data: {
-        title: "XCM v3 Developer Tooling",
-        slug: "xcm-v3-developer-tools",
+        title: 'XCM v3 Developer Tooling',
+        slug: 'xcm-v3-developer-tools',
         description: `We're seeking proposals for comprehensive XCM v3 developer tooling to simplify cross-chain development.
 
 ## Problem Statement:
@@ -635,21 +495,29 @@ Cross-chain message passing with XCM is powerful but complex. Developers need be
 - Real-time message tracking
 - Error diagnosis and suggestions`,
         resources: [
-          { title: "XCM Format", url: "https://github.com/paritytech/xcm-format", description: "XCM specification" },
-          { title: "XCM Docs", url: "https://wiki.polkadot.network/docs/learn-xcm", description: "Official documentation" }
+          {
+            title: 'XCM Format',
+            url: 'https://github.com/paritytech/xcm-format',
+            description: 'XCM specification',
+          },
+          {
+            title: 'XCM Docs',
+            url: 'https://wiki.polkadot.network/docs/learn-xcm',
+            description: 'Official documentation',
+          },
         ],
         grantId: grants[0].id,
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        publishedAt: new Date("2024-03-25"),
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        publishedAt: new Date('2024-03-25'),
         viewCount: 89,
         voteCount: 24,
       },
     }),
     prisma.rFP.create({
       data: {
-        title: "Substrate Light Client Libraries",
-        slug: "substrate-light-clients",
+        title: 'Substrate Light Client Libraries',
+        slug: 'substrate-light-clients',
         description: `Build production-ready light client libraries for Substrate-based chains.
 
 ## Objectives:
@@ -668,9 +536,9 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
 - Developer experience
 - Maintenance commitment`,
         grantId: grants[1].id,
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        publishedAt: new Date("2024-03-18"),
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
+        publishedAt: new Date('2024-03-18'),
         viewCount: 112,
         voteCount: 31,
       },
@@ -686,8 +554,9 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
         userId: users[0].id, // Alice
         grantId: grants[0].id,
         rfpId: rfps[0].id,
-        title: "XCM Studio - Visual Cross-chain Development Platform",
-        summary: "A comprehensive IDE for building, testing, and deploying XCM programs with visual tools",
+        title: 'XCM Studio - Visual Cross-chain Development Platform',
+        summary:
+          'A comprehensive IDE for building, testing, and deploying XCM programs with visual tools',
         description: `## Project Overview
 
 XCM Studio will be the first visual development environment specifically designed for cross-chain messaging in the Polkadot ecosystem.
@@ -705,15 +574,15 @@ XCM Studio will be the first visual development environment specifically designe
 - Implements XCM v3 interpreter
 - WebAssembly for browser compatibility`,
         timeline: [
-          { milestone: "Architecture & Design", date: "Month 1" },
-          { milestone: "Core Engine Development", date: "Month 2-3" },
-          { milestone: "Visual Builder Implementation", date: "Month 4-5" },
-          { milestone: "Testing Framework", date: "Month 6" },
-          { milestone: "Documentation & Launch", date: "Month 7" }
+          { milestone: 'Architecture & Design', date: 'Month 1' },
+          { milestone: 'Core Engine Development', date: 'Month 2-3' },
+          { milestone: 'Visual Builder Implementation', date: 'Month 4-5' },
+          { milestone: 'Testing Framework', date: 'Month 6' },
+          { milestone: 'Documentation & Launch', date: 'Month 7' },
         ],
         budget: 250000,
-        status: "SUBMITTED",
-        submittedAt: new Date("2024-03-28"),
+        status: 'SUBMITTED',
+        submittedAt: new Date('2024-03-28'),
         likesCount: 15,
         viewsCount: 67,
       },
@@ -722,8 +591,9 @@ XCM Studio will be the first visual development environment specifically designe
       data: {
         userId: users[2].id, // Carol
         grantId: grants[1].id,
-        title: "Substrate by Example - Interactive Learning Platform",
-        summary: "An interactive tutorial platform teaching Substrate development through hands-on examples",
+        title: 'Substrate by Example - Interactive Learning Platform',
+        summary:
+          'An interactive tutorial platform teaching Substrate development through hands-on examples',
         description: `## Vision
 
 Create the most comprehensive and accessible learning resource for Substrate developers, similar to "Rust by Example" but interactive.
@@ -742,10 +612,10 @@ Create the most comprehensive and accessible learning resource for Substrate dev
 4. Testing Strategies (8 tutorials)
 5. Advanced Patterns (7 tutorials)`,
         budget: 75000,
-        status: "UNDER_REVIEW",
-        label: "Reviewed",
-        submittedAt: new Date("2024-03-15"),
-        reviewedAt: new Date("2024-03-20"),
+        status: 'UNDER_REVIEW',
+        label: 'Reviewed',
+        submittedAt: new Date('2024-03-15'),
+        reviewedAt: new Date('2024-03-20'),
         likesCount: 23,
         viewsCount: 134,
       },
@@ -760,7 +630,7 @@ Create the most comprehensive and accessible learning resource for Substrate dev
       data: {
         bountyId: bounties[0].id,
         userId: users[1].id, // Bob
-        title: "Polkadot.js Extension Redesign - Modern & Accessible",
+        title: 'Polkadot.js Extension Redesign - Modern & Accessible',
         description: `## Design Approach
 
 I've completely reimagined the Polkadot.js extension with a focus on clarity, accessibility, and modern design principles.
@@ -778,14 +648,16 @@ I've completely reimagined the Polkadot.js extension with a focus on clarity, ac
 - Framer Motion for animations
 - React Hook Form for validation
 - Comprehensive Storybook documentation`,
-        submissionUrl: "https://github.com/bob_designer/polkadotjs-extension-redesign",
+        submissionUrl:
+          'https://github.com/bob_designer/polkadotjs-extension-redesign',
         responses: {
-          figmaUrl: "https://figma.com/file/xyz/polkadotjs-redesign",
-          demoUrl: "https://polkadotjs-redesign.vercel.app",
-          userTestingResults: "https://docs.google.com/document/d/testing-results"
+          figmaUrl: 'https://figma.com/file/xyz/polkadotjs-redesign',
+          demoUrl: 'https://polkadotjs-redesign.vercel.app',
+          userTestingResults:
+            'https://docs.google.com/document/d/testing-results',
         },
-        status: "SUBMITTED",
-        submittedAt: new Date("2024-04-05"),
+        status: 'SUBMITTED',
+        submittedAt: new Date('2024-04-05'),
         likesCount: 42,
         viewsCount: 189,
       },
@@ -794,7 +666,7 @@ I've completely reimagined the Polkadot.js extension with a focus on clarity, ac
       data: {
         bountyId: bounties[1].id,
         userId: users[2].id, // Carol
-        title: "Substrate Pallet Development Masterclass",
+        title: 'Substrate Pallet Development Masterclass',
         description: `## Tutorial Series Overview
 
 I've created a comprehensive 5-part tutorial series that takes developers from zero to hero in Substrate pallet development.
@@ -812,9 +684,9 @@ Each tutorial includes:
 - 20-30 minute video walkthrough
 - Interactive exercises
 - Quiz to test understanding`,
-        submissionUrl: "https://substrate-masterclass.dev",
-        status: "SUBMITTED",
-        submittedAt: new Date("2024-04-10"),
+        submissionUrl: 'https://substrate-masterclass.dev',
+        status: 'SUBMITTED',
+        submittedAt: new Date('2024-04-10'),
         likesCount: 38,
         viewsCount: 156,
       },
@@ -827,26 +699,26 @@ Each tutorial includes:
   const comments = await Promise.all([
     prisma.comment.create({
       data: {
-        body: "This is exactly what the ecosystem needs! The visual builder approach will make XCM accessible to so many more developers. Looking forward to seeing this implemented.",
+        body: 'This is exactly what the ecosystem needs! The visual builder approach will make XCM accessible to so many more developers. Looking forward to seeing this implemented.',
         authorId: users[4].id, // Emma
         applicationId: applications[0].id,
-        type: "NORMAL",
+        type: 'NORMAL',
       },
     }),
     prisma.comment.create({
       data: {
-        body: "Great proposal! Have you considered integrating with existing XCM monitoring tools? It would be valuable to see real-time message execution on live networks too.",
+        body: 'Great proposal! Have you considered integrating with existing XCM monitoring tools? It would be valuable to see real-time message execution on live networks too.',
         authorId: users[3].id, // David
         applicationId: applications[0].id,
-        type: "NORMAL",
+        type: 'NORMAL',
       },
     }),
     prisma.comment.create({
       data: {
-        body: "The design looks amazing! I especially love the transaction flow improvements. This will definitely reduce user errors during signing.",
+        body: 'The design looks amazing! I especially love the transaction flow improvements. This will definitely reduce user errors during signing.',
         authorId: users[2].id, // Carol
         submissionId: submissions[0].id,
-        type: "NORMAL",
+        type: 'NORMAL',
       },
     }),
   ]);
@@ -883,21 +755,21 @@ Each tutorial includes:
       data: {
         userId: users[0].id,
         rfpId: rfps[0].id,
-        direction: "UP",
+        direction: 'UP',
       },
     }),
     prisma.vote.create({
       data: {
         userId: users[1].id,
         rfpId: rfps[0].id,
-        direction: "UP",
+        direction: 'UP',
       },
     }),
     prisma.vote.create({
       data: {
         userId: users[2].id,
         rfpId: rfps[1].id,
-        direction: "UP",
+        direction: 'UP',
       },
     }),
   ]);
@@ -910,37 +782,30 @@ Each tutorial includes:
       prisma.notificationSetting.create({
         data: {
           userId: user.id,
-          channel: "EMAIL",
-          type: "GRANT_APP_UPDATE",
+          channel: 'EMAIL',
+          type: 'GRANT_APP_UPDATE',
           isEnabled: true,
         },
       }),
       prisma.notificationSetting.create({
         data: {
           userId: user.id,
-          channel: "EMAIL",
-          type: "COMMENT_REPLY",
+          channel: 'EMAIL',
+          type: 'COMMENT_REPLY',
           isEnabled: true,
         },
       }),
     ])
   );
 
-  console.log(`✅ Created ${notificationSettings.length} notification settings`);
+  console.log(
+    `✅ Created ${notificationSettings.length} notification settings`
+  );
 
-  console.log("\n🎉 Database seeded successfully!");
-  console.log("\n📧 Test User Credentials:");
-  console.log("- alice.rust@example.com / password123 (Builder)");
-  console.log("- bob.ui@example.com / password123 (Builder)");
-  console.log("- carol.writer@example.com / password123 (Builder)");
-  console.log("- david.w3f@example.com / password123 (Org Admin - Web3 Foundation)");
-  console.log("- emma.moonbeam@example.com / password123 (Org Admin - Moonbeam)");
-  console.log("- frank.acala@example.com / password123 (Org Admin - Acala)");
-  console.log("- admin@opentribe.io / admin123 (Platform Superadmin)");
+  console.log('\n🎉 Database seeded successfully!');
 }
 
-main()
-  .catch((e) => {
-    console.error("❌ Seeding failed:", e);
-    process.exit(1);
-  });
+main().catch((e) => {
+  console.error('❌ Seeding failed:', e);
+  process.exit(1);
+});

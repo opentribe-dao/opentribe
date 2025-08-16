@@ -176,7 +176,7 @@ export default function BuilderOnboardingPage() {
       }
 
       toast.success('Profile created successfully!');
-      router.push(process.env.NEXT_PUBLIC_DASHBOARD_URL || '/dashboard');
+      router.push('/');
     } catch (error) {
       console.error('Profile update failed:', error);
       toast.error('Failed to create profile. Please try again.');

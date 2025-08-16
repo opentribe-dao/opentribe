@@ -84,14 +84,25 @@ NEXT_PUBLIC_API_URL="http://localhost:3002"
 # Create database
 createdb opentribe
 
-# Push schema and seed data
+# Push schema
 pnpm db:push  # Run from project root
-pnpm db:seed  # Adds test data
 ```
 
 5. Start the development servers:
 ```bash
 pnpm dev
+```
+
+6. Seed the database with test data:
+```bash
+# IMPORTANT: The API server must be running (step 5) before seeding
+# This uses Better Auth's API to create users with properly hashed passwords
+
+# Option 1: Use the auth-based seeder (recommended)
+pnpm db:seed:auth
+
+# Option 2: Use the legacy seeder (creates all remaining data)
+pnpm db:seed
 ```
 
 ### Access Points
@@ -101,10 +112,16 @@ pnpm dev
 - **Docs**: http://localhost:3004
 
 ### Test Accounts
-After running `pnpm db:seed`, use these credentials:
+After running `pnpm db:seed:auth`, use these credentials:
 - `alice.rust@example.com` / `password123` - Builder
+- `bob.ui@example.com` / `password123` - Builder  
+- `carol.writer@example.com` / `password123` - Builder
 - `david.w3f@example.com` / `password123` - Org Admin (Web3 Foundation)
+- `emma.moonbeam@example.com` / `password123` - Org Admin (Moonbeam)
+- `frank.acala@example.com` / `password123` - Org Admin (Acala)
 - `admin@opentribe.io` / `admin123` - Platform Superadmin
+
+**Note**: User authentication requires using Better Auth's API for password hashing. The `db:seed:auth` script creates users through the authentication API to ensure passwords are properly hashed and will work for login.
 
 ## 🔑 Key Models
 
@@ -218,8 +235,6 @@ We welcome contributions! Please see our contributing guidelines (coming soon).
 ## 🔗 Links
 
 - **Production**: https://opentribe.io
-- **Dashboard**: https://admin.opentribe.io
-- **API**: https://api.opentribe.io
 - **Documentation**: https://docs.opentribe.io
 
 ---

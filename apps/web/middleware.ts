@@ -63,11 +63,11 @@ const middleware = authMiddlewareWrapper((auth, request) => {
       return NextResponse.redirect(new URL('/onboarding', request.url));
     }
     
-    // If user is on onboarding but has already completed profile, redirect to dashboard
+    // If user is on onboarding but has already completed profile, redirect to home
+    // (The actual dashboard redirect for org users happens after they create/join an org)
     if ((pathnameWithoutLocale.startsWith('/onboarding') || pathname.startsWith('/onboarding')) 
         && auth?.user?.profileCompleted) {
-      const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || '/dashboard';
-      return NextResponse.redirect(new URL(dashboardUrl, request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
     
     return NextResponse.next();

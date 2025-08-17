@@ -1,0 +1,10 @@
+node_modules
+.turbo
+.env
+
+.next
+.content-collections
+
+next-env.d.ts
+
+generated

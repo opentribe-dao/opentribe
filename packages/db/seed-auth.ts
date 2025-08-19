@@ -164,7 +164,7 @@ async function main() {
           domains: ['Stablecoins', 'DEX', 'Liquid Staking'],
         },
         location: 'Singapore',
-        walletAddress: '5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL',
+        walletAddress: '5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y',
         twitter: 'acala_frank',
         profileCompleted: true,
       },

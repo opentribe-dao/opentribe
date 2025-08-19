@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@packages/base/compone
 import { Calendar, Users, DollarSign, ExternalLink, Edit, Loader2, FileText, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from '../../components/header';
 import { env } from '@/env';
 
@@ -88,7 +88,7 @@ interface Grant {
 
 const GrantDetailPage = () => {
   const params = useParams();
-  const { id } = use(params as Promise<{ id: string }>);
+  const id = params?.id as string;
   const router = useRouter();
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();

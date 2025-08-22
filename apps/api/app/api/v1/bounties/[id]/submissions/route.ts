@@ -318,6 +318,7 @@ export async function POST(
         submission,
       },
       {
+        status: 201,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

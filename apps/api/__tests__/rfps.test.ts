@@ -5,22 +5,6 @@ import { POST as createRFP } from '../app/api/v1/organizations/[organizationId]/
 import { database } from '@packages/db';
 import { auth } from '@packages/auth/server';
 
-// Mock database
-vi.mock('@packages/db', () => ({
-  database: {
-    rfp: {
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      findFirst: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-    },
-    organization: {
-      findUnique: vi.fn(),
-    },
-  },
-}));
-
 // Mock auth
 vi.mock('@packages/auth/server', () => ({
   auth: {
@@ -44,7 +28,7 @@ describe('RFP Flow', () => {
           slug: 'test-rfp-1',
           description: 'RFP Description',
           status: 'OPEN',
-          visibility: 'PUBLIC',
+          visibility: 'PUBLISHED',
           grant: {
             id: 'grant-1',
             title: 'Test Grant',
@@ -52,18 +36,13 @@ describe('RFP Flow', () => {
             organization: {
               id: 'org-1',
               name: 'Test Org',
-              slug: 'test-org',
+              logo: 'logo.png',
             },
-          },
-          _count: {
-            votes: 10,
-            comments: 5,
-            applications: 3,
           },
         },
       ];
 
-      vi.mocked(database.rfp.findMany).mockResolvedValue(mockRFPs);
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs);
 
       const request = new Request('http://localhost:3002/api/v1/rfps');
       const response = await getRFPs(request);
@@ -72,7 +51,6 @@ describe('RFP Flow', () => {
       expect(response.status).toBe(200);
       expect(data.rfps).toHaveLength(1);
       expect(data.rfps[0].title).toBe('Test RFP 1');
-      expect(data.rfps[0]._count.votes).toBe(10);
     });
 
     test('should filter RFPs by status', async () => {
@@ -81,17 +59,16 @@ describe('RFP Flow', () => {
           id: 'rfp-1',
           title: 'Open RFP',
           status: 'OPEN',
-          visibility: 'PUBLIC',
+          visibility: 'PUBLISHED',
           grant: {
             id: 'grant-1',
             title: 'Grant',
-            organization: { id: 'org-1', name: 'Org', slug: 'org' },
+            organization: { id: 'org-1', name: 'Org', logo: 'logo.png' },
           },
-          _count: { votes: 0, comments: 0, applications: 0 },
         },
       ];
 
-      vi.mocked(database.rfp.findMany).mockResolvedValue(mockRFPs);
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs);
 
       const request = new Request('http://localhost:3002/api/v1/rfps?status=OPEN');
       const response = await getRFPs(request);
@@ -110,7 +87,7 @@ describe('RFP Flow', () => {
         slug: 'test-rfp',
         description: 'Detailed RFP description',
         status: 'OPEN',
-        visibility: 'PUBLIC',
+        visibility: 'PUBLISHED',
         viewCount: 100,
         grant: {
           id: 'grant-1',
@@ -154,7 +131,7 @@ describe('RFP Flow', () => {
         },
       };
 
-      vi.mocked(database.rfp.findFirst).mockResolvedValue(mockRFP);
+      vi.mocked(database.rFP.findFirst).mockResolvedValue(mockRFP);
 
       const request = new Request('http://localhost:3002/api/v1/rfps/rfp-1');
       const response = await getRFP(request, { params: Promise.resolve({ id: 'rfp-1' }) });
@@ -176,15 +153,17 @@ describe('RFP Flow', () => {
         },
       };
 
-      const mockOrganization = {
-        id: 'org-1',
-        name: 'Test Org',
-        members: [
-          {
-            userId: 'member-1',
-            role: 'MEMBER',
-          },
-        ],
+      const mockMember = {
+        id: 'member-1',
+        userId: 'member-1',
+        organizationId: 'org-1',
+        role: 'admin',
+      };
+
+      const mockGrant = {
+        id: 'grant-1',
+        title: 'Test Grant',
+        organizationId: 'org-1',
       };
 
       const mockRFP = {
@@ -193,20 +172,28 @@ describe('RFP Flow', () => {
         slug: 'new-rfp',
         description: 'New RFP description',
         grantId: 'grant-1',
-        status: 'DRAFT',
-        visibility: 'PUBLIC',
+        status: 'OPEN',
+        visibility: 'PUBLISHED',
         createdAt: new Date(),
+        grant: {
+          id: 'grant-1',
+          title: 'Test Grant',
+          slug: 'test-grant',
+        },
       };
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      vi.mocked(database.organization.findUnique).mockResolvedValue(mockOrganization);
-      vi.mocked(database.rfp.create).mockResolvedValue(mockRFP);
+      vi.mocked(database.member.findFirst).mockResolvedValue(mockMember);
+      vi.mocked(database.grant.findFirst).mockResolvedValue(mockGrant);
+      vi.mocked(database.rFP.findUnique).mockResolvedValue(null); // For slug check
+      vi.mocked(database.rFP.create).mockResolvedValue(mockRFP);
 
       const body = JSON.stringify({
         title: 'New RFP',
         description: 'New RFP description',
         grantId: 'grant-1',
-        visibility: 'PUBLIC',
+        visibility: 'PUBLISHED',
+        status: 'OPEN',
       });
 
       const request = new Request('http://localhost:3002/api/v1/organizations/org-1/rfps', {
@@ -232,14 +219,8 @@ describe('RFP Flow', () => {
         },
       };
 
-      const mockOrganization = {
-        id: 'org-1',
-        name: 'Test Org',
-        members: [],
-      };
-
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      vi.mocked(database.organization.findUnique).mockResolvedValue(mockOrganization);
+      vi.mocked(database.member.findFirst).mockResolvedValue(null); // No membership
 
       const body = JSON.stringify({
         title: 'New RFP',

@@ -4,20 +4,9 @@ import { POST as announceWinners } from '../app/api/v1/bounties/[id]/winners/rou
 import { database } from '@packages/db';
 import { auth } from '@packages/auth/server';
 
-// Mock database
-vi.mock('@packages/db', () => ({
-  database: {
-    bounty: {
-      findUnique: vi.fn(),
-      update: vi.fn(),
-    },
-    submission: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      update: vi.fn(),
-      updateMany: vi.fn(),
-    },
-  },
+// Mock email package
+vi.mock('@packages/email', () => ({
+  sendBountyWinnerEmail: vi.fn().mockResolvedValue(true),
 }));
 
 // Mock auth
@@ -31,7 +20,8 @@ vi.mock('@packages/auth/server', () => ({
 
 // Mock email package
 vi.mock('@packages/email', () => ({
-  sendEmail: vi.fn(),
+  sendBountyFirstSubmissionEmail: vi.fn().mockResolvedValue(true),
+  sendEmail: vi.fn().mockResolvedValue(true),
   emailTemplates: {},
 }));
 
@@ -54,24 +44,36 @@ describe('Submission System', () => {
         id: 'bounty-1',
         title: 'Test Bounty',
         status: 'OPEN',
+        visibility: 'PUBLISHED',
+        organizationId: 'org-1',
         deadline: new Date('2025-12-31'),
       };
 
       const mockSubmission = {
         id: 'submission-1',
         bountyId: 'bounty-1',
-        submitterId: 'user-123',
+        userId: 'user-123',
         title: 'My Submission',
         description: 'Submission description',
         submissionUrl: 'https://github.com/user/repo',
-        attachments: [],
-        responses: {},
-        createdAt: new Date(),
+        status: 'SUBMITTED',
+        submittedAt: new Date(),
+        submitter: {
+          id: 'user-123',
+          username: 'submitter',
+          firstName: 'John',
+          lastName: 'Doe',
+          avatarUrl: 'avatar.png',
+        },
       };
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
       vi.mocked(database.bounty.findUnique).mockResolvedValue(mockBounty);
+      vi.mocked(database.submission.findFirst).mockResolvedValue(null); // No existing submission
       vi.mocked(database.submission.create).mockResolvedValue(mockSubmission);
+      vi.mocked(database.bounty.update).mockResolvedValue({ ...mockBounty, submissionCount: 1 });
+      vi.mocked(database.submission.count).mockResolvedValue(1); // First submission
+      vi.mocked(database.member.findMany).mockResolvedValue([]); // No members to email
 
       const body = JSON.stringify({
         submissionUrl: 'https://github.com/user/repo',
@@ -100,12 +102,16 @@ describe('Submission System', () => {
         user: {
           id: 'user-123',
           email: 'submitter@example.com',
+          username: 'submitter',
         },
       };
 
       const mockBounty = {
         id: 'bounty-1',
+        title: 'Test Bounty',
         status: 'CLOSED',
+        visibility: 'PUBLISHED',
+        deadline: new Date('2025-12-31'),
       };
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
@@ -113,6 +119,7 @@ describe('Submission System', () => {
 
       const body = JSON.stringify({
         submissionUrl: 'https://github.com/user/repo',
+        title: 'My Submission',
       });
 
       const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1/submissions', {
@@ -133,6 +140,7 @@ describe('Submission System', () => {
 
       const body = JSON.stringify({
         submissionUrl: 'https://github.com/user/repo',
+        title: 'My Submission',
       });
 
       const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1/submissions', {
@@ -160,32 +168,78 @@ describe('Submission System', () => {
 
       const mockBounty = {
         id: 'bounty-1',
-        organizationId: 'org-1',
+        title: 'Test Bounty',
+        status: 'REVIEWING',
+        amount: 1000,
+        winnings: { '1': 500, '2': 300, '3': 200 },
+        token: 'USDT',
         organization: {
           id: 'org-1',
           members: [
             {
               userId: 'org-admin',
-              role: 'OWNER',
+              role: 'admin',
             },
           ],
         },
-        winnersAnnouncedAt: null,
+      };
+
+      const mockSubmissions = [
+        {
+          id: 'submission-1',
+          bountyId: 'bounty-1',
+          userId: 'user-1',
+          status: 'SUBMITTED',
+        },
+        {
+          id: 'submission-2',
+          bountyId: 'bounty-1',
+          userId: 'user-2',
+          status: 'SUBMITTED',
+        },
+        {
+          id: 'submission-3',
+          bountyId: 'bounty-1',
+          userId: 'user-3',
+          status: 'SUBMITTED',
+        },
+      ];
+
+      const mockUpdatedBounty = {
+        ...mockBounty,
+        status: 'COMPLETED',
+        winnersAnnouncedAt: new Date(),
+        organization: { id: 'org-1', name: 'Test Org', logo: null },
+        _count: { submissions: 3, comments: 0 },
+        submissions: mockSubmissions.map((s, i) => ({
+          ...s,
+          isWinner: true,
+          position: i + 1,
+          winningAmount: [500, 300, 200][i],
+          submitter: { 
+            id: s.userId, 
+            username: `user${i + 1}`, 
+            firstName: 'User', 
+            lastName: `${i + 1}`, 
+            email: `user${i + 1}@test.com`, 
+            avatarUrl: null 
+          },
+        })),
       };
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
       vi.mocked(database.bounty.findUnique).mockResolvedValue(mockBounty);
+      vi.mocked(database.submission.findMany).mockResolvedValue(mockSubmissions);
       vi.mocked(database.submission.updateMany).mockResolvedValue({ count: 3 });
-      vi.mocked(database.bounty.update).mockResolvedValue({
-        ...mockBounty,
-        winnersAnnouncedAt: new Date(),
-      });
+      vi.mocked(database.bounty.update).mockResolvedValue(mockUpdatedBounty);
+      // Mock the database transaction
+      vi.mocked(database.$transaction).mockImplementation((fn) => fn(database));
 
       const body = JSON.stringify({
         winners: [
-          { submissionId: 'sub-1', position: 1, amount: 500 },
-          { submissionId: 'sub-2', position: 2, amount: 300 },
-          { submissionId: 'sub-3', position: 3, amount: 200 },
+          { submissionId: 'submission-1', position: 1, amount: 500 },
+          { submissionId: 'submission-2', position: 2, amount: 300 },
+          { submissionId: 'submission-3', position: 3, amount: 200 },
         ],
       });
 
@@ -214,17 +268,17 @@ describe('Submission System', () => {
 
       const mockBounty = {
         id: 'bounty-1',
-        organizationId: 'org-1',
+        title: 'Test Bounty',
+        winnersAnnounced: true,
         organization: {
           id: 'org-1',
           members: [
             {
               userId: 'org-admin',
-              role: 'OWNER',
+              role: 'admin',
             },
           ],
         },
-        winnersAnnouncedAt: new Date('2025-01-01'),
       };
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
@@ -232,7 +286,7 @@ describe('Submission System', () => {
 
       const body = JSON.stringify({
         winners: [
-          { submissionId: 'sub-1', position: 1, amount: 500 },
+          { submissionId: 'submission-1', position: 1 },
         ],
       });
 

@@ -211,7 +211,7 @@ export async function POST(
 
     return NextResponse.json(
       { rfp },
-      { headers: corsHeaders }
+      { status: 201, headers: corsHeaders }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {

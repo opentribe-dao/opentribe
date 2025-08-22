@@ -31,7 +31,7 @@ describe('Bounty API Tests', () => {
           updatedAt: new Date(),
           organizationId: 'org-1',
           publishedAt: new Date(),
-          winnersAnnouncedAt: null,
+          winnersAnnouncedAt: new Date(),
           organization: {
             id: 'org-1',
             name: 'Test Org',
@@ -80,7 +80,7 @@ describe('Bounty API Tests', () => {
           updatedAt: new Date(),
           organizationId: 'org-1',
           publishedAt: new Date(),
-          winnersAnnouncedAt: null,
+          winnersAnnouncedAt: new Date(),
           organization: {
             id: 'org-1',
             name: 'Org',
@@ -132,7 +132,7 @@ describe('Bounty API Tests', () => {
         updatedAt: new Date(),
         organizationId: 'org-1',
         publishedAt: new Date(),
-        winnersAnnouncedAt: null,
+        winnersAnnouncedAt: new Date(),
         screening: [],
         resources: [],
         organization: {

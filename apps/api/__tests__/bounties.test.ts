@@ -3,24 +3,6 @@ import { GET as getBounties } from '../app/api/v1/bounties/route';
 import { GET as getBounty } from '../app/api/v1/bounties/[id]/route';
 import { database } from '@packages/db';
 
-// Mock database
-vi.mock('@packages/db', () => ({
-  database: {
-    bounty: {
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      findFirst: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-    },
-    submission: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      update: vi.fn(),
-    },
-  },
-}));
-
 // Mock auth
 vi.mock('@packages/auth/server', () => ({
   auth: {
@@ -46,7 +28,7 @@ describe('Bounty Management', () => {
           amount: 1000,
           token: 'USD',
           status: 'OPEN',
-          visibility: 'PUBLIC',
+          visibility: 'PUBLISHED',
           organization: {
             id: 'org-1',
             name: 'Test Org',
@@ -64,7 +46,7 @@ describe('Bounty Management', () => {
           amount: 2000,
           token: 'USD',
           status: 'OPEN',
-          visibility: 'PUBLIC',
+          visibility: 'PUBLISHED',
           organization: {
             id: 'org-2',
             name: 'Test Org 2',
@@ -93,7 +75,7 @@ describe('Bounty Management', () => {
           id: 'bounty-1',
           title: 'Open Bounty',
           status: 'OPEN',
-          visibility: 'PUBLIC',
+          visibility: 'PUBLISHED',
           organization: { id: 'org-1', name: 'Org', slug: 'org' },
           _count: { submissions: 0 },
         },
@@ -122,31 +104,43 @@ describe('Bounty Management', () => {
         token: 'USD',
         winnings: { '1': 500, '2': 300, '3': 200 },
         status: 'OPEN',
-        visibility: 'PUBLIC',
+        visibility: 'PUBLISHED',
         deadline: new Date('2025-12-31'),
+        winnersAnnouncedAt: new Date(), // This ensures submissions will be shown
         organization: {
           id: 'org-1',
           name: 'Test Organization',
           slug: 'test-org',
           logo: null,
+          location: 'Test Location',
+          industry: 'Tech',
         },
         submissions: [
           {
             id: 'sub-1',
             title: 'Submission 1',
-            isWinner: false,
-            position: null,
-            winningAmount: null,
+            description: 'A great submission',
+            submissionUrl: 'https://github.com/user/repo',
+            position: 1,
+            winningAmount: 500,
+            isWinner: true,
+            createdAt: new Date(),
+            responses: {},
+            status: 'SUBMITTED',
+            likesCount: 5,
             submitter: {
               id: 'user-1',
               username: 'user1',
               firstName: 'John',
               lastName: 'Doe',
+              avatarUrl: 'avatar.png',
             },
           },
         ],
+        comments: [],
         _count: {
           submissions: 1,
+          comments: 0,
         },
       };
 

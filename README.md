@@ -85,7 +85,7 @@ NEXT_PUBLIC_API_URL="http://localhost:3002"
 createdb opentribe
 
 # Push schema
-pnpm db:push  # Run from project root
+pnpm db:push  # Run from packages/db
 ```
 
 5. Start the development servers:
@@ -95,7 +95,7 @@ pnpm dev
 
 6. Seed the database with test data:
 ```bash
-# IMPORTANT: The API server must be running (step 5) before seeding
+# IMPORTANT: The API server must be running in a separate terminal window(step 5) before seeding
 # This uses Better Auth's API to create users with properly hashed passwords
 
 # Option 1: Use the auth-based seeder (recommended)

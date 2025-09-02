@@ -31,4 +31,5 @@ export const {
   organization,
   useListOrganizations,
   useActiveOrganization,
+  verifyEmail,
 } = authClient;

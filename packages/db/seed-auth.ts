@@ -230,6 +230,11 @@ async function main() {
     }
   }
 
+  if (createdUsers.length === 0) {
+    console.log('❌ No users created');
+    process.exit(1);
+  }
+
   console.log(`\n✅ Created ${createdUsers.length} users`);
 
   // Now create organizations and other seed data...

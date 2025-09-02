@@ -17,9 +17,12 @@ import {
   PaymentConfirmationEmail,
 } from '../templates';
 
-const FROM_EMAIL = process.env.RESEND_FROM || 'hello@opentribe.io';
+const FROM_EMAIL_ADDRESS = process.env.RESEND_FROM || 'hello@notifications.opentribe.io';
+const FROM_EMAIL = `Opentribe <${FROM_EMAIL_ADDRESS}>`
 const BASE_URL = process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io';
 const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.opentribe.io';
+
+export { FROM_EMAIL_ADDRESS, FROM_EMAIL, BASE_URL, DASHBOARD_URL };
 
 interface EmailUser {
   email: string;
@@ -40,10 +43,10 @@ export async function sendVerificationEmail(
   verificationCode?: string
 ) {
   const verificationUrl = `${BASE_URL}/verify-email?token=${verificationToken}`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: user.email,
+    to: [user.email],
     subject: 'Verify your email for Opentribe',
     react: VerificationEmail({
       username: getUserName(user),
@@ -56,7 +59,7 @@ export async function sendVerificationEmail(
 export async function sendWelcomeEmail(user: EmailUser) {
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: user.email,
+    to: [user.email],
     subject: 'Welcome to Opentribe!',
     react: WelcomeEmail({
       firstName: getUserName(user),
@@ -73,7 +76,7 @@ export async function sendPasswordResetEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: user.email,
+    to: [user.email],
     subject: 'Reset your Opentribe password',
     react: PasswordResetEmail({
       username: getUserName(user),
@@ -95,7 +98,7 @@ export async function sendOnboardingCompleteEmail(
     
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: user.email,
+    to: [user.email],
     subject: 'Your Opentribe profile is ready!',
     react: OnboardingCompleteEmail({
       firstName: getUserName(user),
@@ -122,7 +125,7 @@ export async function sendOrgInviteEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: inviteeEmail,
+    to: [inviteeEmail],
     subject: `You're invited to join ${organization.name} on Opentribe`,
     react: OrgInviteEmail({
       inviterName: getUserName(inviter),
@@ -158,7 +161,7 @@ export async function sendBountyFirstSubmissionEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: recipient.email,
+    to: [recipient.email],
     subject: `First submission received for "${bounty.title}"`,
     react: BountyFirstSubmissionEmail({
       recipientName: getUserName(recipient),
@@ -188,7 +191,7 @@ export async function sendBountyDeadlineReminderEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: recipient.email,
+    to: [recipient.email],
     subject: `Bounty deadline approaching - ${daysRemaining} days left`,
     react: BountyDeadlineReminderEmail({
       recipientName: getUserName(recipient),
@@ -218,7 +221,7 @@ export async function sendBountyWinnerReminderEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: recipient.email,
+    to: [recipient.email],
     subject: 'Time to announce bounty winners!',
     react: BountyWinnerReminderEmail({
       recipientName: getUserName(recipient),
@@ -252,7 +255,7 @@ export async function sendBountyWinnerEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: winner.email,
+    to: [winner.email],
     subject: 'Congratulations! You won a bounty 🎉',
     react: BountyWinnerEmail({
       winnerName: getUserName(winner),
@@ -291,7 +294,7 @@ export async function sendGrantFirstApplicationEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: curator.email,
+    to: [curator.email],
     subject: `First application received for "${grant.title}"`,
     react: GrantFirstApplicationEmail({
       curatorName: getUserName(curator),
@@ -329,7 +332,7 @@ export async function sendGrantStatusUpdateEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: applicant.email,
+    to: [applicant.email],
     subject,
     react: GrantStatusUpdateEmail({
       applicantName: getUserName(applicant),
@@ -367,7 +370,7 @@ export async function sendCommentReplyEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: recipient.email,
+    to: [recipient.email],
     subject: `${reply.author.firstName || reply.author.username} replied to your comment`,
     react: CommentReplyEmail({
       recipientName: getUserName(recipient),
@@ -427,7 +430,7 @@ export async function sendWeeklyDigestEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: recipient.email,
+    to: [recipient.email],
     subject: 'Your Opentribe weekly digest',
     react: WeeklyDigestEmail({
       recipientName: getUserName(recipient),
@@ -466,7 +469,7 @@ export async function sendSkillMatchBountyEmail(
   
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: recipient.email,
+    to: [recipient.email],
     subject: `New bounty matches your skills: ${bounty.title}`,
     react: BountySkillMatchEmail({
       recipientName: getUserName(recipient),
@@ -500,7 +503,7 @@ export async function sendPaymentConfirmationEmail(
 ) {
   return resend.emails.send({
     from: FROM_EMAIL,
-    to: recipient.email,
+    to: [recipient.email],
     subject: 'Payment Confirmed! 💸',
     react: PaymentConfirmationEmail({
       user: recipient,

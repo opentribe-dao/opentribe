@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { authClient } from '@packages/auth/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@packages/base';
+import { Card, CardContent, CardHeader, CardTitle } from '@packages/base/components/ui/card';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 
 export default function VerifyEmailPage() {
@@ -23,8 +23,10 @@ export default function VerifyEmailPage() {
       }
 
       try {
-        const result = await authClient.emailVerification.verify({
-          token,
+        const result = await authClient.verifyEmail({
+          query: {
+            token,
+          },
         });
 
         if (result.error) {

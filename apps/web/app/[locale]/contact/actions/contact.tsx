@@ -3,6 +3,7 @@
 import { env } from '@/env';
 import { resend } from '@packages/email';
 import { ContactTemplate } from '@packages/email/templates/contact';
+import { FROM_EMAIL_ADDRESS, FROM_EMAIL } from '@packages/email/services/email-service';
 import { parseError } from '@packages/logging/error';
 import {
   createRateLimiter,
@@ -35,8 +36,8 @@ export const contact = async (
     }
 
     await resend.emails.send({
-      from: env.RESEND_FROM,
-      to: env.RESEND_FROM,
+      from: FROM_EMAIL,
+      to: FROM_EMAIL_ADDRESS,
       subject: 'Contact form submission',
       replyTo: email,
       react: <ContactTemplate name={name} email={email} message={message} />,

@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Next.js: debug full stack",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "console": "integratedTerminal",
+        "serverReadyAction": {
+          "pattern": "started server on",
+          "uriFormat": "http://localhost:%s",
+          "action": "debugWithChrome"
+        },
+        "skipFiles": ["<node_internals>/**"]
+      }
+    ]
+  }

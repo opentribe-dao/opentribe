@@ -200,21 +200,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-[#E6007A] hover:underline"
-                  tabIndex={-1}
-                  onClick={() => {
-                    if (onSuccess) {
-                      onSuccess();
-                    }
-                  }}
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              <FormLabel>Password</FormLabel>
               <FormControl>
                 <div className="grid grid-cols-[1fr_auto] items-center gap-x-2">
                   <Input

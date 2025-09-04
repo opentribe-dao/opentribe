@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GrantCard } from "../components/cards/grant-card";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
@@ -21,6 +21,8 @@ export default function GrantsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchAbortRef = useRef<AbortController | null>(null);
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState({
@@ -32,13 +34,25 @@ export default function GrantsPage() {
 
   useEffect(() => {
     fetchGrants();
-  }, [page]);
+  }, [page, searchQuery]);
 
   const fetchGrants = async () => {
     setLoading(true);
     try {
       const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
-      const response = await fetch(`${apiUrl}/api/v1/grants?page=${page}&limit=9`);
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '9'
+      });
+      
+      // Add search parameter if query exists
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
+      }
+      
+      const response = await fetch(`${apiUrl}/api/v1/grants?${params.toString()}`);
       
       if (!response.ok) {
         console.error("Failed to fetch grants");
@@ -61,10 +75,28 @@ export default function GrantsPage() {
     }
   };
 
+  // Debounced search effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      // Reset to first page when search query changes
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        // If already on page 1, trigger fetch
+        fetchGrants();
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchGrants();
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const totalGrants = grants.length;
@@ -127,7 +159,7 @@ export default function GrantsPage() {
                 <Input
                   placeholder="Search for grants"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
                   className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                 />
               </div>

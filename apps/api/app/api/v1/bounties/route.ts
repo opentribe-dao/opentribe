@@ -1,8 +1,8 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Schema for bounty creation
 const createBountySchema = z.object({
@@ -10,21 +10,29 @@ const createBountySchema = z.object({
   description: z.string().min(1),
   skills: z.array(z.string()).min(1),
   amount: z.number().positive(),
-  token: z.string().default('DOT'),
-  split: z.enum(['FIXED', 'EQUAL_SPLIT', 'VARIABLE']).default('FIXED'),
+  token: z.string().default("DOT"),
+  split: z.enum(["FIXED", "EQUAL_SPLIT", "VARIABLE"]).default("FIXED"),
   winnings: z.record(z.string(), z.number()), // { "1": 500, "2": 300, "3": 200 }
   deadline: z.string().datetime(),
-  resources: z.array(z.object({
-    title: z.string(),
-    url: z.string().url(),
-    description: z.string().optional(),
-  })).optional(),
-  screening: z.array(z.object({
-    question: z.string(),
-    type: z.enum(['text', 'url', 'file']),
-    optional: z.boolean(),
-  })).optional(),
-  visibility: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
+  resources: z
+    .array(
+      z.object({
+        title: z.string(),
+        url: z.string().url(),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+  screening: z
+    .array(
+      z.object({
+        question: z.string(),
+        type: z.enum(["text", "url", "file"]),
+        optional: z.boolean(),
+      })
+    )
+    .optional(),
+  visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   organizationId: z.string(),
 });
 
@@ -32,13 +40,14 @@ const createBountySchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const page = parseInt(searchParams.get('page') || '1');
-    const skills = searchParams.get('skills')?.split(',').filter(Boolean) || [];
-    const status = searchParams.get('status') || undefined;
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = parseInt(searchParams.get("page") || "1");
+    const skills = searchParams.get("skills")?.split(",").filter(Boolean) || [];
+    const status = searchParams.get("status") || undefined;
+    const search = searchParams.get("search") || "";
 
     const whereClause: any = {
-      visibility: 'PUBLISHED',
+      visibility: "PUBLISHED",
     };
 
     if (status) {
@@ -49,6 +58,13 @@ export async function GET(request: NextRequest) {
       whereClause.skills = {
         hasSome: skills,
       };
+    }
+
+    if (search.length > 0) {
+      whereClause.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
     }
 
     const bounties = await database.bounty.findMany({
@@ -67,16 +83,14 @@ export async function GET(request: NextRequest) {
             submissions: {
               where: {
                 status: {
-                  in: ['SUBMITTED', 'APPROVED', 'REJECTED'],
+                  in: ["SUBMITTED", "APPROVED", "REJECTED"],
                 },
               },
             },
           },
         },
       },
-      orderBy: [
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ createdAt: "desc" }],
       take: limit + 1,
       skip: (page - 1) * limit,
     });
@@ -104,23 +118,23 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Cache-Control': 'max-age=120',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Cache-Control": "max-age=120",
         },
       }
     );
   } catch (error) {
-    console.error('Error fetching bounties:', error);
+    console.error("Error fetching bounties:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch bounties' },
+      { error: "Failed to fetch bounties" },
       {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
         },
       }
     );
@@ -136,10 +150,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse and validate request body
@@ -152,14 +163,17 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         organizationId: validatedData.organizationId,
         role: {
-          in: ['owner', 'admin'], // Only owners and admins can create bounties
+          in: ["owner", "admin"], // Only owners and admins can create bounties
         },
       },
     });
 
     if (!membership) {
       return NextResponse.json(
-        { error: 'You do not have permission to create bounties for this organization' },
+        {
+          error:
+            "You do not have permission to create bounties for this organization",
+        },
         { status: 403 }
       );
     }
@@ -167,12 +181,12 @@ export async function POST(request: NextRequest) {
     // Generate a unique slug from the title
     let baseSlug = validatedData.title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     let slug = baseSlug;
     let counter = 1;
-    
+
     // Check if slug exists and append number if needed
     while (await database.bounty.findUnique({ where: { slug } })) {
       slug = `${baseSlug}-${counter}`;
@@ -194,9 +208,10 @@ export async function POST(request: NextRequest) {
         resources: validatedData.resources || undefined,
         screening: validatedData.screening || undefined,
         visibility: validatedData.visibility,
-        status: 'OPEN',
+        status: "OPEN",
         organizationId: validatedData.organizationId,
-        publishedAt: validatedData.visibility === 'PUBLISHED' ? new Date() : null,
+        publishedAt:
+          validatedData.visibility === "PUBLISHED" ? new Date() : null,
       },
       include: {
         organization: {
@@ -210,30 +225,30 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         bounty,
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Bounty creation error:', error);
-    
+    console.error("Bounty creation error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid data", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create bounty' },
+      { error: "Failed to create bounty" },
       { status: 500 }
     );
   }
@@ -244,9 +259,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

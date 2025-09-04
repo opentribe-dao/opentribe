@@ -46,6 +46,10 @@ export function RFPCard({
                 width={48}
                 height={48}
                 className="rounded-full bg-white p-2"
+                onError={(e) => {
+                  console.error('RFP Card image failed to load:', grant.organization.logo);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             ) : (
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-600/20 border border-white/20 flex items-center justify-center flex-shrink-0">

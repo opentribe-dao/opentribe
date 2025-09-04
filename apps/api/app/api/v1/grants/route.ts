@@ -40,6 +40,7 @@ export async function GET(request: Request) {
     const offset = parseInt(searchParams.get('offset') || '0');
     const status = searchParams.get('status') || 'OPEN';
     const source = searchParams.get('source') || 'ALL';
+    const search = searchParams.get('search') || '';
 
     const whereClause: any = {
       status: status as any,
@@ -48,6 +49,15 @@ export async function GET(request: Request) {
 
     if (source !== 'ALL') {
       whereClause.source = source;
+    }
+
+    // Add search functionality
+    if (search) {
+      whereClause.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { summary: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     const grants = await database.grant.findMany({

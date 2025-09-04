@@ -1,27 +1,129 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
 import { Badge } from "@packages/base/components/ui/badge";
-import { Input } from "@packages/base/components/ui/input";
-import { Search, Filter, TrendingUp, Users, DollarSign } from "lucide-react";
+import { Search, Filter, TrendingUp, Users, DollarSign, Settings, User } from "lucide-react";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandList,
+  CommandSeparator,
+  CommandItem,
+} from "@packages/base/components/ui/command";
 import { BountyCard } from "../components/cards/bounty-card";
 import { GrantCard } from "../components/cards/grant-card";
 import { RFPCard } from "../components/cards/rfp-card";
 import { env } from "@/env";
 import Link from "next/link";
 
+// --- Local types (adjust imports if you already export these) ---
+type SearchType = "bounties" | "grants" | "rfps";
+
+interface SearchResult {
+  id: string;
+  title: string;
+  slug?: string;
+  type: SearchType;
+}
+
+interface BountyCardProps {
+  id: string;
+  title: string;
+  organization?: string;
+  amount?: number | string;
+  token?: string;
+  deadline?: string;
+  submissionCount?: number;
+  skills?: string[];
+  status?: string;
+}
+
 export default function HomePage() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState<
-    "all" | "bounties" | "grants" | "rfps"
-  >("all");
-  const [bounties, setBounties] = useState([]);
-  const [grants, setGrants] = useState([]);
-  const [rfps, setRfps] = useState([]);
+  const userName = session?.user?.name ?? "";
+  const router = useRouter();
+
+  const [activeTab, setActiveTab] = useState<"all" | "bounties" | "grants" | "rfps">("all");
+  const [bounties, setBounties] = useState<BountyCardProps[]>([]);
+  const [grants, setGrants] = useState<any[]>([]);
+  const [rfps, setRfps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchAbortRef = useRef<AbortController | null>(null);
+
+  const bountyResults = searchResults.filter((r) => r.type === "bounties");
+  const grantResults = searchResults.filter((r) => r.type === "grants");
+  const rfpResults = searchResults.filter((r) => r.type === "rfps");
+
+  // ⌘K / Ctrl+K toggle
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((o) => !o);
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  // Debounced / abortable search
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      // cancel previous in-flight request
+      if (searchAbortRef.current) {
+        searchAbortRef.current.abort();
+      }
+
+      if (!searchTerm.trim()) {
+        setSearchResults([]);
+        setIsSearching(false);
+        return;
+      }
+
+      try {
+        setIsSearching(true);
+        const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+        const controller = new AbortController();
+        searchAbortRef.current = controller;
+
+        const res = await fetch(
+          `${apiUrl}/api/v1/search?q=${encodeURIComponent(searchTerm)}`,
+          { signal: controller.signal }
+        );
+
+        if (!res.ok) {
+          setSearchResults([]);
+          setIsSearching(false);
+          return;
+        }
+
+        const data = await res.json();
+        setSearchResults(Array.isArray(data.results) ? data.results : []);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          // only log non-abort errors
+          console.error("Search error:", err);
+          setSearchResults([]);
+        }
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  // Initial cards fetch
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -57,68 +159,191 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  const userName =
-    session?.user?.name || session?.user?.email?.split("@")[0] || "";
-
   return (
     <>
       {/* Welcome Section */}
       <section className="container mx-auto px-4 pt-8 pb-6">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <div>
             {session?.user ? (
               <>
                 <h1 className="text-4xl font-bold mb-2">
                   Welcome Back{userName ? `, ${userName}` : ""}!
                 </h1>
-                <p className="text-white/60">
-                  We are so glad to have you back on OPEN TRIBE
-                </p>
+                <p className="text-white/60">We are so glad to have you back on OPEN TRIBE</p>
               </>
             ) : (
               <>
-                <h1 className="text-4xl font-bold mb-2">
-                  Find your next high paying gig
-                </h1>
-                <p className="text-white/60">
-                  Connect with top organizations in the Polkadot ecosystem
-                </p>
+                <h1 className="text-4xl font-bold mb-2">Find your next high paying gig</h1>
+                <p className="text-white/60">Connect with top organizations in the Polkadot ecosystem</p>
               </>
             )}
           </div>
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 px-4 py-2 border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all ">
-              <Search className="w-4 h-4" />
-              Advanced Search
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all ">
-              <Filter className="w-4 h-4" />
+          <div className="flex flex-col md:flex-row gap-4">
+            <Button variant="outline" onClick={() => setOpen(true)}>
+              <Search className="h-8 w-8" />
+              Search
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </Button>
+            <Button variant="outline">
+              <Filter className="h-8 w-8" />
               Filters
-            </button>
+            </Button>
           </div>
         </div>
 
-        {/* Tabs */}
-        {/* <div className="flex items-center gap-4 mb-8">
-          {[
-            { key: "all", label: "All" },
-            { key: "bounties", label: "Bounties" },
-            { key: "grants", label: "Grants" },
-            { key: "rfps", label: "Rfps" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab as any)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === tab.key
-                  ? "bg-white/20 text-white"
-                  : "text-white/60 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div> */}
+        {/* Keep the dialog mounted; rely on open prop */}
+        <CommandDialog
+          open={open}
+          onOpenChange={(o) => {
+            setOpen(o);
+            if (!o) {
+              // reset state when closing for a clean reopen
+              setSearchTerm("");
+              setSearchResults([]);
+              setIsSearching(false);
+              if (searchAbortRef.current) searchAbortRef.current.abort();
+            }
+          }}
+          // ⬇️ critical: disable internal filtering; we do our own
+          shouldFilter={false}
+        >
+          <CommandInput
+            placeholder="Search..."
+            value={searchTerm}
+            onValueChange={setSearchTerm}
+          />
+          <CommandList>
+            {/* Optional: simple loading hint when typing */}
+            {isSearching && searchTerm && (
+              <div className="px-3 py-2 text-sm text-muted-foreground">Searching…</div>
+            )}
+
+            {searchTerm === "" ? (
+              <CommandGroup heading="Suggestions">
+                <CommandItem
+                  value="go-to-bounties"
+                  onSelect={() => {
+                    router.push("/bounties");
+                    setOpen(false);
+                  }}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  <span>Bounties</span>
+                </CommandItem>
+                <CommandItem
+                  value="go-to-grants"
+                  onSelect={() => {
+                    router.push("/grants");
+                    setOpen(false);
+                  }}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  <span>Grants</span>
+                </CommandItem>
+                <CommandItem
+                  value="go-to-rfps"
+                  onSelect={() => {
+                    router.push("/rfps");
+                    setOpen(false);
+                  }}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  <span>RFPs</span>
+                </CommandItem>
+              </CommandGroup>
+            ) : (
+              <>
+                {bountyResults.length > 0 && (
+                  <CommandGroup heading="Bounties">
+                    {bountyResults.map((r) => (
+                      <CommandItem
+                        key={r.id}
+                        value={r.title ?? r.id}
+                        onSelect={() => {
+                          router.push(`/bounties/${r.slug || r.id}`);
+                          setOpen(false);
+                        }}
+                      >
+                        <Search className="mr-2 h-4 w-4" />
+                        <span>{r.title}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+
+                {grantResults.length > 0 && (
+                  <CommandGroup heading="Grants">
+                    {grantResults.map((r: any) => (
+                      <CommandItem
+                        key={r.id}
+                        value={r.title ?? r.id}
+                        onSelect={() => {
+                          router.push(`/grants/${r.slug || r.id}`);
+                          setOpen(false);
+                        }}
+                      >
+                        <Search className="mr-2 h-4 w-4" />
+                        <span>{r.title}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+
+                {rfpResults.length > 0 && (
+                  <CommandGroup heading="RFPs">
+                    {rfpResults.map((r) => (
+                      <CommandItem
+                        key={r.id}
+                        value={r.title ?? r.id}
+                        onSelect={() => {
+                          router.push(`/rfps/${r.slug || r.id}`);
+                          setOpen(false);
+                        }}
+                      >
+                        <Search className="mr-2 h-4 w-4" />
+                        <span>{r.title}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+
+                {!isSearching && searchResults.length === 0 && (
+                  <CommandEmpty>No results found.</CommandEmpty>
+                )}
+              </>
+            )}
+
+            <CommandSeparator />
+
+            {session?.user && (
+              <CommandGroup heading="Settings">
+                <CommandItem 
+                  value="profile"
+                  onSelect={() => {
+                    router.push("/profile");
+                    setOpen(false);
+                  }}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </CommandItem>
+                <CommandItem 
+                  value="settings"
+                  onSelect={() => {
+                    router.push("/settings");
+                    setOpen(false);
+                  }}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </CommandItem>
+              </CommandGroup>
+            )}
+          </CommandList>
+        </CommandDialog>
       </section>
 
       {/* Main Content */}
@@ -130,9 +355,7 @@ export default function HomePage() {
             {(activeTab === "all" || activeTab === "bounties") && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold font-heading text-white">
-                    Bounties
-                  </h2>
+                  <h2 className="text-2xl font-bold font-heading text-white">Bounties</h2>
                   <Link href="/en/bounties" className="text-pink-400 hover:text-pink-300 transition-colors ">
                     View All →
                   </Link>
@@ -140,21 +363,22 @@ export default function HomePage() {
                 {loading ? (
                   <div className="grid gap-4">
                     {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="h-48 bg-white/5 rounded-lg animate-pulse"
-                      />
+                      <div key={i} className="h-48 bg-white/5 rounded-lg animate-pulse" />
                     ))}
                   </div>
                 ) : (
                   <div className="grid gap-4">
-                    {bounties.map((bounty: any) => (
+                    {bounties.map((bounty) => (
                       <BountyCard
                         key={bounty.id}
                         id={bounty.id}
                         title={bounty.title}
                         organization={bounty.organization}
-                        amount={bounty.amount ? parseFloat(bounty.amount) : 0}
+                        amount={
+                          typeof bounty.amount === "string"
+                            ? Number.parseFloat(bounty.amount)
+                            : bounty.amount ?? 0
+                        }
                         token={bounty.token}
                         deadline={bounty.deadline}
                         submissionCount={bounty.submissionCount}
@@ -171,9 +395,7 @@ export default function HomePage() {
             {(activeTab === "all" || activeTab === "grants") && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold font-heading text-white">
-                    Grants
-                  </h2>
+                  <h2 className="text-2xl font-bold font-heading text-white">Grants</h2>
                   <Link href="/en/grants" className="text-pink-400 hover:text-pink-300 transition-colors">
                     View All →
                   </Link>
@@ -181,10 +403,7 @@ export default function HomePage() {
                 {loading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div
-                        key={i}
-                        className="h-[466px] bg-white/5 rounded-2xl animate-pulse"
-                      />
+                      <div key={i} className="h-[466px] bg-white/5 rounded-2xl animate-pulse" />
                     ))}
                   </div>
                 ) : (
@@ -196,16 +415,8 @@ export default function HomePage() {
                         title={grant.title}
                         organization={grant.organization}
                         bannerUrl={grant.bannerUrl}
-                        minAmount={
-                          grant.minAmount
-                            ? parseFloat(grant.minAmount)
-                            : undefined
-                        }
-                        maxAmount={
-                          grant.maxAmount
-                            ? parseFloat(grant.maxAmount)
-                            : undefined
-                        }
+                        minAmount={grant.minAmount ? parseFloat(grant.minAmount) : undefined}
+                        maxAmount={grant.maxAmount ? parseFloat(grant.maxAmount) : undefined}
                         token={grant.token}
                         rfpCount={grant.rfpCount}
                         applicationCount={grant.applicationCount}
@@ -224,9 +435,7 @@ export default function HomePage() {
             {(activeTab === "all" || activeTab === "rfps") && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold font-heading text-white">
-                    RFP
-                  </h2>
+                  <h2 className="text-2xl font-bold font-heading text-white">RFP</h2>
                   <Link href="/en/rfps" className="text-pink-400 hover:text-pink-300 transition-colors">
                     View All →
                   </Link>
@@ -234,10 +443,7 @@ export default function HomePage() {
                 {loading ? (
                   <div className="space-y-4">
                     {[1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="h-32 bg-white/5 rounded-lg animate-pulse"
-                      />
+                      <div key={i} className="h-32 bg-white/5 rounded-lg animate-pulse" />
                     ))}
                   </div>
                 ) : (
@@ -264,139 +470,76 @@ export default function HomePage() {
           <div className="space-y-6">
             {/* Platform Stats */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4 font-heading text-white">
-                Platform Stats
-              </h3>
+              <h3 className="text-lg font-semibold mb-4 font-heading text-white">Platform Stats</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-white/70 ">
-                      Active Bounties
-                    </span>
+                    <span className="text-sm text-white/70 ">Active Bounties</span>
                   </div>
-                  <span className="font-semibold font-heading text-white">
-                    142
-                  </span>
+                  <span className="font-semibold font-heading text-white">142</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm text-white/70 ">
-                      Total Builders
-                    </span>
+                    <span className="text-sm text-white/70 ">Total Builders</span>
                   </div>
-                  <span className="font-semibold font-heading text-white">
-                    3,241
-                  </span>
+                  <span className="font-semibold font-heading text-white">3,241</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-pink-400" />
-                    <span className="text-sm text-white/70 ">
-                      Total Rewards
-                    </span>
+                    <span className="text-sm text-white/70 ">Total Rewards</span>
                   </div>
-                  <span className="font-semibold font-heading text-white">
-                    $1.2M
-                  </span>
+                  <span className="font-semibold font-heading text-white">$1.2M</span>
                 </div>
               </div>
             </div>
 
             {/* Popular Skills */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4 font-heading text-white">
-                Popular Skills
-              </h3>
+              <h3 className="text-lg font-semibold mb-4 font-heading text-white">Popular Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {[
-                  "Rust",
-                  "Substrate",
-                  "React",
-                  "TypeScript",
-                  "Solidity",
-                  "Web3",
-                  "UI/UX",
-                  "Marketing",
-                ].map((skill) => (
-                  <Badge
-                    key={skill}
-                    variant="outline"
-                    className="border-white/20 bg-white/10 text-white/70 "
-                  >
-                    {skill}
-                  </Badge>
-                ))}
+                {["Rust", "Substrate", "React", "TypeScript", "Solidity", "Web3", "UI/UX", "Marketing"].map(
+                  (skill) => (
+                    <Badge key={skill} variant="outline" className="border-white/20 bg-white/10 text-white/70 ">
+                      {skill}
+                    </Badge>
+                  )
+                )}
               </div>
             </div>
 
             {/* Featured Organizations */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4 font-heading text-white">
-                Featured Organizations
-              </h3>
+              <h3 className="text-lg font-semibold mb-4 font-heading text-white">Featured Organizations</h3>
               <div className="space-y-3">
                 {[
-                  {
-                    name: "Web3 Foundation",
-                    initial: "W",
-                    color: "from-pink-500 to-purple-600",
-                  },
-                  {
-                    name: "Moonbeam",
-                    initial: "M",
-                    color: "from-blue-500 to-cyan-600",
-                  },
-                  {
-                    name: "Acala Network",
-                    initial: "A",
-                    color: "from-green-500 to-emerald-600",
-                  },
+                  { name: "Web3 Foundation", initial: "W", color: "from-pink-500 to-purple-600" },
+                  { name: "Moonbeam", initial: "M", color: "from-blue-500 to-cyan-600" },
+                  { name: "Acala Network", initial: "A", color: "from-green-500 to-emerald-600" },
                 ].map((org) => (
                   <div key={org.name} className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-full bg-gradient-to-br ${org.color} flex items-center justify-center`}
-                    >
-                      <span className="text-sm font-bold text-white font-heading">
-                        {org.initial}
-                      </span>
+                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${org.color} flex items-center justify-center`}>
+                      <span className="text-sm font-bold text-white font-heading">{org.initial}</span>
                     </div>
-                    <span className="text-sm text-white ">
-                      {org.name}
-                    </span>
+                    <span className="text-sm text-white ">{org.name}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Recent Activity - New section to match design */}
+            {/* Recent Activity */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold font-heading text-white">
-                  Recent Activity
-                </h3>
-                <button className="text-pink-400 hover:text-pink-300 transition-colors text-sm ">
-                  View All
-                </button>
+                <h3 className="text-lg font-semibold font-heading text-white">Recent Activity</h3>
+                <button className="text-pink-400 hover:text-pink-300 transition-colors text-sm ">View All</button>
               </div>
               <div className="space-y-3">
                 {[
-                  {
-                    user: "Mo Shaikh",
-                    action: "just created a grant for depin solutions",
-                    time: "1 hour ago",
-                  },
-                  {
-                    user: "Mo Shaikh",
-                    action: "submitted to bounty for ui solutions",
-                    time: "2 hours ago",
-                  },
-                  {
-                    user: "Mo Shaikh",
-                    action: "created a new community for depin ecosystem",
-                    time: "3 hours ago",
-                  },
+                  { user: "Mo Shaikh", action: "just created a grant for depin solutions", time: "1 hour ago" },
+                  { user: "Mo Shaikh", action: "submitted to bounty for ui solutions", time: "2 hours ago" },
+                  { user: "Mo Shaikh", action: "created a new community for depin ecosystem", time: "3 hours ago" },
                 ].map((activity, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0">
@@ -409,12 +552,9 @@ export default function HomePage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-white ">
-                        <span className="font-semibold">{activity.user}</span>{" "}
-                        {activity.action}
+                        <span className="font-semibold">{activity.user}</span> {activity.action}
                       </p>
-                      <p className="text-xs text-white/50 ">
-                        {activity.time}
-                      </p>
+                      <p className="text-xs text-white/50 ">{activity.time}</p>
                     </div>
                   </div>
                 ))}

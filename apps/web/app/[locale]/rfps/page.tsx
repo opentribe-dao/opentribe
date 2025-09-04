@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RFPCard } from "../components/cards/rfp-card";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
@@ -19,6 +19,8 @@ export default function RFPsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchAbortRef = useRef<AbortController | null>(null);
   
   // Filter states
   const [sortBy, setSortBy] = useState("popular");
@@ -27,13 +29,25 @@ export default function RFPsPage() {
 
   useEffect(() => {
     fetchRFPs();
-  }, [page]);
+  }, [page, searchQuery]);
 
   const fetchRFPs = async () => {
     setLoading(true);
     try {
       const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
-      const response = await fetch(`${apiUrl}/api/v1/rfps?page=${page}&limit=10`);
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '10'
+      });
+      
+      // Add search parameter if query exists
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
+      }
+      
+      const response = await fetch(`${apiUrl}/api/v1/rfps?${params.toString()}`);
       
       if (!response.ok) {
         console.error("Failed to fetch RFPs");
@@ -56,10 +70,28 @@ export default function RFPsPage() {
     }
   };
 
+  // Debounced search effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      // Reset to first page when search query changes
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        // If already on page 1, trigger fetch
+        fetchRFPs();
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchRFPs();
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const totalRfps = rfps.length;
@@ -116,7 +148,7 @@ export default function RFPsPage() {
                 <Input
                   placeholder="Search for RFP"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
                   className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                 />
               </div>
@@ -166,19 +198,20 @@ export default function RFPsPage() {
               </div>
             ) : (
               <>
-                <div className="space-y-4">
-                  {rfps.map((rfp: any) => (
-                    <RFPCard
-                      key={rfp.id}
-                      id={rfp.id}
-                      title={rfp.title}
-                      grant={rfp.grant}
-                      voteCount={rfp.voteCount}
-                      commentCount={rfp.commentCount}
-                      status={rfp.status}
-                      description={rfp.description}
-                      variant="list"
-                    />
+                <div>
+                  {rfps.map((rfp: any, index: number) => (
+                    <div key={rfp.id} className={index > 0 ? "mt-6" : ""}>
+                      <RFPCard
+                        id={rfp.id}
+                        title={rfp.title}
+                        grant={rfp.grant}
+                        voteCount={rfp.voteCount}
+                        commentCount={rfp.commentCount}
+                        status={rfp.status}
+                        description={rfp.description}
+                        variant="list"
+                      />
+                    </div>
                   ))}
                 </div>
                 

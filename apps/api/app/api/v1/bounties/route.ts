@@ -34,12 +34,24 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
     const status = searchParams.get('status') || 'OPEN';
+    const search = searchParams.get('search') || '';
+
+    // Build where clause
+    const whereClause: any = {
+      status: status as any,
+      visibility: 'PUBLISHED',
+    };
+
+    // Add search functionality
+    if (search) {
+      whereClause.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
     const bounties = await database.bounty.findMany({
-      where: {
-        status: status as any,
-        visibility: 'PUBLISHED',
-      },
+      where: whereClause,
       include: {
         organization: {
           select: {

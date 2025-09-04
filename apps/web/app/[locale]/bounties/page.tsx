@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BountyCard } from "../components/cards/bounty-card";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
@@ -21,6 +21,8 @@ export default function BountiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchAbortRef = useRef<AbortController | null>(null);
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState({
@@ -32,13 +34,25 @@ export default function BountiesPage() {
 
   useEffect(() => {
     fetchBounties();
-  }, [page]);
+  }, [page, searchQuery]);
 
   const fetchBounties = async () => {
     setLoading(true);
     try {
       const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
-      const response = await fetch(`${apiUrl}/api/v1/bounties?page=${page}&limit=10`);
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '10'
+      });
+      
+      // Add search parameter if query exists
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
+      }
+      
+      const response = await fetch(`${apiUrl}/api/v1/bounties?${params.toString()}`);
       
       if (!response.ok) {
         console.error("Failed to fetch bounties");
@@ -48,6 +62,7 @@ export default function BountiesPage() {
       const data = await response.json();
       
       if (page === 1) {
+        console.log('Bounties data:', data.bounties);
         setBounties(data.bounties || []);
       } else {
         setBounties(prev => [...prev, ...(data.bounties || [])]);
@@ -61,10 +76,28 @@ export default function BountiesPage() {
     }
   };
 
+  // Debounced search effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      // Reset to first page when search query changes
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        // If already on page 1, trigger fetch
+        fetchBounties();
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchBounties();
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const totalBounties = bounties.length;
@@ -88,7 +121,7 @@ export default function BountiesPage() {
                 <Input
                   placeholder="Search for bounty"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
                   className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                 />
               </div>
@@ -144,21 +177,22 @@ export default function BountiesPage() {
               </div>
             ) : (
               <>
-                <div className="space-y-4">
-                  {bounties.map((bounty: any) => (
-                    <BountyCard
-                      key={bounty.id}
-                      id={bounty.id}
-                      title={bounty.title}
-                      organization={bounty.organization}
-                      amount={bounty.amount ? parseFloat(bounty.amount) : 0}
-                      token={bounty.token}
-                      deadline={bounty.deadline}
-                      submissionCount={bounty.submissionCount}
-                      skills={bounty.skills}
-                      status={bounty.status}
-                      variant="list"
-                    />
+                <div>
+                  {bounties.map((bounty: any, index: number) => (
+                    <div key={bounty.id} className={index > 0 ? "mt-6" : ""}>
+                      <BountyCard
+                        id={bounty.id}
+                        title={bounty.title}
+                        organization={bounty.organization}
+                        amount={bounty.amount ? parseFloat(bounty.amount) : 0}
+                        token={bounty.token}
+                        deadline={bounty.deadline}
+                        submissionCount={bounty.submissionCount}
+                        skills={bounty.skills}
+                        status={bounty.status}
+                        variant="list"
+                      />
+                    </div>
                   ))}
                 </div>
                 

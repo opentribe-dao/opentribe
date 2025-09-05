@@ -14,6 +14,7 @@ import { Input } from '@packages/base/components/ui/input';
 import { authClient } from '@packages/auth/client';
 import { Separator } from '@packages/base/components/ui/separator';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -199,9 +200,23 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Password</FormLabel>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-[#E6007A] hover:underline"
+                  tabIndex={-1}
+                  onClick={() => {
+                    if (onSuccess) {
+                      onSuccess();
+                    }
+                  }}
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <FormControl>
-                <div className="relative">
+                <div className="grid grid-cols-[1fr_auto] items-center gap-x-2">
                   <Input
                     {...field}
                     type={showPassword ? 'text' : 'password'}
@@ -211,9 +226,8 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
                   />
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                    variant="outline"
+                    size="icon"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >

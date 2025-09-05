@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authClient } from '@packages/auth/client';
-import { Card, CardContent, CardHeader, CardTitle, Input, Button } from '@packages/base';
+import { Button } from '@packages/base/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@packages/base/components/ui/card';
+import { Input } from '@packages/base/components/ui/input';
 import { Loader2, Mail } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
@@ -55,11 +57,11 @@ export default function ForgotPasswordPage() {
               Please check your email and follow the instructions to reset your password.
             </p>
             <Button
-              onClick={() => router.push('/sign-in')}
+              onClick={() => router.back()}
               variant="outline"
               className="w-full"
             >
-              Back to Sign In
+              Back to Home
             </Button>
           </CardContent>
         </Card>
@@ -112,10 +114,10 @@ export default function ForgotPasswordPage() {
             <Button
               type="button"
               variant="ghost"
-              onClick={() => router.push('/sign-in')}
+              onClick={() => router.back()}
               className="w-full"
             >
-              Back to Sign In
+              Back to Home
             </Button>
           </form>
         </CardContent>

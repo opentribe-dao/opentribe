@@ -145,7 +145,7 @@ export default function BountiesPage() {
             ) : (
               <>
                 <div className="space-y-4">
-                  {bounties.map((bounty: any) => (
+                  {bounties.map((bounty: BountyCardProps) => (
                     <BountyCard
                       key={bounty.id}
                       id={bounty.id}

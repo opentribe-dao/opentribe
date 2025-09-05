@@ -204,6 +204,7 @@ model Grant {
   applications     GrantApplication[]     @relation("GrantApplications")
   rfps             RFP[]                  @relation("GrantRFPs")
 
+  @@index([organizationId])
   @@index([organizationId, status, visibility])
   @@map("grant")
 }
@@ -265,6 +266,7 @@ model Bounty {
   curators                 Curator[]              @relation("BountyCurators")
   submissions              Submission[]           @relation("BountySubmissions")
 
+  @@index([organizationId])
   @@index([organizationId, status, visibility])
   @@map("bounty")
 }

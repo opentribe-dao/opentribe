@@ -44,6 +44,17 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Auth check
+    const authHeaders = await headers();
+    const sessionData = await auth.api.getSession({ headers: authHeaders });
+
+    if (!sessionData?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
     const bountyIdOrSlug = (await params).id;
 
     // Find by ID first, then by slug (case-insensitive)
@@ -69,17 +80,6 @@ export async function GET(
       return NextResponse.json(
         { error: 'Bounty not found' },
         { status: 404, headers: corsHeaders }
-      );
-    }
-
-    // Auth check
-    const authHeaders = await headers();
-    const sessionData = await auth.api.getSession({ headers: authHeaders });
-
-    if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
       );
     }
 

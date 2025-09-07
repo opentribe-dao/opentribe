@@ -1,4 +1,6 @@
+import { auth } from '@packages/auth/server';
 import { database } from '@packages/db';
+import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const corsHeaders = {
@@ -59,6 +61,7 @@ export async function GET(
         winnersAnnouncedAt: true,
         viewCount: true,
         submissionCount: true,
+        organizationId: true,
       },
     });
 
@@ -66,6 +69,32 @@ export async function GET(
       return NextResponse.json(
         { error: 'Bounty not found' },
         { status: 404, headers: corsHeaders }
+      );
+    }
+
+    // Auth check
+    const authHeaders = await headers();
+    const sessionData = await auth.api.getSession({ headers: authHeaders });
+
+    if (!sessionData?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    // Organization membership check
+    const membership = await database.member.findMany({
+      where: {
+        userId: sessionData.user.id,
+        organizationId: bounty.organizationId,
+      },
+    });
+
+    if (!membership) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403, headers: corsHeaders }
       );
     }
 

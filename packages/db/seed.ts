@@ -3,6 +3,14 @@ import { database as prisma } from './index';
 async function main() {
   console.log('🌱 Starting database seed...');
 
+  const now = new Date();
+  // Helper method to create dates relative to the current date
+  const daysFromNow = (days: number) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() + days);
+    return date;
+  };
+
   // Clean existing data (but NOT users/accounts - they're created by seed-auth.ts)
   await prisma.$transaction([
     prisma.submission.deleteMany(),
@@ -207,7 +215,7 @@ We're looking for projects that:
         visibility: 'PUBLISHED',
         source: 'NATIVE',
         organizationId: organizations[0].id,
-        publishedAt: new Date('2024-01-15'),
+        publishedAt: daysFromNow(-2),
         viewCount: 342,
         applicationCount: 28,
       },
@@ -266,7 +274,7 @@ Focus areas include:
         visibility: 'PUBLISHED',
         source: 'NATIVE',
         organizationId: organizations[0].id,
-        publishedAt: new Date('2023-06-01'),
+        publishedAt: daysFromNow(-4),
         viewCount: 523,
         applicationCount: 45,
       },
@@ -303,7 +311,7 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
         visibility: 'PUBLISHED',
         source: 'NATIVE',
         organizationId: organizations[1].id,
-        publishedAt: new Date('2024-02-01'),
+        publishedAt: daysFromNow(-10),
         viewCount: 287,
         applicationCount: 19,
       },
@@ -335,7 +343,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         visibility: 'PUBLISHED',
         source: 'NATIVE',
         organizationId: organizations[2].id,
-        publishedAt: new Date('2024-03-01'),
+        publishedAt: daysFromNow(-8),
         viewCount: 412,
         applicationCount: 33,
         skills: ['DeFi', 'Rust', 'Solidity', 'Cross-chain', 'Stablecoins'],
@@ -390,9 +398,9 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         split: 'FIXED',
         status: 'OPEN',
         visibility: 'PUBLISHED',
-        deadline: new Date('2024-04-30'),
+        deadline: daysFromNow(15),
         organizationId: organizations[0].id,
-        publishedAt: new Date('2024-03-15'),
+        publishedAt: daysFromNow(-9),
         viewCount: 156,
         submissionCount: 8,
       },
@@ -428,9 +436,9 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         split: 'EQUAL_SPLIT',
         status: 'OPEN',
         visibility: 'PUBLISHED',
-        deadline: new Date('2024-05-15'),
+        deadline: daysFromNow(20),
         organizationId: organizations[3].id,
-        publishedAt: new Date('2024-03-20'),
+        publishedAt: daysFromNow(-5),
         viewCount: 98,
         submissionCount: 5,
       },
@@ -460,9 +468,9 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         split: 'FIXED',
         status: 'OPEN',
         visibility: 'PUBLISHED',
-        deadline: new Date('2024-04-20'),
+        deadline: daysFromNow(12),
         organizationId: organizations[2].id,
-        publishedAt: new Date('2024-03-10'),
+        publishedAt: daysFromNow(-12),
         viewCount: 73,
         submissionCount: 3,
       },
@@ -509,7 +517,7 @@ Cross-chain message passing with XCM is powerful but complex. Developers need be
         grantId: grants[0].id,
         status: 'OPEN',
         visibility: 'PUBLISHED',
-        publishedAt: new Date('2024-03-25'),
+        publishedAt: daysFromNow(-2),
         viewCount: 89,
         voteCount: 24,
       },
@@ -538,7 +546,7 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
         grantId: grants[1].id,
         status: 'OPEN',
         visibility: 'PUBLISHED',
-        publishedAt: new Date('2024-03-18'),
+        publishedAt: daysFromNow(-8),
         viewCount: 112,
         voteCount: 31,
       },
@@ -582,7 +590,7 @@ XCM Studio will be the first visual development environment specifically designe
         ],
         budget: 250000,
         status: 'SUBMITTED',
-        submittedAt: new Date('2024-03-28'),
+        submittedAt: daysFromNow(1),
         likesCount: 15,
         viewsCount: 67,
       },
@@ -614,8 +622,8 @@ Create the most comprehensive and accessible learning resource for Substrate dev
         budget: 75000,
         status: 'UNDER_REVIEW',
         label: 'Reviewed',
-        submittedAt: new Date('2024-03-15'),
-        reviewedAt: new Date('2024-03-20'),
+        submittedAt: daysFromNow(-10),
+        reviewedAt: daysFromNow(-5),
         likesCount: 23,
         viewsCount: 134,
       },
@@ -657,7 +665,7 @@ I've completely reimagined the Polkadot.js extension with a focus on clarity, ac
             'https://docs.google.com/document/d/testing-results',
         },
         status: 'SUBMITTED',
-        submittedAt: new Date('2024-04-05'),
+        submittedAt: daysFromNow(5),
         likesCount: 42,
         viewsCount: 189,
       },
@@ -686,7 +694,7 @@ Each tutorial includes:
 - Quiz to test understanding`,
         submissionUrl: 'https://substrate-masterclass.dev',
         status: 'SUBMITTED',
-        submittedAt: new Date('2024-04-10'),
+        submittedAt: daysFromNow(8),
         likesCount: 38,
         viewsCount: 156,
       },
@@ -802,7 +810,7 @@ Each tutorial includes:
     `✅ Created ${notificationSettings.length} notification settings`
   );
 
-  console.log('\n🎉 Database seeded successfully!');
+  console.log('🎉 Database seeded successfully!');
 }
 
 main().catch((e) => {

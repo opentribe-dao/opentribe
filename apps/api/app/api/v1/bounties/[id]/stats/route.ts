@@ -84,7 +84,7 @@ export async function GET(
     }
 
     // Organization membership check
-    const membership = await database.member.findMany({
+    const membership = await database.member.findFirst({
       where: {
         userId: sessionData.user.id,
         organizationId: bounty.organizationId,

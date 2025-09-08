@@ -1,6 +1,7 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { GET as getBounties } from '../app/api/v1/bounties/route';
 import { GET as getBounty } from '../app/api/v1/bounties/[id]/route';
+import { NextRequest } from 'next/server';
 import { database } from '@packages/db';
 
 // Mock auth
@@ -58,10 +59,10 @@ describe('Bounty Management', () => {
         },
       ];
 
-      vi.mocked(database.bounty.findMany).mockResolvedValue(mockBounties);
+      vi.mocked(database.bounty.findMany).mockResolvedValue(mockBounties as any);
 
       const request = new Request('http://localhost:3002/api/v1/bounties');
-      const response = await getBounties(request);
+      const response = await getBounties(request as unknown as NextRequest);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -81,10 +82,10 @@ describe('Bounty Management', () => {
         },
       ];
 
-      vi.mocked(database.bounty.findMany).mockResolvedValue(mockBounties);
+      vi.mocked(database.bounty.findMany).mockResolvedValue(mockBounties as any);
 
       const request = new Request('http://localhost:3002/api/v1/bounties?status=OPEN');
-      const response = await getBounties(request);
+      const response = await getBounties(request as unknown as NextRequest);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -144,10 +145,10 @@ describe('Bounty Management', () => {
         },
       };
 
-      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty);
+      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
 
       const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1');
-      const response = await getBounty(request, { params: Promise.resolve({ id: 'bounty-1' }) });
+      const response = await getBounty(request as unknown as NextRequest, { params: Promise.resolve({ id: 'bounty-1' }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -160,7 +161,7 @@ describe('Bounty Management', () => {
       vi.mocked(database.bounty.findFirst).mockResolvedValue(null);
 
       const request = new Request('http://localhost:3002/api/v1/bounties/invalid-id');
-      const response = await getBounty(request, { params: Promise.resolve({ id: 'invalid-id' }) });
+      const response = await getBounty(request as unknown as NextRequest, { params: Promise.resolve({ id: 'invalid-id' }) });
 
       expect(response.status).toBe(404);
     });

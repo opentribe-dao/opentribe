@@ -42,7 +42,7 @@ interface HomepageStatsResponse {
 }
 
 const CACHE_KEY = 'homepage:stats';
-const CACHE_TTL_SECONDS = 360;
+const CACHE_TTL_SECONDS = 30u0;
 
 export async function GET(request: NextRequest) {
 	try {

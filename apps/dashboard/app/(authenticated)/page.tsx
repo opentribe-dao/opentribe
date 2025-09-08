@@ -122,7 +122,6 @@ const App = () => {
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Stats Cards */}
         <div className="grid gap-12 md:grid-cols-3">
-          <Link href="/bounties?status=active" className="group">
             <Card className="border-white/10 bg-zinc-900/50">
               <CardHeader className="pb-3">
                 <CardDescription className="text-white/40 text-xs">
@@ -135,7 +134,6 @@ const App = () => {
                 </div>
               </CardContent>
             </Card>
-          </Link>
 
           <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader className="pb-3">

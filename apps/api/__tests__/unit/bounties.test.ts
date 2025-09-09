@@ -1,6 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { database } from '@packages/db';
-import { auth } from '@packages/auth/server';
 import { NextRequest } from 'next/server';
 
 // Import the actual route handlers
@@ -51,8 +50,8 @@ describe('Bounty API Tests', () => {
       (database.bounty.findMany as any).mockResolvedValue(mockBounties);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties');
-      const response = await getBounties(request as unknown as NextRequest);
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties');
+      const response = await getBounties(request);
       const data = await response.json();
 
       // Assert
@@ -97,8 +96,8 @@ describe('Bounty API Tests', () => {
       (database.bounty.findMany as any).mockResolvedValue(mockBounties);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties?status=OPEN');
-      const response = await getBounties(request as unknown as NextRequest);
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties?status=OPEN');
+      const response = await getBounties(request);
       const data = await response.json();
 
       // Assert
@@ -168,8 +167,8 @@ describe('Bounty API Tests', () => {
       (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1');
-      const response = await getBounty(request as unknown as NextRequest, { params: Promise.resolve({ id: 'bounty-1' }) });
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties/bounty-1');
+      const response = await getBounty(request, { params: Promise.resolve({ id: 'bounty-1' }) });
       const data = await response.json();
 
       // Assert
@@ -194,8 +193,8 @@ describe('Bounty API Tests', () => {
       (database.bounty.findFirst as any).mockResolvedValue(null);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties/invalid-id');
-      const response = await getBounty(request as unknown as NextRequest, { params: Promise.resolve({ id: 'invalid-id' }) });
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties/invalid-id');
+      const response = await getBounty(request, { params: Promise.resolve({ id: 'invalid-id' }) });
 
       // Assert
       expect(response.status).toBe(404);

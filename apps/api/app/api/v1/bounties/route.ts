@@ -28,40 +28,86 @@ const createBountySchema = z.object({
   organizationId: z.string(),
 });
 
-export async function GET(request: Request) {
+// GET /api/v1/bounties - Get bounties
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const status = searchParams.get('status') || 'OPEN';
+    const page = parseInt(searchParams.get('page') || '1');
+    const skills = searchParams.get('skills')?.split(',').filter(Boolean) || [];
+    const status = searchParams.get('status') || undefined;
+
+    const whereClause: any = {
+      visibility: 'PUBLISHED',
+    };
+
+    if (status) {
+      whereClause.status = status;
+    }
+
+    if (skills.length > 0) {
+      whereClause.skills = {
+        hasSome: skills,
+      };
+    }
 
     const bounties = await database.bounty.findMany({
-      where: {
-        status: status as any,
-        visibility: 'PUBLISHED',
-      },
+      where: whereClause,
       include: {
         organization: {
           select: {
+            id: true,
             name: true,
+            slug: true,
             logo: true,
           },
         },
+        _count: {
+          select: {
+            submissions: {
+              where: {
+                status: {
+                  in: ['SUBMITTED', 'APPROVED', 'REJECTED'],
+                },
+              },
+            },
+          },
+        },
       },
-      take: limit,
-      skip: offset,
-      orderBy: {
-        publishedAt: 'desc',
-      },
+      orderBy: [
+        { createdAt: 'desc' },
+      ],
+      take: limit + 1,
+      skip: (page - 1) * limit,
     });
 
+    let hasMore = bounties.length > limit;
+
+    if (hasMore) {
+      bounties.pop();
+    }
+
+    const transformedBounties = bounties.map((bounty) => ({
+      ...bounty,
+      submissionCount: bounty._count.submissions,
+      amount: bounty.amount ? parseFloat(bounty.amount.toString()) : 0,
+    }));
+
     return NextResponse.json(
-      { bounties },
+      {
+        bounties: transformedBounties,
+        pagination: {
+          page,
+          limit,
+          hasMore: hasMore,
+        },
+      },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
+          'Cache-Control': 'max-age=120',
         },
       }
     );
@@ -73,7 +119,7 @@ export async function GET(request: Request) {
         status: 500,
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         },
       }

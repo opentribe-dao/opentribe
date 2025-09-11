@@ -149,6 +149,7 @@ const BountyDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
     fetchSubmissions();
   }, [bounty, id]);
 
+
   const handleSelectWinner = (submissionId: string, position: number, amount: number) => {
     const newSelected = new Map(selectedWinners);
     

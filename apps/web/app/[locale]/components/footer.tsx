@@ -1,39 +1,39 @@
-import { Button } from '@packages/base/components/ui/button';
-import { Input } from '@packages/base/components/ui/input';
-import { Facebook, Twitter, Linkedin, Github } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { Button } from "@packages/base/components/ui/button";
+import { Input } from "@packages/base/components/ui/input";
+import { Facebook, Twitter, Linkedin, Github } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const communityLinks = [
-    { title: 'Polkadot', href: '#' },
-    { title: 'Discord', href: '#' },
-    { title: 'Telegram', href: '#' },
-    { title: 'Twitter', href: '#' },
-    { title: 'GitHub', href: '#' },
+    { title: "Polkadot", href: "https://polkadot.com/community/" },
+    { title: "Discord", href: "#" },
+    { title: "Telegram", href: "#" },
+    { title: "Twitter", href: "https://x.com/opentribe_io" },
+    { title: "GitHub", href: "https://github.com/opentribe-dao/" },
   ];
 
   const categoriesLinks = [
-    { title: 'Development', href: '#' },
-    { title: 'Design', href: '#' },
-    { title: 'Marketing', href: '#' },
-    { title: 'Writing', href: '#' },
-    { title: 'Research', href: '#' },
+    { title: "Development", href: "#" },
+    { title: "Design", href: "#" },
+    { title: "Marketing", href: "#" },
+    { title: "Writing", href: "#" },
+    { title: "Research", href: "#" },
   ];
 
   const aboutLinks = [
-    { title: 'FAQ', href: '/faq' },
-    { title: 'Blog', href: '/blog' },
-    { title: 'Changelog', href: '/changelog' },
-    { title: 'Contact', href: '/contact' },
+    { title: "FAQ", href: "/faq" }, // 404
+    { title: "Blog", href: "/blog" }, // 200
+    { title: "Changelog", href: "/changelog" }, // 404
+    { title: "Contact", href: "/contact" }, // 200
   ];
 
   const legalLinks = [
-    { title: 'Terms', href: '/legal/terms' },
-    { title: 'Privacy', href: '/legal/privacy' },
-    { title: 'Cookies', href: '/legal/cookies' },
+    { title: "Terms", href: "/legal/terms" }, // 404
+    { title: "Privacy", href: "/legal/privacy" }, // 404
+    { title: "Cookies", href: "/legal/cookies" }, // 404
   ];
 
   return (
@@ -66,14 +66,17 @@ export const Footer = () => {
           {/* Logo and Description */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-pink-600 rounded-lg" />
-              <span className="text-xl font-bold">OPENTRIBE</span>
+              <span className="text-xl font-heading font-bold tracking-[0.25em] bg-gradient-to-r from-white/35 to-white bg-clip-text text-transparent leading-[1.75]">
+                OPENTRIBE
+              </span>
             </Link>
             <p className="text-white/60 text-sm mb-4">
-              Opentribe is a talent marketplace connecting builders with opportunities in the Polkadot ecosystem. Find grants, bounties, and RFPs from leading projects.
+              Opentribe is a talent marketplace connecting builders with
+              opportunities in the Polkadot ecosystem. Find grants, bounties,
+              and RFPs from leading projects.
             </p>
             <p className="text-white/40 text-xs">
-              2024 Opentribe. Built for builders.
+              {currentYear} Opentribe. Built for builders.
             </p>
           </div>
 
@@ -85,6 +88,8 @@ export const Footer = () => {
                 <li key={link.title}>
                   <Link
                     href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-white/60 hover:text-white text-sm transition-colors"
                   >
                     {link.title}
@@ -152,16 +157,32 @@ export const Footer = () => {
             © {currentYear} Opentribe. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="#" className="text-white/40 hover:text-white transition-colors">
+            <Link
+              href="https://x.com/opentribe_io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/40 hover:text-white transition-colors"
+            >
               <Twitter className="w-5 h-5" />
             </Link>
-            <Link href="#" className="text-white/40 hover:text-white transition-colors">
+            <Link
+              href="https://github.com/opentribe-dao/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/40 hover:text-white transition-colors"
+            >
               <Github className="w-5 h-5" />
             </Link>
-            <Link href="#" className="text-white/40 hover:text-white transition-colors">
+            <Link
+              href="#"
+              className="text-white/40 hover:text-white transition-colors"
+            >
               <Linkedin className="w-5 h-5" />
             </Link>
-            <Link href="#" className="text-white/40 hover:text-white transition-colors">
+            <Link
+              href="#"
+              className="text-white/40 hover:text-white transition-colors"
+            >
               <Facebook className="w-5 h-5" />
             </Link>
           </div>

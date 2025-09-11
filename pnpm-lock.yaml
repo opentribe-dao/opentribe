@@ -237,7 +237,7 @@ importers:
         version: 15.6.2(@types/react@19.1.9)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       fumadocs-mdx:
         specifier: 11.6.10
-        version: 11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.9)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
+        version: 11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.9)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.0.4(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       fumadocs-ui:
         specifier: 15.6.2
         version: 15.6.2(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(tailwindcss@4.1.11)
@@ -323,6 +323,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.13.4
         version: 0.13.8(typescript@5.9.2)(zod@3.25.76)
+      '@tanstack/react-query':
+        specifier: ^5.87.1
+        version: 5.87.1(react@19.1.1)
       '@tooling/next-config':
         specifier: workspace:*
         version: link:../../tooling/next-config
@@ -15407,7 +15410,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  fumadocs-mdx@11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.9)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)):
+  fumadocs-mdx@11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.9)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.0.4(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)):
     dependencies:
       '@mdx-js/mdx': 3.1.0(acorn@8.15.0)
       '@standard-schema/spec': 1.0.0
@@ -15424,6 +15427,7 @@ snapshots:
       zod: 3.25.76
     optionalDependencies:
       next: 15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      vite: 7.0.4(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - acorn
       - supports-color

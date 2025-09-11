@@ -41,7 +41,10 @@ interface ApplicationDetails {
   title: string;
   content: string;
   budget?: number;
-  timeline?: string;
+  timeline?: Array<{
+    milestone: string;
+    date: string;
+  }>;
   status: string;
   submittedAt: string;
   reviewedAt?: string;
@@ -81,12 +84,16 @@ interface ApplicationDetails {
   };
 }
 
-export default function ApplicationReviewPage({ params }: { params: Promise<{ id: string; applicationId: string }> }) {
+export default function ApplicationReviewPage({
+  params,
+}: { params: Promise<{ id: string; applicationId: string }> }) {
   const { id, applicationId } = use(params);
   const router = useRouter();
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();
-  const [application, setApplication] = useState<ApplicationDetails | null>(null);
+  const [application, setApplication] = useState<ApplicationDetails | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -112,7 +119,7 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
       }
 
       const data = await response.json();
-      
+
       // Check if user has access to review this application
       if (data.application.grant.organizationId !== activeOrg?.id) {
         toast.error('You do not have access to review this application');
@@ -211,9 +218,14 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <Header 
-        pages={['Grants', application.grant.title, 'Applications', application.title]} 
-        page="Review Application" 
+      <Header
+        pages={[
+          'Grants',
+          application.grant.title,
+          'Applications',
+          application.title,
+        ]}
+        page="Review Application"
       />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center justify-between mb-4">
@@ -236,7 +248,9 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
             {/* Application Header */}
             <Card className="bg-white/5 backdrop-blur-md border-white/10">
               <CardHeader>
-                <CardTitle className="text-white text-2xl">{application.title}</CardTitle>
+                <CardTitle className="text-white text-2xl">
+                  {application.title}
+                </CardTitle>
                 <CardDescription className="text-white/60">
                   Submitted on {formatDate(application.submittedAt)}
                 </CardDescription>
@@ -246,7 +260,9 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
             {/* Application Content */}
             <Card className="bg-white/5 backdrop-blur-md border-white/10">
               <CardHeader>
-                <CardTitle className="text-white">Application Details</CardTitle>
+                <CardTitle className="text-white">
+                  Application Details
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="prose prose-invert prose-pink max-w-none">
@@ -261,12 +277,16 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
             {application.answers && application.answers.length > 0 && (
               <Card className="bg-white/5 backdrop-blur-md border-white/10">
                 <CardHeader>
-                  <CardTitle className="text-white">Screening Questions</CardTitle>
+                  <CardTitle className="text-white">
+                    Screening Questions
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {application.answers.map((answer, index) => (
                     <div key={index} className="space-y-2">
-                      <p className="text-sm font-medium text-white/80">{answer.question}</p>
+                      <p className="text-sm font-medium text-white/80">
+                        {answer.question}
+                      </p>
                       {answer.type === 'url' ? (
                         <a
                           href={answer.answer}
@@ -328,7 +348,9 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="feedback">Feedback (Required for rejection)</Label>
+                    <Label htmlFor="feedback">
+                      Feedback (Required for rejection)
+                    </Label>
                     <Textarea
                       id="feedback"
                       value={feedback}
@@ -369,19 +391,26 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
             )}
 
             {/* Previous Decision */}
-            {(application.status === 'APPROVED' || application.status === 'REJECTED') && application.feedback && (
-              <Card className="bg-white/5 backdrop-blur-md border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-white">Review Decision</CardTitle>
-                  <CardDescription className="text-white/60">
-                    Reviewed on {application.reviewedAt ? formatDate(application.reviewedAt) : 'N/A'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-white/80">{application.feedback}</p>
-                </CardContent>
-              </Card>
-            )}
+            {(application.status === 'APPROVED' ||
+              application.status === 'REJECTED') &&
+              application.feedback && (
+                <Card className="bg-white/5 backdrop-blur-md border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-white">
+                      Review Decision
+                    </CardTitle>
+                    <CardDescription className="text-white/60">
+                      Reviewed on{' '}
+                      {application.reviewedAt
+                        ? formatDate(application.reviewedAt)
+                        : 'N/A'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-white/80">{application.feedback}</p>
+                  </CardContent>
+                </Card>
+              )}
           </div>
 
           {/* Sidebar */}
@@ -406,23 +435,30 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
                   )}
                   <div>
                     <p className="text-white font-medium">
-                      {application.applicant.firstName} {application.applicant.lastName}
+                      {application.applicant.firstName}{' '}
+                      {application.applicant.lastName}
                     </p>
-                    <p className="text-sm text-white/60">@{application.applicant.username}</p>
+                    <p className="text-sm text-white/60">
+                      @{application.applicant.username}
+                    </p>
                   </div>
                 </div>
 
                 {application.applicant.bio && (
                   <div>
                     <p className="text-sm text-white/60 mb-1">Bio</p>
-                    <p className="text-white/80 text-sm">{application.applicant.bio}</p>
+                    <p className="text-white/80 text-sm">
+                      {application.applicant.bio}
+                    </p>
                   </div>
                 )}
 
                 {application.applicant.location && (
                   <div className="flex items-center gap-2 text-white/60">
                     <User className="h-4 w-4" />
-                    <span className="text-sm">{application.applicant.location}</span>
+                    <span className="text-sm">
+                      {application.applicant.location}
+                    </span>
                   </div>
                 )}
 
@@ -438,27 +474,33 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
                   </div>
                 )}
 
-                {application.applicant.skills && Array.isArray(application.applicant.skills) && application.applicant.skills.length > 0 && (
-                  <div>
-                    <p className="text-sm text-white/60 mb-2">Skills</p>
-                    <div className="flex flex-wrap gap-2">
-                      {application.applicant.skills.map((skill: string) => (
-                        <Badge
-                          key={skill}
-                          variant="secondary"
-                          className="bg-white/10 text-white border-0"
-                        >
-                          {skill}
-                        </Badge>
-                      ))}
+                {application.applicant.skills &&
+                  Array.isArray(application.applicant.skills) &&
+                  application.applicant.skills.length > 0 && (
+                    <div>
+                      <p className="text-sm text-white/60 mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {application.applicant.skills.map((skill: string) => (
+                          <Badge
+                            key={skill}
+                            variant="secondary"
+                            className="bg-white/10 text-white border-0"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 <div className="pt-2 space-y-2">
                   {application.applicant.github && (
                     <a
-                      href={application.applicant.github.startsWith('http') ? application.applicant.github : `https://github.com/${application.applicant.github}`}
+                      href={
+                        application.applicant.github.startsWith('http')
+                          ? application.applicant.github
+                          : `https://github.com/${application.applicant.github}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -469,7 +511,11 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
                   )}
                   {application.applicant.linkedin && (
                     <a
-                      href={application.applicant.linkedin.startsWith('http') ? application.applicant.linkedin : `https://linkedin.com/in/${application.applicant.linkedin}`}
+                      href={
+                        application.applicant.linkedin.startsWith('http')
+                          ? application.applicant.linkedin
+                          : `https://linkedin.com/in/${application.applicant.linkedin}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -480,7 +526,11 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
                   )}
                   {application.applicant.twitter && (
                     <a
-                      href={application.applicant.twitter.startsWith('http') ? application.applicant.twitter : `https://twitter.com/${application.applicant.twitter}`}
+                      href={
+                        application.applicant.twitter.startsWith('http')
+                          ? application.applicant.twitter
+                          : `https://twitter.com/${application.applicant.twitter}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -491,7 +541,11 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
                   )}
                   {application.applicant.website && (
                     <a
-                      href={application.applicant.website.startsWith('http') ? application.applicant.website : `https://${application.applicant.website}`}
+                      href={
+                        application.applicant.website.startsWith('http')
+                          ? application.applicant.website
+                          : `https://${application.applicant.website}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -516,27 +570,45 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ id
                     <div>
                       <p className="text-sm text-white/60">Budget Request</p>
                       <p className="text-white font-medium">
-                        {formatAmount(application.budget)} {application.grant.token}
+                        {formatAmount(application.budget)}{' '}
+                        {application.grant.token}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {application.timeline && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-white/60" />
-                    <div>
-                      <p className="text-sm text-white/60">Timeline</p>
-                      <p className="text-white">{application.timeline}</p>
+                {application.timeline &&
+                  Array.isArray(application.timeline) &&
+                  application.timeline.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-white/60" />
+                        <p className="text-sm text-white/60">Timeline</p>
+                      </div>
+                      <div className="space-y-1">
+                        {application.timeline.map((milestone, index) => (
+                          <div
+                            key={index}
+                            className="flex justify-between items-center text-sm"
+                          >
+                            <span className="text-white">
+                              {milestone.milestone}
+                            </span>
+                            <span className="text-white/60">
+                              {milestone.date}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-
+                  )}
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white/60" />
                   <div>
                     <p className="text-sm text-white/60">Submitted</p>
-                    <p className="text-white">{formatDate(application.submittedAt)}</p>
+                    <p className="text-white">
+                      {formatDate(application.submittedAt)}
+                    </p>
                   </div>
                 </div>
               </CardContent>

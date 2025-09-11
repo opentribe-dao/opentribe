@@ -46,6 +46,13 @@ export function RFPCard({
                 width={48}
                 height={48}
                 className="rounded-full bg-white p-2"
+                onError={(e) => {
+                  console.log(
+                    "RFP Card image failed to load:",
+                    grant.organization.logo,
+                  );
+                  e.currentTarget.style.display = "none";
+                }}
               />
             ) : (
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-600/20 border border-white/20 flex items-center justify-center flex-shrink-0">
@@ -54,21 +61,25 @@ export function RFPCard({
                 </span>
               </div>
             )}
-            
+
             {/* Content */}
             <div className="flex-1">
-              <h3 className="font-semibold text-white text-base line-clamp-1">{title}</h3>
+              <h3 className="font-semibold text-white text-base line-clamp-1">
+                {title}
+              </h3>
               <div className="flex items-center gap-3 mt-1 text-sm text-white/60">
                 <span>{grant.organization.name}</span>
                 <span className="text-white/40">•</span>
                 <span>1 week</span>
               </div>
             </div>
-            
+
             {/* Vote Count */}
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
               <ThumbsUp className="w-4 h-4 text-green-400" />
-              <span className="text-sm font-medium text-white">{voteCount}</span>
+              <span className="text-sm font-medium text-white">
+                {voteCount}
+              </span>
             </div>
           </div>
         </div>

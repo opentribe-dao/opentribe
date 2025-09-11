@@ -1,11 +1,6 @@
 import { Ratelimit, type RatelimitConfig } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
-import { keys } from './keys';
+import { redis } from './cache';
 
-export const redis = new Redis({
-  url: keys().UPSTASH_REDIS_REST_URL,
-  token: keys().UPSTASH_REDIS_REST_TOKEN,
-});
 
 export const createRateLimiter = (props: Omit<RatelimitConfig, 'redis'>) =>
   new Ratelimit({

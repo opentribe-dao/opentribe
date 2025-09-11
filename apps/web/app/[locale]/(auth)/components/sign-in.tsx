@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from '@packages/auth/client';
 import { Button } from '@packages/base/components/ui/button';
 import {
   Form,
@@ -19,7 +20,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { signIn } from '../../../../../packages/auth/client';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

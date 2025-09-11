@@ -33,21 +33,34 @@ const createGrantSchema = z.object({
   organizationId: z.string(),
 });
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const status = searchParams.get('status') || 'OPEN';
+    const page = parseInt(searchParams.get('page') || '1');
+    const skills = searchParams.get('skills')?.split(',').filter(Boolean) || [];
+    const status = searchParams.get('status');
     const source = searchParams.get('source') || 'ALL';
 
     const whereClause: any = {
-      status: status as any,
       visibility: 'PUBLISHED',
     };
 
+    if (status) {
+      whereClause.status = status;
+    } else {
+      // Default to open grants for homepage if status not supplied
+      whereClause.status = 'OPEN';
+    }
+
     if (source !== 'ALL') {
       whereClause.source = source;
+    }
+
+    if (skills.length > 0) {
+      whereClause.skills = {
+        hasSome: skills,
+      };
     }
 
     const grants = await database.grant.findMany({
@@ -65,25 +78,53 @@ export async function GET(request: Request) {
         },
         _count: {
           select: {
-            applications: true,
+            applications: {
+              where: {
+                status: {
+                  in: ['SUBMITTED', 'APPROVED', 'REJECTED'],
+                },
+              },
+            },
             rfps: true,
           },
         },
       },
-      take: limit,
-      skip: offset,
-      orderBy: {
-        publishedAt: 'desc',
-      },
+      orderBy: [
+        { createdAt: 'desc' },
+      ],
+      take: limit + 1,
+      skip: (page - 1) * limit,
     });
+    
+    let hasMore = grants.length > limit;
+
+    if (hasMore) {
+      grants.pop();
+    }
+
+    const transformedGrants = grants.map((grant) => ({
+      ...grant,
+      applicationCount: grant._count.applications,
+      rfpCount: grant._count.rfps,
+      minAmount: grant.minAmount ? parseFloat(grant.minAmount.toString()) : undefined,
+      maxAmount: grant.maxAmount ? parseFloat(grant.maxAmount.toString()) : undefined,
+    }));
 
     return NextResponse.json(
-      { grants },
+      {
+        grants: transformedGrants,
+        pagination: {
+          page,
+          limit,
+          hasMore: hasMore,
+        },
+      },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
+          'Cache-Control': 'max-age=120',
         },
       }
     );
@@ -95,7 +136,7 @@ export async function GET(request: Request) {
         status: 500,
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         },
       }

@@ -24,16 +24,16 @@ export const Footer = () => {
   ];
 
   const aboutLinks = [
-    { title: "FAQ", href: "/faq" },
-    { title: "Blog", href: "/blog" },
-    { title: "Changelog", href: "/changelog" },
-    { title: "Contact", href: "/contact" },
+    { title: "FAQ", href: "/faq" }, // 404
+    { title: "Blog", href: "/blog" }, // 200
+    { title: "Changelog", href: "/changelog" }, // 404
+    { title: "Contact", href: "/contact" }, // 200
   ];
 
   const legalLinks = [
-    { title: "Terms", href: "/legal/terms" },
-    { title: "Privacy", href: "/legal/privacy" },
-    { title: "Cookies", href: "/legal/cookies" },
+    { title: "Terms", href: "/legal/terms" }, // 404
+    { title: "Privacy", href: "/legal/privacy" }, // 404
+    { title: "Cookies", href: "/legal/cookies" }, // 404
   ];
 
   return (
@@ -88,6 +88,8 @@ export const Footer = () => {
                 <li key={link.title}>
                   <Link
                     href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-white/60 hover:text-white text-sm transition-colors"
                   >
                     {link.title}

@@ -8,11 +8,11 @@ export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const communityLinks = [
-    { title: "Polkadot", href: "#" },
+    { title: "Polkadot", href: "https://polkadot.com/community/" },
     { title: "Discord", href: "#" },
     { title: "Telegram", href: "#" },
-    { title: "Twitter", href: "#" },
-    { title: "GitHub", href: "#" },
+    { title: "Twitter", href: "https://x.com/opentribe_io" },
+    { title: "GitHub", href: "https://github.com/opentribe-dao/" },
   ];
 
   const categoriesLinks = [

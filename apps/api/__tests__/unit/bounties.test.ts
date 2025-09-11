@@ -1,6 +1,6 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { database } from '@packages/db';
-import { auth } from '@packages/auth/server';
+import { NextRequest } from 'next/server';
 
 // Import the actual route handlers
 import { GET as getBounties } from '../../app/api/v1/bounties/route';
@@ -50,7 +50,7 @@ describe('Bounty API Tests', () => {
       (database.bounty.findMany as any).mockResolvedValue(mockBounties);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties');
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties');
       const response = await getBounties(request);
       const data = await response.json();
 
@@ -96,7 +96,7 @@ describe('Bounty API Tests', () => {
       (database.bounty.findMany as any).mockResolvedValue(mockBounties);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties?status=OPEN');
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties?status=OPEN');
       const response = await getBounties(request);
       const data = await response.json();
 
@@ -167,7 +167,7 @@ describe('Bounty API Tests', () => {
       (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1');
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties/bounty-1');
       const response = await getBounty(request, { params: Promise.resolve({ id: 'bounty-1' }) });
       const data = await response.json();
 
@@ -193,7 +193,7 @@ describe('Bounty API Tests', () => {
       (database.bounty.findFirst as any).mockResolvedValue(null);
 
       // Act
-      const request = new Request('http://localhost:3002/api/v1/bounties/invalid-id');
+      const request = new NextRequest('http://localhost:3002/api/v1/bounties/invalid-id');
       const response = await getBounty(request, { params: Promise.resolve({ id: 'invalid-id' }) });
 
       // Assert

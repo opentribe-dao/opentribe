@@ -22,6 +22,7 @@
     "@packages/seo": "workspace:*",
     "@sentry/nextjs": "^9.22.0",
     "@t3-oss/env-nextjs": "^0.13.4",
+    "@tanstack/react-query": "^5.86.0",
     "@tooling/next-config": "workspace:*",
     "fuse.js": "^7.1.0",
     "import-in-the-middle": "^1.13.2",

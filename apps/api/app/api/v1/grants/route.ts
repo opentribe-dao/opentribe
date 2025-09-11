@@ -1,8 +1,8 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Schema for grant creation
 const createGrantSchema = z.object({
@@ -16,44 +16,53 @@ const createGrantSchema = z.object({
   minAmount: z.number().positive().optional(),
   maxAmount: z.number().positive().optional(),
   totalFunds: z.number().positive().optional(),
-  token: z.string().default('DOT'),
-  resources: z.array(z.object({
-    title: z.string(),
-    url: z.string().url(),
-    description: z.string().optional(),
-  })).optional(),
-  screening: z.array(z.object({
-    question: z.string(),
-    type: z.enum(['text', 'url', 'file']),
-    optional: z.boolean(),
-  })).optional(),
+  token: z.string().default("DOT"),
+  resources: z
+    .array(
+      z.object({
+        title: z.string(),
+        url: z.string().url(),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+  screening: z
+    .array(
+      z.object({
+        question: z.string(),
+        type: z.enum(["text", "url", "file"]),
+        optional: z.boolean(),
+      })
+    )
+    .optional(),
   applicationUrl: z.string().url().optional(),
-  visibility: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
-  source: z.enum(['NATIVE', 'EXTERNAL']).default('NATIVE'),
+  visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
+  source: z.enum(["NATIVE", "EXTERNAL"]).default("NATIVE"),
   organizationId: z.string(),
 });
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const page = parseInt(searchParams.get('page') || '1');
-    const skills = searchParams.get('skills')?.split(',').filter(Boolean) || [];
-    const status = searchParams.get('status');
-    const source = searchParams.get('source') || 'ALL';
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = parseInt(searchParams.get("page") || "1");
+    const skills = searchParams.get("skills")?.split(",").filter(Boolean) || [];
+    const status = searchParams.get("status");
+    const source = searchParams.get("source") || "ALL";
+    const search = searchParams.get("search") || "";
 
     const whereClause: any = {
-      visibility: 'PUBLISHED',
+      visibility: "PUBLISHED",
     };
 
     if (status) {
       whereClause.status = status;
     } else {
       // Default to open grants for homepage if status not supplied
-      whereClause.status = 'OPEN';
+      whereClause.status = "OPEN";
     }
 
-    if (source !== 'ALL') {
+    if (source !== "ALL") {
       whereClause.source = source;
     }
 
@@ -61,6 +70,14 @@ export async function GET(request: NextRequest) {
       whereClause.skills = {
         hasSome: skills,
       };
+    }
+
+    if (search.length > 0) {
+      whereClause.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { summary: { contains: search, mode: "insensitive" } },
+      ];
     }
 
     const grants = await database.grant.findMany({
@@ -81,7 +98,7 @@ export async function GET(request: NextRequest) {
             applications: {
               where: {
                 status: {
-                  in: ['SUBMITTED', 'APPROVED', 'REJECTED'],
+                  in: ["SUBMITTED", "APPROVED", "REJECTED"],
                 },
               },
             },
@@ -89,13 +106,11 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: [
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ createdAt: "desc" }],
       take: limit + 1,
       skip: (page - 1) * limit,
     });
-    
+
     let hasMore = grants.length > limit;
 
     if (hasMore) {
@@ -106,8 +121,12 @@ export async function GET(request: NextRequest) {
       ...grant,
       applicationCount: grant._count.applications,
       rfpCount: grant._count.rfps,
-      minAmount: grant.minAmount ? parseFloat(grant.minAmount.toString()) : undefined,
-      maxAmount: grant.maxAmount ? parseFloat(grant.maxAmount.toString()) : undefined,
+      minAmount: grant.minAmount
+        ? parseFloat(grant.minAmount.toString())
+        : undefined,
+      maxAmount: grant.maxAmount
+        ? parseFloat(grant.maxAmount.toString())
+        : undefined,
     }));
 
     return NextResponse.json(
@@ -121,23 +140,23 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Cache-Control': 'max-age=120',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Cache-Control": "max-age=120",
         },
       }
     );
   } catch (error) {
-    console.error('Error fetching grants:', error);
+    console.error("Error fetching grants:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch grants' },
+      { error: "Failed to fetch grants" },
       {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
         },
       }
     );
@@ -153,10 +172,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse and validate request body
@@ -169,22 +185,29 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         organizationId: validatedData.organizationId,
         role: {
-          in: ['owner', 'admin'], // Only owners and admins can create grants
+          in: ["owner", "admin"], // Only owners and admins can create grants
         },
       },
     });
 
     if (!membership) {
       return NextResponse.json(
-        { error: 'You do not have permission to create grants for this organization' },
+        {
+          error:
+            "You do not have permission to create grants for this organization",
+        },
         { status: 403 }
       );
     }
 
     // Validate amount logic
-    if (validatedData.minAmount && validatedData.maxAmount && validatedData.minAmount > validatedData.maxAmount) {
+    if (
+      validatedData.minAmount &&
+      validatedData.maxAmount &&
+      validatedData.minAmount > validatedData.maxAmount
+    ) {
       return NextResponse.json(
-        { error: 'Minimum amount cannot be greater than maximum amount' },
+        { error: "Minimum amount cannot be greater than maximum amount" },
         { status: 400 }
       );
     }
@@ -192,12 +215,12 @@ export async function POST(request: NextRequest) {
     // Generate a unique slug from the title
     let baseSlug = validatedData.title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     let slug = baseSlug;
     let counter = 1;
-    
+
     // Check if slug exists and append number if needed
     while (await database.grant.findUnique({ where: { slug } })) {
       slug = `${baseSlug}-${counter}`;
@@ -224,9 +247,10 @@ export async function POST(request: NextRequest) {
         applicationUrl: validatedData.applicationUrl,
         visibility: validatedData.visibility,
         source: validatedData.source,
-        status: 'OPEN',
+        status: "OPEN",
         organizationId: validatedData.organizationId,
-        publishedAt: validatedData.visibility === 'PUBLISHED' ? new Date() : null,
+        publishedAt:
+          validatedData.visibility === "PUBLISHED" ? new Date() : null,
       },
       include: {
         organization: {
@@ -240,30 +264,30 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         grant,
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Grant creation error:', error);
-    
+    console.error("Grant creation error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid data", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create grant' },
+      { error: "Failed to create grant" },
       { status: 500 }
     );
   }
@@ -274,9 +298,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BountyCard } from "../components/cards/bounty-card";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Checkbox } from "@packages/base/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@packages/base/components/ui/radio-group";
-import { Label } from "@packages/base/components/ui/label";
 import { Slider } from "@packages/base/components/ui/slider";
 import { Search, Filter } from "lucide-react";
 import { env } from "@/env";
@@ -21,7 +20,9 @@ export default function BountiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  
+  const [isSearching, setIsSearching] = useState(false);
+  const searchAbortRef = useRef<AbortController | null>(null);
+
   // Filter states
   const [statusFilter, setStatusFilter] = useState({
     published: true,
@@ -32,27 +33,40 @@ export default function BountiesPage() {
 
   useEffect(() => {
     fetchBounties();
-  }, [page]);
+  }, [page, searchQuery]);
 
   const fetchBounties = async () => {
     setLoading(true);
     try {
       const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
-      const response = await fetch(`${apiUrl}/api/v1/bounties?page=${page}&limit=10`);
-      
+
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '10'
+      });
+
+      // Add search parameter if query exists
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
+      }
+
+      const response = await fetch(`${apiUrl}/api/v1/bounties?${params.toString()}`);
+
       if (!response.ok) {
         console.error("Failed to fetch bounties");
         return;
       }
 
       const data = await response.json();
-      
+
       if (page === 1) {
+        console.log('Bounties data:', data.bounties);
         setBounties(data.bounties || []);
       } else {
         setBounties(prev => [...prev, ...(data.bounties || [])]);
       }
-      
+
       setHasMore(data.bounties?.length === 10);
     } catch (error) {
       console.error("Error fetching bounties:", error);
@@ -61,10 +75,28 @@ export default function BountiesPage() {
     }
   };
 
+  // Debounced search effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      // Reset to first page when search query changes
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        // If already on page 1, trigger fetch
+        fetchBounties();
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchBounties();
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const totalBounties = bounties.length;
@@ -79,7 +111,7 @@ export default function BountiesPage() {
           <p className="text-white/60 ">
             Find open bounties and earn rewards across all skills of Web3
           </p>
-          
+
           {/* Search and Stats */}
           <div className="mt-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             <form onSubmit={handleSearch} className="flex gap-2 flex-1 max-w-xl">
@@ -88,7 +120,7 @@ export default function BountiesPage() {
                 <Input
                   placeholder="Search for bounty"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
                   className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                 />
               </div>
@@ -96,7 +128,7 @@ export default function BountiesPage() {
                 Search
               </Button>
             </form>
-            
+
             <div className="flex gap-6 text-sm">
               <div>
                 <span className="text-white/60">Total open bounties: </span>
@@ -117,11 +149,10 @@ export default function BountiesPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab
                     ? "bg-white/20 text-white"
                     : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 {tab}
               </button>
@@ -144,9 +175,9 @@ export default function BountiesPage() {
               </div>
             ) : (
               <>
-                <div className="space-y-4">
-                  {bounties.map((bounty: BountyCardProps) => (
-                    <BountyCard
+                  <div className="space-y-4">
+                    {bounties.map((bounty: BountyCardProps) => (
+                      <BountyCard
                       key={bounty.id}
                       id={bounty.id}
                       title={bounty.title}
@@ -161,7 +192,7 @@ export default function BountiesPage() {
                     />
                   ))}
                 </div>
-                
+
                 {/* Load More */}
                 {hasMore && (
                   <div className="mt-8 text-center">
@@ -184,7 +215,7 @@ export default function BountiesPage() {
             {/* Filters */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
               <h3 className="text-lg font-semibold font-heading mb-4">Filter By</h3>
-              
+
               {/* Status */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium mb-3 text-white/80">Status</h4>
@@ -192,7 +223,7 @@ export default function BountiesPage() {
                   <label className="flex items-center gap-2 cursor-pointer">
                     <Checkbox
                       checked={statusFilter.published}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setStatusFilter(prev => ({ ...prev, published: !!checked }))
                       }
                       className="border-white/40 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
@@ -202,7 +233,7 @@ export default function BountiesPage() {
                   <label className="flex items-center gap-2 cursor-pointer">
                     <Checkbox
                       checked={statusFilter.completed}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setStatusFilter(prev => ({ ...prev, completed: !!checked }))
                       }
                       className="border-white/40 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"

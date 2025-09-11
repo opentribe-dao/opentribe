@@ -14,7 +14,6 @@ import { Input } from '@packages/base/components/ui/input';
 import { authClient } from '@packages/auth/client';
 import { Separator } from '@packages/base/components/ui/separator';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';

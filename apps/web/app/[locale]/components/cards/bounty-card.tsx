@@ -1,7 +1,6 @@
-import { Badge } from "@packages/base/components/ui/badge";
-import { Calendar, DollarSign, Users, Clock, Award } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
+import { Calendar, Users, DollarSign, Clock, Trophy } from "lucide-react";
+
 
 interface BountyCardProps {
   id: string;
@@ -31,164 +30,165 @@ export function BountyCard({
   status,
   variant = "default",
 }: BountyCardProps) {
-  const isOpen = status === "OPEN";
+  // Ensure skills is always an array
+  const safeSkills = Array.isArray(skills) ? skills : [];
 
-  if (variant === "list") {
-    return (
-      <Link href={`/en/bounties/${id}`}>
-        <div className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
-          <div className="flex items-center justify-between">
-            {/* Left section with org and title */}
-            <div className="flex items-center gap-4 flex-1">
-              {organization.logo ? (
-                <Image
-                  src={organization.logo}
-                  alt={organization.name}
-                  width={48}
-                  height={48}
-                  className="rounded-full bg-white p-2"
-                  onError={(e) => {
-                    console.error('Bounty Card image failed to load:', organization.logo);
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-white font-heading">
-                    {organization.name[0]}
-                  </span>
-                </div>
-              )}
-              <div className="flex-1">
-                <h3 className="font-heading font-semibold text-base text-white line-clamp-1">
-                  {title}
-                </h3>
-                <div className="flex items-center gap-3 mt-1">
-                  <p className="text-sm text-white/60 ">
-                    {organization.name}
-                  </p>
-                  <span className="text-white/40">•</span>
-                  <div className="flex items-center gap-1 text-white/60 text-sm">
-                    <Clock className="w-3 h-3" />
-                    <span className="">1-3 Weeks</span>
-                  </div>
-                  <span className="text-white/40">•</span>
-                  <span className="text-sm text-white/60 ">
-                    {amount.toLocaleString()} {token}
-                  </span>
-                </div>
-              </div>
-            </div>
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "No date";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "Invalid date";
+    }
+  };
 
-            {/* Right section with status */}
-            <div
-              className={`px-4 py-2 rounded-lg text-xs font-semibold font-heading ml-4 ${
-                isOpen
-                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                  : "bg-red-500/20 text-red-400 border border-red-500/30"
-              }`}
-            >
-              {isOpen ? "OPEN" : "CLOSED"}
-            </div>
-          </div>
-        </div>
-      </Link>
-    );
-  }
+  const getStatusColor = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case "OPEN":
+        return "bg-green-500/20 text-green-300 border-green-500/20";
+      case "REVIEWING":
+        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/20";
+      case "COMPLETED":
+        return "bg-blue-500/20 text-blue-300 border-blue-500/20";
+      case "CLOSED":
+        return "bg-gray-500/20 text-gray-300 border-gray-500/20";
+      case "CANCELLED":
+        return "bg-red-500/20 text-red-300 border-red-500/20";
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/20";
+    }
+  };
+
+  const isDeadlineSoon = () => {
+    if (!deadline) return false;
+    try {
+      const deadlineDate = new Date(deadline);
+      const now = new Date();
+      const diffTime = deadlineDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays <= 7 && diffDays > 0;
+    } catch {
+      return false;
+    }
+  };
+
+  const isExpired = () => {
+    if (!deadline) return false;
+    try {
+      return new Date(deadline) < new Date();
+    } catch {
+      return false;
+    }
+  };
+
+  const safeAmount =
+    typeof amount === "number" && !isNaN(amount) ? amount : null;
+  const safeSubmissionCount =
+    typeof submissionCount === "number" ? submissionCount : 0;
+
+  const organizationName =
+    typeof organization === "object" && organization?.name
+      ? organization.name
+      : typeof organization === "string"
+        ? organization
+        : "Unknown Organization";
 
   return (
-    <Link href={`/en/bounties/${id}`}>
-      <div className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all cursor-pointer">
-        {/* Header with organization and status */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            {organization.logo ? (
-              <Image
-                src={organization.logo}
-                alt={organization.name}
-                width={48}
-                height={48}
-                className="rounded-full bg-white p-2"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-sm font-bold text-white font-heading">
-                  {organization.name[0]}
+    <Link href={`/bounties/${id}`} className="block group h-full">
+      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-200 h-full flex flex-col">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold font-heading text-white group-hover:text-pink-300 transition-colors line-clamp-2 mb-2">
+              {title || "Untitled Bounty"}
+            </h3>
+            <p className="text-sm text-white/60 mb-2">{organizationName}</p>
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-block px-2 py-1 text-xs rounded-md border ${getStatusColor(status)}`}
+              >
+                {status ? status.toLowerCase().replace("_", " ") : "unknown"}
+              </span>
+              {/* {winnersAnnouncedAt && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500/20 text-yellow-300 rounded-md text-xs">
+                  <Trophy className="w-3 h-3" />
+                  Winners Announced
                 </span>
+              )} */}
+            </div>
+          </div>
+
+          {/* Amount */}
+          {safeAmount && (
+            <div className="flex items-center gap-2 ml-4">
+              <DollarSign className="w-4 h-4 text-green-400" />
+              <div className="text-right">
+                {safeAmount && (
+                  <div className="text-lg font-semibold text-green-400">
+                    {safeAmount.toLocaleString()} {token}
+                  </div>
+                )}
+                {/* {safeAmountUSD && (
+                  <div className="text-sm text-white/60">
+                    ~${safeAmountUSD.toLocaleString()} USD
+                  </div>
+                )} */}
               </div>
-            )}
-            <div>
-              <h3 className="font-heading font-semibold text-lg text-white leading-tight">
-                {title}
-              </h3>
-              <p className="text-sm text-white/60 ">
-                {organization.name}
-              </p>
             </div>
-          </div>
-
-          {/* Status and deadline */}
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center gap-1 text-white/60 text-xs">
-              <Clock className="w-3 h-3" />
-              <span className="font-heading">1-3 Weeks</span>
-            </div>
-            <div
-              className={`px-3 py-1 rounded-full text-xs font-semibold font-heading ${
-                isOpen
-                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                  : "bg-red-500/20 text-red-400 border border-red-500/30"
-              }`}
-            >
-              {isOpen ? "OPEN" : "CLOSED"}
-            </div>
-          </div>
-        </div>
-
-        {/* Skills */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {skills.slice(0, 6).map((skill) => (
-            <Badge
-              key={skill}
-              variant="outline"
-              className="border-white/30 bg-white/10 text-white/80 text-xs "
-            >
-              {skill}
-            </Badge>
-          ))}
-          {skills.length > 6 && (
-            <Badge
-              variant="outline"
-              className="border-white/30 bg-white/10 text-white/80 text-xs "
-            >
-              +{skills.length - 6} more
-            </Badge>
           )}
         </div>
 
-        {/* Bottom section with amount and actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-white/10">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-white">
-              <Award className="w-4 h-4 text-green-400" />
-              <span className="font-heading font-bold text-base">
-                {amount.toLocaleString()} {token}
-              </span>
-            </div>
-            <div className="w-px h-4 bg-white/30" />
-            <div className="flex items-center gap-1 text-white/60">
-              <Users className="w-4 h-4" />
-              <span className="text-sm ">
-                {submissionCount} submissions
-              </span>
-            </div>
-          </div>
+        {/* Description */}
+        {/*<p className="text-white/70 text-sm line-clamp-3 mb-4 flex-grow">
+          {description || "No description available"}
+        </p>*/}
 
-          <div className="bg-green-500 hover:bg-green-600 transition-colors px-4 py-2 rounded-lg">
-            <span className="font-heading font-bold text-sm text-white">
-              Apply Now
-            </span>
+        {/* Skills */}
+        {safeSkills.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-4">
+            {safeSkills.slice(0, 3).map((skill, index) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-pink-500/20 text-pink-300 rounded-md text-xs"
+              >
+                {skill}
+              </span>
+            ))}
+            {safeSkills.length > 3 && (
+              <span className="px-2 py-1 bg-white/10 text-white/60 rounded-md text-xs">
+                +{safeSkills.length - 3} more
+              </span>
+            )}
           </div>
+        )}
+
+        {/* Footer */}
+        <div className="flex items-center justify-between text-xs text-white/50 pt-4 border-t border-white/10">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <Users className="w-3 h-3" />
+              <span>{safeSubmissionCount} submissions</span>
+            </div>
+            {deadline && (
+              <div
+                className={`flex items-center gap-1 ${
+                  isExpired()
+                    ? "text-red-400"
+                    : isDeadlineSoon()
+                      ? "text-yellow-400"
+                      : "text-white/50"
+                }`}
+              >
+                <Calendar className="w-3 h-3" />
+                {/* <span>{isExpired() ? "Expired" : formatDate(deadline)}</span> */}
+              </div>
+            )}
+          </div>
+          {/* <span>{formatDate(createdAt)}</span> */}
         </div>
       </div>
     </Link>

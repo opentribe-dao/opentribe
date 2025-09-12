@@ -8,12 +8,18 @@ import { Header } from '../../components/header';
 
 import { BountyProvider, useBountyContext } from './bounty-provider';
 import { usePathname } from 'next/navigation';
+import { use } from 'react';
 
 export default function BountyLayout({
   children,
   params,
-}: { children: React.ReactNode; params: { id: string } }) {
-  const { id } = params;
+}: { children: React.ReactNode; params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const pathname = usePathname();
+
+  if (pathname.endsWith('/edit')) {
+    return <>{children}</>;
+  }
   return (
     <BountyProvider bountyId={id}>
       <BountyLayoutBody>{children}</BountyLayoutBody>
@@ -31,6 +37,8 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
     isAnnouncing,
     announceWinners
   } = useBountyContext();
+
+  const pathname = usePathname();
 
   if (bountyLoading) {
     return (
@@ -58,7 +66,7 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
   }
 
 
-  const pathname = usePathname();
+
 
   // Tab links
   const tabs = [

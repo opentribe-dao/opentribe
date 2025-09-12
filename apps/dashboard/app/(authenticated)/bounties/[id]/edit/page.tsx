@@ -26,6 +26,7 @@ import { useState, useEffect, use } from 'react';
 import { toast } from 'sonner';
 import { Header } from '../../../components/header';
 import { env } from '@/env';
+import { MarkdownEditor } from '@packages/base/components/ui/markdown-editor';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
@@ -378,7 +379,7 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
           <CardContent>
             {currentStep === 1 && (
               <div className="space-y-6">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="title">Bounty Title *</Label>
                   <Input
                     id="title"
@@ -389,16 +390,22 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   />
                 </div>
 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="description">Description *</Label>
-                  <Textarea
+                  {/* <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => updateFormData('description', e.target.value)}
                     placeholder="Describe what you need built, the problem it solves, and any specific requirements..."
                     rows={6}
                     className="bg-white/5 border-white/10 text-white"
-                  />
+                  /> */}
+                  <MarkdownEditor
+                  value={formData.description}
+                  onChange={(value) => updateFormData('description', value)}
+                  placeholder="Provide a detailed description of what you're looking for..."
+                  height={400}
+                />
                 </div>
 
                 <div>
@@ -442,7 +449,7 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="totalAmount">Total Reward Amount *</Label>
                     <Input
                       id="totalAmount"
@@ -517,7 +524,7 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
             {currentStep === 3 && (
               <div className="space-y-6">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="deadline">Submission Deadline *</Label>
                   <div className="relative">
                     <Input
@@ -740,7 +747,7 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
         <div className="flex justify-between">
           <Button
             variant="outline"
-            onClick={currentStep > 1 ? handleBack : () => router.push(`/bounties/${id}`)}
+            onClick={currentStep > 1 ? handleBack : () => router.push(`/bounties/${id}/overview`)}
             className="border-white/20 text-white hover:bg-white/10"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />

@@ -253,15 +253,15 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
 
   return (
     <>
-      <Header 
+      {/* <Header 
         pages={['Bounties', submission.bounty.title, 'Submissions', submission.title || 'Submission']} 
         page="Review Submission" 
-      />
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      /> */}
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0 mt-4">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
-            onClick={() => router.push(`/bounties/${id}`)}
+            onClick={() => router.push(`/bounties/${id}/submissions`)}
             className="text-white/60 hover:text-white"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

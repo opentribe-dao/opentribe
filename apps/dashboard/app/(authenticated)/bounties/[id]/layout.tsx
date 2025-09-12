@@ -17,7 +17,7 @@ export default function BountyLayout({
   const { id } = use(params);
   const pathname = usePathname();
 
-  if (pathname.endsWith('/edit')) {
+  if (pathname.endsWith('/edit') || pathname.includes('/submissions/')) {
     return <>{children}</>;
   }
   return (

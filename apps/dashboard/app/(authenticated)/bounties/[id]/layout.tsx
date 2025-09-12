@@ -1,39 +1,49 @@
-// ... existing code ...
 'use client';
 
-import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { use } from 'react';
-import { useBounty } from '@/hooks/use-bounty';
-import { Badge, Loader2 } from 'lucide-react';
+import { Award, Badge, Loader2 } from 'lucide-react';
 import { Button } from '@packages/base/components/ui/button';
 import router from 'next/router';
 import { Header } from '../../components/header';
 
+import { BountyProvider, useBountyContext } from './bounty-provider';
+import { usePathname } from 'next/navigation';
+
 export default function BountyLayout({
   children,
   params,
-}: {
-  children: ReactNode;
-  params: { id: string };
-}) {
-  const { data: bounty, isLoading, error } = useBounty(params.id);
+}: { children: React.ReactNode; params: { id: string } }) {
+  const { id } = params;
+  return (
+    <BountyProvider bountyId={id}>
+      <BountyLayoutBody>{children}</BountyLayoutBody>
+    </BountyProvider>
+  );
+}
 
-  if (isLoading) {
+function BountyLayoutBody({ children }: { children: React.ReactNode }) {
+  const {
+    bounty,
+    bountyLoading,
+    bountyError,
+    submissions,
+    selectedWinners,
+    isAnnouncing,
+    announceWinners
+  } = useBountyContext();
+
+  if (bountyLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
   }
-  if (error || !bounty) {
-    return <div className="text-white">Bounty not found</div>;
-  }
 
-  if (!bounty) {
+  if (bountyError || !bounty) {
     return (
-      <div className='flex min-h-screen flex-col items-center justify-center'>
-        <h1 className='mb-4 font-semibold text-2xl text-white'>
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <h1 className="mb-4 font-semibold text-2xl text-white">
           Bounty not found
         </h1>
         <Button
@@ -47,6 +57,9 @@ export default function BountyLayout({
     );
   }
 
+
+  const pathname = usePathname();
+
   // Tab links
   const tabs = [
     { name: 'Overview', href: `/bounties/${bounty.id}/overview` },
@@ -56,74 +69,87 @@ export default function BountyLayout({
 
   return (
     <>
-     <Header pages={['Overview', 'Bounties']} page={bounty.title} />
-    <div className='flex min-h-screen flex-col gap-6 p-6'>
-      {/* Header */}
-      <div className="flex items-start justify-between">
+      <Header pages={['Overview', 'Bounties']} page={bounty.title} />
+      <div className="flex min-h-screen flex-col gap-6 p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between">
           <div>
-            <h1 className='mb-2 font-semibold text-3xl text-white'>{bounty.title}</h1>
+            <h1 className="mb-2 font-semibold text-3xl text-white">
+              {bounty.title}
+            </h1>
             <div className="flex items-center gap-4 text-sm text-white/60">
               <span>by {bounty.organization.name}</span>
               <span>•</span>
-              <span>{new Date(bounty.publishedAt || bounty.createdAt).toLocaleDateString()}</span>
+              <span>
+                {new Date(
+                  bounty.publishedAt || bounty.createdAt
+                ).toLocaleDateString()}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge 
-              variant="secondary" 
-              className={bounty.status === 'OPEN' ? 'border-0 bg-green-500/20 text-green-400' : 'border-0 bg-gray-500/20 text-gray-400'}
-            >
+            {/* <Badge
+              variant="secondary"
+              className={
+                bounty.status === 'OPEN'
+                  ? 'border-0 bg-green-500/20 text-green-400'
+                  : 'border-0 bg-gray-500/20 text-gray-400'
+              }
+            > */}
               {bounty.status}
-            </Badge>
-            {/* {bounty.status === 'OPEN' && submissions.length > 0 && !bounty.winnersAnnouncedAt && (
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={handleAnnounceWinners}
-                disabled={isAnnouncing || selectedWinners.size === 0}
-              >
-                {isAnnouncing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Announcing...
-                  </>
-                ) : (
-                  <>
-                    <Award className="h-4 w-4 mr-2" />
-                    Announce Winners ({selectedWinners.size})
-                  </>
-                )}
-              </Button>
-            )} */}
+            {/* </Badge> */}
+            {bounty.status === 'OPEN' &&
+              submissions.length > 0 &&
+              !bounty.winnersAnnouncedAt && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={announceWinners}
+                  disabled={isAnnouncing || selectedWinners.size === 0}
+                >
+                  {isAnnouncing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Announcing...
+                    </>
+                  ) : (
+                    <>
+                      <Award className="h-4 w-4 mr-2" />
+                      Announce Winners ({selectedWinners.size})
+                    </>
+                  )}
+                </Button>
+              )}
             <Button
               variant="outline"
               size="sm"
               className="border-white/20 text-white hover:bg-white/10"
               asChild
             >
-              <Link href={`/bounties/${bounty.id}/edit`}>
-                Edit Bounty
-              </Link>
+              <Link href={`/bounties/${bounty.id}/edit`}>Edit Bounty</Link>
             </Button>
           </div>
         </div>
-         {/* Tab Navigation */}
-         <div className="mt-6 flex gap-2">
+        {/* Tab Navigation */}
+        <div className="mt-6 flex gap-2">
           {tabs.map((tab) => (
             <Link
               key={tab.name}
               href={tab.href}
               className={`rounded-t bg-white/5 px-4 py-2 text-white/80 transition hover:bg-white/10 data-[active=true]:bg-zinc-950 data-[active=true]:text-white `}
-              data-active={typeof window !== 'undefined' && window.location.pathname === tab.href}
+              data-active={
+                typeof window !== 'undefined' &&
+                pathname === tab.href
+              }
               prefetch={false}
             >
               {tab.name}
             </Link>
           ))}
         </div>
-      {/* Tab Content */}
-      <div className="flex-1 p-6">{children}</div>
-    </div>
+        {/* Tab Content */}
+        <div className="flex-1 p-6">{children}</div>
+      </div>
     </>
   );
 }

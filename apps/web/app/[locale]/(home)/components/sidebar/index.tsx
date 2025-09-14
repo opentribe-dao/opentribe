@@ -4,7 +4,7 @@ import { PlatformStats } from './platform-stats'
 import { PopularSkills } from './popular-skills'
 import { FeaturedOrganizations } from './featured-organizations'
 import { RecentActivity } from './recent-activity'
-import { HomepageStatsResponse } from '@/hooks/use-homepage-data'
+import { HomepageStatsResponse } from '@/hooks/use-home-data'
 
 interface SidebarProps {
   data?: HomepageStatsResponse

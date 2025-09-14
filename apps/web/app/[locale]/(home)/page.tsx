@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeroSection } from "./components/hero-section";
 import { ContentSection } from "./components/content-section";
 import { Sidebar } from "./components/sidebar";
-import { useSkillsFilter } from "@/hooks/use-skills-filter";
-import { useHomepageStats, useHomepageContent } from "@/hooks/use-homepage-data";
+import { useSkillsFilter } from "@/hooks/use-home-skills-filter";
+import { useHomepageStats, useHomepageContent } from "@/hooks/use-home-data";
 import { queryClientConfig } from "@/hooks/react-query";
 
 const queryClient = new QueryClient(queryClientConfig);

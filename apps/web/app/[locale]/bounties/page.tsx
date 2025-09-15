@@ -43,9 +43,7 @@ function BountiesPageContent() {
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}
-          onSearchSubmit={(query) => {
-            filtersHook.updateFilter('search', query);
-          }}
+          onSearchSubmit={(query) => filtersHook.updateFilter('search', query)}
           onToggleMobileFilters={() => setShowMobileFilters(!showMobileFilters)}
         />
 
@@ -67,7 +65,7 @@ function BountiesPageContent() {
               hasMore={bountiesData.data?.hasMore || false}
               activeFiltersCount={filtersHook.activeFiltersCount}
               onSkillToggle={skillsFilter.toggleSkill}
-              onClearAllSkills={skillsFilter.clearSkills}
+              // onClearAllSkills={skillsFilter.clearSkills}
               onClearAllFilters={filtersHook.clearAllFilters}
               onLoadMore={handleLoadMore}
               onRetry={() => bountiesData.refetch()}

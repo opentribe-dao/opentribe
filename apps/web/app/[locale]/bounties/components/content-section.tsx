@@ -22,7 +22,6 @@ interface BountiesContentSectionProps {
   hasMore: boolean
   activeFiltersCount: number
   onSkillToggle: (skill: string) => void
-  onClearAllSkills: () => void
   onClearAllFilters: () => void
   onLoadMore: () => void
   onRetry: () => void
@@ -38,7 +37,6 @@ function BountiesContentSectionComponent({
   hasMore,
   activeFiltersCount,
   onSkillToggle,
-  onClearAllSkills,
   onClearAllFilters,
   onLoadMore,
   onRetry
@@ -101,7 +99,7 @@ function BountiesContentSectionComponent({
                   </button>
                 ))}
           </div>
-          <div className="absolute top-0 right-0 bottom-0 w-16 bg-gradient-to-l from-[#111111] to-transparent pointer-events-none" />
+          {/* <div className="absolute top-0 right-0 bottom-0 w-16 bg-gradient-to-l from-[#111111] to-transparent pointer-events-none" /> */}
         </div>
       </div>
 

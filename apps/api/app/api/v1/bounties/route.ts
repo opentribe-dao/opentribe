@@ -42,10 +42,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Parse pagination parameters
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const page = parseInt(searchParams.get("page") || "1");
-    // const offset = (page - 1) * limit; // Convert page to offset
-
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const page = Number.parseInt(searchParams.get("page") || "1");
     // Parse search and filters
     const search = searchParams.get("search") || "";
     const sort = searchParams.get("sort") || "publishedAt";
@@ -71,14 +69,30 @@ export async function GET(request: NextRequest) {
     // Remove duplicates
     const uniqueSkills = [...new Set(skills)];
 
-    // Parse status array - handle multiple statuses
     const statusParam = searchParams.get("status");
-    const statuses = statusParam
+    // const statuses = statusParam
+    //   ? decodeURIComponent(statusParam)
+    //       .split(",")
+    //       .map((s) => s.trim())
+    //       .filter((s) => s)
+    //   : [];
+    
+    const rawStatuses = statusParam
       ? decodeURIComponent(statusParam)
           .split(",")
           .map((s) => s.trim())
-          .filter((s) => s)
-      : ["OPEN"];
+          .filter((s) => s.toLowerCase())
+      : [];
+
+    // Validate against BountyStatus enum values
+    const allowedStatuses = new Set(["OPEN", "REVIEWING", "COMPLETED", "CLOSED", "CANCELLED"]);
+    const statuses = Array.from(
+      new Set(
+        rawStatuses
+          .map((s) => s.toLowerCase())
+          .filter((s) => allowedStatuses.has(s)),
+      ),
+    );
 
     // Build where clause
     const whereClause: any = {
@@ -103,13 +117,13 @@ export async function GET(request: NextRequest) {
     if (minAmount || maxAmount) {
       whereClause.amount = {};
       if (minAmount) {
-        const minAmountNum = parseFloat(minAmount);
+        const minAmountNum = Number.parseFloat(minAmount);
         if (!isNaN(minAmountNum)) {
           whereClause.amount.gte = minAmountNum;
         }
       }
       if (maxAmount) {
-        const maxAmountNum = parseFloat(maxAmount);
+        const maxAmountNum = Number.parseFloat(maxAmount);
         if (!isNaN(maxAmountNum)) {
           whereClause.amount.lte = maxAmountNum;
         }
@@ -118,7 +132,13 @@ export async function GET(request: NextRequest) {
 
     // Filter by submissions
     if (hasSubmissions === "true") {
-      whereClause.submissionCount.gte = 1;
+      // {"error":"Failed to fetch bounties","details":"Cannot set properties of undefined (setting 'gte')"}
+      // whereClause.submissionCount.gte = 1;
+      whereClause.submissionCount = 1;
+    } else if (hasSubmissions === "false") {
+      // {"error":"Failed to fetch bounties","details":"Cannot set properties of undefined (setting 'lte')"}
+      // whereClause.submissionCount.lte = 0;
+      whereClause.submissionCount = 0;
     }
 
     // Filter by deadline
@@ -126,8 +146,6 @@ export async function GET(request: NextRequest) {
       whereClause.deadline = {
         not: null,
       };
-    } else if (hasDeadline === "false") {
-      whereClause.deadline = null;
     }
 
     // Add search functionality

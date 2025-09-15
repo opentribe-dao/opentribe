@@ -26,36 +26,36 @@ function BountiesHeroSectionComponent({
 }: BountiesHeroSectionProps) {
   return (
     <div className="mb-4">
-      <h1 className="text-4xl font-bold font-heading mb-2">Bounties</h1>
+      <h1 className='mb-2 font-bold font-heading text-4xl'>Bounties</h1>
       <p className="text-white/60">
         Complete tasks and earn rewards in the Polkadot ecosystem
       </p>
 
       {/* Search and Stats */}
-      <div className="mt-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+      <div className='mt-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center'>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             onSearchSubmit(searchQuery);
           }}
-          className="flex gap-2 flex-1 max-w-xl"
+          className='flex max-w-xl flex-1 gap-2'
         >
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-4 h-4" />
+            <Search className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-white/40' />
             <Input
               placeholder="Search bounties by title, organization, or skills..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+              className='border-white/10 bg-white/5 pr-10 pl-10 text-white placeholder:text-white/40'
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                className='-translate-y-1/2 absolute top-1/2 right-3 rounded-full p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white'
                 aria-label="Clear search"
               >
-                <X className="w-4 h-4" />
+                <X className='h-4 w-4' />
               </button>
             )}
           </div>
@@ -70,7 +70,7 @@ function BountiesHeroSectionComponent({
             <span className="font-semibold text-white">{totalCount}</span>
           </div>
 
-          <Button
+          {/* <Button
             variant="outline"
             onClick={onToggleMobileFilters}
             className="lg:hidden border-white/20 text-white hover:bg-white/10"
@@ -82,7 +82,7 @@ function BountiesHeroSectionComponent({
                 {activeFiltersCount}
               </span>
             )}
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>

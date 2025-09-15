@@ -44,7 +44,7 @@ function BountiesContentSectionComponent({
   return (
     <div className="lg:col-span-3">
       {/* Active Filters Summary */}
-      {activeFiltersCount > 0 && (
+      {/* {activeFiltersCount > 0 && (
         <div className="mb-4 flex flex-wrap gap-2 items-center">
           <span className="text-sm text-white/60">Active filters:</span>
           {selectedSkills.length > 0 && (
@@ -72,27 +72,27 @@ function BountiesContentSectionComponent({
             Clear all
           </Button>
         </div>
-      )}
+      )} */}
 
       {/* Skills Filter */}
       <div className="mb-4">
         <div className="relative">
-          <div className="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
+          <div className='scrollbar-hide flex gap-2 overflow-x-auto py-2'>
             {loading && skillsOptions.length === 0
               ? Array.from({ length: 8 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-8 w-24 rounded-lg bg-white/10 animate-pulse flex-shrink-0"
+                    className='h-8 w-24 flex-shrink-0 animate-pulse rounded-lg bg-white/10'
                   />
                 ))
               : skillsOptions.map((skill) => (
                   <button
                     key={skill}
                     onClick={() => onSkillToggle(skill)}
-                    className={`flex-shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                    className={`flex-shrink-0 whitespace-nowrap rounded-lg border px-3 py-1.5 font-medium text-sm transition-all duration-200 ${
                       selectedSkills.includes(skill)
-                        ? "bg-pink-500/20 border-pink-400 text-pink-300"
-                        : "bg-white/10 border-white/20 text-white/70 hover:bg-white/20 hover:border-pink-400/50"
+                        ? 'border-pink-400 bg-pink-500/20 text-pink-300'
+                        : 'border-white/20 bg-white/10 text-white/70 hover:border-pink-400/50 hover:bg-white/20'
                     }`}
                   >
                     {skill}
@@ -105,9 +105,9 @@ function BountiesContentSectionComponent({
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 mb-6">
-          <div className="text-red-400 mb-2">Error loading bounties</div>
-          <div className="text-red-300 text-sm mb-4">{error.message}</div>
+        <div className='mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-6'>
+          <div className='mb-2 text-red-400'>Error loading bounties</div>
+          <div className='mb-4 text-red-300 text-sm'>{error.message}</div>
           <Button
             onClick={onRetry}
             variant="outline"
@@ -120,17 +120,17 @@ function BountiesContentSectionComponent({
 
       {/* Content */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
             <div
               key={i}
-              className="h-[400px] bg-white/5 rounded-2xl animate-pulse"
+              className='h-[400px] animate-pulse rounded-2xl bg-white/5'
             />
           ))}
         </div>
       ) : bounties.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
             {bounties.map((bounty, index) => {
               // Add safety check and ensure all required props exist
               if (!bounty?.id) {
@@ -167,6 +167,7 @@ function BountiesContentSectionComponent({
                   skills={bounty.skills || []}
                   createdAt={bounty.createdAt}
                   winnersAnnouncedAt={bounty.winnersAnnouncedAt}
+                  variant="list"
                 />
               );
             })}

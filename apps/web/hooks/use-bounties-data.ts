@@ -54,31 +54,57 @@ interface BountiesFilters {
 export function useBountiesData(filters: BountiesFilters = {}) {
   const queryParams = new URLSearchParams();
   
-  if (filters.status?.length) {
-    queryParams.append('status', filters.status.join(','));
+  // search
+  if (filters.search !== undefined && filters.search !== '') {
+    queryParams.append('search', filters.search);
   }
-  if (filters.skills?.length) {
-    queryParams.append('skills', filters.skills.join(','));
+  
+  // status
+  if (filters.status !== undefined && Array.isArray(filters.status)) {
+    const statusValues = filters.status
+      .map((s) => (s ?? '').toString().trim())
+      .filter((s) => s !== '');
+    if (statusValues.length > 0) {
+      queryParams.append('status', statusValues.join(',').toLowerCase());
+    }
   }
-  if (filters.sortBy) {
+  // skills
+  if (filters.skills !== undefined && Array.isArray(filters.skills)) {
+    const skillsValues = filters.skills
+      .map((s) => (s ?? '').toString().trim())
+      .filter((s) => s !== '');
+    if (skillsValues.length > 0) {
+      queryParams.append('skills', skillsValues.join(','));
+    }
+  }
+  // sortBy
+  if (filters.sortBy !== undefined && filters.sortBy !== '') {
     queryParams.append('sortBy', filters.sortBy);
   }
-  if (filters.priceRange) {
+  // priceRange
+  if (
+    filters.priceRange !== undefined && 
+    filters.priceRange &&
+    Array.isArray(filters.priceRange) &&
+    filters.priceRange.length === 2 &&
+    !(filters.priceRange[0] === 0 && filters.priceRange[1] === 50000)
+  ) {
     queryParams.append('minPrice', filters.priceRange[0].toString());
     queryParams.append('maxPrice', filters.priceRange[1].toString());
   }
-  if (filters.hasSubmissions !== undefined) {
+  // hasSubmissions
+  if (filters.hasSubmissions !== undefined && filters.hasSubmissions === true) {
     queryParams.append('hasSubmissions', filters.hasSubmissions.toString());
   }
-  if (filters.hasDeadline !== undefined) {
+  // hasDeadline
+  if (filters.hasDeadline !== undefined && filters.hasDeadline === true) {
     queryParams.append('hasDeadline', filters.hasDeadline.toString());
   }
-  if (filters.search) {
-    queryParams.append('search', filters.search);
-  }
+  // pagination
   if (filters.page) {
     queryParams.append('page', filters.page.toString());
   }
+  // limit
   if (filters.limit) {
     queryParams.append('limit', filters.limit.toString());
   }

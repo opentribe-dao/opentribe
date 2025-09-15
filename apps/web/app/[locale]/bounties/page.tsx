@@ -10,14 +10,6 @@ import { useBountiesSkillsFilter } from "@/hooks/use-bounties-skills-filter";
 import { queryClientConfig } from "@/hooks/react-query";
 import { useState } from "react";
 
-// Status options for sidebar - extracted to improve readability and reusability
-const statusOptions = [
-  { value: "OPEN", label: "Open" },
-  { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "COMPLETED", label: "Completed" },
-  { value: "CANCELLED", label: "Cancelled" },
-];
-
 const queryClient = new QueryClient(queryClientConfig);
 
 function BountiesPageContent() {
@@ -57,8 +49,8 @@ function BountiesPageContent() {
               skillsOptions={(skillsQuery.data || []).map((s) => s.skill)}
               filters={{
                 status: filtersHook.filters.status || [],
-                sortBy: filtersHook.filters.sortBy || 'newest',
-                priceRange: filtersHook.filters.priceRange || [0, 50000],
+                sortBy: filtersHook.filters.sortBy || '',
+                priceRange: filtersHook.filters.priceRange || [0, 0],
                 hasSubmissions: filtersHook.filters.hasSubmissions || false,
                 hasDeadline: filtersHook.filters.hasDeadline || false,
               }}
@@ -76,12 +68,11 @@ function BountiesPageContent() {
             filters={{
               status: filtersHook.filters.status || [],
               skills: filtersHook.filters.skills || [],
-              sortBy: filtersHook.filters.sortBy || 'newest',
-              priceRange: filtersHook.filters.priceRange || [0, 50000],
+              sortBy: filtersHook.filters.sortBy || '',
+              priceRange: filtersHook.filters.priceRange || [0, 0],
               hasSubmissions: filtersHook.filters.hasSubmissions || false,
               hasDeadline: filtersHook.filters.hasDeadline || false,
             }}
-            statusOptions={statusOptions}
             activeFiltersCount={filtersHook.activeFiltersCount}
             showMobileFilters={showMobileFilters}
             onFilterChange={filtersHook.updateFilter}

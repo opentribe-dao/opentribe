@@ -17,7 +17,6 @@ interface BountyFilters {
 
 interface BountiesSidebarProps {
   filters: BountyFilters
-  statusOptions: Array<{ value: string; label: string }>
   activeFiltersCount: number
   showMobileFilters: boolean
   onFilterChange: (key: keyof BountyFilters, value: any) => void
@@ -37,7 +36,6 @@ const SORT_OPTIONS = [
 
 function BountiesSidebarComponent({
   filters,
-  statusOptions,
   activeFiltersCount,
   showMobileFilters,
   onFilterChange,
@@ -45,17 +43,17 @@ function BountiesSidebarComponent({
   onClearAllFilters
 }: BountiesSidebarProps) {
   return (
-    <div className={`space-y-6 ${showMobileFilters ? "block" : "hidden lg:block"}`}>
+    <div className={`space-y-6 ${showMobileFilters ? "block" : " lg:block"}`}>
       {/* Filters */}
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold font-heading">Filters</h3>
+      <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+        <div className='mb-4 flex items-center justify-between'>
+          <h3 className='font-heading font-semibold text-lg'>Filters</h3>
           {activeFiltersCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onClearAllFilters}
-              className="text-white/60 hover:text-white text-sm"
+              className='text-sm text-white/60 hover:text-white'
             >
               Clear all
             </Button>
@@ -64,19 +62,19 @@ function BountiesSidebarComponent({
 
         {/* Status */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium mb-3 text-white/80">Status</h4>
+          <h4 className='mb-3 font-medium text-sm text-white/80'>Status</h4>
           <div className="space-y-2">
-            {statusOptions.map((option) => (
+            {["Open", "In Review", "Completed"].map((status) => (
               <label
-                key={option.value}
-                className="flex items-center gap-2 cursor-pointer"
+                key={status}
+                className='flex cursor-pointer items-center gap-2'
               >
                 <Checkbox
-                  checked={filters.status.includes(option.value)}
-                  onCheckedChange={() => onStatusToggle(option.value)}
-                  className="border-white/40 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                  checked={filters.status.includes(status.toLowerCase())}
+                  onCheckedChange={() => onStatusToggle(status.toLowerCase())}
+                  className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
                 />
-                <span className="text-sm text-white/70">{option.label}</span>
+                <span className="text-sm text-white/70">{status}</span>
               </label>
             ))}
           </div>
@@ -84,7 +82,7 @@ function BountiesSidebarComponent({
 
         {/* Sort By */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium mb-3 text-white/80">Sort By</h4>
+          <h4 className='mb-3 font-medium text-sm text-white/80'>Sort By</h4>
           <RadioGroup
             value={filters.sortBy}
             onValueChange={(value) => onFilterChange("sortBy", value)}
@@ -95,7 +93,7 @@ function BountiesSidebarComponent({
                   <RadioGroupItem value={option.value} id={option.value} />
                   <label
                     htmlFor={option.value}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white/70 cursor-pointer"
+                    className='cursor-pointer font-medium text-sm text-white/70 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
                   >
                     {option.label}
                   </label>
@@ -107,7 +105,7 @@ function BountiesSidebarComponent({
 
         {/* Price Range */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium mb-3 text-white/80">
+          <h4 className='mb-3 font-medium text-sm text-white/80'>
             Bounty Amount Range
           </h4>
           <div className="space-y-4">
@@ -129,25 +127,25 @@ function BountiesSidebarComponent({
 
         {/* Additional Filters */}
         <div>
-          <h4 className="text-sm font-medium mb-3 text-white/80">Additional</h4>
+          <h4 className='mb-3 font-medium text-sm text-white/80'>Additional</h4>
           <div className="space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className='flex cursor-pointer items-center gap-2'>
               <Checkbox
                 checked={filters.hasSubmissions}
                 onCheckedChange={(checked) =>
                   onFilterChange("hasSubmissions", !!checked)
                 }
-                className="border-white/40 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
               />
               <span className="text-sm text-white/70">Has Submissions</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className='flex cursor-pointer items-center gap-2'>
               <Checkbox
                 checked={filters.hasDeadline}
                 onCheckedChange={(checked) =>
                   onFilterChange("hasDeadline", !!checked)
                 }
-                className="border-white/40 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
               />
               <span className="text-sm text-white/70">Has Deadline</span>
             </label>
@@ -155,7 +153,39 @@ function BountiesSidebarComponent({
         </div>
       </div>
 
-      {/* Quick Stats removed: stats API deprecated */}
+      {/* How it works */}
+      <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+        <h3 className='mb-4 font-heading font-semibold text-lg'>How it works</h3>
+        <div className="space-y-4">
+          {[
+            {
+              step: "1",
+              title: "Browse and select",
+              description: "Find a bounty that matches your skills"
+            },
+            {
+              step: "2",
+              title: "Participate / Develop / Submit",
+              description: "Work on the bounty and submit your solution"
+            },
+            {
+              step: "3",
+              title: "Get paid for your work",
+              description: "Receive rewards when your submission is accepted"
+            }
+          ].map((item) => (
+            <div key={item.step} className="flex gap-3">
+              <div className='flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-600'>
+                <span className='font-bold text-sm'>{item.step}</span>
+              </div>
+              <div>
+                <h4 className='mb-1 font-medium text-sm'>{item.title}</h4>
+                <p className='text-white/60 text-xs'>{item.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

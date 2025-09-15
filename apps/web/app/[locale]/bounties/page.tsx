@@ -43,9 +43,8 @@ function BountiesPageContent() {
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}
-          onSearchSubmit={(e) => {
-            e.preventDefault();
-            // Search is handled by the filter update
+          onSearchSubmit={(query) => {
+            filtersHook.updateFilter('search', query);
           }}
           onToggleMobileFilters={() => setShowMobileFilters(!showMobileFilters)}
         />
@@ -60,7 +59,6 @@ function BountiesPageContent() {
               skillsOptions={(skillsQuery.data || []).map((s) => s.skill)}
               filters={{
                 status: filtersHook.filters.status || [],
-                skills: filtersHook.filters.skills || [],
                 sortBy: filtersHook.filters.sortBy || 'newest',
                 priceRange: filtersHook.filters.priceRange || [0, 50000],
                 hasSubmissions: filtersHook.filters.hasSubmissions || false,

@@ -11,7 +11,7 @@ interface BountiesHeroSectionProps {
   showMobileFilters: boolean
   activeFiltersCount: number
   onSearchChange: (value: string) => void
-  onSearchSubmit: (e: React.FormEvent) => void
+  onSearchSubmit: (query: string) => void
   onToggleMobileFilters: () => void
 }
 
@@ -34,7 +34,10 @@ function BountiesHeroSectionComponent({
       {/* Search and Stats */}
       <div className="mt-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         <form
-          onSubmit={onSearchSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSearchSubmit(searchQuery);
+          }}
           className="flex gap-2 flex-1 max-w-xl"
         >
           <div className="relative flex-1">

@@ -43,38 +43,6 @@ function BountiesContentSectionComponent({
 }: BountiesContentSectionProps) {
   return (
     <div className="lg:col-span-3">
-      {/* Active Filters Summary */}
-      {/* {activeFiltersCount > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2 items-center">
-          <span className="text-sm text-white/60">Active filters:</span>
-          {selectedSkills.length > 0 && (
-            <span className="px-2 py-1 bg-pink-500/20 text-pink-300 rounded-md text-sm">
-              Skills: {selectedSkills.join(", ")}
-            </span>
-          )}
-          {filters.status.length !== 1 || !filters.status.includes("OPEN") ? (
-            <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm">
-              Status: {filters.status.join(", ")}
-            </span>
-          ) : null}
-          {(filters.priceRange[0] > 0 || filters.priceRange[1] < 50000) && (
-            <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded-md text-sm">
-              Amount: ${filters.priceRange[0].toLocaleString()}-$
-              {filters.priceRange[1].toLocaleString()}
-            </span>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClearAllFilters}
-            className="text-white/60 hover:text-white text-sm"
-          >
-            Clear all
-          </Button>
-        </div>
-      )} */}
-
-      {/* Skills Filter */}
       <div className="mb-4">
         <div className="relative">
           <div className='scrollbar-hide flex gap-2 overflow-x-auto py-2'>

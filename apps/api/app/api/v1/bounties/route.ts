@@ -1,7 +1,7 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for bounty creation
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     // Parse skills array - handle URL encoded comma-separated values
     // Support 'skills' parameters
     const skillsParam = searchParams.get("skills");
-    const skills = [];
+    const skills: string[] = [];
 
     if (skillsParam) {
       skills.push(
@@ -70,12 +70,6 @@ export async function GET(request: NextRequest) {
     const uniqueSkills = [...new Set(skills)];
 
     const statusParam = searchParams.get("status");
-    // const statuses = statusParam
-    //   ? decodeURIComponent(statusParam)
-    //       .split(",")
-    //       .map((s) => s.trim())
-    //       .filter((s) => s)
-    //   : [];
     
     const rawStatuses = statusParam
       ? decodeURIComponent(statusParam)

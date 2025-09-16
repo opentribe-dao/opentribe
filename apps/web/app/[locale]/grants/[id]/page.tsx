@@ -35,9 +35,10 @@ async function getGrant(id: string) {
 export default async function GrantDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const grant = await getGrant(params.id);
+  const { id } = await params;
+  const grant = await getGrant(id);
 
   if (!grant) {
     notFound();
@@ -140,20 +141,24 @@ export default async function GrantDetailPage({
                   <Share2 className="w-4 h-4" />
                 </Button>
 
-                {grant.source === 'EXTERNAL' && grant.applicationUrl ? (
-                  <a href={grant.applicationUrl} target="_blank" rel="noopener noreferrer">
-                    <Button 
+                {grant.source === "EXTERNAL" && grant.applicationUrl ? (
+                  <a
+                    href={grant.applicationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
                       className="bg-pink-600 hover:bg-pink-700 text-white"
-                      disabled={grant.status !== 'OPEN'}
+                      disabled={grant.status !== "OPEN"}
                     >
                       Apply Externally
                     </Button>
                   </a>
                 ) : (
-                  <Link href={`/grants/${params.id}/apply`}>
-                    <Button 
+                  <Link href={`/grants/${id}/apply`}>
+                    <Button
                       className="bg-pink-600 hover:bg-pink-700 text-white"
-                      disabled={grant.status !== 'OPEN'}
+                      disabled={grant.status !== "OPEN"}
                     >
                       Apply Now
                     </Button>

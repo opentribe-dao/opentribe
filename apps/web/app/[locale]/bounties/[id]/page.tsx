@@ -36,9 +36,10 @@ async function getBounty(id: string) {
 export default async function BountyDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const bounty = await getBounty(params.id);
+  const { id } = await params;
+  const bounty = await getBounty(id);
 
   if (!bounty) {
     notFound();
@@ -61,11 +62,11 @@ export default async function BountyDetailPage({
   // Handle winnings structure - parse if it's a string
   let winningsData = {};
   if (bounty.winnings) {
-    if (typeof bounty.winnings === 'string') {
+    if (typeof bounty.winnings === "string") {
       try {
         winningsData = JSON.parse(bounty.winnings);
       } catch (e) {
-        console.error('Failed to parse winnings:', e);
+        console.error("Failed to parse winnings:", e);
         winningsData = {};
       }
     } else {
@@ -157,7 +158,7 @@ export default async function BountyDetailPage({
                   <Share2 className="h-4 w-4" />
                 </Button>
 
-                <Link href={`/bounties/${params.id}/submit`}>
+                <Link href={`/bounties/${id}/submit`}>
                   <Button
                     className="bg-pink-600 text-white hover:bg-pink-700"
                     disabled={bounty.status !== "OPEN"}

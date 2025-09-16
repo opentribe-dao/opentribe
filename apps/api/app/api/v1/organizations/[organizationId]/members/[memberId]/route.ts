@@ -17,9 +17,10 @@ export async function OPTIONS() {
 // DELETE /api/v1/organizations/[organizationId]/members/[memberId] - Remove member
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { organizationId: string; memberId: string } }
+  { params }: { params: Promise<{ organizationId: string; memberId: string }> }
 ) {
   try {
+    const { organizationId, memberId } = await params;
     const authHeaders = await headers();
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
@@ -35,7 +36,7 @@ export async function DELETE(
     // Check if user has permission to remove members
     const userMember = await database.member.findFirst({
       where: {
-        organizationId: params.organizationId,
+        organizationId,
         userId: sessionData.user.id,
         role: {
           in: ["owner", "admin"],
@@ -52,10 +53,10 @@ export async function DELETE(
 
     // Get the member to be removed
     const memberToRemove = await database.member.findUnique({
-      where: { id: params.memberId },
+      where: { id: memberId },
     });
 
-    if (!memberToRemove || memberToRemove.organizationId !== params.organizationId) {
+    if (!memberToRemove || memberToRemove.organizationId !== organizationId) {
       return NextResponse.json(
         { error: "Member not found" },
         { status: 404, headers: corsHeaders }
@@ -88,7 +89,7 @@ export async function DELETE(
 
     // Remove the member
     await database.member.delete({
-      where: { id: params.memberId },
+      where: { id: memberId },
     });
 
     return NextResponse.json(
@@ -107,9 +108,10 @@ export async function DELETE(
 // PATCH /api/v1/organizations/[organizationId]/members/[memberId] - Update member role
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { organizationId: string; memberId: string } }
+  { params }: { params: Promise<{ organizationId: string; memberId: string }> }
 ) {
   try {
+    const { organizationId, memberId } = await params;
     const authHeaders = await headers();
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
@@ -125,7 +127,7 @@ export async function PATCH(
     // Only owners can update member roles
     const userMember = await database.member.findFirst({
       where: {
-        organizationId: params.organizationId,
+        organizationId,
         userId: sessionData.user.id,
         role: "owner",
       },
@@ -150,10 +152,10 @@ export async function PATCH(
 
     // Get the member to be updated
     const memberToUpdate = await database.member.findUnique({
-      where: { id: params.memberId },
+      where: { id: memberId },
     });
 
-    if (!memberToUpdate || memberToUpdate.organizationId !== params.organizationId) {
+    if (!memberToUpdate || memberToUpdate.organizationId !== organizationId) {
       return NextResponse.json(
         { error: "Member not found" },
         { status: 404, headers: corsHeaders }
@@ -170,7 +172,7 @@ export async function PATCH(
 
     // Update member role
     const updatedMember = await database.member.update({
-      where: { id: params.memberId },
+      where: { id: memberId },
       data: { role },
       include: {
         user: {

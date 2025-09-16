@@ -1,14 +1,23 @@
-import { adminClient, organizationClient } from 'better-auth/client/plugins';
-import { createAuthClient } from 'better-auth/react';
+import {
+  adminClient,
+  organizationClient,
+  customSessionClient,
+} from "better-auth/client/plugins";
+import { createAuthClient } from "better-auth/react";
+import type { auth } from "./server";
 
 // Create the auth client with proper configuration
 const authClient = createAuthClient({
-  baseURL: typeof window !== 'undefined' 
-    ? `${process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:3002'}/api/auth`
-    : `${process.env.AUTH_API_URL || 'http://localhost:3002'}/api/auth`,
+  baseURL:
+    typeof window !== "undefined"
+      ? `${
+          process.env.NEXT_PUBLIC_AUTH_API_URL || "http://localhost:3002"
+        }/api/auth`
+      : `${process.env.AUTH_API_URL || "http://localhost:3002"}/api/auth`,
   plugins: [
     adminClient(),
     organizationClient(),
+    customSessionClient<typeof auth>(),
   ],
 });
 
@@ -23,10 +32,10 @@ export const {
   signUp,
   useSession,
   getSession,
-  
+
   // Admin methods
   admin,
-  
+
   // Organization methods
   organization,
   useListOrganizations,

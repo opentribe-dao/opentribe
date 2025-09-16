@@ -1,9 +1,9 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { sendBountyFirstSubmissionEmail } from '@packages/email';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { sendBountyFirstSubmissionEmail } from "@packages/email";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
@@ -33,11 +33,13 @@ export async function GET(
         organization: {
           select: {
             id: true,
-            members: session?.user ? {
-              where: {
-                userId: session.user.id,
-              },
-            } : undefined,
+            members: session?.user
+              ? {
+                  where: {
+                    userId: session.user.id,
+                  },
+                }
+              : undefined,
           },
         },
       },
@@ -45,21 +47,24 @@ export async function GET(
 
     if (!bounty) {
       return NextResponse.json(
-        { error: 'Bounty not found' },
-        { 
+        { error: "Bounty not found" },
+        {
           status: 404,
           headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         }
       );
     }
 
     // Check if user can view submissions
-    const isOrgMember = session?.user && bounty.organization.members && bounty.organization.members.length > 0;
-    
+    const isOrgMember =
+      session?.user &&
+      bounty.organization.members &&
+      bounty.organization.members.length > 0;
+
     // For public bounties, only show submitted submissions
     // For org members, show all submissions
     const whereClause: any = {
@@ -69,7 +74,7 @@ export async function GET(
     if (!isOrgMember) {
       // For public, show all non-draft submissions
       whereClause.status = {
-        in: ['SUBMITTED', 'APPROVED', 'REJECTED'],
+        in: ["SUBMITTED", "APPROVED", "REJECTED"],
       };
     }
 
@@ -96,29 +101,31 @@ export async function GET(
             likes: true,
           },
         },
-        payments: isOrgMember ? {
-          select: {
-            id: true,
-            status: true,
-            extrinsicHash: true,
-            amount: true,
-            token: true,
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        } : false,
+        payments: isOrgMember
+          ? {
+              select: {
+                id: true,
+                status: true,
+                extrinsicHash: true,
+                amount: true,
+                token: true,
+                createdAt: true,
+              },
+              orderBy: {
+                createdAt: "desc",
+              },
+            }
+          : false,
       },
       orderBy: [
-        { isWinner: 'desc' },
-        { position: 'asc' },
-        { submittedAt: 'desc' },
+        { isWinner: "desc" },
+        { position: "asc" },
+        { submittedAt: "desc" },
       ],
     });
 
     // Add additional stats
-    const submissionsWithStats = submissions.map(submission => ({
+    const submissionsWithStats = submissions.map((submission) => ({
       ...submission,
       stats: {
         commentsCount: submission._count.comments,
@@ -127,29 +134,29 @@ export async function GET(
     }));
 
     return NextResponse.json(
-      { 
+      {
         submissions: submissionsWithStats,
         total: submissionsWithStats.length,
         isOrgMember,
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Error fetching submissions:', error);
+    console.error("Error fetching submissions:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch submissions' },
+      { error: "Failed to fetch submissions" },
       {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
@@ -169,7 +176,7 @@ export async function POST(
 
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'You must be logged in to submit' },
+        { error: "You must be logged in to submit" },
         { status: 401 }
       );
     }
@@ -190,15 +197,12 @@ export async function POST(
     });
 
     if (!bounty) {
-      return NextResponse.json(
-        { error: 'Bounty not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
-    if (bounty.visibility !== 'PUBLISHED' || bounty.status !== 'OPEN') {
+    if (bounty.visibility !== "PUBLISHED" || bounty.status !== "OPEN") {
       return NextResponse.json(
-        { error: 'This bounty is not accepting submissions' },
+        { error: "This bounty is not accepting submissions" },
         { status: 400 }
       );
     }
@@ -213,7 +217,7 @@ export async function POST(
 
     if (existingSubmission) {
       return NextResponse.json(
-        { error: 'You have already submitted to this bounty' },
+        { error: "You have already submitted to this bounty" },
         { status: 400 }
       );
     }
@@ -231,7 +235,7 @@ export async function POST(
         title: validatedData.title || `Submission for ${bounty.title}`,
         description: validatedData.description,
         responses: validatedData.responses || undefined,
-        status: 'SUBMITTED',
+        status: "SUBMITTED",
         submittedAt: new Date(),
       },
       include: {
@@ -259,7 +263,7 @@ export async function POST(
 
     // Check if this is the first submission and send email to org members
     const submissionCount = await database.submission.count({
-      where: { bountyId: bountyId }
+      where: { bountyId: bountyId },
     });
 
     if (submissionCount === 1) {
@@ -267,7 +271,7 @@ export async function POST(
       const orgMembers = await database.member.findMany({
         where: {
           organizationId: bounty.organizationId,
-          role: { in: ['owner', 'admin'] },
+          role: { in: ["owner", "admin"] },
         },
         include: {
           user: {
@@ -296,16 +300,16 @@ export async function POST(
               },
               {
                 id: submission.id,
-                title: submission.title,
-                description: submission.description || '',
+                title: submission.title || "",
+                description: submission.description || "",
                 submitter: {
                   firstName: submission.submitter.firstName || undefined,
-                  username: submission.submitter.username || 'Anonymous',
+                  username: submission.submitter.username || "Anonymous",
                 },
               }
             );
           } catch (error) {
-            console.error('Failed to send first submission email:', error);
+            console.error("Failed to send first submission email:", error);
             // Don't fail the request if email fails
           }
         }
@@ -313,31 +317,31 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         submission,
       },
       {
         status: 201,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Submission creation error:', error);
-    
+    console.error("Submission creation error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid data", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create submission' },
+      { error: "Failed to create submission" },
       { status: 500 }
     );
   }
@@ -348,9 +352,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

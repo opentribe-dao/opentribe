@@ -42,7 +42,7 @@ export async function GET(
       headers: authHeaders,
     });
 
-    const { id: userId } = params;
+    const { id: userId } = await params;
 
     // Get user with all relevant relations
     const user = await database.user.findUnique({
@@ -134,7 +134,14 @@ export async function GET(
     }
 
     // Remove sensitive fields
-    const { email, emailVerified, banned, banReason, banExpires, ...publicUser } = user;
+    const {
+      email,
+      emailVerified,
+      banned,
+      banReason,
+      banExpires,
+      ...publicUser
+    } = user;
 
     // Add stats
     const stats = {
@@ -182,7 +189,7 @@ export async function PATCH(
       );
     }
 
-    const { id: userId } = params;
+    const { id: userId } = await params;
 
     // Only allow users to update their own profile
     if (sessionData.user.id !== userId) {
@@ -256,9 +263,9 @@ export async function PATCH(
     // Check if this is the first time completing profile
     const currentUser = await database.user.findUnique({
       where: { id: userId },
-      select: { profileCompleted: true }
+      select: { profileCompleted: true },
     });
-    
+
     const isFirstCompletion = !currentUser?.profileCompleted;
 
     // Update user profile
@@ -280,15 +287,22 @@ export async function PATCH(
             firstName: updatedUser.firstName || undefined,
             username: updatedUser.username || undefined,
           },
-          'builder' // Users completing profile are builders
+          "builder" // Users completing profile are builders
         );
       } catch (error) {
-        console.error('Failed to send onboarding complete email:', error);
+        console.error("Failed to send onboarding complete email:", error);
         // Don't fail the request if email fails
       }
     }
 
-    const { email, emailVerified, banned, banReason, banExpires, ...publicUser } = updatedUser;
+    const {
+      email,
+      emailVerified,
+      banned,
+      banReason,
+      banExpires,
+      ...publicUser
+    } = updatedUser;
 
     return NextResponse.json(
       {

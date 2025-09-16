@@ -1,23 +1,26 @@
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import type { NetworkName } from './types';
-import { NETWORK_CONFIG } from './address';
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import {} from "@polkadot/api/types";
+import type { NetworkName } from "./types";
+import { NETWORK_CONFIG } from "./address";
 
 // WebSocket endpoints for different networks
 const WS_ENDPOINTS: Record<NetworkName, string[]> = {
   polkadot: [
-    'wss://rpc.polkadot.io',
-    'wss://polkadot-rpc.dwellir.com',
-    'wss://polkadot.api.onfinality.io/public-ws',
+    "wss://rpc.polkadot.io",
+    "wss://polkadot-rpc.dwellir.com",
+    "wss://polkadot.api.onfinality.io/public-ws",
   ],
   kusama: [
-    'wss://kusama-rpc.polkadot.io',
-    'wss://kusama-rpc.dwellir.com',
-    'wss://kusama.api.onfinality.io/public-ws',
+    "wss://kusama-rpc.polkadot.io",
+    "wss://kusama-rpc.dwellir.com",
+    "wss://kusama.api.onfinality.io/public-ws",
   ],
-  westend: [
-    'wss://westend-rpc.polkadot.io',
-    'wss://westend-rpc.dwellir.com',
+  "asset-hub": [
+    "wss://asset-hub-rpc.polkadot.io",
+    "wss://asset-hub-rpc.dwellir.com",
+    "wss://asset-hub.api.onfinality.io/public-ws",
   ],
+  westend: ["wss://westend-rpc.polkadot.io", "wss://westend-rpc.dwellir.com"],
 };
 
 /**
@@ -28,7 +31,7 @@ export class PolkadotClient {
   private network: NetworkName;
   private wsEndpoint: string;
 
-  constructor(network: NetworkName = 'polkadot', customEndpoint?: string) {
+  constructor(network: NetworkName = "polkadot", customEndpoint?: string) {
     this.network = network;
     this.wsEndpoint = customEndpoint || WS_ENDPOINTS[network][0];
   }
@@ -66,21 +69,25 @@ export class PolkadotClient {
   }> {
     try {
       await this.connect();
-      if (!this.api) throw new Error('API not connected');
+      if (!this.api) throw new Error("API not connected");
 
       // Query the extrinsic
-      const extrinsic = await this.api.query.system.extrinsicData(extrinsicHash);
-      
+      const extrinsic = await this.api.query.system.extrinsicData(
+        extrinsicHash
+      );
+
       if (!extrinsic || extrinsic.isEmpty) {
-        return { success: false, error: 'Extrinsic not found' };
+        return { success: false, error: "Extrinsic not found" };
       }
 
       // Get block hash where the extrinsic was included
       const blockHash = await this.api.query.system.blockHash(extrinsicHash);
-      const signedBlock = await this.api.rpc.chain.getBlock(blockHash);
-      
+      const signedBlock = await this.api.rpc.chain.getBlock(
+        blockHash.toString()
+      );
+
       // Get events for this block
-      const apiAt = await this.api.at(blockHash);
+      const apiAt = await this.api.at(blockHash.toString());
       const events = await apiAt.query.system.events();
 
       // Find events related to this extrinsic
@@ -88,12 +95,13 @@ export class PolkadotClient {
         (ex) => ex.hash.toString() === extrinsicHash
       );
 
-      const extrinsicEvents = events.filter(({ phase }) =>
-        phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
+      const extrinsicEvents = events.filter(
+        ({ phase }: any) =>
+          phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(extrinsicIndex)
       );
 
       // Check if the extrinsic was successful
-      const success = extrinsicEvents.some(({ event }) =>
+      const success = extrinsicEvents.some(({ event }: any) =>
         this.api!.events.system.ExtrinsicSuccess.is(event)
       );
 
@@ -104,12 +112,12 @@ export class PolkadotClient {
         success,
         blockNumber: signedBlock.block.header.number.toNumber(),
         timestamp: timestamp.toNumber(),
-        events: extrinsicEvents.map(({ event }) => event.toJSON()),
+        events: extrinsicEvents.map(({ event }: any) => event.toJSON()),
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
@@ -136,26 +144,27 @@ export class PolkadotClient {
   }> {
     try {
       await this.connect();
-      if (!this.api) throw new Error('API not connected');
+      if (!this.api) throw new Error("API not connected");
 
       const extrinsicData = await this.getExtrinsic(params.extrinsicHash);
-      
+
       if (!extrinsicData.success || !extrinsicData.events) {
         return {
           verified: false,
-          error: extrinsicData.error || 'Failed to get extrinsic data',
+          error: extrinsicData.error || "Failed to get extrinsic data",
         };
       }
 
       // Look for Transfer events
-      const transferEvent = extrinsicData.events.find((event: any) => 
-        event.section === 'balances' && event.method === 'Transfer'
+      const transferEvent = extrinsicData.events.find(
+        (event: any) =>
+          event.section === "balances" && event.method === "Transfer"
       );
 
       if (!transferEvent) {
         return {
           verified: false,
-          error: 'No transfer event found in extrinsic',
+          error: "No transfer event found in extrinsic",
         };
       }
 
@@ -163,21 +172,22 @@ export class PolkadotClient {
       const [from, to, amount] = transferEvent.data as [string, string, string];
 
       // Verify the transfer matches expected values
-      const isFromMatch = from.toLowerCase() === params.expectedFrom.toLowerCase();
+      const isFromMatch =
+        from.toLowerCase() === params.expectedFrom.toLowerCase();
       const isToMatch = to.toLowerCase() === params.expectedTo.toLowerCase();
       const isAmountMatch = amount.toString() === params.expectedAmount;
 
       if (!isFromMatch || !isToMatch || !isAmountMatch) {
         return {
           verified: false,
-          error: 'Transfer details do not match expected values',
+          error: "Transfer details do not match expected values",
           details: {
             actualFrom: from,
             actualTo: to,
             actualAmount: amount.toString(),
             blockNumber: extrinsicData.blockNumber!,
             timestamp: extrinsicData.timestamp!,
-            fee: '0', // Would need to calculate from events
+            fee: "0", // Would need to calculate from events
           },
         };
       }
@@ -190,13 +200,13 @@ export class PolkadotClient {
           actualAmount: amount.toString(),
           blockNumber: extrinsicData.blockNumber!,
           timestamp: extrinsicData.timestamp!,
-          fee: '0', // Would need to calculate from events
+          fee: "0", // Would need to calculate from events
         },
       };
     } catch (error) {
       return {
         verified: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
@@ -206,7 +216,7 @@ export class PolkadotClient {
    */
   async getCurrentBlock(): Promise<number> {
     await this.connect();
-    if (!this.api) throw new Error('API not connected');
+    if (!this.api) throw new Error("API not connected");
 
     const header = await this.api.rpc.chain.getHeader();
     return header.number.toNumber();
@@ -221,10 +231,10 @@ export class PolkadotClient {
     frozen: string;
   }> {
     await this.connect();
-    if (!this.api) throw new Error('API not connected');
+    if (!this.api) throw new Error("API not connected");
 
     const { data: balance } = await this.api.query.system.account(address);
-    
+
     return {
       free: balance.free.toString(),
       reserved: balance.reserved.toString(),
@@ -240,16 +250,16 @@ export class PolkadotClient {
     callback: (transfer: { from: string; to: string; amount: string }) => void
   ): Promise<() => void> {
     await this.connect();
-    if (!this.api) throw new Error('API not connected');
+    if (!this.api) throw new Error("API not connected");
 
-    const unsubscribe = await this.api.query.system.events((events) => {
-      events.forEach((record) => {
+    const unsubscribe = await this.api.query.system.events((events: any) => {
+      events.forEach((record: any) => {
         const { event } = record;
-        
+
         // Check if this is a transfer event
         if (this.api!.events.balances.Transfer.is(event)) {
           const [from, to, amount] = event.data;
-          
+
           // Check if the address is involved
           if (from.toString() === address || to.toString() === address) {
             callback({
@@ -269,13 +279,17 @@ export class PolkadotClient {
    * Get a formatted Subscan URL for viewing the transaction
    */
   getExtrinsicUrl(extrinsicHash: string): string {
-    return `${NETWORK_CONFIG[this.network].subscanUrl}/extrinsic/${extrinsicHash}`;
+    return `${
+      NETWORK_CONFIG[this.network as keyof typeof NETWORK_CONFIG].subscanUrl
+    }/extrinsic/${extrinsicHash}`;
   }
 
   /**
    * Get a formatted Subscan URL for viewing an address
    */
   getAddressUrl(address: string): string {
-    return `${NETWORK_CONFIG[this.network].subscanUrl}/account/${address}`;
+    return `${
+      NETWORK_CONFIG[this.network as keyof typeof NETWORK_CONFIG].subscanUrl
+    }/account/${address}`;
   }
 }

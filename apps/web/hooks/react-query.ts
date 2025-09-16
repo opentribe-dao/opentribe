@@ -24,6 +24,7 @@ export const bountyQueryKeys = {
   detail: (id: string) => [...bountyQueryKeys.details(), id] as const,
   stats: () => [...bountyQueryKeys.all, 'stats'] as const,
   filterOptions: () => [...bountyQueryKeys.all, 'filter-options'] as const,
+  skills: () => [...bountyQueryKeys.all, 'skills'] as const,
 }
 
 // Cache configuration

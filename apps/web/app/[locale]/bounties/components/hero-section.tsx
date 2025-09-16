@@ -69,20 +69,6 @@ function BountiesHeroSectionComponent({
             <span className="text-white/60">Total bounties: </span>
             <span className="font-semibold text-white">{totalCount}</span>
           </div>
-
-          {/* <Button
-            variant="outline"
-            onClick={onToggleMobileFilters}
-            className="lg:hidden border-white/20 text-white hover:bg-white/10"
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Filters
-            {activeFiltersCount > 0 && (
-              <span className="ml-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {activeFiltersCount}
-              </span>
-            )}
-          </Button> */}
         </div>
       </div>
     </div>

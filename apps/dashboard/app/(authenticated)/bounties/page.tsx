@@ -231,7 +231,7 @@ const BountiesPage = () => {
                   <tr key={bounty.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
                       <Link 
-                        href={`/bounties/${bounty.id}/overview`}
+                        href={`/bounties/${bounty.id}/`}
                         className="text-white hover:text-[#E6007A] transition-colors font-medium"
                       >
                         {bounty.title}

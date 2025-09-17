@@ -37,6 +37,7 @@ import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 import { Header } from '../../../../components/header';
 import { env } from '@/env';
+import { useBountyContext } from '../../../../components/bounty-provider';
 
 interface SubmissionDetails {
   id: string;
@@ -90,7 +91,9 @@ interface SubmissionDetails {
   };
 }
 
-export default function SubmissionReviewPage({ params }: { params: Promise<{ id: string; submissionId: string }> }) {
+export default function SubmissionReviewPage({
+  params,
+}: { params: Promise<{ id: string; submissionId: string }> }) {
   const { id, submissionId } = use(params);
   const router = useRouter();
   const { data: session } = useSession();
@@ -100,6 +103,8 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
   const [actionLoading, setActionLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
+
+  const { selectedWinners, setSelectedWinners } = useBountyContext();
 
   useEffect(() => {
     if (id && submissionId) {
@@ -122,7 +127,7 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
       }
 
       const data = await response.json();
-      
+
       // Check if user has access to review this submission
       if (data.submission.bounty.organizationId !== activeOrg?.id) {
         toast.error('You do not have access to review this submission');
@@ -141,13 +146,37 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
     }
   };
 
-  const handleStatusUpdate = async (newStatus: 'SELECTED' | 'REJECTED') => {
+  const handleSelectWinner = (
+    submissionId: string,
+    position: number,
+    amount: number,
+    username: string
+  ) => {
+    const newSelected = new Map(selectedWinners);
+
+    // Check if this submission is already selected
+    if (newSelected.has(submissionId)) {
+      newSelected.delete(submissionId);
+    } else {
+      // Remove any other submission with the same position
+      for (const [id, data] of newSelected) {
+        if (data.position === position) {
+          newSelected.delete(id);
+        }
+      }
+      newSelected.set(submissionId, { position, amount, username });
+    }
+
+    setSelectedWinners(newSelected);
+  };
+
+  const handleStatusUpdate = async (newStatus: 'APPROVED' | 'REJECTED') => {
     if (!feedback && newStatus === 'REJECTED') {
       toast.error('Please provide feedback when rejecting a submission');
       return;
     }
 
-    if (newStatus === 'SELECTED' && selectedPosition === null) {
+    if (newStatus === 'APPROVED' && selectedPosition === null) {
       toast.error('Please select a winner position');
       return;
     }
@@ -165,7 +194,7 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
           body: JSON.stringify({
             status: newStatus,
             feedback: feedback || undefined,
-            position: newStatus === 'SELECTED' ? selectedPosition : undefined,
+            position: newStatus === 'APPROVED' ? selectedPosition : undefined,
           }),
         }
       );
@@ -174,8 +203,10 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
         throw new Error('Failed to update submission status');
       }
 
+      handleSelectWinner(submissionId, selectedPosition ?? 0, 0, submission?.creator.username??'');
+
       toast.success(`Submission ${newStatus.toLowerCase()} successfully`);
-      router.push(`/bounties/${id}`);
+      router.push(`/bounties/${id}/submissions`);
     } catch (error) {
       console.error('Error updating submission:', error);
       toast.error('Failed to update submission status');
@@ -204,7 +235,7 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
         return 'bg-blue-500/20 text-blue-400';
       case 'UNDER_REVIEW':
         return 'bg-yellow-500/20 text-yellow-400';
-      case 'SELECTED':
+      case 'APPROVED':
         return 'bg-green-500/20 text-green-400';
       case 'REJECTED':
         return 'bg-red-500/20 text-red-400';
@@ -215,16 +246,16 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
 
   const getAvailablePositions = () => {
     if (!submission) return [];
-    
+
     // Get positions that are already taken
-    const takenPositions = submission.bounty.submissions
-      .filter(s => s.status === 'SELECTED' && s.id !== submission.id)
-      .length;
-    
+    const takenPositions = submission.bounty.submissions.filter(
+      (s) => s.status === 'APPROVED' && s.id !== submission.id
+    ).length;
+
     // Create array of available positions
     const positions = [];
     for (let i = 1; i <= submission.bounty.winnerCount; i++) {
-      const prize = submission.bounty.winnings.find(w => w.position === i);
+      const prize = submission.bounty.winnings.find((w) => w.position === i);
       if (prize) {
         positions.push({
           position: i,
@@ -233,7 +264,7 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
         });
       }
     }
-    
+
     return positions;
   };
 
@@ -305,7 +336,7 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
 
             {/* External Submission Link */}
             {submission.submissionUrl && (
-              <Card className="bg-white/5 backdrop-blur-md border-white/10">
+              <Card className="bg-white/5 backdrop-blur-md border-white/10 gap-0">
                 <CardHeader>
                   <CardTitle className="text-white">Submission Link</CardTitle>
                 </CardHeader>
@@ -327,12 +358,16 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
             {submission.answers && submission.answers.length > 0 && (
               <Card className="bg-white/5 backdrop-blur-md border-white/10">
                 <CardHeader>
-                  <CardTitle className="text-white">Screening Questions</CardTitle>
+                  <CardTitle className="text-white">
+                    Screening Questions
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {submission.answers.map((answer, index) => (
                     <div key={index} className="space-y-2">
-                      <p className="text-sm font-medium text-white/80">{answer.question}</p>
+                      <p className="text-sm font-medium text-white/80">
+                        {answer.question}
+                      </p>
                       {answer.type === 'url' ? (
                         <a
                           href={answer.answer}
@@ -400,25 +435,31 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                       {availablePositions.map((pos) => (
                         <button
                           key={pos.position}
-                          onClick={() => pos.available && setSelectedPosition(pos.position)}
+                          onClick={() =>
+                            pos.available && setSelectedPosition(pos.position)
+                          }
                           disabled={!pos.available}
                           className={`p-4 rounded-lg border transition-all ${
                             selectedPosition === pos.position
                               ? 'bg-[#E6007A]/20 border-[#E6007A] text-white'
                               : pos.available
-                              ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'
-                              : 'bg-white/5 border-white/10 text-white/40 cursor-not-allowed'
+                                ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                : 'bg-white/5 border-white/10 text-white/40 cursor-not-allowed'
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-medium">Position #{pos.position}</span>
+                            <span className="font-medium">
+                              Position #{pos.position}
+                            </span>
                             <Trophy className="h-4 w-4" />
                           </div>
                           <div className="mt-1 text-sm">
                             {formatAmount(pos.amount)} {submission.bounty.token}
                           </div>
                           {!pos.available && (
-                            <div className="mt-1 text-xs text-white/40">Already taken</div>
+                            <div className="mt-1 text-xs text-white/40">
+                              Already taken
+                            </div>
                           )}
                         </button>
                       ))}
@@ -426,7 +467,9 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   </div>
 
                   <div>
-                    <Label htmlFor="feedback">Feedback (Required for rejection)</Label>
+                    <Label htmlFor="feedback">
+                      Feedback (Required for rejection)
+                    </Label>
                     <Textarea
                       id="feedback"
                       value={feedback}
@@ -438,7 +481,7 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   </div>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => handleStatusUpdate('SELECTED')}
+                      onClick={() => handleStatusUpdate('APPROVED')}
                       disabled={actionLoading || selectedPosition === null}
                       className="bg-green-600 hover:bg-green-700"
                     >
@@ -467,19 +510,26 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
             )}
 
             {/* Previous Decision */}
-            {(submission.status === 'SELECTED' || submission.status === 'REJECTED') && submission.feedback && (
-              <Card className="bg-white/5 backdrop-blur-md border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-white">Review Decision</CardTitle>
-                  <CardDescription className="text-white/60">
-                    Reviewed on {submission.reviewedAt ? formatDate(submission.reviewedAt) : 'N/A'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-white/80">{submission.feedback}</p>
-                </CardContent>
-              </Card>
-            )}
+            {(submission.status === 'APPROVED' ||
+              submission.status === 'REJECTED') &&
+              submission.feedback && (
+                <Card className="bg-white/5 backdrop-blur-md border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-white">
+                      Review Decision
+                    </CardTitle>
+                    <CardDescription className="text-white/60">
+                      Reviewed on{' '}
+                      {submission.reviewedAt
+                        ? formatDate(submission.reviewedAt)
+                        : 'N/A'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-white/80">{submission.feedback}</p>
+                  </CardContent>
+                </Card>
+              )}
           </div>
 
           {/* Sidebar */}
@@ -504,23 +554,30 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   )}
                   <div>
                     <p className="text-white font-medium">
-                      {submission.creator.firstName} {submission.creator.lastName}
+                      {submission.creator.firstName}{' '}
+                      {submission.creator.lastName}
                     </p>
-                    <p className="text-sm text-white/60">@{submission.creator.username}</p>
+                    <p className="text-sm text-white/60">
+                      @{submission.creator.username}
+                    </p>
                   </div>
                 </div>
 
                 {submission.creator.bio && (
                   <div>
                     <p className="text-sm text-white/60 mb-1">Bio</p>
-                    <p className="text-white/80 text-sm">{submission.creator.bio}</p>
+                    <p className="text-white/80 text-sm">
+                      {submission.creator.bio}
+                    </p>
                   </div>
                 )}
 
                 {submission.creator.location && (
                   <div className="flex items-center gap-2 text-white/60">
                     <User className="h-4 w-4" />
-                    <span className="text-sm">{submission.creator.location}</span>
+                    <span className="text-sm">
+                      {submission.creator.location}
+                    </span>
                   </div>
                 )}
 
@@ -536,27 +593,33 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   </div>
                 )}
 
-                {submission.creator.skills && Array.isArray(submission.creator.skills) && submission.creator.skills.length > 0 && (
-                  <div>
-                    <p className="text-sm text-white/60 mb-2">Skills</p>
-                    <div className="flex flex-wrap gap-2">
-                      {submission.creator.skills.map((skill: string) => (
-                        <Badge
-                          key={skill}
-                          variant="secondary"
-                          className="bg-white/10 text-white border-0"
-                        >
-                          {skill}
-                        </Badge>
-                      ))}
+                {submission.creator.skills &&
+                  Array.isArray(submission.creator.skills) &&
+                  submission.creator.skills.length > 0 && (
+                    <div>
+                      <p className="text-sm text-white/60 mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {submission.creator.skills.map((skill: string) => (
+                          <Badge
+                            key={skill}
+                            variant="secondary"
+                            className="bg-white/10 text-white border-0"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 <div className="pt-2 space-y-2">
                   {submission.creator.github && (
                     <a
-                      href={submission.creator.github.startsWith('http') ? submission.creator.github : `https://github.com/${submission.creator.github}`}
+                      href={
+                        submission.creator.github.startsWith('http')
+                          ? submission.creator.github
+                          : `https://github.com/${submission.creator.github}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -567,7 +630,11 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   )}
                   {submission.creator.linkedin && (
                     <a
-                      href={submission.creator.linkedin.startsWith('http') ? submission.creator.linkedin : `https://linkedin.com/in/${submission.creator.linkedin}`}
+                      href={
+                        submission.creator.linkedin.startsWith('http')
+                          ? submission.creator.linkedin
+                          : `https://linkedin.com/in/${submission.creator.linkedin}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -578,7 +645,11 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   )}
                   {submission.creator.twitter && (
                     <a
-                      href={submission.creator.twitter.startsWith('http') ? submission.creator.twitter : `https://twitter.com/${submission.creator.twitter}`}
+                      href={
+                        submission.creator.twitter.startsWith('http')
+                          ? submission.creator.twitter
+                          : `https://twitter.com/${submission.creator.twitter}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -589,7 +660,11 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   )}
                   {submission.creator.website && (
                     <a
-                      href={submission.creator.website.startsWith('http') ? submission.creator.website : `https://${submission.creator.website}`}
+                      href={
+                        submission.creator.website.startsWith('http')
+                          ? submission.creator.website
+                          : `https://${submission.creator.website}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
@@ -613,7 +688,8 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   <div>
                     <p className="text-sm text-white/60">Total Prize Pool</p>
                     <p className="text-white font-medium">
-                      {formatAmount(submission.bounty.totalAmount)} {submission.bounty.token}
+                      {formatAmount(submission.bounty.totalAmount)}{' '}
+                      {submission.bounty.token}
                     </p>
                   </div>
                 </div>
@@ -622,7 +698,9 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   <Users className="h-4 w-4 text-white/60" />
                   <div>
                     <p className="text-sm text-white/60">Winners</p>
-                    <p className="text-white">{submission.bounty.winnerCount} positions</p>
+                    <p className="text-white">
+                      {submission.bounty.winnerCount} positions
+                    </p>
                   </div>
                 </div>
 
@@ -630,7 +708,9 @@ export default function SubmissionReviewPage({ params }: { params: Promise<{ id:
                   <Calendar className="h-4 w-4 text-white/60" />
                   <div>
                     <p className="text-sm text-white/60">Submitted</p>
-                    <p className="text-white">{formatDate(submission.submittedAt)}</p>
+                    <p className="text-white">
+                      {formatDate(submission.submittedAt)}
+                    </p>
                   </div>
                 </div>
               </CardContent>

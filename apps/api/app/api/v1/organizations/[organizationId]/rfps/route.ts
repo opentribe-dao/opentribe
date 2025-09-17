@@ -68,7 +68,7 @@ export async function GET(
             comments: true,
             votes: {
               where: {
-                direction: 'UP',
+                direction: "UP",
               },
             },
             applications: true,
@@ -76,12 +76,12 @@ export async function GET(
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     // Transform the data to include counts
-    const transformedRfps = rfps.map(rfp => ({
+    const transformedRfps = rfps.map((rfp) => ({
       id: rfp.id,
       title: rfp.title,
       slug: rfp.slug,
@@ -149,13 +149,17 @@ export async function POST(
       grantId: z.string(),
       title: z.string().min(1).max(200),
       description: z.string().min(1),
-      resources: z.array(z.object({
-        title: z.string(),
-        url: z.string().url(),
-        description: z.string().optional(),
-      })).optional(),
-      status: z.enum(['OPEN', 'CLOSED', 'COMPLETED']).optional(),
-      visibility: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+      resources: z
+        .array(
+          z.object({
+            title: z.string(),
+            url: z.string().url(),
+            description: z.string().optional(),
+          })
+        )
+        .optional(),
+      status: z.enum(["OPEN", "PAUSED", "CLOSED"]).optional(),
+      visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
     });
 
     const body = await request.json();
@@ -179,12 +183,12 @@ export async function POST(
     // Generate slug from title
     let baseSlug = validatedData.title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     let slug = baseSlug;
     let counter = 1;
-    
+
     // Check if slug exists and append number if needed
     while (await database.rFP.findUnique({ where: { slug } })) {
       slug = `${baseSlug}-${counter}`;
@@ -196,7 +200,8 @@ export async function POST(
       data: {
         ...validatedData,
         slug,
-        publishedAt: validatedData.visibility === 'PUBLISHED' ? new Date() : null,
+        publishedAt:
+          validatedData.visibility === "PUBLISHED" ? new Date() : null,
       },
       include: {
         grant: {
@@ -209,10 +214,7 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(
-      { rfp },
-      { status: 201, headers: corsHeaders }
-    );
+    return NextResponse.json({ rfp }, { status: 201, headers: corsHeaders });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

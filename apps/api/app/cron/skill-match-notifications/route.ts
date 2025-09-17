@@ -1,18 +1,18 @@
-import { database } from '@packages/db';
-import { sendBountySkillMatchEmail } from '@packages/email';
-import { NextResponse } from 'next/server';
+import { database } from "@packages/db";
+import { sendSkillMatchBountyEmail } from "@packages/email";
+import { NextResponse } from "next/server";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 300; // 5 minutes max
 
 // GET /cron/skill-match-notifications - Send skill match notifications for new bounties
 export async function GET(request: Request) {
   try {
     // Verify this is called by our cron job (you can add auth here)
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get("authorization");
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const now = new Date();
@@ -24,9 +24,9 @@ export async function GET(request: Request) {
         createdAt: {
           gte: oneDayAgo,
         },
-        status: 'OPEN',
+        status: "OPEN",
         skills: {
-          not: null,
+          isEmpty: false,
         },
       },
       include: {
@@ -39,9 +39,9 @@ export async function GET(request: Request) {
     });
 
     if (newBounties.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'No new bounties with skills to match' 
+      return NextResponse.json({
+        success: true,
+        message: "No new bounties with skills to match",
       });
     }
 
@@ -50,11 +50,13 @@ export async function GET(request: Request) {
       where: {
         profileCompleted: true,
         skills: {
-          not: null,
+          not: {
+            isEmpty: true,
+          },
         },
         // Check if user has skill match notifications enabled
         preferences: {
-          path: ['notifications', 'skillMatch'],
+          path: ["notifications", "skillMatch"],
           equals: true,
         },
       },
@@ -75,7 +77,10 @@ export async function GET(request: Request) {
     for (const user of activeUsers) {
       try {
         // Skip if user hasn't been active in the last 30 days
-        if (user.lastSeen && user.lastSeen < new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)) {
+        if (
+          user.lastSeen &&
+          user.lastSeen < new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        ) {
           continue;
         }
 
@@ -83,12 +88,12 @@ export async function GET(request: Request) {
         if (userSkills.length === 0) continue;
 
         // Find matching bounties for this user
-        const matchingBounties = newBounties.filter(bounty => {
+        const matchingBounties = newBounties.filter((bounty) => {
           const bountySkills = (bounty.skills as string[]) || [];
           // Check if user has at least 50% of the required skills
-          const matchingSkills = bountySkills.filter(skill => 
-            userSkills.some(userSkill => 
-              userSkill.toLowerCase() === skill.toLowerCase()
+          const matchingSkills = bountySkills.filter((skill) =>
+            userSkills.some(
+              (userSkill) => userSkill.toLowerCase() === skill.toLowerCase()
             )
           );
           return matchingSkills.length >= Math.ceil(bountySkills.length * 0.5);
@@ -104,13 +109,13 @@ export async function GET(request: Request) {
         })[0];
 
         const bountySkills = (bestMatch.skills as string[]) || [];
-        const matchingSkills = bountySkills.filter(skill => 
-          userSkills.some(userSkill => 
-            userSkill.toLowerCase() === skill.toLowerCase()
+        const matchingSkills = bountySkills.filter((skill) =>
+          userSkills.some(
+            (userSkill) => userSkill.toLowerCase() === skill.toLowerCase()
           )
         );
 
-        await sendBountySkillMatchEmail(
+        await sendSkillMatchBountyEmail(
           {
             email: user.email,
             firstName: user.firstName || undefined,
@@ -119,20 +124,28 @@ export async function GET(request: Request) {
           {
             id: bestMatch.id,
             title: bestMatch.title,
-            description: bestMatch.description || '',
-            organization: bestMatch.organization.name,
-            amount: `${bestMatch.amount} ${bestMatch.token || 'USDT'}`,
+            description: bestMatch.description || "",
+            organization: {
+              name: bestMatch.organization.name,
+            },
+            prizeAmount: `${bestMatch.amount} ${bestMatch.token || "USDT"}`,
             deadline: bestMatch.deadline || new Date(),
-            skills: bountySkills,
+            token: bestMatch.token,
           },
-          matchingSkills,
-          `${process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io'}/bounties/${bestMatch.id}`
+          matchingSkills
         );
 
         emailsSent++;
       } catch (error) {
-        console.error(`Failed to send skill match email to user ${user.id}:`, error);
-        errors.push(`User ${user.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(
+          `Failed to send skill match email to user ${user.id}:`,
+          error
+        );
+        errors.push(
+          `User ${user.id}: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
       }
     }
 
@@ -148,11 +161,11 @@ export async function GET(request: Request) {
       ...(errors.length > 0 && { errors }),
     });
   } catch (error) {
-    console.error('Skill match notifications cron error:', error);
+    console.error("Skill match notifications cron error:", error);
     return NextResponse.json(
-      { 
-        error: 'Failed to process skill match notifications',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: "Failed to process skill match notifications",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

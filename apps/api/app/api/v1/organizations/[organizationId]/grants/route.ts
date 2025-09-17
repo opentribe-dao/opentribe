@@ -1,16 +1,16 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Query params schema
 const queryParamsSchema = z.object({
-  limit: z.string().transform(Number).default('10'),
-  offset: z.string().transform(Number).default('0'),
-  status: z.enum(['OPEN', 'PAUSED', 'CLOSED', 'ALL']).default('ALL'),
-  visibility: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED', 'ALL']).default('ALL'),
-  source: z.enum(['NATIVE', 'EXTERNAL', 'ALL']).default('ALL'),
+  limit: z.string().transform(Number).default("10"),
+  offset: z.string().transform(Number).default("0"),
+  status: z.enum(["OPEN", "PAUSED", "CLOSED", "ALL"]).default("ALL"),
+  visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED", "ALL"]).default("ALL"),
+  source: z.enum(["NATIVE", "EXTERNAL", "ALL"]).default("ALL"),
   search: z.string().optional(),
 });
 
@@ -26,19 +26,19 @@ export async function GET(
 
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { 
+        { error: "Unauthorized" },
+        {
           status: 401,
           headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         }
       );
     }
 
-    const { organizationId } = params;
+    const { organizationId } = await params;
 
     // Check if user is a member of the organization
     const membership = await database.member.findFirst({
@@ -50,13 +50,13 @@ export async function GET(
 
     if (!membership) {
       return NextResponse.json(
-        { error: 'You are not a member of this organization' },
-        { 
+        { error: "You are not a member of this organization" },
+        {
           status: 403,
           headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         }
       );
@@ -64,35 +64,35 @@ export async function GET(
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const status = searchParams.get('status') || 'ALL';
-    const visibility = searchParams.get('visibility') || 'ALL';
-    const source = searchParams.get('source') || 'ALL';
-    const search = searchParams.get('search') || '';
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const offset = parseInt(searchParams.get("offset") || "0");
+    const status = searchParams.get("status") || "ALL";
+    const visibility = searchParams.get("visibility") || "ALL";
+    const source = searchParams.get("source") || "ALL";
+    const search = searchParams.get("search") || "";
 
     // Build where clause
     const whereClause: any = {
       organizationId: organizationId,
     };
 
-    if (status !== 'ALL') {
+    if (status !== "ALL") {
       whereClause.status = status;
     }
 
-    if (visibility !== 'ALL') {
+    if (visibility !== "ALL") {
       whereClause.visibility = visibility;
     }
 
-    if (source !== 'ALL') {
+    if (source !== "ALL") {
       whereClause.source = source;
     }
 
     if (search) {
       whereClause.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { summary: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { summary: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -136,7 +136,7 @@ export async function GET(
         },
         applications: {
           where: {
-            status: 'APPROVED',
+            status: "APPROVED",
           },
           select: {
             id: true,
@@ -145,19 +145,22 @@ export async function GET(
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       take: limit,
       skip: offset,
     });
 
     // Add statistics to each grant
-    const grantsWithStats = grants.map(grant => {
+    const grantsWithStats = grants.map((grant) => {
       const approvedBudgets = grant.applications
-        .filter(app => app.budget)
-        .map(app => Number(app.budget));
-      
-      const totalApproved = approvedBudgets.reduce((sum, budget) => sum + budget, 0);
+        .filter((app) => app.budget)
+        .map((app) => Number(app.budget));
+
+      const totalApproved = approvedBudgets.reduce(
+        (sum, budget) => sum + budget,
+        0
+      );
       const totalFunds = grant.totalFunds ? Number(grant.totalFunds) : 0;
       const remainingFunds = totalFunds - totalApproved;
 
@@ -170,13 +173,14 @@ export async function GET(
           approvedApplicationsCount: grant.applications.length,
           totalApprovedAmount: totalApproved,
           remainingFunds: remainingFunds > 0 ? remainingFunds : 0,
-          fundingProgress: totalFunds > 0 ? (totalApproved / totalFunds) * 100 : 0,
+          fundingProgress:
+            totalFunds > 0 ? (totalApproved / totalFunds) * 100 : 0,
         },
       };
     });
 
     return NextResponse.json(
-      { 
+      {
         grants: grantsWithStats,
         pagination: {
           total,
@@ -187,22 +191,22 @@ export async function GET(
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Error fetching organization grants:', error);
+    console.error("Error fetching organization grants:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch grants' },
+      { error: "Failed to fetch grants" },
       {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
@@ -214,9 +218,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

@@ -1,8 +1,8 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Schema for bounty update
 const updateBountySchema = z.object({
@@ -11,21 +11,31 @@ const updateBountySchema = z.object({
   skills: z.array(z.string()).optional(),
   amount: z.number().positive().optional(),
   token: z.string().optional(),
-  split: z.enum(['FIXED', 'EQUAL_SPLIT', 'VARIABLE']).optional(),
+  split: z.enum(["FIXED", "EQUAL_SPLIT", "VARIABLE"]).optional(),
   winnings: z.record(z.string(), z.number()).optional(),
   deadline: z.string().datetime().optional(),
-  resources: z.array(z.object({
-    title: z.string(),
-    url: z.string().url(),
-    description: z.string().optional(),
-  })).optional(),
-  screening: z.array(z.object({
-    question: z.string(),
-    type: z.enum(['text', 'url', 'file']),
-    optional: z.boolean(),
-  })).optional(),
-  visibility: z.enum(['DRAFT', 'PUBLISHED']).optional(),
-  status: z.enum(['OPEN', 'REVIEWING', 'COMPLETED', 'CLOSED', 'CANCELLED']).optional(),
+  resources: z
+    .array(
+      z.object({
+        title: z.string(),
+        url: z.string().url(),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+  screening: z
+    .array(
+      z.object({
+        question: z.string(),
+        type: z.enum(["text", "url", "file"]),
+        optional: z.boolean(),
+      })
+    )
+    .optional(),
+  visibility: z.enum(["DRAFT", "PUBLISHED"]).optional(),
+  status: z
+    .enum(["OPEN", "REVIEWING", "COMPLETED", "CLOSED", "CANCELLED"])
+    .optional(),
 });
 
 // GET /api/v1/bounties/[id] - Get bounty details
@@ -39,10 +49,7 @@ export async function GET(
     // Try to find by ID first, then by slug
     const bounty = await database.bounty.findFirst({
       where: {
-        OR: [
-          { id: bountyId },
-          { slug: bountyId }
-        ]
+        OR: [{ id: bountyId }, { slug: bountyId }],
       },
       include: {
         organization: {
@@ -64,7 +71,7 @@ export async function GET(
         submissions: {
           where: {
             status: {
-              in: ['SUBMITTED', 'APPROVED', 'REJECTED'], // Show all reviewed submissions, not drafts
+              in: ["SUBMITTED", "APPROVED", "REJECTED"], // Show all reviewed submissions, not drafts
             },
           },
           select: {
@@ -90,9 +97,9 @@ export async function GET(
             },
           },
           orderBy: [
-            { isWinner: 'desc' }, // Winners first
-            { position: 'asc' },  // Then by position
-            { createdAt: 'desc' }, // Then by creation date
+            { isWinner: "desc" }, // Winners first
+            { position: "asc" }, // Then by position
+            { createdAt: "desc" }, // Then by creation date
           ],
         },
         comments: {
@@ -124,7 +131,7 @@ export async function GET(
             parentId: null,
           },
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
           take: 5,
         },
@@ -133,17 +140,23 @@ export async function GET(
 
     if (!bounty) {
       return NextResponse.json(
-        { error: 'Bounty not found' },
-        { 
+        { error: "Bounty not found" },
+        {
           status: 404,
           headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         }
       );
     }
+
+    // Increment view count
+    await database.bounty.update({
+      where: { id: bounty.id },
+      data: { viewCount: { increment: 1 } },
+    });
 
     // Show all submissions after winners have been announced
     // Before winners are announced, submissions are private
@@ -157,22 +170,22 @@ export async function GET(
       { bounty },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Error fetching bounty:', error);
+    console.error("Error fetching bounty:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch bounty' },
+      { error: "Failed to fetch bounty" },
       {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
@@ -191,10 +204,7 @@ export async function PATCH(
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bountyId = (await params).id;
@@ -203,10 +213,7 @@ export async function PATCH(
     // Try to find by ID first, then by slug
     const bounty = await database.bounty.findFirst({
       where: {
-        OR: [
-          { id: bountyId },
-          { slug: bountyId }
-        ]
+        OR: [{ id: bountyId }, { slug: bountyId }],
       },
       include: {
         organization: {
@@ -215,7 +222,7 @@ export async function PATCH(
               where: {
                 userId: session.user.id,
                 role: {
-                  in: ['owner', 'admin'],
+                  in: ["owner", "admin"],
                 },
               },
             },
@@ -225,15 +232,12 @@ export async function PATCH(
     });
 
     if (!bounty) {
-      return NextResponse.json(
-        { error: 'Bounty not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
     if (bounty.organization.members.length === 0) {
       return NextResponse.json(
-        { error: 'You do not have permission to update this bounty' },
+        { error: "You do not have permission to update this bounty" },
         { status: 403 }
       );
     }
@@ -245,24 +249,39 @@ export async function PATCH(
     // Prepare update data
     const updateData: any = {};
 
-    if (validatedData.title !== undefined) updateData.title = validatedData.title;
-    if (validatedData.description !== undefined) updateData.description = validatedData.description;
-    if (validatedData.skills !== undefined) updateData.skills = validatedData.skills;
-    if (validatedData.amount !== undefined) updateData.amount = validatedData.amount;
-    if (validatedData.token !== undefined) updateData.token = validatedData.token;
-    if (validatedData.split !== undefined) updateData.split = validatedData.split;
-    if (validatedData.winnings !== undefined) updateData.winnings = validatedData.winnings;
-    if (validatedData.deadline !== undefined) updateData.deadline = new Date(validatedData.deadline);
-    if (validatedData.resources !== undefined) updateData.resources = validatedData.resources;
-    if (validatedData.screening !== undefined) updateData.screening = validatedData.screening;
+    if (validatedData.title !== undefined)
+      updateData.title = validatedData.title;
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description;
+    if (validatedData.skills !== undefined)
+      updateData.skills = validatedData.skills;
+    if (validatedData.amount !== undefined)
+      updateData.amount = validatedData.amount;
+    if (validatedData.token !== undefined)
+      updateData.token = validatedData.token;
+    if (validatedData.split !== undefined)
+      updateData.split = validatedData.split;
+    if (validatedData.winnings !== undefined)
+      updateData.winnings = validatedData.winnings;
+    if (validatedData.deadline !== undefined)
+      updateData.deadline = new Date(validatedData.deadline);
+    if (validatedData.resources !== undefined)
+      updateData.resources = validatedData.resources;
+    if (validatedData.screening !== undefined)
+      updateData.screening = validatedData.screening;
     if (validatedData.visibility !== undefined) {
       updateData.visibility = validatedData.visibility;
       // Update publishedAt if changing from DRAFT to PUBLISHED
-      if (bounty.visibility === 'DRAFT' && validatedData.visibility === 'PUBLISHED' && !bounty.publishedAt) {
+      if (
+        bounty.visibility === "DRAFT" &&
+        validatedData.visibility === "PUBLISHED" &&
+        !bounty.publishedAt
+      ) {
         updateData.publishedAt = new Date();
       }
     }
-    if (validatedData.status !== undefined) updateData.status = validatedData.status;
+    if (validatedData.status !== undefined)
+      updateData.status = validatedData.status;
 
     // Update the bounty
     const updatedBounty = await database.bounty.update({
@@ -286,30 +305,30 @@ export async function PATCH(
     });
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         bounty: updatedBounty,
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Bounty update error:', error);
-    
+    console.error("Bounty update error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid data", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to update bounty' },
+      { error: "Failed to update bounty" },
       { status: 500 }
     );
   }
@@ -327,10 +346,7 @@ export async function DELETE(
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bountyId = (await params).id;
@@ -339,10 +355,7 @@ export async function DELETE(
     // Try to find by ID first, then by slug
     const bounty = await database.bounty.findFirst({
       where: {
-        OR: [
-          { id: bountyId },
-          { slug: bountyId }
-        ]
+        OR: [{ id: bountyId }, { slug: bountyId }],
       },
       include: {
         organization: {
@@ -351,7 +364,7 @@ export async function DELETE(
               where: {
                 userId: session.user.id,
                 role: {
-                  in: ['owner', 'admin'],
+                  in: ["owner", "admin"],
                 },
               },
             },
@@ -366,15 +379,12 @@ export async function DELETE(
     });
 
     if (!bounty) {
-      return NextResponse.json(
-        { error: 'Bounty not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
     if (bounty.organization.members.length === 0) {
       return NextResponse.json(
-        { error: 'You do not have permission to delete this bounty' },
+        { error: "You do not have permission to delete this bounty" },
         { status: 403 }
       );
     }
@@ -382,7 +392,7 @@ export async function DELETE(
     // Don't allow deletion if there are submissions
     if (bounty._count.submissions > 0) {
       return NextResponse.json(
-        { error: 'Cannot delete a bounty with submissions' },
+        { error: "Cannot delete a bounty with submissions" },
         { status: 400 }
       );
     }
@@ -393,23 +403,23 @@ export async function DELETE(
     });
 
     return NextResponse.json(
-      { 
+      {
         success: true,
-        message: 'Bounty deleted successfully',
+        message: "Bounty deleted successfully",
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
   } catch (error) {
-    console.error('Bounty deletion error:', error);
-    
+    console.error("Bounty deletion error:", error);
+
     return NextResponse.json(
-      { error: 'Failed to delete bounty' },
+      { error: "Failed to delete bounty" },
       { status: 500 }
     );
   }
@@ -420,9 +430,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

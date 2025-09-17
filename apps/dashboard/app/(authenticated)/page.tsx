@@ -60,7 +60,7 @@ const App = () => {
       <Header pages={[]} page="Overview" />
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Stats Cards */}
-        <div className="grid gap-12 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           <StatsCard
             title="Active Bounties"
             value={stats.activeBounties ?? 0}

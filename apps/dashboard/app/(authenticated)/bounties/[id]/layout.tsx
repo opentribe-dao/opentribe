@@ -6,7 +6,7 @@ import { Button } from '@packages/base/components/ui/button';
 import router from 'next/router';
 import { Header } from '../../components/header';
 
-import { BountyProvider, useBountyContext } from './bounty-provider';
+import { BountyProvider, useBountyContext } from '../../components/bounty-provider';
 import { usePathname } from 'next/navigation';
 import { use } from 'react';
 
@@ -18,7 +18,7 @@ export default function BountyLayout({
   const pathname = usePathname();
 
   if (pathname.endsWith('/edit') || pathname.includes('/submissions/')) {
-    return <>{children}</>;
+    return <BountyProvider bountyId={id}>{children}</BountyProvider>;
   }
   return (
     <BountyProvider bountyId={id}>
@@ -35,7 +35,7 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
     submissions,
     selectedWinners,
     isAnnouncing,
-    announceWinners
+    announceWinners,
   } = useBountyContext();
 
   const pathname = usePathname();
@@ -65,12 +65,9 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
     );
   }
 
-
-
-
   // Tab links
   const tabs = [
-    { name: 'Overview', href: `/bounties/${bounty.id}/overview` },
+    { name: 'Overview', href: `/bounties/${bounty.id}/` },
     { name: 'Submissions', href: `/bounties/${bounty.id}/submissions` },
     { name: 'Settings', href: `/bounties/${bounty.id}/settings` },
   ];
@@ -104,9 +101,9 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
                   : 'border-0 bg-gray-500/20 text-gray-400'
               }
             > */}
-              {bounty.status}
+            {bounty.status}
             {/* </Badge> */}
-            {bounty.status === 'OPEN' &&
+            {/* {bounty.status === 'OPEN' &&
               submissions.length > 0 &&
               !bounty.winnersAnnouncedAt && (
                 <Button
@@ -127,7 +124,7 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
                     </>
                   )}
                 </Button>
-              )}
+              )} */}
             <Button
               variant="outline"
               size="sm"
@@ -147,7 +144,9 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
               className={`rounded-t bg-white/5 px-4 py-2 text-white/80 transition hover:bg-white/10 data-[active=true]:bg-zinc-950 data-[active=true]:text-white `}
               data-active={
                 typeof window !== 'undefined' &&
-                pathname === tab.href
+                (pathname === tab.href ||
+                  (tab.name === 'Overview' &&
+                    pathname === `/bounties/${bounty.id}/`))
               }
               prefetch={false}
             >

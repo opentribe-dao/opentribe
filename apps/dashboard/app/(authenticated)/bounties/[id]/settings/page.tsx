@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@packages/base/components/ui/card";
-import { useBountyContext } from "../bounty-provider";
+import { useBountyContext } from "../../../components/bounty-provider";
 
 export default function SettingsPage() {
 

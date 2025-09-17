@@ -15,7 +15,7 @@ import {
   Trophy,
 } from 'lucide-react';
 
-import { useBountyContext } from '../bounty-provider';
+import { useBountyContext } from '../../components/bounty-provider';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 

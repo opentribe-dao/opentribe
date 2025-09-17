@@ -22,9 +22,9 @@ interface BountyContextType {
   submissionsError: Error | null;
   refreshSubmissions: () => void;
 
-  selectedWinners: Map<string, { position: number; amount: number }>;
+  selectedWinners: Map<string, { position: number; amount: number, username: string }>;
   setSelectedWinners: (
-    winners: Map<string, { position: number; amount: number }>
+    winners: Map<string, { position: number; amount: number, username: string }>
   ) => void;
   clearSelectedWinners: () => void;
 
@@ -56,7 +56,7 @@ export function BountyProvider({
 
   // Winner selection state
   const [selectedWinners, setSelectedWinners] = useState<
-    Map<string, { position: number; amount: number }>
+    Map<string, { position: number; amount: number, username: string }>
   >(new Map());
   const [isAnnouncing, setIsAnnouncing] = useState(false);
 

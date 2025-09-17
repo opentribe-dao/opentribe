@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@packages/base/components/ui/button';
 import {
@@ -31,14 +31,24 @@ import {
   Eye,
   MessageCircle,
   Heart,
+  Award,
 } from 'lucide-react';
-import { useBountyContext } from '../bounty-provider';
+import { useBountyContext } from '../../../components/bounty-provider';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { set } from 'zod/v4-mini';
 
 export default function SubmissionsPage() {
-  const { bounty, submissions, submissionsLoading, submissionsError } =
-    useBountyContext();
+  const {
+    bounty,
+    submissions,
+    submissionsLoading,
+    submissionsError,
+    selectedWinners,
+    announceWinners,
+    setSelectedWinners,
+    isAnnouncing,
+  } = useBountyContext();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<
@@ -47,6 +57,82 @@ export default function SubmissionsPage() {
   const [sortBy, setSortBy] = useState<
     'newest' | 'oldest' | 'likes' | 'comments'
   >('newest');
+
+  //  // Save sorted winners in setSelectedWinners as a Map<string, { position: number; amount: number }>
+  //  useEffect(() => {
+  //   // Only update if sortedWinners is non-empty
+  //   if (sortedWinners !=null && sortedWinners.length > 0) {
+  //     const winnersMap = new Map<string, { position: number; amount: number }>();
+  //     sortedWinners.forEach((winner, idx) => {
+  //       // Use the index as a unique key since submissionId is not available
+  //       if (winner.position != null && winner.winningAmount != null) {
+  //         winnersMap.set(String(idx), {
+  //           position: winner.position,
+  //           amount: winner.winningAmount,
+  //         });
+  //       }
+  //     });
+
+  //     setSelectedWinners(winnersMap);
+  //   } else {
+  //     setSelectedWinners(new Map());
+  //   }
+  // // FIX: Remove dependency on sortedWinners, which is not declared yet.
+  // }, [setSelectedWinners]);
+
+  // Compute sorted winners and also save them in selectedWinners
+  const sortedWinners = useMemo(() => {
+    const winners = submissions
+      .filter(
+        (s) =>
+          s.status === 'APPROVED' &&
+          s.position != null &&
+          s.winningAmount != null
+      )
+      .sort((a, b) => {
+        if (a.position == null && b.position == null) {
+          return 0;
+        }
+        if (a.position == null) {
+          return 1;
+        }
+        if (b.position == null) {
+          return -1;
+        }
+        return a.position - b.position;
+      });
+
+    // Save to selectedWinners as a Map<submissionId, { position, amount, username }>
+    if (winners.length > 0) {
+      const winnersMap = new Map<
+        string,
+        { position: number; amount: number; username: string }
+      >();
+      for (const s of winners) {
+        if (
+          s.position == null ||
+          s.winningAmount == null ||
+          s.submitter.username == null
+        ) {
+          continue;
+        }
+        winnersMap.set(s.id, {
+          position: s.position,
+          amount: s.winningAmount,
+          username: s.submitter.username,
+        });
+      }
+      setSelectedWinners(winnersMap);
+    }
+
+    // Return array for display
+    return winners.map((s) => ({
+      position: s.position,
+      winningAmount: s.winningAmount,
+      username: s.submitter.username,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submissions, setSelectedWinners]);
 
   // Filtering
   const filtered = useMemo(() => {
@@ -117,10 +203,6 @@ export default function SubmissionsPage() {
     return <div className="text-white">Bounty not found</div>;
   }
 
-  const sortedWinnings = Object.entries(bounty.winnings).sort(
-    ([a], [b]) => Number(a) - Number(b)
-  );
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'SUBMITTED':
@@ -146,7 +228,7 @@ export default function SubmissionsPage() {
         </div>
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <div className="relative sm:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40 z-10" />
             <Input
               placeholder="Search title or user"
               value={searchQuery}
@@ -296,146 +378,235 @@ export default function SubmissionsPage() {
           </CardContent>
         </Card>
       ) : (
-        
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {sorted.map((submission) => (
-              <Card
-                key={submission.id}
-                className={`border-white/10 bg-zinc-900/50 transition-all hover:bg-zinc-800/50 ${submission.isWinner ? 'border-green-500/50' : ''}`}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      {submission.submitter.avatarUrl ? (
-                        <img
-                          src={submission.submitter.avatarUrl}
-                          alt={submission.submitter.username}
-                          className="h-10 w-10 rounded-full"
-                        />
-                      ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
-                          {submission.submitter.username?.[0]?.toUpperCase() ||
-                            'A'}
+        <div className="flex flex-col gap-6 lg:flex-row">
+          <div className="w-full lg:w-[70%]">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
+              {sorted.map((submission) => (
+                <Card
+                  key={submission.id}
+                  className={`border-white/10 bg-zinc-900/50 transition-all hover:bg-zinc-800/50 ${submission.isWinner ? 'border-green-500/50' : ''}`}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        {submission.submitter.avatarUrl ? (
+                          <img
+                            src={submission.submitter.avatarUrl}
+                            alt={submission.submitter.username}
+                            className="h-10 w-10 rounded-full"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
+                            {submission.submitter.username?.[0]?.toUpperCase() ||
+                              'A'}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="truncate text-sm font-semibold text-white">
+                            {submission.submitter.firstName ||
+                              submission.submitter.username ||
+                              'Anonymous'}
+                          </CardTitle>
+                          {submission.submitter.headline && (
+                            <p className="truncate text-xs text-white/60">
+                              {submission.submitter.headline}
+                            </p>
+                          )}
                         </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="truncate text-sm font-semibold text-white">
-                          {submission.submitter.firstName ||
-                            submission.submitter.username ||
-                            'Anonymous'}
-                        </h3>
-                        {submission.submitter.headline && (
-                          <p className="truncate text-xs text-white/60">
-                            {submission.submitter.headline}
-                          </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span
+                          className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(submission.status)}`}
+                        >
+                          {submission.status}
+                        </span>
+                        {submission.isWinner && (
+                          <div className="flex items-center gap-1">
+                            <Trophy
+                              className={`h-3 w-3 ${
+                                submission.position === 1
+                                  ? 'text-yellow-500'
+                                  : submission.position === 2
+                                    ? 'text-gray-400'
+                                    : submission.position === 3
+                                      ? 'text-orange-600'
+                                      : 'text-white/60'
+                              }`}
+                            />
+                            <span className="text-xs font-medium text-white">
+                              {submission.position === 1
+                                ? '1st'
+                                : submission.position === 2
+                                  ? '2nd'
+                                  : submission.position === 3
+                                    ? '3rd'
+                                    : `${submission.position}th`}
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <span
-                        className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(submission.status)}`}
-                      >
-                        {submission.status}
-                      </span>
-                      {submission.isWinner && (
-                        <div className="flex items-center gap-1">
-                          <Trophy
-                            className={`h-3 w-3 ${
-                              submission.position === 1
-                                ? 'text-yellow-500'
-                                : submission.position === 2
-                                  ? 'text-gray-400'
-                                  : submission.position === 3
-                                    ? 'text-orange-600'
-                                    : 'text-white/60'
-                            }`}
-                          />
-                          <span className="text-xs font-medium text-white">
-                            {submission.position === 1
-                              ? '1st'
-                              : submission.position === 2
-                                ? '2nd'
-                                : submission.position === 3
-                                  ? '3rd'
-                                  : `${submission.position}th`}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
 
-                <CardContent className="pt-0">
-                  {submission.title && (
-                    <h4 className="mb-2 line-clamp-2 text-sm font-medium text-white">
-                      {submission.title}
-                    </h4>
-                  )}
-                  {submission.description && (
-                    <div className="mb-3 line-clamp-3 text-xs text-white/80">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {submission.description}
-                      </ReactMarkdown>
-                    </div>
-                  )}
+                  <CardContent className="pt-0">
+                    {submission.title && (
+                      <h4 className="mb-2 line-clamp-1 text-sm font-medium text-white">
+                        {submission.title}
+                      </h4>
+                    )}
+                    {submission.description && (
+                      <div className="mb-3 line-clamp-2 text-xs text-white/80">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {submission.description}
+                        </ReactMarkdown>
+                      </div>
+                    )}
 
-                  {/* Stats */}
-                  <div className="mb-4 flex items-center gap-4 text-xs text-white/60">
-                    <div className="flex items-center gap-1">
-                      <Heart className="h-3 w-3" />
-                      <span>{submission.stats?.likesCount || 0}</span>
+                    {/* Stats */}
+                    <div className="mb-4 flex items-center gap-4 text-xs text-white/60">
+                      <div className="flex items-center gap-1">
+                        <Heart className="h-3 w-3" />
+                        <span>{submission.stats?.likesCount || 0}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageCircle className="h-3 w-3" />
+                        <span>{submission.stats?.commentsCount || 0}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>
+                          {submission.submittedAt
+                            ? new Date(
+                                submission.submittedAt
+                              ).toLocaleDateString()
+                            : 'N/A'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <MessageCircle className="h-3 w-3" />
-                      <span>{submission.stats?.commentsCount || 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>
-                        {submission.submittedAt
-                          ? new Date(
-                              submission.submittedAt
-                            ).toLocaleDateString()
-                          : 'N/A'}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
-                      asChild
-                    >
-                      <Link
-                        href={`/bounties/${bounty.id}/submissions/${submission.id}`}
-                      >
-                        <Eye className="mr-1 h-3 w-3" />
-                        Review
-                      </Link>
-                    </Button>
-                    {submission.submissionUrl && (
+                    {/* Actions */}
+                    <div className="flex gap-2">
                       <Button
-                        variant="outline"
                         size="sm"
-                        className="border-white/20 text-white hover:bg-white/10"
+                        className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
                         asChild
                       >
-                        <a
-                          href={submission.submissionUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <Link
+                          href={`/bounties/${bounty.id}/submissions/${submission.id}`}
                         >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                          <Eye className="mr-1 h-3 w-3" />
+                          Review
+                        </Link>
                       </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {submission.submissionUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 border-white/20 text-white hover:bg-white/10"
+                          asChild
+                        >
+                          <a
+                            href={submission.submissionUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            Open
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
+          <div className="w-full lg:w-[30%]">
+            <Card className="bg-zinc-900/50 border-white/10 px-0">
+              <CardHeader>
+                <CardTitle className="text-sm font-semibold">
+                  Selected Winners
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  {[...sortedWinners.entries()].map(
+                    ([submissionId, winnerData], index) => {
+                      const user = winnerData.username;
+                      return (
+                        <div
+                          key={submissionId}
+                          className="mb-2 flex items-center justify-between rounded-lg bg-white/5 p-2 px-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                                index === 0
+                                  ? 'bg-yellow-500/20'
+                                  : index === 1
+                                    ? 'bg-gray-400/20'
+                                    : index === 2
+                                      ? 'bg-orange-600/20'
+                                      : 'bg-white/10'
+                              }`}
+                            >
+                              <Trophy
+                                className={`h-4 w-4 ${
+                                  index === 0
+                                    ? 'text-yellow-500'
+                                    : index === 1
+                                      ? 'text-gray-400'
+                                      : index === 2
+                                        ? 'text-orange-600'
+                                        : 'text-white/60'
+                                }`}
+                              />
+                            </div>
+                            <span className="font-medium text-white">
+                              {index === 0
+                                ? '1st'
+                                : index === 1
+                                  ? '2nd'
+                                  : index === 2
+                                    ? '3rd'
+                                    : `${winnerData.position}th`}{' '}
+                              Place
+                            </span>
+                          </div>
+                          <span className="font-semibold text-white">
+                            {user}
+                          </span>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              </CardContent>
+              {bounty.status === 'OPEN' &&
+                submissions.length > 0 &&
+                !bounty.winnersAnnouncedAt && (
+                  <Button
+                    size="sm"
+                    className="gap-0 bg-green-600 text-white hover:bg-green-700 mx-6"
+                    onClick={announceWinners}
+                    disabled={isAnnouncing || sortedWinners.length === 0}
+                  >
+                    {isAnnouncing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Announcing...
+                      </>
+                    ) : (
+                      <>
+                        <Award className="mr-2 h-4 w-4" />
+                        Announce Winners ({sortedWinners.length})
+                      </>
+                    )}
+                  </Button>
+                )}
+            </Card>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,12 +1,14 @@
 import { z } from "zod";
 
+const POLKADOT_ADDRESS_REGEX = /^[1-9A-HJ-NP-Za-km-z]{46,48}$/;
+
 // Polkadot address validation schema
 export const polkadotAddressSchema = z.string().refine(
   (address) => {
     // Basic check for Polkadot address format
     // Polkadot addresses typically start with 1 and are 47-48 characters
     // Kusama addresses start with a capital letter
-    return /^[1-9A-HJ-NP-Za-km-z]{46,48}$/.test(address);
+    return POLKADOT_ADDRESS_REGEX.test(address);
   },
   {
     message: "Invalid Polkadot address format",
@@ -14,14 +16,7 @@ export const polkadotAddressSchema = z.string().refine(
 );
 
 // Payment status enum
-export enum PaymentStatus {
-  PENDING = "PENDING",
-  PROCESSING = "PROCESSING",
-  CONFIRMED = "CONFIRMED",
-  FAILED = "FAILED",
-}
-
-export type NetworkName = "polkadot" | "kusama" | "asset-hub" | "westend";
+export type PaymentStatus = "PENDING" | "PROCESSING" | "CONFIRMED" | "FAILED";
 
 // Payment record type
 export interface PaymentRecord {

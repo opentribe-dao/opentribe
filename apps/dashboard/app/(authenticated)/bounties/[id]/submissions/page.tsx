@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from '@packages/base/components/ui/select';
 import {
-  Badge,
   CheckCircle,
   ExternalLink,
   Loader2,
@@ -32,11 +31,15 @@ import {
   MessageCircle,
   Heart,
   Award,
+  DollarSign,
+  DollarSignIcon,
+  Currency,
 } from 'lucide-react';
 import { useBountyContext } from '../../../components/bounty-provider';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { set } from 'zod/v4-mini';
+import { Badge } from '@packages/base/components/ui/badge';
 
 export default function SubmissionsPage() {
   const {
@@ -44,7 +47,8 @@ export default function SubmissionsPage() {
     submissions,
     submissionsLoading,
     submissionsError,
-    selectedWinners,
+    setPaymentModalOpen,
+    setSelectedPaymentSubmission,
     announceWinners,
     setSelectedWinners,
     isAnnouncing,
@@ -57,28 +61,6 @@ export default function SubmissionsPage() {
   const [sortBy, setSortBy] = useState<
     'newest' | 'oldest' | 'likes' | 'comments'
   >('newest');
-
-  //  // Save sorted winners in setSelectedWinners as a Map<string, { position: number; amount: number }>
-  //  useEffect(() => {
-  //   // Only update if sortedWinners is non-empty
-  //   if (sortedWinners !=null && sortedWinners.length > 0) {
-  //     const winnersMap = new Map<string, { position: number; amount: number }>();
-  //     sortedWinners.forEach((winner, idx) => {
-  //       // Use the index as a unique key since submissionId is not available
-  //       if (winner.position != null && winner.winningAmount != null) {
-  //         winnersMap.set(String(idx), {
-  //           position: winner.position,
-  //           amount: winner.winningAmount,
-  //         });
-  //       }
-  //     });
-
-  //     setSelectedWinners(winnersMap);
-  //   } else {
-  //     setSelectedWinners(new Map());
-  //   }
-  // // FIX: Remove dependency on sortedWinners, which is not declared yet.
-  // }, [setSelectedWinners]);
 
   // Compute sorted winners and also save them in selectedWinners
   const sortedWinners = useMemo(() => {
@@ -284,7 +266,7 @@ export default function SubmissionsPage() {
       </div>
 
       {/* Winners section if already announced */}
-      {bounty.winnersAnnouncedAt && (
+      {/* {bounty.winnersAnnouncedAt && (
         <Card className="border-green-500/30 bg-green-500/10">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-white">
@@ -366,7 +348,7 @@ export default function SubmissionsPage() {
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
 
       {/* Submissions grid */}
       {sorted.length === 0 ? (
@@ -415,11 +397,11 @@ export default function SubmissionsPage() {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <span
+                        <Badge
                           className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(submission.status)}`}
                         >
                           {submission.status}
-                        </span>
+                        </Badge>
                         {submission.isWinner && (
                           <div className="flex items-center gap-1">
                             <Trophy
@@ -450,12 +432,12 @@ export default function SubmissionsPage() {
 
                   <CardContent className="pt-0">
                     {submission.title && (
-                      <h4 className="mb-2 line-clamp-1 text-sm font-medium text-white">
+                      <h4 className="mb-2 text-sm font-medium text-white">
                         {submission.title}
                       </h4>
                     )}
                     {submission.description && (
-                      <div className="mb-3 line-clamp-2 text-xs text-white/80">
+                      <div className="mb-3 line-clamp-3 text-xs text-white/80">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {submission.description}
                         </ReactMarkdown>
@@ -486,6 +468,7 @@ export default function SubmissionsPage() {
 
                     {/* Actions */}
                     <div className="flex gap-2">
+                      {!bounty.winnersAnnouncedAt && (
                       <Button
                         size="sm"
                         className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
@@ -498,6 +481,7 @@ export default function SubmissionsPage() {
                           Review
                         </Link>
                       </Button>
+                       )}
                       {submission.submissionUrl && (
                         <Button
                           variant="outline"
@@ -522,6 +506,115 @@ export default function SubmissionsPage() {
             </div>
           </div>
           <div className="w-full lg:w-[30%]">
+          {bounty.winnersAnnouncedAt ? (
+               <Card className="bg-green-500/10 border-green-500/30">
+               <CardHeader>
+                 <div className="flex items-center justify-between">
+                   <CardTitle className="flex items-center gap-2 text-sm">
+                     {/* <Trophy className="h-4 w-4 text-green-400" /> */}
+                     Winners Announced
+                   </CardTitle>
+                   <CardDescription className="text-xs">
+                     {new Date(bounty.winnersAnnouncedAt).toLocaleDateString()}
+                   </CardDescription>
+                 </div>
+               </CardHeader>
+               <CardContent className="pt-0">
+                 <div className="space-y-2">
+                   {submissions
+                     .filter((s) => s.isWinner)
+                     .sort((a, b) => (a.position || 0) - (b.position || 0))
+                     .map((winner) => (
+                       <div key={winner.id} className="rounded-lg bg-white/5 px-3 py-3">
+                         <div className="flex items-center gap-3 mb-4">
+                           <div className="flex items-center gap-2 min-w-0">
+                           <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                        winner.position === 1
+                          ? 'bg-yellow-500/20'
+                          : winner.position === 2
+                            ? 'bg-gray-400/20'
+                            : winner.position === 3
+                              ? 'bg-orange-600/20'
+                              : 'bg-white/10'
+                      }`}
+                    >
+                             <Trophy
+                               className={`h-4 w-4 ${
+                                 winner.position === 1
+                                   ? 'text-yellow-500'
+                                   : winner.position === 2
+                                     ? 'text-gray-400'
+                                     : winner.position === 3
+                                       ? 'text-orange-600'
+                                       : 'text-white/60'
+                               }`}
+                             />
+                             </div> 
+                             <div className="min-w-0">
+                               <p className="truncate text-sm font-bold text-white">
+                                 {winner.submitter.firstName ||
+                                   winner.submitter.username ||
+                                   'Anonymous'}
+                               </p>
+                               <div className="flex items-center gap-2">
+                                 <Badge className="h-5 rounded px-2 text-[10px] bg-white/10 text-white/70 border-0">
+                                   {winner.position === 1
+                                     ? '1st'
+                                     : winner.position === 2
+                                       ? '2nd'
+                                       : winner.position === 3
+                                         ? '3rd'
+                                         : `${winner.position}th`}{' '}
+                                   Place
+                                 </Badge>
+                               </div>
+                             </div>
+                           </div>
+     
+                           <div className="ml-auto flex items-center gap-3">
+                             <div className="text-right">
+                               <p className="text-sm font-semibold text-white leading-tight">
+                                 {winner.winningAmount} {bounty.token}
+                               </p>
+                               <p className="text-[10px] text-white/60">Prize</p>
+                             </div>
+     
+                           
+                           </div>
+                         </div>
+     
+                         {winner.submitter.walletAddress && (
+                           <div className=" mt-2 rounded bg-black/20 px-2 py-1 mb-4">
+                             <p className="text-[10px] text-white/60">Address</p>
+                             <p className="break-all text-[10px] text-white">{winner.submitter.walletAddress}</p>
+                           </div>
+                         )}
+                           <div className="flex justify-center mt-2">
+                             {winner.payments && winner.payments.length > 0 ? (
+                               <Badge className="flex h-6 w-full items-center justify-center border-0 bg-green-500/20 text-green-400">
+                                 <CheckCircle className="mr-1 h-3 w-3" />
+                                 Paid
+                               </Badge>
+                             ) : (
+                               <Button
+                                 onClick={() => {
+                                   setSelectedPaymentSubmission(winner);
+                                   setPaymentModalOpen(true);
+                                 }}
+                                 className="h-7 w-full bg-[#E6007A] px-2 text-xs text-white hover:bg-[#E6007A]/90"
+                               >
+                                 {/* <DollarSign className="h-3.5 w-3.5 mr-1" /> */}
+                                 Mark as Paid
+                               </Button>
+                             )}
+                           </div>
+                       </div>
+                     ))}
+                 </div>
+               </CardContent>
+             </Card>
+      ):(
             <Card className="bg-zinc-900/50 border-white/10 px-0">
               <CardHeader>
                 <CardTitle className="text-sm font-semibold">
@@ -605,6 +698,7 @@ export default function SubmissionsPage() {
                   </Button>
                 )}
             </Card>
+            )}
           </div>
         </div>
       )}

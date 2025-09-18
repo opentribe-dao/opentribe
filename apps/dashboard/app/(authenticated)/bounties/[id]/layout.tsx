@@ -161,35 +161,7 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
 
          {/* Payment Modal */}
       {selectedPaymentSubmission && bounty && (
-        <PaymentModal
-          isOpen={paymentModalOpen}
-          onClose={() => {
-            setPaymentModalOpen(false);
-            setSelectedPaymentSubmission(null);
-          }}
-          submission={selectedPaymentSubmission}
-          bounty={bounty}
-          onPaymentRecorded={() => {
-            // Refresh submissions to show updated payment status
-            const fetchSubmissions = async () => {
-              try {
-                const response = await fetch(
-                  `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}/submissions`,
-                  {
-                    credentials: 'include',
-                  }
-                );
-                if (response.ok) {
-                  const data = await response.json();
-                  setSubmissions(data.submissions || []);
-                }
-              } catch (error) {
-                console.error('Error refreshing submissions:', error);
-              }
-            };
-            fetchSubmissions();
-          }}
-        />
+        <PaymentModal/>
       )}
       </div>
     </>

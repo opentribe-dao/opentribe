@@ -162,7 +162,7 @@ export function PaymentModal() {
           </Button>
           <Button
             onClick={recordPayment}
-            disabled={!transactionId || isSubmittingPayment || (verificationStatus === 'idle' || 'error') }
+            disabled={!transactionId || isSubmittingPayment || (verificationStatus === 'idle') || (verificationStatus === 'error')}
             className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
           >
             {isSubmittingPayment ? (

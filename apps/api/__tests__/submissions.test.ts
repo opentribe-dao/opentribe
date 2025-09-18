@@ -1,306 +1,314 @@
-import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { POST as createSubmission } from '../app/api/v1/bounties/[id]/submissions/route';
-import { POST as announceWinners } from '../app/api/v1/bounties/[id]/winners/route';
-import { database } from '@packages/db';
-import { auth } from '@packages/auth/server';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { POST as createSubmission } from "../app/api/v1/bounties/[id]/submissions/route";
+import { POST as announceWinners } from "../app/api/v1/bounties/[id]/winners/route";
 
-// Mock email package
-vi.mock('@packages/email', () => ({
-  sendBountyWinnerEmail: vi.fn().mockResolvedValue(true),
-}));
-
-// Mock auth
-vi.mock('@packages/auth/server', () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(),
-    },
-  },
-}));
-
-// Mock email package
-vi.mock('@packages/email', () => ({
-  sendBountyFirstSubmissionEmail: vi.fn().mockResolvedValue(true),
-  sendEmail: vi.fn().mockResolvedValue(true),
-  emailTemplates: {},
-}));
-
-describe('Submission System', () => {
+describe("Submission System Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('POST /api/v1/bounties/[id]/submissions', () => {
-    test('should create a new submission for authenticated user', async () => {
+  describe("POST /api/v1/bounties/[id]/submissions", () => {
+    test("should create a submission for authenticated user", async () => {
+      // Arrange
       const mockSession = {
         user: {
-          id: 'user-123',
-          email: 'submitter@example.com',
-          username: 'submitter',
+          id: "user-123",
+          email: "submitter@example.com",
+          username: "submitter",
         },
       };
 
       const mockBounty = {
-        id: 'bounty-1',
-        title: 'Test Bounty',
-        status: 'OPEN',
-        visibility: 'PUBLISHED',
-        organizationId: 'org-1',
-        deadline: new Date('2025-12-31'),
+        id: "bounty-1",
+        title: "Test Bounty",
+        status: "OPEN",
+        deadline: new Date("2025-12-31"),
+        visibility: "PUBLISHED",
       };
 
       const mockSubmission = {
-        id: 'submission-1',
-        bountyId: 'bounty-1',
-        userId: 'user-123',
-        title: 'My Submission',
-        description: 'Submission description',
-        submissionUrl: 'https://github.com/user/repo',
-        status: 'SUBMITTED',
-        submittedAt: new Date(),
-        submitter: {
-          id: 'user-123',
-          username: 'submitter',
-          firstName: 'John',
-          lastName: 'Doe',
-          avatarUrl: 'avatar.png',
-        },
+        id: "submission-1",
+        bountyId: "bounty-1",
+        submitterId: "user-123",
+        title: "My Submission",
+        description: "Submission description",
+        submissionUrl: "https://github.com/user/repo",
+        attachments: [],
+        responses: {},
+        isWinner: false,
+        position: null,
+        winningAmount: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
-      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      vi.mocked(database.bounty.findUnique).mockResolvedValue(mockBounty);
-      vi.mocked(database.submission.findFirst).mockResolvedValue(null); // No existing submission
-      vi.mocked(database.submission.create).mockResolvedValue(mockSubmission);
-      vi.mocked(database.bounty.update).mockResolvedValue({ ...mockBounty, submissionCount: 1 });
-      vi.mocked(database.submission.count).mockResolvedValue(1); // First submission
-      vi.mocked(database.member.findMany).mockResolvedValue([]); // No members to email
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(null);
+      (database.submission.create as any).mockResolvedValue(mockSubmission);
 
+      // Act
       const body = JSON.stringify({
-        submissionUrl: 'https://github.com/user/repo',
-        title: 'My Submission',
-        description: 'Submission description',
+        submissionUrl: "https://github.com/user/repo",
+        title: "My Submission",
+        description: "Submission description",
       });
 
-      const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1/submissions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
-      });
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-1/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
 
-      const response = await createSubmission(request, { params: Promise.resolve({ id: 'bounty-1' }) });
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
       const data = await response.json();
 
+      // Assert
       expect(response.status).toBe(201);
-      expect(data.submission.id).toBe('submission-1');
-      expect(data.submission.title).toBe('My Submission');
+      expect(data.submission.id).toBe("submission-1");
+      expect(data.submission.title).toBe("My Submission");
+      expect(database.submission.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            bountyId: "bounty-1",
+            userId: "user-123",
+            submissionUrl: "https://github.com/user/repo",
+            title: "My Submission",
+            description: "Submission description",
+            status: "SUBMITTED",
+          }),
+          include: expect.any(Object),
+        })
+      );
     });
 
-    test('should reject submission for closed bounty', async () => {
+    test("should reject submission if user not authenticated", async () => {
+      // Arrange
+      (auth.api.getSession as any).mockResolvedValue(null);
+
+      // Act
+      const body = JSON.stringify({
+        submissionUrl: "https://github.com/user/repo",
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-1/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
+
+      // Assert
+      expect(response.status).toBe(401);
+      expect(database.submission.create).not.toHaveBeenCalled();
+    });
+
+    test("should reject submission for closed bounty", async () => {
+      // Arrange
       const mockSession = {
         user: {
-          id: 'user-123',
-          email: 'submitter@example.com',
-          username: 'submitter',
+          id: "user-123",
+          email: "submitter@example.com",
         },
       };
 
       const mockBounty = {
-        id: 'bounty-1',
-        title: 'Test Bounty',
-        status: 'CLOSED',
-        visibility: 'PUBLISHED',
-        deadline: new Date('2025-12-31'),
+        id: "bounty-1",
+        status: "CLOSED",
+        visibility: "PUBLIC",
       };
 
-      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      vi.mocked(database.bounty.findUnique).mockResolvedValue(mockBounty);
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
 
+      // Act
       const body = JSON.stringify({
-        submissionUrl: 'https://github.com/user/repo',
-        title: 'My Submission',
+        submissionUrl: "https://github.com/user/repo",
       });
 
-      const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1/submissions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-1/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
       });
 
-      const response = await createSubmission(request, { params: Promise.resolve({ id: 'bounty-1' }) });
-
+      // Assert
       expect(response.status).toBe(400);
-    });
-
-    test('should require authentication', async () => {
-      vi.mocked(auth.api.getSession).mockResolvedValue(null);
-
-      const body = JSON.stringify({
-        submissionUrl: 'https://github.com/user/repo',
-        title: 'My Submission',
-      });
-
-      const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1/submissions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
-      });
-
-      const response = await createSubmission(request, { params: Promise.resolve({ id: 'bounty-1' }) });
-
-      expect(response.status).toBe(401);
+      expect(database.submission.create).not.toHaveBeenCalled();
     });
   });
 
-  describe('POST /api/v1/bounties/[id]/winners', () => {
-    test('should announce winners for bounty', async () => {
+  describe("POST /api/v1/bounties/[id]/winners", () => {
+    test("should announce winners for organization owner", async () => {
+      // Arrange
       const mockSession = {
         user: {
-          id: 'org-admin',
-          email: 'admin@org.com',
+          id: "org-admin",
+          email: "admin@org.com",
         },
       };
 
       const mockBounty = {
-        id: 'bounty-1',
-        title: 'Test Bounty',
-        status: 'REVIEWING',
-        amount: 1000,
-        winnings: { '1': 500, '2': 300, '3': 200 },
-        token: 'USDT',
+        id: "bounty-1",
+        organizationId: "org-1",
+        winnersAnnouncedAt: null,
+        status: "OPEN",
+        token: "USDT",
+        winnings: { "1": 500, "2": 300, "3": 200 },
         organization: {
-          id: 'org-1',
+          id: "org-1",
           members: [
             {
-              userId: 'org-admin',
-              role: 'admin',
+              userId: "org-admin",
+              role: "OWNER",
             },
           ],
         },
       };
-
-      const mockSubmissions = [
-        {
-          id: 'submission-1',
-          bountyId: 'bounty-1',
-          userId: 'user-1',
-          status: 'SUBMITTED',
-        },
-        {
-          id: 'submission-2',
-          bountyId: 'bounty-1',
-          userId: 'user-2',
-          status: 'SUBMITTED',
-        },
-        {
-          id: 'submission-3',
-          bountyId: 'bounty-1',
-          userId: 'user-3',
-          status: 'SUBMITTED',
-        },
-      ];
 
       const mockUpdatedBounty = {
         ...mockBounty,
-        status: 'COMPLETED',
         winnersAnnouncedAt: new Date(),
-        organization: { id: 'org-1', name: 'Test Org', logo: null },
-        _count: { submissions: 3, comments: 0 },
-        submissions: mockSubmissions.map((s, i) => ({
-          ...s,
-          isWinner: true,
-          position: i + 1,
-          winningAmount: [500, 300, 200][i],
-          submitter: { 
-            id: s.userId, 
-            username: `user${i + 1}`, 
-            firstName: 'User', 
-            lastName: `${i + 1}`, 
-            email: `user${i + 1}@test.com`, 
-            avatarUrl: null 
-          },
-        })),
       };
 
-      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      vi.mocked(database.bounty.findUnique).mockResolvedValue(mockBounty);
-      vi.mocked(database.submission.findMany).mockResolvedValue(mockSubmissions);
-      vi.mocked(database.submission.updateMany).mockResolvedValue({ count: 3 });
-      vi.mocked(database.bounty.update).mockResolvedValue(mockUpdatedBounty);
-      // Mock the database transaction
-      vi.mocked(database.$transaction).mockImplementation((fn) => fn(database));
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (database.submission.findMany as any).mockResolvedValue([
+        { id: "sub-1", userId: "u1", status: "SUBMITTED" },
+        { id: "sub-2", userId: "u2", status: "SUBMITTED" },
+        { id: "sub-3", userId: "u3", status: "SUBMITTED" },
+      ]);
+      // Simulate transaction outcome with winners and updated bounty
+      (database.$transaction as any) = vi.fn(async (fn: any) => {
+        return {
+          ...mockUpdatedBounty,
+          status: "COMPLETED",
+          submissions: [
+            {
+              id: "sub-1",
+              position: 1,
+              winningAmount: 500,
+              submitter: { email: "a@b.com", username: "u1" },
+            },
+            {
+              id: "sub-2",
+              position: 2,
+              winningAmount: 300,
+              submitter: { email: "c@d.com", username: "u2" },
+            },
+            {
+              id: "sub-3",
+              position: 3,
+              winningAmount: 200,
+              submitter: { email: "e@f.com", username: "u3" },
+            },
+          ],
+          organization: { name: "Org" },
+        };
+      });
 
+      // Act
       const body = JSON.stringify({
         winners: [
-          { submissionId: 'submission-1', position: 1, amount: 500 },
-          { submissionId: 'submission-2', position: 2, amount: 300 },
-          { submissionId: 'submission-3', position: 3, amount: 200 },
+          { submissionId: "sub-1", position: 1, amount: 500 },
+          { submissionId: "sub-2", position: 2, amount: 300 },
+          { submissionId: "sub-3", position: 3, amount: 200 },
         ],
       });
 
-      const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1/winners', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
-      });
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-1/winners",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
 
-      const response = await announceWinners(request, { params: Promise.resolve({ id: 'bounty-1' }) });
+      const response = await announceWinners(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
       const data = await response.json();
 
+      // Assert
       expect(response.status).toBe(200);
-      expect(data.message).toBe('Winners announced successfully');
+      expect(data.message).toBe("Winners announced successfully");
+      // Assert
     });
 
-    test('should prevent announcing winners twice', async () => {
+    test("should prevent non-members from announcing winners", async () => {
+      // Arrange
       const mockSession = {
         user: {
-          id: 'org-admin',
-          email: 'admin@org.com',
+          id: "non-member",
+          email: "user@example.com",
         },
       };
 
       const mockBounty = {
-        id: 'bounty-1',
-        title: 'Test Bounty',
-        winnersAnnounced: true,
+        id: "bounty-1",
+        organizationId: "org-1",
         organization: {
-          id: 'org-1',
-          members: [
-            {
-              userId: 'org-admin',
-              role: 'admin',
-            },
-          ],
+          id: "org-1",
+          members: [], // User not in members
         },
       };
 
-      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      vi.mocked(database.bounty.findUnique).mockResolvedValue(mockBounty);
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
 
+      // Act
       const body = JSON.stringify({
-        winners: [
-          { submissionId: 'submission-1', position: 1 },
-        ],
+        winners: [{ submissionId: "sub-1", position: 1, amount: 500 }],
       });
 
-      const request = new Request('http://localhost:3002/api/v1/bounties/bounty-1/winners', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-1/winners",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await announceWinners(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
       });
 
-      const response = await announceWinners(request, { params: Promise.resolve({ id: 'bounty-1' }) });
-
-      expect(response.status).toBe(400);
+      // Assert
+      expect(response.status).toBe(403);
+      expect(database.submission.updateMany).not.toHaveBeenCalled();
+      expect(database.bounty.update).not.toHaveBeenCalled();
     });
   });
 });

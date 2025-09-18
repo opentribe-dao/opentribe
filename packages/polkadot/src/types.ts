@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Polkadot address validation schema
 export const polkadotAddressSchema = z.string().refine(
@@ -9,17 +9,19 @@ export const polkadotAddressSchema = z.string().refine(
     return /^[1-9A-HJ-NP-Za-km-z]{46,48}$/.test(address);
   },
   {
-    message: 'Invalid Polkadot address format',
+    message: "Invalid Polkadot address format",
   }
 );
 
 // Payment status enum
 export enum PaymentStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  CONFIRMED = 'CONFIRMED',
-  FAILED = 'FAILED',
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  CONFIRMED = "CONFIRMED",
+  FAILED = "FAILED",
 }
+
+export type NetworkName = "polkadot" | "kusama" | "asset-hub" | "westend";
 
 // Payment record type
 export interface PaymentRecord {

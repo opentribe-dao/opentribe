@@ -18,9 +18,10 @@ export async function OPTIONS() {
 // POST /api/v1/organizations/[organizationId]/invitations - Send invitation
 export async function POST(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
+    const { organizationId } = await params;
     const authHeaders = await headers();
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
@@ -36,7 +37,7 @@ export async function POST(
     // Check if user has permission to invite members
     const userMember = await database.member.findFirst({
       where: {
-        organizationId: params.organizationId,
+        organizationId,
         userId: sessionData.user.id,
         role: {
           in: ["owner", "admin"],
@@ -68,7 +69,7 @@ export async function POST(
       // Check if already a member
       const existingMember = await database.member.findFirst({
         where: {
-          organizationId: params.organizationId,
+          organizationId,
           userId: existingUser.id,
         },
       });
@@ -83,7 +84,7 @@ export async function POST(
       // Add user as member directly if they exist
       const newMember = await database.member.create({
         data: {
-          organizationId: params.organizationId,
+          organizationId,
           userId: existingUser.id,
           role,
         },
@@ -102,7 +103,7 @@ export async function POST(
       // TODO: Send email notification to the user
 
       return NextResponse.json(
-        { 
+        {
           message: "User added to organization",
           member: newMember,
         },
@@ -113,10 +114,10 @@ export async function POST(
     // Create invitation for non-existing user
     const invitation = await database.invitation.create({
       data: {
-        organizationId: params.organizationId,
+        organizationId,
         email,
         role,
-        invitedById: sessionData.user.id,
+        inviterId: sessionData.user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       },
     });
@@ -124,7 +125,7 @@ export async function POST(
     // TODO: Send invitation email
 
     return NextResponse.json(
-      { 
+      {
         message: "Invitation sent successfully",
         invitation,
       },
@@ -149,9 +150,10 @@ export async function POST(
 // GET /api/v1/organizations/[organizationId]/invitations - Get pending invitations
 export async function GET(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
+    const { organizationId } = await params;
     const authHeaders = await headers();
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
@@ -167,7 +169,7 @@ export async function GET(
     // Check if user has permission to view invitations
     const userMember = await database.member.findFirst({
       where: {
-        organizationId: params.organizationId,
+        organizationId,
         userId: sessionData.user.id,
         role: {
           in: ["owner", "admin"],
@@ -184,14 +186,14 @@ export async function GET(
 
     const invitations = await database.invitation.findMany({
       where: {
-        organizationId: params.organizationId,
+        organizationId,
         status: "PENDING",
         expiresAt: {
           gt: new Date(),
         },
       },
       include: {
-        invitedBy: {
+        inviter: {
           select: {
             id: true,
             name: true,
@@ -200,14 +202,11 @@ export async function GET(
         },
       },
       orderBy: {
-        createdAt: "desc",
+        expiresAt: "asc",
       },
     });
 
-    return NextResponse.json(
-      { invitations },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ invitations }, { headers: corsHeaders });
   } catch (error) {
     console.error("Error fetching invitations:", error);
     return NextResponse.json(

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@packages/base/lib/utils"
-import { useHoverBackground } from "@packages/base/hooks/use-hover-background"
+import { cn } from "@packages/base/lib/utils";
+import { useHoverBackground } from "@packages/base/hooks/use-hover-background";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, style, onMouseMove, ...props }, ref) => {
@@ -27,9 +27,12 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           {...props}
         />
       </div>
-    )
+    );
   }
-)
-Input.displayName = "Input"
+) as React.ForwardRefExoticComponent<
+  React.ComponentProps<"input"> & React.RefAttributes<HTMLInputElement>
+>;
 
-export { Input }
+Input.displayName = "Input";
+
+export { Input };

@@ -36,14 +36,15 @@ async function getRfp(id: string) {
 export default async function RFPDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const data = await getRfp(params.id);
-  
+  const { id } = await params;
+  const data = await getRfp(id);
+
   if (!data || !data.rfp) {
     notFound();
   }
-  
+
   const { rfp, relatedRfps = [] } = data;
 
   const session = await auth.api.getSession({
@@ -224,7 +225,7 @@ export default async function RFPDetailPage({
             </section>
 
             {/* Old Comments Section - TO BE REMOVED */}
-            <section style={{ display: 'none' }}>
+            <section style={{ display: "none" }}>
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 {rfp._count.comments} Comments
               </h3>
@@ -438,8 +439,12 @@ export default async function RFPDetailPage({
                 </div>
               </div>
 
-              {rfp.grant.source === 'EXTERNAL' && rfp.grant.applicationUrl ? (
-                <a href={rfp.grant.applicationUrl} target="_blank" rel="noopener noreferrer">
+              {rfp.grant.source === "EXTERNAL" && rfp.grant.applicationUrl ? (
+                <a
+                  href={rfp.grant.applicationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
                     Apply Externally
                   </Button>

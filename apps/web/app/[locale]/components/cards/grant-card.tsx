@@ -55,7 +55,7 @@ export function GrantCard({
                   );
                   e.currentTarget.style.display = "none";
                 }}
-                className="rounded-lg"
+                className="rounded-full bg-white w-[48px] h-[48px]"
               />
             ) : (
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">

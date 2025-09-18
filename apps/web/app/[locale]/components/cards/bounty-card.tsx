@@ -124,7 +124,7 @@ export function BountyCard({
 
           {/* Amount */}
           {safeAmount && (
-            <div className="flex items-center gap-2 ml-4">
+            <div className="flex items-center ml-4">
               <DollarSign className="w-4 h-4 text-green-400" />
               <div className="text-right">
                 {safeAmount && (

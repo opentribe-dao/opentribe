@@ -9,6 +9,8 @@ import { Header } from '../../components/header';
 import { BountyProvider, useBountyContext } from '../../components/bounty-provider';
 import { usePathname } from 'next/navigation';
 import { use } from 'react';
+import { PaymentModal } from './payment-modal';
+import { env } from '@/env';
 
 export default function BountyLayout({
   children,
@@ -32,10 +34,10 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
     bounty,
     bountyLoading,
     bountyError,
-    submissions,
-    selectedWinners,
-    isAnnouncing,
-    announceWinners,
+    paymentModalOpen,
+    selectedPaymentSubmission,
+    setPaymentModalOpen,
+    setSelectedPaymentSubmission,
   } = useBountyContext();
 
   const pathname = usePathname();
@@ -156,6 +158,39 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
         </div>
         {/* Tab Content */}
         <div className="flex-1 p-6">{children}</div>
+
+         {/* Payment Modal */}
+      {selectedPaymentSubmission && bounty && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => {
+            setPaymentModalOpen(false);
+            setSelectedPaymentSubmission(null);
+          }}
+          submission={selectedPaymentSubmission}
+          bounty={bounty}
+          onPaymentRecorded={() => {
+            // Refresh submissions to show updated payment status
+            const fetchSubmissions = async () => {
+              try {
+                const response = await fetch(
+                  `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}/submissions`,
+                  {
+                    credentials: 'include',
+                  }
+                );
+                if (response.ok) {
+                  const data = await response.json();
+                  setSubmissions(data.submissions || []);
+                }
+              } catch (error) {
+                console.error('Error refreshing submissions:', error);
+              }
+            };
+            fetchSubmissions();
+          }}
+        />
+      )}
       </div>
     </>
   );

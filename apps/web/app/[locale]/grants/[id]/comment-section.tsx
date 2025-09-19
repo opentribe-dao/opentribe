@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CommentThread } from '../../components/community/comment-thread';
-import { EmailAuthModal } from '../../components/email-auth-modal';
+import { AuthModal } from '../../components/auth-modal';
 
 interface CommentSectionProps {
   grantId: string;
@@ -17,13 +16,13 @@ export function CommentSection({ grantId }: CommentSectionProps) {
   
   return (
     <div className="mt-8">
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+      <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
         <p className="text-center text-white/60">
           Comments are available on RFPs related to this grant.
         </p>
       </div>
       
-      <EmailAuthModal
+      <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />

@@ -132,10 +132,7 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
             amount: String(amount),
           }));
 
-        // Ensure at least 3 winner slots
-        while (winners.length < 3) {
-          winners.push({ position: winners.length + 1, amount: '' });
-        }
+    
 
         setFormData({
           title: bounty.title,

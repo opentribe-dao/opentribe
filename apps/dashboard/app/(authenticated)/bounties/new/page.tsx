@@ -696,7 +696,7 @@ const CreateBountyPage = () => {
         <div className="flex justify-between">
           <Button
             variant="outline"
-            onClick={currentStep > 1 ? handleBack : () => router.push('/bounties')}
+            onClick={currentStep > 1 ? handleBack : () => router.back()}
             className="border-white/20 text-white hover:bg-white/10"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />

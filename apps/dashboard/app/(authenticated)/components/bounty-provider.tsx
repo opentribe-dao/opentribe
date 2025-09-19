@@ -120,7 +120,7 @@ export function BountyProvider({
         ([submissionId, data]) => ({
           submissionId,
           position: data.position,
-          amount: data.amount,
+          amount: Number(data.amount),
         })
       );
       const res = await fetch(

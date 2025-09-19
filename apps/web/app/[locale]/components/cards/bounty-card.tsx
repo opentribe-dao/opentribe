@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Calendar, Users, DollarSign, Clock, Trophy } from "lucide-react";
 
-
 interface BountyCardProps {
   id: string;
   title: string;
@@ -16,6 +15,10 @@ interface BountyCardProps {
   skills: string[];
   status: "OPEN" | "CLOSED";
   variant?: "default" | "list";
+  amountUSD?: number;
+  description?: string;
+  createdAt?: Date;
+  winnersAnnouncedAt?: Date;
 }
 
 export function BountyCard({
@@ -94,8 +97,8 @@ export function BountyCard({
     typeof organization === "object" && organization?.name
       ? organization.name
       : typeof organization === "string"
-        ? organization
-        : "Unknown Organization";
+      ? organization
+      : "Unknown Organization";
 
   return (
     <Link href={`/bounties/${id}`} className="block group h-full">
@@ -109,7 +112,9 @@ export function BountyCard({
             <p className="text-sm text-white/60 mb-2">{organizationName}</p>
             <div className="flex items-center gap-2">
               <span
-                className={`inline-block px-2 py-1 text-xs rounded-md border ${getStatusColor(status)}`}
+                className={`inline-block px-2 py-1 text-xs rounded-md border ${getStatusColor(
+                  status
+                )}`}
               >
                 {status ? status.toLowerCase().replace("_", " ") : "unknown"}
               </span>
@@ -179,8 +184,8 @@ export function BountyCard({
                   isExpired()
                     ? "text-red-400"
                     : isDeadlineSoon()
-                      ? "text-yellow-400"
-                      : "text-white/50"
+                    ? "text-yellow-400"
+                    : "text-white/50"
                 }`}
               >
                 <Calendar className="w-3 h-3" />

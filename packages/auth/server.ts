@@ -95,7 +95,7 @@ const authOptions = {
   ],
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true, // Temporarily disabled for testing
+    requireEmailVerification: false, // Temporarily disabled for testing
     sendResetPassword: async ({ user, url, token }) => {
       console.log("Sending password reset email to:", user.email);
       try {
@@ -212,8 +212,12 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   plugins: [
     ...authOptions.plugins,
     customSession(async ({ user, session }, ctx) => {
+      console.log("Custom session:", user);
       return {
-        user,
+        user: {
+          ...user,
+          profileCompleted: user.profileCompleted,
+        },
         session,
       };
     }, authOptions),

@@ -26,10 +26,10 @@ export function useBountiesFilters() {
     return {
       status: params.get('status')?.split(',').filter(Boolean) || ['open'],
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
-      sortBy: params.get('sortBy') || 'newest',
+      sortBy: params.get('sort') || 'newest',
       priceRange: [
-        Number.parseInt(params.get('minPrice') || '0'),
-        Number.parseInt(params.get('maxPrice') || '50000')
+        Number.parseInt(params.get('minAmount') || '0'),
+        Number.parseInt(params.get('maxAmount') || '50000')
       ] as [number, number],
       hasSubmissions: params.get('hasSubmissions') === 'true',
       hasDeadline: params.get('hasDeadline') === 'true',
@@ -94,17 +94,17 @@ export function useBountiesFilters() {
     }
     
     if (updatedFilters.sortBy && updatedFilters.sortBy !== '') {
-      params.set('sortBy', updatedFilters.sortBy);
+      params.set('sort', updatedFilters.sortBy);
     } else {
-      params.delete('sortBy');
+      params.delete('sort');
     }
     
     if (updatedFilters.priceRange && (updatedFilters.priceRange[0] > 0 || updatedFilters.priceRange[1] < 50000)) {
-      params.set('minPrice', updatedFilters.priceRange[0].toString());
-      params.set('maxPrice', updatedFilters.priceRange[1].toString());
+      params.set('minAmount', updatedFilters.priceRange[0].toString());
+      params.set('maxAmount', updatedFilters.priceRange[1].toString());
     } else {
-      params.delete('minPrice');
-      params.delete('maxPrice');
+      params.delete('minAmount');
+      params.delete('maxAmount');
     }
     
     if (updatedFilters.hasSubmissions && updatedFilters.hasSubmissions === true) {

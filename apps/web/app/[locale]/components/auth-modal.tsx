@@ -17,15 +17,19 @@ import { toast } from 'sonner';
 import { EmailAuthModal } from './email-auth-modal';
 
 interface AuthModalProps {
-  children: React.ReactNode;
+  isOpen?: boolean;
+  onClose?: () => void;
+  children?: React.ReactNode;
   redirectTo?: string;
 }
 
 export const AuthModal = ({
+  isOpen,
+  onClose,
   children,
   redirectTo,
 }: AuthModalProps) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(isOpen || false);
   const [loading, setLoading] = useState<'google' | 'github' | 'email' | null>(null);
   const [showEmailSignIn, setShowEmailSignIn] = useState(false);
   const router = useRouter();
@@ -62,21 +66,21 @@ export const AuthModal = ({
 
   return (
     <>
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={!onClose ? setOpen : onClose}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[440px] bg-zinc-900/95 backdrop-blur-md border-white/10">
+      <DialogContent className='border-white/10 bg-zinc-900/95 backdrop-blur-md sm:max-w-[440px]'>
         <DialogHeader className="sr-only">
           <DialogTitle>Sign in to Opentribe</DialogTitle>
         </DialogHeader>
-        <div className="text-center space-y-6 py-6">
+        <div className='space-y-6 py-6 text-center'>
           {/* Logo */}
-          <div className="text-xs font-medium text-white/70 tracking-[0.2em]">
+          <div className='font-medium text-white/70 text-xs tracking-[0.2em]'>
             OPENTRIBE
           </div>
 
           {/* Title and subtitle */}
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold text-white">
+            <h2 className='font-semibold text-2xl text-white'>
               You are one step away
             </h2>
             <p className="text-sm text-white/60">
@@ -90,7 +94,7 @@ export const AuthModal = ({
               type="button"
               onClick={() => handleOAuthSignIn('google')}
               disabled={loading !== null}
-              className="w-full h-12 bg-[#E6007A] hover:bg-[#E6007A]/90 text-white font-medium"
+              className='h-12 w-full bg-[#E6007A] font-medium text-white hover:bg-[#E6007A]/90'
             >
               {loading === 'google' ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -109,7 +113,7 @@ export const AuthModal = ({
               type="button"
               onClick={() => handleOAuthSignIn('github')}
               disabled={loading !== null}
-              className="w-full h-12 bg-[#E6007A] hover:bg-[#E6007A]/90 text-white font-medium"
+              className='h-12 w-full bg-[#E6007A] font-medium text-white hover:bg-[#E6007A]/90'
             >
               {loading === 'github' ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -124,7 +128,7 @@ export const AuthModal = ({
 
           {/* Divider */}
           <div className="relative px-6">
-            <div className="text-xs text-white/50">OR</div>
+            <div className='text-white/50 text-xs'>OR</div>
           </div>
 
           {/* Email button */}
@@ -134,7 +138,7 @@ export const AuthModal = ({
               onClick={handleEmailSignIn}
               disabled={loading !== null}
               variant="outline"
-              className="w-full h-12 bg-white/5 hover:bg-white/10 border-white/20 text-white font-medium"
+              className='h-12 w-full border-white/20 bg-white/5 font-medium text-white hover:bg-white/10'
             >
               <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -144,7 +148,7 @@ export const AuthModal = ({
           </div>
 
           {/* Footer text */}
-          <div className="text-xs text-white/40 px-6">
+          <div className='px-6 text-white/40 text-xs'>
             By using this website, you agree to our{' '}
             <a href="/legal/terms-of-service" className="underline hover:text-white/60">
               Terms of Use

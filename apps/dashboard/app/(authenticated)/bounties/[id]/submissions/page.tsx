@@ -23,17 +23,12 @@ import {
   ExternalLink,
   Loader2,
   Trophy,
-  Users,
   Calendar,
-  Filter,
   Search,
   Eye,
   MessageCircle,
   Heart,
   Award,
-  DollarSign,
-  DollarSignIcon,
-  Currency,
 } from 'lucide-react';
 import { useBountyContext } from '../../../components/bounty-provider';
 import ReactMarkdown from 'react-markdown';
@@ -52,6 +47,8 @@ export default function SubmissionsPage() {
     announceWinners,
     setSelectedWinners,
     isAnnouncing,
+    clearSelectedWinners,
+    selectedWinners
   } = useBountyContext();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,7 +60,7 @@ export default function SubmissionsPage() {
   >('newest');
 
   // Compute sorted winners and also save them in selectedWinners
-  const sortedWinners = useMemo(() => {
+ useMemo(() => {
     const winners = submissions
       .filter(
         (s) =>
@@ -616,15 +613,18 @@ export default function SubmissionsPage() {
              </Card>
       ):(
             <Card className="bg-zinc-900/50 border-white/10 px-0">
-              <CardHeader>
+              <CardHeader className='flex items-center justify-between'>
                 <CardTitle className="text-sm font-semibold">
                   Selected Winners
                 </CardTitle>
+                <Button className="text-sm " onClick={clearSelectedWinners}>
+                  Reset
+                </Button>
               </CardHeader>
               <CardContent>
                 <div>
-                  {[...sortedWinners.entries()].map(
-                    ([submissionId, winnerData], index) => {
+                  {[...selectedWinners.entries()].map(
+                    ([submissionId, winnerData]) => {
                       const user = winnerData.username;
                       return (
                         <div
@@ -634,35 +634,29 @@ export default function SubmissionsPage() {
                           <div className="flex items-center gap-3">
                             <div
                               className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                index === 0
+                                winnerData.position === 1
                                   ? 'bg-yellow-500/20'
-                                  : index === 1
+                                  : winnerData.position === 2
                                     ? 'bg-gray-400/20'
-                                    : index === 2
+                                    : winnerData.position === 3
                                       ? 'bg-orange-600/20'
                                       : 'bg-white/10'
                               }`}
                             >
                               <Trophy
                                 className={`h-4 w-4 ${
-                                  index === 0
+                                  winnerData.position === 1
                                     ? 'text-yellow-500'
-                                    : index === 1
+                                    : winnerData.position === 2
                                       ? 'text-gray-400'
-                                      : index === 2
+                                      : winnerData.position === 3
                                         ? 'text-orange-600'
                                         : 'text-white/60'
                                 }`}
                               />
                             </div>
                             <span className="font-medium text-white">
-                              {index === 0
-                                ? '1st'
-                                : index === 1
-                                  ? '2nd'
-                                  : index === 2
-                                    ? '3rd'
-                                    : `${winnerData.position}th`}{' '}
+                              {`${winnerData.position}th`}{' '}
                               Place
                             </span>
                           </div>
@@ -682,7 +676,7 @@ export default function SubmissionsPage() {
                     size="sm"
                     className="gap-0 bg-green-600 text-white hover:bg-green-700 mx-6"
                     onClick={announceWinners}
-                    disabled={isAnnouncing || sortedWinners.length === 0}
+                    disabled={isAnnouncing || selectedWinners.size === 0}
                   >
                     {isAnnouncing ? (
                       <>
@@ -692,7 +686,7 @@ export default function SubmissionsPage() {
                     ) : (
                       <>
                         <Award className="mr-2 h-4 w-4" />
-                        Announce Winners ({sortedWinners.length})
+                        Announce Winners ({selectedWinners.size})
                       </>
                     )}
                   </Button>

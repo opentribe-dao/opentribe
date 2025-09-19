@@ -245,22 +245,30 @@ export default function SubmissionReviewPage({
   };
 
   const getAvailablePositions = () => {
-    if (!submission) return [];
+    if (!submission) {return [];}
 
-    // Get positions that are already taken
-    const takenPositions = submission.bounty.submissions.filter(
-      (s) => s.status === 'APPROVED' && s.id !== submission.id
-    ).length;
+    // Use selectedWinners (Map<submissionId, { position, amount, username }>) to determine taken positions
+    // Exclude the current submission's position if editing
+    const takenPositions = new Set<number>();
+    if (selectedWinners && typeof selectedWinners.forEach === 'function') {
+      selectedWinners.forEach((winner, winnerSubmissionId) => {
+        if (winnerSubmissionId !== submission.id && winner.position != null) {
+          takenPositions.add(winner.position);
+        }
+      });
+    }
 
     // Create array of available positions
     const positions = [];
     for (let i = 1; i <= submission.bounty.winnerCount; i++) {
       const prize = submission.bounty.winnings.find((w) => w.position === i);
       if (prize) {
+        // If the position is not taken, it's available
+        const available = !takenPositions.has(i);
         positions.push({
           position: i,
           amount: prize.amount,
-          available: takenPositions < i,
+          available,
         });
       }
     }

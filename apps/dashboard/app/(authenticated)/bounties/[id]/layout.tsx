@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Award, Badge, Loader2 } from 'lucide-react';
+import { Award, Loader2 } from 'lucide-react';
 import { Button } from '@packages/base/components/ui/button';
 import router from 'next/router';
 import { Header } from '../../components/header';
@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { use } from 'react';
 import { PaymentModal } from './payment-modal';
 import { env } from '@/env';
+import { Badge } from '@packages/base/components/ui/badge';
 
 export default function BountyLayout({
   children,
@@ -95,16 +96,16 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {/* <Badge
+            <Badge
               variant="secondary"
               className={
                 bounty.status === 'OPEN'
                   ? 'border-0 bg-green-500/20 text-green-400'
                   : 'border-0 bg-gray-500/20 text-gray-400'
               }
-            > */}
+            >
             {bounty.status}
-            {/* </Badge> */}
+            </Badge>
             {/* {bounty.status === 'OPEN' &&
               submissions.length > 0 &&
               !bounty.winnersAnnouncedAt && (

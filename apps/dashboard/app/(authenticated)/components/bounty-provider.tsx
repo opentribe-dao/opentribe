@@ -148,8 +148,12 @@ export function BountyProvider({
 
   // Verify payment via blockchain
   const verifyPayment = useCallback(async () => {
-    if (!transactionId || !selectedPaymentSubmission?.submitter?.walletAddress)
+    if (
+      !transactionId ||
+      !selectedPaymentSubmission?.submitter?.walletAddress
+    ) {
       return;
+    }
 
     setIsVerifyingPayment(true);
     setVerificationStatus('idle');
@@ -165,7 +169,7 @@ export function BountyProvider({
           body: JSON.stringify({
             extrinsicHash: transactionId,
             expectedTo: selectedPaymentSubmission.submitter.walletAddress,
-            expectedAmount: selectedPaymentSubmission.winningAmount?.toString(),
+            expectedAmount: Number(selectedPaymentSubmission.winningAmount),
           }),
         }
       );
@@ -194,7 +198,9 @@ export function BountyProvider({
 
   // Record payment
   const recordPayment = useCallback(async () => {
-    if (!bounty || !selectedPaymentSubmission) return;
+    if (!bounty || !selectedPaymentSubmission) {
+      return;
+    }
     if (!transactionId) {
       toast.error('Please enter a transaction ID');
       return;

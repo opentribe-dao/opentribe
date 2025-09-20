@@ -2,6 +2,7 @@ import {
   adminClient,
   organizationClient,
   customSessionClient,
+  inferAdditionalFields,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import type { auth } from "./server";
@@ -17,7 +18,14 @@ const authClient = createAuthClient({
   plugins: [
     adminClient(),
     organizationClient(),
-    customSessionClient<typeof auth>(),
+    inferAdditionalFields({
+      user: {
+        profileCompleted: {
+          type: "boolean",
+          input: false
+        },
+      },
+    })
   ],
 });
 

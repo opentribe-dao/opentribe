@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { VoteButtons } from '../../components/community/vote-buttons';
-import { EmailAuthModal } from '../../components/email-auth-modal';
+import { AuthModal } from '../../components/auth-modal';
 
 interface VoteSectionProps {
   rfpId: string;
@@ -22,7 +22,7 @@ export function VoteSection({ rfpId, initialVoteCount }: VoteSectionProps) {
         onAuthRequired={() => setShowAuthModal(true)}
       />
       
-      <EmailAuthModal
+      <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />

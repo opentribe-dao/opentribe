@@ -77,7 +77,7 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
       // Determine redirect URL based on profile completion
       let redirectUrl = redirectTo;
       if (!redirectUrl) {
-        if (session?.user?.profileCompleted) {
+        if (session.data?.user?.profileCompleted) {
           redirectUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || '/dashboard';
         } else {
           redirectUrl = '/onboarding';

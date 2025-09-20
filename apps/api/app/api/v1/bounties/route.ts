@@ -20,7 +20,7 @@ const createBountySchema = z.object({
         title: z.string(),
         url: z.string().url(),
         description: z.string().optional(),
-      }),
+      })
     )
     .optional(),
   screening: z
@@ -29,7 +29,7 @@ const createBountySchema = z.object({
         question: z.string(),
         type: z.enum(["text", "url", "file"]),
         optional: z.boolean(),
-      }),
+      })
     )
     .optional(),
   visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         ...decodeURIComponent(skillsParam)
           .split(",")
           .map((s) => s.trim())
-          .filter((s) => s),
+          .filter((s) => s)
       );
     }
 
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const uniqueSkills = [...new Set(skills)];
 
     const statusParam = searchParams.get("status");
-    
+
     const rawStatuses = statusParam
       ? decodeURIComponent(statusParam)
           .split(",")
@@ -79,13 +79,19 @@ export async function GET(request: NextRequest) {
       : [];
 
     // Validate against BountyStatus enum values
-    const allowedStatuses = new Set(["OPEN", "REVIEWING", "COMPLETED", "CLOSED", "CANCELLED"]);
+    const allowedStatuses = new Set([
+      "OPEN",
+      "REVIEWING",
+      "COMPLETED",
+      "CLOSED",
+      "CANCELLED",
+    ]);
     const statuses = Array.from(
       new Set(
         rawStatuses
-          .map((s) => s.toLowerCase())
-          .filter((s) => allowedStatuses.has(s)),
-      ),
+          .map((s) => s.trim().toUpperCase())
+          .filter((s) => allowedStatuses.has(s))
+      )
     );
 
     // Build where clause
@@ -234,12 +240,12 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Cache-Control': 'max-age=120',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Cache-Control": "max-age=120",
         },
-      },
+      }
     );
   } catch (error) {
     console.error("Error fetching bounties:", error);
@@ -251,11 +257,11 @@ export async function GET(request: NextRequest) {
       {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
         },
-      },
+      }
     );
   }
 }
@@ -293,7 +299,7 @@ export async function POST(request: NextRequest) {
           error:
             "You do not have permission to create bounties for this organization",
         },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
@@ -354,7 +360,7 @@ export async function POST(request: NextRequest) {
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-      },
+      }
     );
   } catch (error) {
     console.error("Bounty creation error:", error);
@@ -362,13 +368,13 @@ export async function POST(request: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid data", details: error.errors },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     return NextResponse.json(
       { error: "Failed to create bounty" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -384,4 +390,3 @@ export async function OPTIONS() {
     },
   });
 }
-

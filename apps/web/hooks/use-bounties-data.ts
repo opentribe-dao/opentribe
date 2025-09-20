@@ -79,7 +79,7 @@ export function useBountiesData(filters: BountiesFilters = {}) {
   }
   // sortBy
   if (filters.sortBy !== undefined && filters.sortBy !== '') {
-    queryParams.append('sortBy', filters.sortBy);
+    queryParams.append('sort', filters.sortBy);
   }
   // priceRange
   if (
@@ -89,8 +89,8 @@ export function useBountiesData(filters: BountiesFilters = {}) {
     filters.priceRange.length === 2 &&
     !(filters.priceRange[0] === 0 && filters.priceRange[1] === 50000)
   ) {
-    queryParams.append('minPrice', filters.priceRange[0].toString());
-    queryParams.append('maxPrice', filters.priceRange[1].toString());
+    queryParams.append('minAmount', filters.priceRange[0].toString());
+    queryParams.append('maxAmount', filters.priceRange[1].toString());
   }
   // hasSubmissions
   if (filters.hasSubmissions !== undefined && filters.hasSubmissions === true) {

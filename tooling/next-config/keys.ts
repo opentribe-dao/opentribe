@@ -1,5 +1,5 @@
-import { createEnv } from '@t3-oss/env-nextjs';
-import { z } from 'zod';
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const keys = () =>
   createEnv({
@@ -9,11 +9,11 @@ export const keys = () =>
       VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
 
       // Added by Vercel
-      NEXT_RUNTIME: z.enum(['nodejs', 'edge']).optional(),
+      NEXT_RUNTIME: z.enum(["nodejs", "edge"]).optional(),
     },
     client: {
-      NEXT_PUBLIC_DASHBOARD_URL: z.string().url(),
-      NEXT_PUBLIC_WEB_URL: z.string().url(),
+      NEXT_PUBLIC_DASHBOARD_URL: z.string().url().optional(),
+      NEXT_PUBLIC_WEB_URL: z.string().url().optional(),
       NEXT_PUBLIC_API_URL: z.string().url().optional(),
       NEXT_PUBLIC_DOCS_URL: z.string().url().optional(),
     },

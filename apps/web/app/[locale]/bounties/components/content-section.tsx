@@ -118,7 +118,7 @@ function BountiesContentSectionComponent({
                     bounty.organization?.name || "Unknown Organization"
                   }
                   amount={
-                    bounty.amount ? parseFloat(bounty.amount) : undefined
+                    bounty.amount ? Number.parseFloat(bounty.amount) : 0
                   }
                   amountUSD={
                     bounty.amountUSD

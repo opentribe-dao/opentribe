@@ -15,7 +15,7 @@ import Image from "next/image";
 const FILTER_TABS = ["All", "Writer", "Coder", "Creator", "Open", "Safe", "Active New", "Backend"];
 
 export default function GrantsPage() {
-  const [grants, setGrants] = useState([]);
+  const [grants, setGrants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -146,21 +146,21 @@ export default function GrantsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold font-heading mb-2">Grants</h1>
+          <h1 className='mb-2 font-bold font-heading text-4xl'>Grants</h1>
           <p className="text-white/60 ">
             Grants help grow grant programs in the Polkadot ecosystem
           </p>
           
           {/* Search and Stats */}
-          <div className="mt-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <form onSubmit={handleSearch} className="flex gap-2 flex-1 max-w-xl">
+          <div className='mt-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center'>
+            <form onSubmit={handleSearch} className='flex max-w-xl flex-1 gap-2'>
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-4 h-4" />
+                <Search className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-white/40' />
                 <Input
                   placeholder="Search for grants"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
-                  className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                  className='border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40'
                 />
               </div>
               <Button type="submit" className="bg-pink-500 hover:bg-pink-600">
@@ -177,7 +177,7 @@ export default function GrantsPage() {
 
         {/* Tabs */}
         <div className="mb-6 overflow-x-auto">
-          <div className="flex gap-2 min-w-max">
+          <div className='flex min-w-max gap-2'>
             {FILTER_TABS.map((tab) => (
               <button
                 key={tab}
@@ -194,22 +194,22 @@ export default function GrantsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className='grid grid-cols-1 gap-8 lg:grid-cols-4'>
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Grant Grid */}
             {loading && page === 1 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                   <div
                     key={i}
-                    className="h-[466px] bg-white/5 rounded-2xl animate-pulse"
+                    className='h-[466px] animate-pulse rounded-2xl bg-white/5'
                   />
                 ))}
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
                   {grants.map((grant: any) => (
                     <GrantCard
                       key={grant.id}
@@ -219,13 +219,13 @@ export default function GrantsPage() {
                       bannerUrl={grant.bannerUrl}
                       minAmount={
                         grant.minAmount
-                          ? parseFloat(grant.minAmount)
-                          : undefined
+                          ? Number.parseFloat(grant.minAmount)
+                          : 0
                       }
                       maxAmount={
                         grant.maxAmount
-                          ? parseFloat(grant.maxAmount)
-                          : undefined
+                          ? Number.parseFloat(grant.maxAmount)
+                          : 0
                       }
                       token={grant.token}
                       rfpCount={grant.rfpCount}
@@ -258,30 +258,30 @@ export default function GrantsPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Filters */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold font-heading mb-4">Filter By</h3>
+            <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+              <h3 className='mb-4 font-heading font-semibold text-lg'>Filter By</h3>
               
               {/* Status */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium mb-3 text-white/80">Status</h4>
+                <h4 className='mb-3 font-medium text-sm text-white/80'>Status</h4>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className='flex cursor-pointer items-center gap-2'>
                     <Checkbox
                       checked={statusFilter.published}
                       onCheckedChange={(checked) => 
                         setStatusFilter(prev => ({ ...prev, published: !!checked }))
                       }
-                      className="border-white/40 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                      className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
                     />
                     <span className="text-sm text-white/70">Published</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className='flex cursor-pointer items-center gap-2'>
                     <Checkbox
                       checked={statusFilter.completed}
                       onCheckedChange={(checked) => 
                         setStatusFilter(prev => ({ ...prev, completed: !!checked }))
                       }
-                      className="border-white/40 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                      className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
                     />
                     <span className="text-sm text-white/70">Completed</span>
                   </label>
@@ -290,14 +290,14 @@ export default function GrantsPage() {
 
               {/* Sort By */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium mb-3 text-white/80">Sort By</h4>
+                <h4 className='mb-3 font-medium text-sm text-white/80'>Sort By</h4>
                 <RadioGroup value={sortBy} onValueChange={setSortBy}>
                   <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className='flex cursor-pointer items-center gap-2'>
                       <RadioGroupItem value="newest" className="border-white/40 text-pink-500" />
                       <span className="text-sm text-white/70">Newest</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className='flex cursor-pointer items-center gap-2'>
                       <RadioGroupItem value="oldest" className="border-white/40 text-pink-500" />
                       <span className="text-sm text-white/70">Oldest</span>
                     </label>
@@ -307,7 +307,7 @@ export default function GrantsPage() {
 
               {/* Price Range */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium mb-3 text-white/80">Price</h4>
+                <h4 className='mb-3 font-medium text-sm text-white/80'>Price</h4>
                 <div className="space-y-4">
                   <Slider
                     value={priceRange}
@@ -325,14 +325,14 @@ export default function GrantsPage() {
 
               {/* Submission */}
               <div>
-                <h4 className="text-sm font-medium mb-3 text-white/80">Submission</h4>
+                <h4 className='mb-3 font-medium text-sm text-white/80'>Submission</h4>
                 <RadioGroup defaultValue="highest">
                   <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className='flex cursor-pointer items-center gap-2'>
                       <RadioGroupItem value="highest" className="border-white/40 text-pink-500" />
                       <span className="text-sm text-white/70">Highest</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className='flex cursor-pointer items-center gap-2'>
                       <RadioGroupItem value="lowest" className="border-white/40 text-pink-500" />
                       <span className="text-sm text-white/70">Lowest</span>
                     </label>
@@ -342,22 +342,22 @@ export default function GrantsPage() {
             </div>
 
             {/* Top RFPs */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold font-heading mb-4">Top RFP's</h3>
+            <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+              <h3 className='mb-4 font-heading font-semibold text-lg'>Top RFP's</h3>
               <div className="space-y-3">
                 {topRFPs.map((rfp, index) => (
-                  <div key={index} className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors">
-                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${rfp.color} flex items-center justify-center flex-shrink-0`}>
-                      <span className="text-sm font-bold text-white font-heading">
+                  <div key={index} className='flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-white/5'>
+                    <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${rfp.color} flex items-center justify-center flex-shrink-0`}>
+                      <span className='font-bold font-heading text-sm text-white'>
                         {index + 1}
                       </span>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-white line-clamp-1">{rfp.title}</h4>
-                      <p className="text-xs text-white/50">{rfp.grant}</p>
+                      <h4 className='line-clamp-1 font-medium text-sm text-white'>{rfp.title}</h4>
+                      <p className='text-white/50 text-xs'>{rfp.grant}</p>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-white/60">
-                      <ThumbsUp className="w-3 h-3" />
+                    <div className='flex items-center gap-1 text-white/60 text-xs'>
+                      <ThumbsUp className='h-3 w-3' />
                       <span>{rfp.votes}</span>
                     </div>
                   </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CommentThread } from '../../components/community/comment-thread';
-import { EmailAuthModal } from '../../components/email-auth-modal';
+import { AuthModal } from '../../components/auth-modal';
 
 interface CommentSectionProps {
   rfpId: string;
@@ -18,7 +18,7 @@ export function CommentSection({ rfpId }: CommentSectionProps) {
         onAuthRequired={() => setShowAuthModal(true)}
       />
       
-      <EmailAuthModal
+      <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />

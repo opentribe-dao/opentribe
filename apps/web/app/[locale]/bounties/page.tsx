@@ -31,7 +31,7 @@ function BountiesPageContent() {
       <div className="container mx-auto px-4 py-8">
         <BountiesHeroSection
           searchQuery={filtersHook.filters.search || ''}
-          totalCount={bountiesData.data?.total || 0}
+          totalCount={bountiesData.data?.bounties.length || 0}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}

@@ -178,9 +178,9 @@ function RfpsSidebarComponent({
           <h3 className='mb-4 font-heading font-semibold text-lg'>Top Bounties</h3>
           
           {topBountiesLoading && (
-            <div className="space-y-3">
+            <div className="space-y-3" aria-label="Loading top bounties">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className='flex items-center gap-3 rounded-lg p-2'>
+                <div key={i} className='flex items-center gap-3 rounded-lg p-2' aria-hidden="true">
                   <div className='h-10 w-10 animate-pulse rounded-full bg-white/10' />
                   <div className="flex-1">
                     <div className='h-4 w-3/4 animate-pulse rounded bg-white/10 mb-1' />
@@ -193,7 +193,11 @@ function RfpsSidebarComponent({
           )}
 
           {topBountiesError && (
-            <div className='rounded-lg border border-red-500/20 bg-red-500/10 p-4'>
+            <div 
+              className='rounded-lg border border-red-500/20 bg-red-500/10 p-4'
+              role="alert"
+              aria-live="polite"
+            >
               <div className='text-red-400 text-sm font-medium'>Error loading bounties</div>
               <div className='text-red-300 text-xs mt-1'>
                 {topBountiesError.message || 'Failed to load top bounties'}

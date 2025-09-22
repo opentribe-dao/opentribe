@@ -112,7 +112,7 @@ function RfpsSidebarComponent({
                   <label
                     key={option.value}
                     htmlFor={`sort-${option.value}`}
-                    className='flex items-center gap-2 cursor-pointer'
+                    className='flex cursor-pointer items-center gap-2'
                   >
                     <RadioGroupItem 
                       id={`sort-${option.value}`}
@@ -135,7 +135,7 @@ function RfpsSidebarComponent({
                   <label
                     key={option.value}
                     htmlFor={`grant-${option.value}`}
-                    className='flex items-center gap-2 cursor-pointer'
+                    className='flex cursor-pointer items-center gap-2'
                   >
                     <RadioGroupItem 
                       id={`grant-${option.value}`}
@@ -158,7 +158,7 @@ function RfpsSidebarComponent({
                   <label
                     key={option.value}
                     htmlFor={`submission-${option.value}`}
-                    className='flex items-center gap-2 cursor-pointer'
+                    className='flex cursor-pointer items-center gap-2'
                   >
                     <RadioGroupItem 
                       id={`submission-${option.value}`}
@@ -183,7 +183,7 @@ function RfpsSidebarComponent({
                 <div key={i} className='flex items-center gap-3 rounded-lg p-2' aria-hidden="true">
                   <div className='h-10 w-10 animate-pulse rounded-full bg-white/10' />
                   <div className="flex-1">
-                    <div className='h-4 w-3/4 animate-pulse rounded bg-white/10 mb-1' />
+                    <div className='mb-1 h-4 w-3/4 animate-pulse rounded bg-white/10' />
                     <div className='h-3 w-1/2 animate-pulse rounded bg-white/10' />
                   </div>
                   <div className='h-4 w-8 animate-pulse rounded bg-white/10' />
@@ -198,16 +198,16 @@ function RfpsSidebarComponent({
               role="alert"
               aria-live="polite"
             >
-              <div className='text-red-400 text-sm font-medium'>Error loading bounties</div>
-              <div className='text-red-300 text-xs mt-1'>
+              <div className='font-medium text-red-400 text-sm'>Error loading bounties</div>
+              <div className='mt-1 text-red-300 text-xs'>
                 {topBountiesError.message || 'Failed to load top bounties'}
               </div>
             </div>
           )}
 
           {!topBountiesLoading && !topBountiesError && topBounties.length === 0 && (
-            <div className='text-center py-4'>
-              <div className='text-white/40 text-sm'>No bounties available</div>
+            <div className='py-4 text-center'>
+              <div className='text-sm text-white/40'>No bounties available</div>
             </div>
           )}
 
@@ -217,19 +217,19 @@ function RfpsSidebarComponent({
                 <Link 
                   key={bounty.id} 
                   href={`/bounties/${bounty.id}`}
-                  className='flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/5 cursor-pointer'
+                  className='flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/5'
                   aria-label={`View bounty: ${bounty.title} by ${bounty.organization.name}`}
                 >
-                  <div className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getGradientClass(index)}`}>
-                    <span className='text-sm font-bold text-white font-heading'>
+                  <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getGradientClass(index)}`}>
+                    <span className='font-bold font-heading text-sm text-white'>
                       {index + 1}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className='text-sm font-medium text-white line-clamp-1'>{bounty.title}</h4>
-                    <p className='text-xs text-white/50 truncate'>{bounty.organization.name}</p>
+                    <h4 className='line-clamp-1 font-medium text-sm text-white'>{bounty.title}</h4>
+                    <p className='truncate text-white/50 text-xs'>{bounty.organization.name}</p>
                   </div>
-                  <div className='flex items-center gap-1 text-xs text-white/60'>
+                  <div className='flex items-center gap-1 text-white/60 text-xs'>
                     <span>{bounty.voteCount}</span>
                   </div>
                 </Link>

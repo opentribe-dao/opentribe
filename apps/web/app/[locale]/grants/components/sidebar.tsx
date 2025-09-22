@@ -202,7 +202,7 @@ function GrantsSidebarComponent({
                 <div key={i} className='flex items-center gap-3 rounded-lg p-2'>
                   <div className='h-10 w-10 animate-pulse rounded-full bg-white/10' />
                   <div className="flex-1">
-                    <div className='h-4 w-3/4 animate-pulse rounded bg-white/10 mb-1' />
+                    <div className='mb-1 h-4 w-3/4 animate-pulse rounded bg-white/10' />
                     <div className='h-3 w-1/2 animate-pulse rounded bg-white/10' />
                   </div>
                   <div className='h-4 w-8 animate-pulse rounded bg-white/10' />
@@ -213,16 +213,16 @@ function GrantsSidebarComponent({
 
           {topRFPsError && (
             <div className='rounded-lg border border-red-500/20 bg-red-500/10 p-4'>
-              <div className='text-red-400 text-sm font-medium'>Error loading RFPs</div>
-              <div className='text-red-300 text-xs mt-1'>
+              <div className='font-medium text-red-400 text-sm'>Error loading RFPs</div>
+              <div className='mt-1 text-red-300 text-xs'>
                 {topRFPsError.message || 'Failed to load top RFPs'}
               </div>
             </div>
           )}
 
           {!topRFPsLoading && !topRFPsError && topRFPs.length === 0 && (
-            <div className='text-center py-4'>
-              <div className='text-white/40 text-sm'>No RFPs available</div>
+            <div className='py-4 text-center'>
+              <div className='text-sm text-white/40'>No RFPs available</div>
             </div>
           )}
 
@@ -237,21 +237,21 @@ function GrantsSidebarComponent({
                     // TODO: Navigate to RFP detail page when available
                   }}
                 >
-                  <div className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${
+                  <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${
                     index === 0 ? 'from-yellow-500 to-orange-600' :
                     index === 1 ? 'from-gray-400 to-gray-600' :
                     index === 2 ? 'from-amber-600 to-yellow-700' :
                     'from-pink-500 to-purple-600'
                   }`}>
-                    <span className='font-heading text-sm font-bold text-white'>
+                    <span className='font-bold font-heading text-sm text-white'>
                       {index + 1}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className='line-clamp-1 text-sm font-medium text-white'>{rfp.title}</h4>
-                    <p className='truncate text-xs text-white/50'>{rfp.grant.organization.name}</p>
+                    <h4 className='line-clamp-1 font-medium text-sm text-white'>{rfp.title}</h4>
+                    <p className='truncate text-white/50 text-xs'>{rfp.grant.organization.name}</p>
                   </div>
-                  <div className='flex items-center gap-1 text-xs text-white/60'>
+                  <div className='flex items-center gap-1 text-white/60 text-xs'>
                     <ThumbsUp className='h-3 w-3' />
                     <span>{rfp.voteCount}</span>
                   </div>

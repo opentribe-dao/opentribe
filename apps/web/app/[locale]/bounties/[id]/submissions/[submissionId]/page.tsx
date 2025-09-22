@@ -1,19 +1,19 @@
-import { env } from '@/env';
-import { Button } from '@packages/base/components/ui/button';
-import { ArrowLeft, Calendar, ExternalLink, Trophy, User } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { CommentSection } from './comment-section';
+import { env } from "@/env";
+import { Button } from "@packages/base/components/ui/button";
+import { ArrowLeft, Calendar, ExternalLink, Trophy, User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { CommentSection } from "./comment-section";
 
 async function getSubmission(bountyId: string, submissionId: string) {
-  const apiUrl = env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+  const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
   const res = await fetch(
     `${apiUrl}/api/v1/bounties/${bountyId}/submissions/${submissionId}`,
     {
-      cache: 'no-store',
+      cache: "no-store",
     }
   );
 
@@ -28,9 +28,10 @@ async function getSubmission(bountyId: string, submissionId: string) {
 export default async function SubmissionDetailPage({
   params,
 }: {
-  params: { id: string; submissionId: string };
+  params: Promise<{ id: string; submissionId: string }>;
 }) {
-  const data = await getSubmission(params.id, params.submissionId);
+  const { id, submissionId } = await params;
+  const data = await getSubmission(id, submissionId);
 
   if (!data?.submission) {
     notFound();
@@ -40,19 +41,19 @@ export default async function SubmissionDetailPage({
 
   // Format currency
   const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -62,7 +63,7 @@ export default async function SubmissionDetailPage({
       <div className="border-white/10 border-b">
         <div className="container mx-auto px-6 py-4">
           <Link
-            href={`/bounties/${params.id}`}
+            href={`/bounties/${id}`}
             className="inline-flex items-center gap-2 text-white/60 transition-colors hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -135,7 +136,7 @@ export default async function SubmissionDetailPage({
               </h2>
               <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {submission.description || 'No description provided.'}
+                  {submission.description || "No description provided."}
                 </ReactMarkdown>
               </div>
             </section>
@@ -195,7 +196,7 @@ export default async function SubmissionDetailPage({
                 </div>
                 <div>
                   <h4 className="font-semibold">
-                    {submission.submitter.firstName}{' '}
+                    {submission.submitter.firstName}{" "}
                     {submission.submitter.lastName}
                   </h4>
                   <Link
@@ -229,7 +230,7 @@ export default async function SubmissionDetailPage({
                 <div className="flex justify-between">
                   <span className="text-white/60">Total Prize</span>
                   <span className="font-medium">
-                    {formatAmount(submission.bounty.totalAmount)}{' '}
+                    {formatAmount(submission.bounty.totalAmount)}{" "}
                     {submission.bounty.token}
                   </span>
                 </div>
@@ -246,10 +247,7 @@ export default async function SubmissionDetailPage({
                   </span>
                 </div>
               </div>
-              <Link
-                href={`/bounties/${params.id}`}
-                className="mt-4 block w-full"
-              >
+              <Link href={`/bounties/${id}`} className="mt-4 block w-full">
                 <Button
                   variant="outline"
                   className="w-full border-white/20 text-white hover:bg-white/10"

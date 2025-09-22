@@ -149,7 +149,10 @@ const BountySubmissionPage = () => {
             submissionUrl: formData.submissionUrl,
             title: formData.title || undefined,
             description: formData.description || undefined,
-            attachments: formData.attachments.length > 0 ? formData.attachments : undefined,
+            attachments:
+              formData.attachments.length > 0
+                ? formData.attachments
+                : undefined,
             responses:
               Object.keys(formData.responses).length > 0
                 ? formData.responses
@@ -235,7 +238,7 @@ const BountySubmissionPage = () => {
                   {bounty.title}
                 </h2>
                 <div className="flex items-center gap-4 mt-2 text-sm text-white/60">
-                  <span>Bounty #{params.id.slice(0, 8)}</span>
+                  <span>Bounty #{params.id?.slice(0, 8)}</span>
                   {bounty.amount && (
                     <span>
                       Prize: {formatAmount(bounty.amount)} {bounty.token}
@@ -327,7 +330,8 @@ const BountySubmissionPage = () => {
                       Attachments (optional)
                     </Label>
                     <p className="text-sm text-white/60 mt-1 mb-3">
-                      Upload supporting documents, images, or demo files (PDF, ZIP, images, videos)
+                      Upload supporting documents, images, or demo files (PDF,
+                      ZIP, images, videos)
                     </p>
                     <FileUpload
                       type="submission"
@@ -423,7 +427,7 @@ const BountySubmissionPage = () => {
                         "Submit Now"
                       )}
                     </Button>
-                    <p className="text-xs text-white/60 text-center mt-4">
+                    <p className="mt-4 text-center text-white/60 text-xs">
                       By submitting, you acknowledge that you have read the
                       description and agree with the submission guidelines
                       provided by the organization

@@ -18,9 +18,10 @@ export async function OPTIONS() {
 // GET /api/v1/organizations/[organizationId] - Get organization details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
+    const { organizationId } = await params;
     const authHeaders = await headers();
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
@@ -34,7 +35,7 @@ export async function GET(
     }
 
     const organization = await database.organization.findUnique({
-      where: { id: params.organizationId },
+      where: { id: organizationId },
       include: {
         members: {
           include: {
@@ -70,10 +71,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(
-      { organization },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ organization }, { headers: corsHeaders });
   } catch (error) {
     console.error("Error fetching organization:", error);
     return NextResponse.json(
@@ -86,9 +84,10 @@ export async function GET(
 // PATCH /api/v1/organizations/[organizationId] - Update organization
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
+    const { organizationId } = await params;
     const authHeaders = await headers();
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
@@ -104,7 +103,7 @@ export async function PATCH(
     // Check if user has permission to update organization
     const member = await database.member.findFirst({
       where: {
-        organizationId: params.organizationId,
+        organizationId,
         userId: sessionData.user.id,
         role: {
           in: ["owner", "admin"],
@@ -139,7 +138,7 @@ export async function PATCH(
       const existingOrg = await database.organization.findFirst({
         where: {
           slug: validatedData.slug,
-          id: { not: params.organizationId },
+          id: { not: organizationId },
         },
       });
 
@@ -152,7 +151,7 @@ export async function PATCH(
     }
 
     const updatedOrganization = await database.organization.update({
-      where: { id: params.organizationId },
+      where: { id: organizationId },
       data: {
         ...validatedData,
         updatedAt: new Date(),
@@ -196,9 +195,10 @@ export async function PATCH(
 // DELETE /api/v1/organizations/[organizationId] - Delete organization (owner only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
+    const { organizationId } = await params;
     const authHeaders = await headers();
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
@@ -214,7 +214,7 @@ export async function DELETE(
     // Check if user is the owner
     const member = await database.member.findFirst({
       where: {
-        organizationId: params.organizationId,
+        organizationId,
         userId: sessionData.user.id,
         role: "owner",
       },
@@ -229,7 +229,7 @@ export async function DELETE(
 
     // Delete organization (cascade will handle related records)
     await database.organization.delete({
-      where: { id: params.organizationId },
+      where: { id: organizationId },
     });
 
     return NextResponse.json(

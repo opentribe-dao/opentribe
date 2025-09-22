@@ -48,6 +48,13 @@ export function GrantCard({
                 alt={organization.name}
                 width={48}
                 height={48}
+                onError={(e) => {
+                  console.log(
+                    "Grant Card image failed to load:",
+                    organization.logo,
+                  );
+                  e.currentTarget.style.display = "none";
+                }}
                 className="rounded-lg"
               />
             ) : (

@@ -1,9 +1,9 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { sendOnboardingCompleteEmail } from '@packages/email';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { sendOnboardingCompleteEmail } from "@packages/email";
 
 // Schema for organization creation
 const createOrganizationSchema = z.object({
@@ -27,11 +27,15 @@ const createOrganizationSchema = z.object({
     location: z.string(),
     industry: z.string(),
   }),
-  teamMembers: z.array(z.object({
-    name: z.string(),
-    email: z.string().email(),
-    role: z.enum(['admin', 'member']),
-  })).optional(),
+  teamMembers: z
+    .array(
+      z.object({
+        name: z.string(),
+        email: z.string().email(),
+        role: z.enum(["admin", "member"]),
+      })
+    )
+    .optional(),
 });
 
 // POST /api/v1/organizations - Create organization
@@ -43,10 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // For MVP, allow any authenticated user to create an organization
@@ -57,7 +58,12 @@ export async function POST(request: NextRequest) {
     const validatedData = createOrganizationSchema.parse(body);
 
     // Check if this is the first time completing profile
-    const isFirstCompletion = !session.user.profileCompleted;
+    const currentUser = await database.user.findUnique({
+      where: { id: session.user.id },
+      select: { profileCompleted: true },
+    });
+
+    const isFirstCompletion = !currentUser?.profileCompleted;
 
     // Start a transaction
     const result = await database.$transaction(async (tx) => {
@@ -73,12 +79,12 @@ export async function POST(request: NextRequest) {
       // 2. Generate a unique slug from the organization name
       let baseSlug = validatedData.organization.name
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
       let slug = baseSlug;
       let counter = 1;
-      
+
       // Check if slug exists and append number if needed
       while (await tx.organization.findUnique({ where: { slug } })) {
         slug = `${baseSlug}-${counter}`;
@@ -98,7 +104,7 @@ export async function POST(request: NextRequest) {
           metadata: JSON.stringify({
             type: validatedData.organization.type,
           }),
-          visibility: 'ACTIVE',
+          visibility: "ACTIVE",
           isVerified: false,
         },
       });
@@ -108,19 +114,19 @@ export async function POST(request: NextRequest) {
         data: {
           userId: session.user.id,
           organizationId: organization.id,
-          role: 'owner',
+          role: "owner",
         },
       });
 
       // 5. Create invitations for team members if provided
       if (validatedData.teamMembers && validatedData.teamMembers.length > 0) {
         await tx.invitation.createMany({
-          data: validatedData.teamMembers.map(member => ({
+          data: validatedData.teamMembers.map((member) => ({
             organizationId: organization.id,
             email: member.email,
             role: member.role,
             inviterId: session.user.id,
-            status: 'pending',
+            status: "pending",
             expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
           })),
         });
@@ -138,50 +144,53 @@ export async function POST(request: NextRequest) {
             firstName: result.user.firstName || undefined,
             username: result.user.username || undefined,
           },
-          'organization' // Organization onboarding
+          "organization" // Organization onboarding
         );
       } catch (error) {
-        console.error('Failed to send onboarding complete email:', error);
+        console.error("Failed to send onboarding complete email:", error);
         // Don't fail the request if email fails
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      organization: result.organization,
-      user: result.user,
-    }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    return NextResponse.json(
+      {
+        success: true,
+        organization: result.organization,
+        user: result.user,
       },
-    });
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }
+    );
   } catch (error) {
-    console.error('Organization creation error:', error);
-    
+    console.error("Organization creation error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
-        { 
+        { error: "Invalid data", details: error.errors },
+        {
           status: 400,
           headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create organization' },
-      { 
+      { error: "Failed to create organization" },
+      {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
@@ -192,13 +201,13 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
     const [organizations, total] = await Promise.all([
       database.organization.findMany({
-        where: { visibility: 'ACTIVE' },
+        where: { visibility: "ACTIVE" },
         include: {
           members: {
             include: {
@@ -215,36 +224,39 @@ export async function GET(request: NextRequest) {
         },
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
-      database.organization.count({ where: { visibility: 'ACTIVE' } }),
+      database.organization.count({ where: { visibility: "ACTIVE" } }),
     ]);
 
-    return NextResponse.json({
-      organizations,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
-    });
-  } catch (error) {
-    console.error('Organizations list error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch organizations' },
-      { 
+      {
+        organizations,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Organizations list error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch organizations" },
+      {
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
@@ -256,9 +268,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

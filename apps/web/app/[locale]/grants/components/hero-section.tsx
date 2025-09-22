@@ -46,6 +46,7 @@ function GrantsHeroSectionComponent({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className='border-white/10 bg-white/5 pr-10 pl-10 text-white placeholder:text-white/40'
+              aria-label="Search grants"
             />
             {searchQuery && (
               <button
@@ -58,7 +59,7 @@ function GrantsHeroSectionComponent({
               </button>
             )}
           </div>
-          <Button type="submit" className="bg-pink-500 hover:bg-pink-600">
+          <Button type="submit" className="bg-pink-500 hover:bg-pink-600" aria-label="Search grants">
             Search
           </Button>
         </form>

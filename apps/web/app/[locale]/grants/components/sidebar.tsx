@@ -229,16 +229,20 @@ function GrantsSidebarComponent({
           {!topRFPsLoading && !topRFPsError && topRFPs.length > 0 && (
             <div className="space-y-3">
               {topRFPs.map((rfp, index) => (
-                <div 
+                <button 
                   key={rfp.id} 
-                  className='flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-white/5'
+                  className='flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/5'
+                  aria-label={`View RFP: ${rfp.title} by ${rfp.grant.organization.name}`}
+                  onClick={() => {
+                    // TODO: Navigate to RFP detail page when available
+                  }}
                 >
-                  <div className={`h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${
+                  <div className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${
                     index === 0 ? 'from-yellow-500 to-orange-600' :
                     index === 1 ? 'from-gray-400 to-gray-600' :
                     index === 2 ? 'from-amber-600 to-yellow-700' :
                     'from-pink-500 to-purple-600'
-                  } flex`}>
+                  }`}>
                     <span className='font-heading text-sm font-bold text-white'>
                       {index + 1}
                     </span>
@@ -251,7 +255,7 @@ function GrantsSidebarComponent({
                     <ThumbsUp className='h-3 w-3' />
                     <span>{rfp.voteCount}</span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}

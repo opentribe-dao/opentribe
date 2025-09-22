@@ -70,29 +70,11 @@ function RFPsPageContent() {
             topBounties={topBountiesQuery.data || []}
             topBountiesLoading={topBountiesQuery.isLoading}
             topBountiesError={topBountiesQuery.error}
-            onFilterChange={(key, value) => {
-              if (key === 'showMobileFilters') {
-                setShowMobileFilters(value as boolean);
-              } else {
-                // Type-safe filter updates
-                switch (key) {
-                  case 'search':
-                    filtersHook.updateFilter('search', value as string);
-                    break;
-                  case 'sort':
-                    filtersHook.updateFilter('sort', value as string);
-                    break;
-                  case 'grant':
-                    filtersHook.updateFilter('grant', value as string);
-                    break;
-                  case 'submission':
-                    filtersHook.updateFilter('submission', value as string);
-                    break;
-                  default:
-                    // Unknown filter key - ignore silently
-                    break;
-                }
-              }
+            onFilterChange={{
+              onSortChange: (value) => filtersHook.updateFilter('sort', value),
+              onGrantChange: (value) => filtersHook.updateFilter('grant', value),
+              onSubmissionChange: (value) => filtersHook.updateFilter('submission', value),
+              onMobileFiltersToggle: (show) => setShowMobileFilters(show),
             }}
             onClearAllFilters={filtersHook.clearAllFilters}
           />

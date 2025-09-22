@@ -10,14 +10,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@polkadot/api": "^16.4.3",
-    "@polkadot/util": "^13.2.4",
-    "@polkadot/util-crypto": "^13.2.4",
+    "dedot": "^0.16.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "zod": "^3.25.28"
   },
   "devDependencies": {
+    "@dedot/chaintypes": "^0.154.0",
     "@tooling/typescript-config": "workspace:*",
     "@types/node": "22.15.21",
     "typescript": "^5.8.3",

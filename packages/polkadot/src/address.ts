@@ -1,4 +1,5 @@
-import { encodeAddress, decodeAddress, checkAddress } from '@polkadot/util-crypto';
+import { decodeAddress, encodeAddress } from "dedot/utils";
+import { NETWORKS } from "./config";
 
 /**
  * Validates a Polkadot/Substrate address
@@ -6,22 +7,27 @@ import { encodeAddress, decodeAddress, checkAddress } from '@polkadot/util-crypt
  * @param ss58Format The SS58 format (0 for Polkadot, 2 for Kusama, etc.)
  * @returns True if valid, false otherwise
  */
-export function isValidPolkadotAddress(address: string, ss58Format = 0): boolean {
+export function isValidPolkadotAddress(
+  address: string,
+  ss58Format = 0
+): boolean {
   try {
-    const result = checkAddress(address, ss58Format);
-    return result[0]; // Returns [isValid, errorMessage]
+    decodeAddress(address, false, ss58Format);
+    return true; // If decodeAddress doesn't throw, the address is valid
   } catch {
     return false;
   }
 }
-
 /**
  * Formats a Polkadot address to a specific SS58 format
  * @param address The address to format
  * @param ss58Format The target SS58 format (0 for Polkadot, 2 for Kusama)
  * @returns The formatted address or null if invalid
  */
-export function formatPolkadotAddress(address: string, ss58Format = 0): string | null {
+export function formatPolkadotAddress(
+  address: string,
+  ss58Format = 0
+): string | null {
   try {
     const decoded = decodeAddress(address);
     return encodeAddress(decoded, ss58Format);
@@ -37,7 +43,9 @@ export function formatPolkadotAddress(address: string, ss58Format = 0): string |
  * @returns Shortened address like "1abc...xyz"
  */
 export function shortenAddress(address: string, chars = 6): string {
-  if (!address || address.length <= chars * 2) return address;
+  if (!address || address.length <= chars * 2) {
+    return address;
+  }
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 }
 
@@ -60,28 +68,5 @@ export function isSameAddress(address1: string, address2: string): boolean {
 /**
  * Network configurations for common Polkadot networks
  */
-export const NETWORK_CONFIG = {
-  polkadot: {
-    name: 'Polkadot',
-    ss58Format: 0,
-    decimals: 10,
-    symbol: 'DOT',
-    subscanUrl: 'https://polkadot.subscan.io',
-  },
-  kusama: {
-    name: 'Kusama',
-    ss58Format: 2,
-    decimals: 12,
-    symbol: 'KSM',
-    subscanUrl: 'https://kusama.subscan.io',
-  },
-  westend: {
-    name: 'Westend',
-    ss58Format: 42,
-    decimals: 12,
-    symbol: 'WND',
-    subscanUrl: 'https://westend.subscan.io',
-  },
-} as const;
-
-export type NetworkName = keyof typeof NETWORK_CONFIG;
+export const NETWORK_CONFIG = NETWORKS;
+export type NetworkName = keyof typeof NETWORKS;

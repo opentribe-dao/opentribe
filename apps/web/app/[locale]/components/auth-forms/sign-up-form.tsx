@@ -201,7 +201,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <div className="relative">
+                <div className="grid grid-cols-[1fr_auto] items-center gap-x-2">
                   <Input
                     {...field}
                     type={showPassword ? 'text' : 'password'}
@@ -211,9 +211,8 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
                   />
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                    variant="outline"
+                    size="icon"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >

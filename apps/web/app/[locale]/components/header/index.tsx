@@ -100,7 +100,7 @@ const UserMenu = ({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center gap-2 h-auto p-2 hover:bg-white/10 rounded-lg"
+          className='flex h-auto items-center gap-2 rounded-lg p-2 hover:bg-white/10'
         >
           {user.image ? (
             <Image
@@ -111,16 +111,16 @@ const UserMenu = ({
               className="h-8 w-8 rounded-full"
             />
           ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-600 text-white font-medium text-xs">
+            <div className='flex h-8 w-8 items-center justify-center rounded-full bg-pink-600 font-medium text-white text-xs'>
               {userInitials}
             </div>
           )}
-          <span className="text-white font-medium">{firstName}</span>
+          <span className='font-medium text-white'>{firstName}</span>
           <ChevronDown className="h-4 w-4 text-white/70" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-56 bg-black/90 border-white/10 text-white"
+        className='w-56 border-white/10 bg-black/90 text-white'
         align="end"
       >
         <DropdownMenuLabel className="font-normal">
@@ -241,23 +241,23 @@ export const Header = ({ dictionary }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 left-0 z-40 w-full border-b border-white/10 bg-black/90 backdrop-blur-xl">
+    <header className='sticky top-0 left-0 z-40 w-full border-white/10 border-b bg-black/90 backdrop-blur-xl'>
       <div className="container relative mx-auto flex min-h-20 flex-row items-center justify-between px-4">
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-heading font-bold tracking-[0.25em] bg-gradient-to-r from-white/35 to-white bg-clip-text text-transparent leading-[1.75]">
+            <span className='bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-transparent text-xl leading-[1.75] tracking-[0.25em]'>
               OPENTRIBE
             </span>
           </Link>
         </div>
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className='hidden items-center gap-6 md:flex'>
           {navigationItems.map((item) => (
             <Link
               key={item.title}
               href={item.href}
               className={`text-sm transition-colors ${
                 isActive(item.href)
-                  ? "text-white font-medium"
+                  ? 'font-medium text-white'
                   : "text-white/70 hover:text-white"
               }`}
             >
@@ -270,11 +270,11 @@ export const Header = ({ dictionary }: HeaderProps) => {
             <UserMenu user={session.user} onSignOut={handleSignOut} />
           ) : (
             <>
-              <AuthModal defaultTab="sign-up">
+              <AuthModal>
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="rounded-full font-heading font-bold text-base"
+                  className='rounded-full font-bold font-heading text-base'
                 >
                   Login / Sign Up
                 </Button>
@@ -287,7 +287,7 @@ export const Header = ({ dictionary }: HeaderProps) => {
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           {isOpen && (
-            <div className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background py-4 px-6 shadow-lg">
+            <div className='container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg'>
               {navigationItems.map((item) => (
                 <div key={item.title}>
                   <div className="flex flex-col gap-2">
@@ -310,7 +310,7 @@ export const Header = ({ dictionary }: HeaderProps) => {
                         <MoveRight className="h-4 w-4 stroke-1 text-muted-foreground" />
                       </Link>
                     ) : (
-                      <p className="text-lg pl-4">{item.title}</p>
+                      <p className='pl-4 text-lg'>{item.title}</p>
                     )}
                   </div>
                 </div>

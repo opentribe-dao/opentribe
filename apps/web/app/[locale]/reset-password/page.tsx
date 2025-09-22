@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { authClient } from '@packages/auth/client';
-import { Card, CardContent, CardHeader, CardTitle, Input, Button } from '@packages/base';
+import { Card, CardContent, CardHeader, CardTitle } from '@packages/base/components/ui/card';
+import { Input } from '@packages/base/components/ui/input';
+import { Button } from '@packages/base/components/ui/button';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export default function ResetPasswordPage() {

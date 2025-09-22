@@ -4,8 +4,18 @@
   "ui": "tui",
   "envMode": "loose",
   "tasks": {
+    "db:generate": {
+      "cache": false
+    },
+    "db:migrate": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:deploy": {
+      "cache": false
+    },
     "build": {
-      "dependsOn": ["^build", "test"],
+      "dependsOn": ["^build", "^db:generate", "test"],
       "outputs": [
         ".next/**",
         "!.next/cache/**",
@@ -20,6 +30,7 @@
       "dependsOn": ["^analyze"]
     },
     "dev": {
+      "dependsOn": ["^db:generate"],
       "cache": false,
       "persistent": true
     },

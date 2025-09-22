@@ -78,7 +78,23 @@ function GrantsPageContent() {
               if (key === 'showMobileFilters') {
                 setShowMobileFilters(value as boolean);
               } else {
-                filtersHook.updateFilter(key as keyof typeof filtersHook.filters, value as any);
+                // Type-safe filter updates
+                switch (key) {
+                  case 'status':
+                    filtersHook.updateFilter('status', value as string);
+                    break;
+                  case 'source':
+                    filtersHook.updateFilter('source', value as string);
+                    break;
+                  case 'sortBy':
+                    filtersHook.updateFilter('sortBy', value as string);
+                    break;
+                  case 'priceRange':
+                    filtersHook.updateFilter('priceRange', value as [number, number]);
+                    break;
+                  default:
+                    console.warn(`Unknown filter key: ${key}`);
+                }
               }
             }}
             onStatusToggle={filtersHook.toggleStatus}

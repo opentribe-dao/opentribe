@@ -59,6 +59,7 @@ export const popularGrantsQueryKeys = {
 // Top query keys factory
 export const topQueryKeys = {
   rfps: () => ['top', 'rfps'] as const,
+  bounties: () => ['top', 'bounties'] as const,
 }
 
 // Cache configuration

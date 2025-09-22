@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { rfpQueryKeys } from './react-query';
+import { rfpQueryKeys, topQueryKeys } from './react-query';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
@@ -126,5 +126,69 @@ export function useRfpsData(filters: RFPsFilters = {}) {
   });
 }
 
+// Top Bounty interface
+interface TopBounty {
+  id: string;
+  title: string;
+  voteCount: number;
+  organization: {
+    name: string;
+  };
+}
+
+// Hook for fetching top bounties
+export function useTopBounties() {
+  return useQuery({
+    queryKey: topQueryKeys.bounties(),
+    queryFn: async (): Promise<TopBounty[]> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/top/bounties?refresh=true`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Top bounties API endpoint not found');
+          }
+          if (response.status >= 500) {
+            throw new Error('Server error while fetching top bounties');
+          }
+          throw new Error(`Failed to fetch top bounties (${response.status})`);
+        }
+        
+        const data = await response.json();
+        
+        // Validate response structure
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid top bounties response format');
+        }
+        
+        // API returns { data: TopBounty[] }
+        const bounties = data?.data ?? [];
+        
+        // Validate bounties array structure
+        if (!Array.isArray(bounties)) {
+          return [];
+        }
+        
+        return bounties;
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error('Network error while fetching top bounties');
+      }
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 20 * 60 * 1000, // 20 minutes
+    retry: (failureCount, error) => {
+      // Don't retry on 4xx errors
+      if (error instanceof Error && error.message.includes('404')) {
+        return false;
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
+  });
+}
+
 // Export types for use in components
-export type { RFP, RFPsResponse, RFPsFilters };
+export type { RFP, RFPsResponse, RFPsFilters, TopBounty };

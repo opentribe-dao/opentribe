@@ -6,7 +6,7 @@ import { GrantCard } from "../../components/cards/grant-card"
 
 interface GrantFilters {
   status: string
-  source: string
+  source: string[]
   sortBy: string
   priceRange: [number, number]
 }

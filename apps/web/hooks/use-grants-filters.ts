@@ -26,7 +26,7 @@ export function useGrantsFilters() {
     return {
       status: params.get('status') || 'OPEN',
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
-      source: params.get('source') || 'ALL',
+      source: params.get('source')?.split(',').filter(Boolean) || [],
       search: params.get('search') || '',
       sortBy: params.get('sort') || 'newest',
       priceRange: [
@@ -52,8 +52,8 @@ export function useGrantsFilters() {
       count++;
     }
     
-    // Source filter (if not default "ALL")
-    if (filters.source?.trim() && filters.source !== 'ALL') {
+    // Source filter (if not empty)
+    if (filters.source && filters.source.length > 0) {
       count++;
     }
     
@@ -95,8 +95,8 @@ export function useGrantsFilters() {
       params.delete('skills');
     }
     
-    if (updatedFilters.source && updatedFilters.source !== 'ALL') {
-      params.set('source', updatedFilters.source);
+    if (updatedFilters.source && updatedFilters.source.length > 0) {
+      params.set('source', updatedFilters.source.join(','));
     } else {
       params.delete('source');
     }
@@ -180,15 +180,18 @@ export function useGrantsFilters() {
   }, [filters.skills, updateFilter]);
 
   const toggleSource = useCallback((source: string) => {
-    const newSource = filters.source === source ? 'ALL' : source;
-    updateFilter('source', newSource);
+    const currentSources = filters.source || [];
+    const newSources = currentSources.includes(source)
+      ? currentSources.filter(s => s !== source)
+      : [...currentSources, source];
+    updateFilter('source', newSources);
   }, [filters.source, updateFilter]);
 
   const clearAllFilters = useCallback(() => {
     const defaultFilters: GrantsFilters = {
       status: 'OPEN',
       skills: [],
-      source: 'ALL',
+      source: [],
       search: '',
       sortBy: 'newest',
       priceRange: [0, 100000],

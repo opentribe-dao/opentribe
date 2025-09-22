@@ -45,7 +45,7 @@ interface GrantSkillCount {
 interface GrantsFilters {
   status?: string;
   skills?: string[];
-  source?: string;
+  source?: string[];
   search?: string;
   sortBy?: string;
   priceRange?: [number, number];
@@ -79,8 +79,8 @@ export function useGrantsData(filters: GrantsFilters = {}) {
   }
   
   // source
-  if (filters.source !== undefined && filters.source !== '' && filters.source !== 'ALL') {
-    queryParams.append('source', filters.source);
+  if (filters.source !== undefined && Array.isArray(filters.source) && filters.source.length > 0) {
+    queryParams.append('source', filters.source.join(','));
   }
   
   // sortBy

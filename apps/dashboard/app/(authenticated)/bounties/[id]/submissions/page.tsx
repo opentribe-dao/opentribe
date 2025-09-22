@@ -48,7 +48,7 @@ export default function SubmissionsPage() {
     setSelectedWinners,
     isAnnouncing,
     clearSelectedWinners,
-    selectedWinners
+    selectedWinners,
   } = useBountyContext();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,7 +60,7 @@ export default function SubmissionsPage() {
   >('newest');
 
   // Compute sorted winners and also save them in selectedWinners
- useMemo(() => {
+  useMemo(() => {
     const winners = submissions
       .filter(
         (s) =>
@@ -110,7 +110,6 @@ export default function SubmissionsPage() {
       winningAmount: s.winningAmount,
       username: s.submitter.username,
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submissions, setSelectedWinners]);
 
   // Filtering
@@ -466,19 +465,19 @@ export default function SubmissionsPage() {
                     {/* Actions */}
                     <div className="flex gap-2">
                       {!bounty.winnersAnnouncedAt && (
-                      <Button
-                        size="sm"
-                        className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
-                        asChild
-                      >
-                        <Link
-                          href={`/bounties/${bounty.id}/submissions/${submission.id}`}
+                        <Button
+                          size="sm"
+                          className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
+                          asChild
                         >
-                          <Eye className="mr-1 h-3 w-3" />
-                          Review
-                        </Link>
-                      </Button>
-                       )}
+                          <Link
+                            href={`/bounties/${bounty.id}/submissions/${submission.id}`}
+                          >
+                            <Eye className="mr-1 h-3 w-3" />
+                            Review
+                          </Link>
+                        </Button>
+                      )}
                       {submission.submissionUrl && (
                         <Button
                           variant="outline"
@@ -503,195 +502,250 @@ export default function SubmissionsPage() {
             </div>
           </div>
           <div className="w-full lg:w-[30%]">
-          {bounty.winnersAnnouncedAt ? (
-               <Card className="bg-green-500/10 border-green-500/30">
-               <CardHeader>
-                 <div className="flex items-center justify-between">
-                   <CardTitle className="flex items-center gap-2 text-sm">
-                     {/* <Trophy className="h-4 w-4 text-green-400" /> */}
-                     Winners Announced
-                   </CardTitle>
-                   <CardDescription className="text-xs">
-                     {new Date(bounty.winnersAnnouncedAt).toLocaleDateString()}
-                   </CardDescription>
-                 </div>
-               </CardHeader>
-               <CardContent className="pt-0">
-                 <div className="space-y-2">
-                   {submissions
-                     .filter((s) => s.isWinner)
-                     .sort((a, b) => (a.position || 0) - (b.position || 0))
-                     .map((winner) => (
-                       <div key={winner.id} className="rounded-lg bg-white/5 px-3 py-3">
-                         <div className="flex items-center gap-3 mb-4">
-                           <div className="flex items-center gap-2 min-w-0">
-                           <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                        winner.position === 1
-                          ? 'bg-yellow-500/20'
-                          : winner.position === 2
-                            ? 'bg-gray-400/20'
-                            : winner.position === 3
-                              ? 'bg-orange-600/20'
-                              : 'bg-white/10'
-                      }`}
-                    >
-                             <Trophy
-                               className={`h-4 w-4 ${
-                                 winner.position === 1
-                                   ? 'text-yellow-500'
-                                   : winner.position === 2
-                                     ? 'text-gray-400'
-                                     : winner.position === 3
-                                       ? 'text-orange-600'
-                                       : 'text-white/60'
-                               }`}
-                             />
-                             </div> 
-                             <div className="min-w-0">
-                               <p className="truncate text-sm font-bold text-white">
-                                 {winner.submitter.firstName ||
-                                   winner.submitter.username ||
-                                   'Anonymous'}
-                               </p>
-                               <div className="flex items-center gap-2">
-                                 <Badge className="h-5 rounded px-2 text-[10px] bg-white/10 text-white/70 border-0">
-                                   {winner.position === 1
-                                     ? '1st'
-                                     : winner.position === 2
-                                       ? '2nd'
-                                       : winner.position === 3
-                                         ? '3rd'
-                                         : `${winner.position}th`}{' '}
-                                   Place
-                                 </Badge>
-                               </div>
-                             </div>
-                           </div>
-     
-                           <div className="ml-auto flex items-center gap-3">
-                             <div className="text-right">
-                               <p className="text-sm font-semibold text-white leading-tight">
-                                 {winner.winningAmount} {bounty.token}
-                               </p>
-                               <p className="text-[10px] text-white/60">Prize</p>
-                             </div>
-     
-                           
-                           </div>
-                         </div>
-     
-                         {winner.submitter.walletAddress && (
-                           <div className=" mt-2 rounded bg-black/20 px-2 py-1 mb-4">
-                             <p className="text-[10px] text-white/60">Address</p>
-                             <p className="break-all text-[10px] text-white">{winner.submitter.walletAddress}</p>
-                           </div>
-                         )}
-                           <div className="flex justify-center mt-2">
-                             {winner.payments && winner.payments.length > 0 ? (
-                               <Badge className="flex h-6 w-full items-center justify-center border-0 bg-green-500/20 text-green-400">
-                                 <CheckCircle className="mr-1 h-3 w-3" />
-                                 Paid
-                               </Badge>
-                             ) : (
-                               <Button
-                                 onClick={() => {
-                                   setSelectedPaymentSubmission(winner);
-                                   setPaymentModalOpen(true);
-                                 }}
-                                 className="h-7 w-full bg-[#E6007A] px-2 text-xs text-white hover:bg-[#E6007A]/90"
-                               >
-                                 {/* <DollarSign className="h-3.5 w-3.5 mr-1" /> */}
-                                 Mark as Paid
-                               </Button>
-                             )}
-                           </div>
-                       </div>
-                     ))}
-                 </div>
-               </CardContent>
-             </Card>
-      ):(
-            <Card className="bg-zinc-900/50 border-white/10 px-0">
-              <CardHeader className='flex items-center justify-between'>
-                <CardTitle className="text-sm font-semibold">
-                  Selected Winners
-                </CardTitle>
-                <Button className="text-sm " onClick={clearSelectedWinners}>
-                  Reset
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div>
-                  {[...selectedWinners.entries()].map(
-                    ([submissionId, winnerData]) => {
-                      const user = winnerData.username;
-                      return (
+            {bounty.winnersAnnouncedAt ? (
+              <Card className="bg-green-500/10 border-green-500/30">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                      {/* <Trophy className="h-4 w-4 text-green-400" /> */}
+                      Winners Announced
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {new Date(bounty.winnersAnnouncedAt).toLocaleDateString()}
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {submissions
+                      .filter((s) => s.isWinner)
+                      .sort((a, b) => (a.position || 0) - (b.position || 0))
+                      .map((winner) => (
                         <div
-                          key={submissionId}
-                          className="mb-2 flex items-center justify-between rounded-lg bg-white/5 p-2 px-3"
+                          key={winner.id}
+                          className="rounded-lg bg-white/5 px-3 py-3"
                         >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                winnerData.position === 1
-                                  ? 'bg-yellow-500/20'
-                                  : winnerData.position === 2
-                                    ? 'bg-gray-400/20'
-                                    : winnerData.position === 3
-                                      ? 'bg-orange-600/20'
-                                      : 'bg-white/10'
-                              }`}
-                            >
-                              <Trophy
-                                className={`h-4 w-4 ${
-                                  winnerData.position === 1
-                                    ? 'text-yellow-500'
-                                    : winnerData.position === 2
-                                      ? 'text-gray-400'
-                                      : winnerData.position === 3
-                                        ? 'text-orange-600'
-                                        : 'text-white/60'
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div
+                                className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                                  winner.position === 1
+                                    ? 'bg-yellow-500/20'
+                                    : winner.position === 2
+                                      ? 'bg-gray-400/20'
+                                      : winner.position === 3
+                                        ? 'bg-orange-600/20'
+                                        : 'bg-white/10'
                                 }`}
-                              />
+                              >
+                                <Trophy
+                                  className={`h-4 w-4 ${
+                                    winner.position === 1
+                                      ? 'text-yellow-500'
+                                      : winner.position === 2
+                                        ? 'text-gray-400'
+                                        : winner.position === 3
+                                          ? 'text-orange-600'
+                                          : 'text-white/60'
+                                  }`}
+                                />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-bold text-white">
+                                  {winner.submitter.firstName ||
+                                    winner.submitter.username ||
+                                    'Anonymous'}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <Badge className="h-5 rounded px-2 text-[10px] bg-white/10 text-white/70 border-0">
+                                    {(() => {
+                                      if (winner.position === 1) {
+                                        return '1st';
+                                      }
+                                      if (winner.position === 2) {
+                                        return '2nd';
+                                      }
+                                      if (winner.position === 3) {
+                                        return '3rd';
+                                      }
+                                      if (
+                                        typeof winner.position === 'number' &&
+                                        winner.position > 0
+                                      ) {
+                                        const j = winner.position % 10,
+                                          k = winner.position % 100;
+                                        if (j === 1 && k !== 11) {
+                                          return `${winner.position}st`;
+                                        }
+                                        if (j === 2 && k !== 12) {
+                                          return `${winner.position}nd`;
+                                        }
+                                        if (j === 3 && k !== 13) {
+                                          return `${winner.position}rd`;
+                                        }
+                                        return `${winner.position}th`;
+                                      }
+                                      return '';
+                                    })()} Place
+                                  </Badge>
+                                </div>
+                              </div>
                             </div>
-                            <span className="font-medium text-white">
-                              {`${winnerData.position}th`}{' '}
-                              Place
+
+                            <div className="ml-auto flex items-center gap-3">
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-white leading-tight">
+                                  {winner.winningAmount} {bounty.token}
+                                </p>
+                                <p className="text-[10px] text-white/60">
+                                  Prize
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {winner.submitter.walletAddress && (
+                            <div className=" mt-2 rounded bg-black/20 px-2 py-1 mb-4">
+                              <p className="text-[10px] text-white/60">
+                                Address
+                              </p>
+                              <p className="break-all text-[10px] text-white">
+                                {winner.submitter.walletAddress}
+                              </p>
+                            </div>
+                          )}
+                          <div className="flex justify-center mt-2">
+                            {winner.payments && winner.payments.length > 0 ? (
+                              <Badge className="flex h-6 w-full items-center justify-center border-0 bg-green-500/20 text-green-400">
+                                <CheckCircle className="mr-1 h-3 w-3" />
+                                Paid
+                              </Badge>
+                            ) : (
+                              <Button
+                                onClick={() => {
+                                  setSelectedPaymentSubmission(winner);
+                                  setPaymentModalOpen(true);
+                                }}
+                                className="h-7 w-full bg-[#E6007A] px-2 text-xs text-white hover:bg-[#E6007A]/90"
+                              >
+                                {/* <DollarSign className="h-3.5 w-3.5 mr-1" /> */}
+                                Mark as Paid
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-zinc-900/50 border-white/10 px-0">
+                <CardHeader className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold">
+                    Selected Winners
+                  </CardTitle>
+                  <Button className="text-sm " onClick={clearSelectedWinners}>
+                    Reset
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    {[...selectedWinners.entries()].map(
+                      ([submissionId, winnerData]) => {
+                        const user = winnerData.username;
+                        return (
+                          <div
+                            key={submissionId}
+                            className="mb-2 flex items-center justify-between rounded-lg bg-white/5 p-2 px-3"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                                  winnerData.position === 1
+                                    ? 'bg-yellow-500/20'
+                                    : winnerData.position === 2
+                                      ? 'bg-gray-400/20'
+                                      : winnerData.position === 3
+                                        ? 'bg-orange-600/20'
+                                        : 'bg-white/10'
+                                }`}
+                              >
+                                <Trophy
+                                  className={`h-4 w-4 ${
+                                    winnerData.position === 1
+                                      ? 'text-yellow-500'
+                                      : winnerData.position === 2
+                                        ? 'text-gray-400'
+                                        : winnerData.position === 3
+                                          ? 'text-orange-600'
+                                          : 'text-white/60'
+                                  }`}
+                                />
+                              </div>
+                              <span className="font-medium text-white">
+                                {(() => {
+                                  if (winnerData.position === 1) {
+                                    return '1st';
+                                  }
+                                  if (winnerData.position === 2) {
+                                    return '2nd';
+                                  }
+                                  if (winnerData.position === 3) {
+                                    return '3rd';
+                                  }
+                                  if (
+                                    typeof winnerData.position === 'number' &&
+                                    winnerData.position > 0
+                                  ) {
+                                    const j = winnerData.position % 10,
+                                      k = winnerData.position % 100;
+                                    if (j === 1 && k !== 11) {
+                                      return `${winnerData.position}st`;
+                                    }
+                                    if (j === 2 && k !== 12) {
+                                      return `${winnerData.position}nd`;
+                                    }
+                                    if (j === 3 && k !== 13) {
+                                      return `${winnerData.position}rd`;
+                                    }
+                                    return `${winnerData.position}th`;
+                                  }
+                                  return '';
+                                })()} Place
+                              </span>
+                            </div>
+                            <span className="font-semibold text-white">
+                              {user}
                             </span>
                           </div>
-                          <span className="font-semibold text-white">
-                            {user}
-                          </span>
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
-              </CardContent>
-              {bounty.status === 'OPEN' &&
-                submissions.length > 0 &&
-                !bounty.winnersAnnouncedAt && (
-                  <Button
-                    size="sm"
-                    className="gap-0 bg-green-600 text-white hover:bg-green-700 mx-6"
-                    onClick={announceWinners}
-                    disabled={isAnnouncing || selectedWinners.size === 0}
-                  >
-                    {isAnnouncing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Announcing...
-                      </>
-                    ) : (
-                      <>
-                        <Award className="mr-2 h-4 w-4" />
-                        Announce Winners ({selectedWinners.size})
-                      </>
+                        );
+                      }
                     )}
-                  </Button>
-                )}
-            </Card>
+                  </div>
+                </CardContent>
+                {bounty.status === 'OPEN' &&
+                  submissions.length > 0 &&
+                  !bounty.winnersAnnouncedAt && (
+                    <Button
+                      size="sm"
+                      className="gap-0 bg-green-600 text-white hover:bg-green-700 mx-6"
+                      onClick={announceWinners}
+                      disabled={isAnnouncing || selectedWinners.size === 0}
+                    >
+                      {isAnnouncing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Announcing...
+                        </>
+                      ) : (
+                        <>
+                          <Award className="mr-2 h-4 w-4" />
+                          Announce Winners ({selectedWinners.size})
+                        </>
+                      )}
+                    </Button>
+                  )}
+              </Card>
             )}
           </div>
         </div>

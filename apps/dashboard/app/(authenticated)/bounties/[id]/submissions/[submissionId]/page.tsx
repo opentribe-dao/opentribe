@@ -38,114 +38,39 @@ import { toast } from 'sonner';
 import { Header } from '../../../../components/header';
 import { env } from '@/env';
 import { useBountyContext } from '../../../../components/bounty-provider';
+import { set } from 'zod/v4-mini';
 
-interface SubmissionDetails {
-  id: string;
-  title?: string;
-  description?: string;
-  submissionUrl?: string;
-  status: string;
-  submittedAt: string;
-  reviewedAt?: string;
-  feedback?: string;
-  answers?: Array<{
-    question: string;
-    answer: string;
-    type: string;
-  }>;
-  files?: Array<{
-    name: string;
-    url: string;
-    size: number;
-  }>;
-  bounty: {
-    id: string;
-    title: string;
-    organizationId: string;
-    winnerCount: number;
-    totalAmount: number;
-    token: string;
-    winnings: Array<{
-      position: number;
-      amount: number;
-    }>;
-    submissions: Array<{
-      id: string;
-      status: string;
-    }>;
-  };
-  creator: {
-    id: string;
-    username: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    avatarUrl?: string;
-    location?: string;
-    bio?: string;
-    skills?: string[];
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    website?: string;
-  };
-}
+
 
 export default function SubmissionReviewPage({
   params,
 }: { params: Promise<{ id: string; submissionId: string }> }) {
   const { id, submissionId } = use(params);
   const router = useRouter();
-  const { data: session } = useSession();
-  const { data: activeOrg } = useActiveOrganization();
-  const [submission, setSubmission] = useState<SubmissionDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [feedback, setFeedback] = useState('');
-  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
 
-  const { selectedWinners, setSelectedWinners } = useBountyContext();
 
   useEffect(() => {
     if (id && submissionId) {
-      fetchSubmissionDetails();
+      fetchSubmissionDetails(id, submissionId);
     }
   }, [id, submissionId]);
+  
 
-  const fetchSubmissionDetails = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}/submissions/${submissionId}`,
-        {
-          credentials: 'include',
-        }
-      );
+  const {
+    currentSubmission: submission,
+    submissionLoading: loading,
+    submissionActionLoading: actionLoading,
+    submissionFeedback: feedback,
+    setSubmissionFeedback: setFeedback,
+    selectedPosition,
+    setSelectedPosition,
+    fetchSubmissionDetails,
+    updateSubmissionStatus,
+    selectedWinners,
+    setSelectedWinners,
+  } = useBountyContext();
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch submission details');
-      }
-
-      const data = await response.json();
-
-      // Check if user has access to review this submission
-      if (data.submission.bounty.organizationId !== activeOrg?.id) {
-        toast.error('You do not have access to review this submission');
-        router.push('/bounties');
-        return;
-      }
-
-      setSubmission(data.submission);
-      setFeedback(data.submission.feedback || '');
-    } catch (error) {
-      console.error('Error fetching submission:', error);
-      toast.error('Failed to load submission details');
-      router.push(`/bounties/${id}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ 
   const handleSelectWinner = (
     submissionId: string,
     position: number,
@@ -182,36 +107,16 @@ export default function SubmissionReviewPage({
     }
 
     try {
-      setActionLoading(true);
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}/submissions/${submissionId}/review`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            status: newStatus,
-            feedback: feedback || undefined,
-            position: newStatus === 'APPROVED' ? selectedPosition : undefined,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to update submission status');
+      await updateSubmissionStatus(id, submissionId, newStatus, feedback, selectedPosition || undefined);
+      
+      if (newStatus === 'APPROVED') {
+        handleSelectWinner(submissionId, selectedPosition ?? 0, 0, submission?.creator.username ?? '');
+        setSelectedPosition(null);
       }
-
-      handleSelectWinner(submissionId, selectedPosition ?? 0, 0, submission?.creator.username??'');
-
-      toast.success(`Submission ${newStatus.toLowerCase()} successfully`);
+      
       router.push(`/bounties/${id}/submissions`);
     } catch (error) {
-      console.error('Error updating submission:', error);
-      toast.error('Failed to update submission status');
-    } finally {
-      setActionLoading(false);
+      // Error handling is done in the hook
     }
   };
 
@@ -245,7 +150,9 @@ export default function SubmissionReviewPage({
   };
 
   const getAvailablePositions = () => {
-    if (!submission) {return [];}
+    if (!submission) {
+      return [];
+    }
 
     // Use selectedWinners (Map<submissionId, { position, amount, username }>) to determine taken positions
     // Exclude the current submission's position if editing
@@ -278,7 +185,7 @@ export default function SubmissionReviewPage({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className='flex min-h-screen items-center justify-center'>
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );

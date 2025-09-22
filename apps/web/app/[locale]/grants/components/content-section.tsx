@@ -83,6 +83,8 @@ function GrantsContentSectionComponent({
                         ? 'border-pink-400 bg-pink-500/20 text-pink-300'
                         : 'border-white/20 bg-white/10 text-white/70 hover:border-pink-400/50 hover:bg-white/20'
                     }`}
+                    aria-pressed={selectedSkills.includes(skill)}
+                    aria-label={`Filter by ${skill} skill`}
                   >
                     {skill}
                   </button>
@@ -134,7 +136,7 @@ function GrantsContentSectionComponent({
       {!loading && !error && grants.length === 0 && (
         <div className='rounded-xl border border-white/10 bg-white/5 p-12 text-center'>
           <div className='mb-4 text-6xl text-white/60'>🔍</div>
-          <h3 className='mb-2 font-heading text-xl font-semibold text-white'>
+          <h3 className='mb-2 font-heading font-semibold text-xl text-white'>
             No grants found
           </h3>
           <p className='mb-6 text-white/60'>

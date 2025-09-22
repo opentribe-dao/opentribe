@@ -58,7 +58,11 @@ function RfpsContentSectionComponent({
     <div className="lg:col-span-3">
       {/* Error State */}
       {error && (
-        <div className='mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-6'>
+        <div 
+          className='mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-6'
+          role="alert"
+          aria-live="polite"
+        >
           <div className='mb-2 font-semibold text-red-400'>Error loading RFPs</div>
           <div className='mb-4 text-red-300 text-sm'>
             {error.message || 'Something went wrong while loading RFPs. Please try again.'}
@@ -67,6 +71,7 @@ function RfpsContentSectionComponent({
             <Button
               onClick={onRetry}
               className="bg-red-500 hover:bg-red-600"
+              aria-label="Retry loading RFPs"
             >
               Try Again
             </Button>
@@ -75,6 +80,7 @@ function RfpsContentSectionComponent({
                 variant="outline"
                 onClick={onClearAllFilters}
                 className="border-red-500/20 text-red-300 hover:bg-red-500/10"
+                aria-label="Clear all active filters"
               >
                 Clear Filters
               </Button>
@@ -85,11 +91,12 @@ function RfpsContentSectionComponent({
 
       {/* Loading State */}
       {loading && rfps.length === 0 && (
-        <div className="space-y-4">
+        <div className="space-y-4" aria-label="Loading RFPs">
           {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
               className="h-32 animate-pulse rounded-xl bg-white/5"
+              aria-hidden="true"
             />
           ))}
         </div>
@@ -127,10 +134,16 @@ function RfpsContentSectionComponent({
                 <RFPCard
                   id={rfp.id}
                   title={rfp.title}
-                  grant={rfp.grant}
+                  grant={{
+                    title: rfp.grant.title,
+                    organization: {
+                      name: rfp.grant.organization.name,
+                      logo: rfp.grant.organization.logo || undefined,
+                    }
+                  }}
                   voteCount={rfp.voteCount}
                   commentCount={rfp.commentCount}
-                  status={rfp.status}
+                  status={rfp.status as "OPEN" | "CLOSED"}
                   description={rfp.description}
                   variant="list"
                 />
@@ -146,6 +159,7 @@ function RfpsContentSectionComponent({
                 disabled={loading}
                 variant="outline"
                 className="border-white/20 text-white hover:bg-white/10"
+                aria-label={loading ? "Loading more RFPs" : "Load more RFPs"}
               >
                 {loading ? "Loading..." : "View More →"}
               </Button>
@@ -156,11 +170,12 @@ function RfpsContentSectionComponent({
 
       {/* Loading More State */}
       {loading && rfps.length > 0 && (
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4" aria-label="Loading more RFPs">
           {[1, 2, 3].map((i) => (
             <div
               key={`loading-${i}`}
               className="h-32 animate-pulse rounded-xl bg-white/5"
+              aria-hidden="true"
             />
           ))}
         </div>

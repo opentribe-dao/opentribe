@@ -1,12 +1,23 @@
 "use client";
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import type { RFPsFilters } from './use-rfps-data';
 
 export function useRfpsFilters() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  
+  // Debounce ref for search updates
+  const searchDebounceRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) {
+        window.clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, []);
 
   // Parse current filters from URL
   const filters = useMemo((): RFPsFilters => {
@@ -108,6 +119,18 @@ export function useRfpsFilters() {
     // Reset page when changing filters (except page itself)
     if (key !== 'page') {
       updates.page = 1;
+    }
+
+    // Debounce search updates for better performance
+    if (key === 'search') {
+      if (searchDebounceRef.current) {
+        window.clearTimeout(searchDebounceRef.current);
+      }
+      searchDebounceRef.current = window.setTimeout(() => {
+        updateURL(updates);
+        searchDebounceRef.current = null;
+      }, 300);
+      return;
     }
 
     updateURL(updates);

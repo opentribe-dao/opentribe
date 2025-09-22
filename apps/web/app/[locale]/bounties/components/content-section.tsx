@@ -184,7 +184,7 @@ function BountiesContentSectionComponent({
         </>
       ) : !loading ? (
         <div className="py-12 text-center">
-          <div className="mb-4 text-lg font-medium text-white/60">No bounties found</div>
+          <div className='mb-4 font-medium text-lg text-white/60'>No bounties found</div>
           <div className="mx-auto mb-6 max-w-md text-sm text-white/40">
             {activeFiltersCount > 0 
               ? "No bounties match your current filters. Try adjusting your search terms or clearing some filters."

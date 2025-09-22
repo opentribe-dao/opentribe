@@ -136,7 +136,7 @@ function GrantsContentSectionComponent({
       {!loading && !error && grants.length === 0 && (
         <div className='rounded-xl border border-white/10 bg-white/5 p-12 text-center'>
           <div className='mb-4 text-6xl text-white/60'>🔍</div>
-          <h3 className='mb-2 font-heading font-semibold text-xl text-white'>
+          <h3 className='mb-2 font-heading font-semibold text-white text-xl'>
             No grants found
           </h3>
           <p className='mb-6 text-white/60'>

@@ -101,18 +101,18 @@ export function BountyCard({
       : "Unknown Organization";
 
   return (
-    <Link href={`/bounties/${id}`} className="block group h-full">
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-200 h-full flex flex-col">
+    <Link href={`/bounties/${id}`} className='group block h-full'>
+      <div className='flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10'>
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold font-heading text-white group-hover:text-pink-300 transition-colors line-clamp-2 mb-2">
+        <div className='mb-4 flex items-start justify-between'>
+          <div className='min-w-0 flex-1'>
+            <h3 className='mb-2 line-clamp-2 font-heading font-semibold text-lg text-white transition-colors group-hover:text-pink-300'>
               {title || "Untitled Bounty"}
             </h3>
-            <p className="text-sm text-white/60 mb-2">{organizationName}</p>
+            <p className='mb-2 text-sm text-white/60'>{organizationName}</p>
             <div className="flex items-center gap-2">
               <span
-                className={`inline-block px-2 py-1 text-xs rounded-md border ${getStatusColor(
+                className={`inline-block rounded-md border px-2 py-1 text-xs ${getStatusColor(
                   status
                 )}`}
               >
@@ -129,11 +129,11 @@ export function BountyCard({
 
           {/* Amount */}
           {safeAmount && (
-            <div className="flex items-center gap-2 ml-4">
-              <DollarSign className="w-4 h-4 text-green-400" />
+            <div className='ml-4 flex items-center gap-2'>
+              <DollarSign className='h-4 w-4 text-green-400' />
               <div className="text-right">
                 {safeAmount && (
-                  <div className="text-lg font-semibold text-green-400">
+                  <div className='font-semibold text-green-400 text-lg'>
                     {safeAmount.toLocaleString()} {token}
                   </div>
                 )}
@@ -154,17 +154,17 @@ export function BountyCard({
 
         {/* Skills */}
         {safeSkills.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
+          <div className='mb-4 flex flex-wrap gap-1'>
             {safeSkills.slice(0, 3).map((skill, index) => (
               <span
                 key={index}
-                className="px-2 py-1 bg-pink-500/20 text-pink-300 rounded-md text-xs"
+                className='rounded-md bg-pink-500/20 px-2 py-1 text-pink-300 text-xs'
               >
                 {skill}
               </span>
             ))}
             {safeSkills.length > 3 && (
-              <span className="px-2 py-1 bg-white/10 text-white/60 rounded-md text-xs">
+              <span className='rounded-md bg-white/10 px-2 py-1 text-white/60 text-xs'>
                 +{safeSkills.length - 3} more
               </span>
             )}
@@ -172,10 +172,10 @@ export function BountyCard({
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-white/50 pt-4 border-t border-white/10">
+        <div className='flex items-center justify-between border-white/10 border-t pt-4 text-white/50 text-xs'>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
-              <Users className="w-3 h-3" />
+              <Users className='h-3 w-3' />
               <span>{safeSubmissionCount} submissions</span>
             </div>
             {deadline && (
@@ -188,7 +188,7 @@ export function BountyCard({
                     : "text-white/50"
                 }`}
               >
-                <Calendar className="w-3 h-3" />
+                <Calendar className='h-3 w-3' />
                 {/* <span>{isExpired() ? "Expired" : formatDate(deadline)}</span> */}
               </div>
             )}

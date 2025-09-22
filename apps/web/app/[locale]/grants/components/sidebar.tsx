@@ -9,7 +9,7 @@ import { ThumbsUp, X } from "lucide-react"
 
 interface GrantFilters {
   status: string
-  source: string
+  source: string[]
   sortBy: string
   priceRange: [number, number]
 }
@@ -140,7 +140,7 @@ function GrantsSidebarComponent({
                 >
                   <Checkbox
                     id={`source-${source.value.toLowerCase()}`}
-                    checked={filters.source === source.value}
+                    checked={filters.source.includes(source.value)}
                     onCheckedChange={() => onSourceToggle(source.value)}
                     className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
                   />

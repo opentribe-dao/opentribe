@@ -19,12 +19,29 @@ export const BOUNTIES_QUERIES = {
 export const bountyQueryKeys = {
   all: ['bounties'] as const,
   lists: () => [...bountyQueryKeys.all, 'list'] as const,
-  list: (filters: Record<string, any>) => [...bountyQueryKeys.lists(), filters] as const,
+  list: (filters: Record<string, unknown>) => [...bountyQueryKeys.lists(), filters] as const,
   details: () => [...bountyQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...bountyQueryKeys.details(), id] as const,
   stats: () => [...bountyQueryKeys.all, 'stats'] as const,
   filterOptions: () => [...bountyQueryKeys.all, 'filter-options'] as const,
   skills: () => [...bountyQueryKeys.all, 'skills'] as const,
+}
+
+// Grant query keys factory
+export const grantQueryKeys = {
+  all: ['grants'] as const,
+  lists: () => [...grantQueryKeys.all, 'list'] as const,
+  list: (filters: Record<string, unknown>) => [...grantQueryKeys.lists(), filters] as const,
+  details: () => [...grantQueryKeys.all, 'detail'] as const,
+  detail: (id: string) => [...grantQueryKeys.details(), id] as const,
+  stats: () => [...grantQueryKeys.all, 'stats'] as const,
+  filterOptions: () => [...grantQueryKeys.all, 'filter-options'] as const,
+  skills: () => [...grantQueryKeys.all, 'skills'] as const,
+}
+
+// Top query keys factory
+export const topQueryKeys = {
+  rfps: () => ['top', 'rfps'] as const,
 }
 
 // Cache configuration
@@ -45,10 +62,14 @@ export const queryClientConfig = {
       // Retry logic
       retry: (failureCount: number, error: unknown) => {
         if (error instanceof Error) {
-          // Don't retry on 4xx errors
-          if (error.message.includes('40')) return false
-          // Don't retry on network errors more than once
-          if (error.message.includes('fetch') && failureCount >= 1) return false
+      // Don't retry on 4xx errors
+      if (error.message.includes('40')) {
+        return false;
+      }
+      // Don't retry on network errors more than once
+      if (error.message.includes('fetch') && failureCount >= 1) {
+        return false;
+      }
         }
         return failureCount < 3
       },

@@ -100,8 +100,8 @@ export async function GET(request: NextRequest) {
           .filter((s) => s.toLowerCase())
       : [];
 
-    // Validate against GrantSource enum values
-    const allowedSources = new Set(["NATIVE", "EXTERNAL"]);
+    // Validate against Grant source enum values
+    const allowedSources = new Set(["ALL", "NATIVE", "EXTERNAL"]);
     const sources = Array.from(
       new Set(
         rawSources

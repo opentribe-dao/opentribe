@@ -40,7 +40,7 @@ function RfpsHeroSectionComponent({
           className='flex max-w-xl flex-1 gap-2'
         >
           <div className="relative flex-1">
-            <Search className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-white/40' />
+          <Search className='-translate-y-1/2 absolute top-1/2 left-3 z-10 h-4 w-4 transform text-white/70' />
             <Input
               placeholder="Search for RFP"
               value={searchQuery}

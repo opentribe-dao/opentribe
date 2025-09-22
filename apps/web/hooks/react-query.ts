@@ -50,11 +50,6 @@ export const rfpQueryKeys = {
   filterOptions: () => [...rfpQueryKeys.all, 'filter-options'] as const,
 }
 
-// Popular grants query keys factory
-export const popularGrantsQueryKeys = {
-  all: ['popular-grants'] as const,
-  list: () => [...popularGrantsQueryKeys.all, 'list'] as const,
-}
 
 // Top query keys factory
 export const topQueryKeys = {

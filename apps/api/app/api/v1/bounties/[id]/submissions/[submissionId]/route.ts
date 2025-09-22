@@ -76,7 +76,7 @@ export async function GET(
     const isPublic = submission.bounty.winnersAnnouncedAt !== null;
 
     if (!isPublic) {
-      // For non-public submissions, require authentication and organization membership
+      // For non-public submissions, require authentication
       const authHeaders = await headers();
       const sessionData = await auth.api.getSession({
         headers: authHeaders,
@@ -89,30 +89,38 @@ export async function GET(
         );
       }
 
-      // Check if user has permission to view this submission
-      const userMember = await database.member.findFirst({
-        where: {
-          organizationId: submission.bounty.organizationId,
-          userId: sessionData.user.id,
-        },
-      });
+      // Check if user is the creator of the submission
+      const isCreator = submission.userId === sessionData.user.id;
 
-      // Only organization members can view non-public submissions
-      if (!userMember) {
-        return NextResponse.json(
-          { error: "Forbidden" },
-          { status: 403, headers: corsHeaders }
-        );
+      if (!isCreator) {
+        // If not the creator, check if user has organization membership
+        const userMember = await database.member.findFirst({
+          where: {
+            organizationId: submission.bounty.organizationId,
+            userId: sessionData.user.id,
+          },
+        });
+
+        // Only organization members can view non-public submissions they didn't create
+        if (!userMember) {
+          return NextResponse.json(
+            { error: "Forbidden" },
+            { status: 403, headers: corsHeaders }
+          );
+        }
       }
     }
 
     // Calculate winnerCount from winnings JSON
-    const winningsArray = submission.bounty.winnings ? 
-      Object.entries(submission.bounty.winnings as any).map(([position, amount]) => ({
-        position: parseInt(position),
-        amount: Number(amount),
-      })) : [];
-    
+    const winningsArray = submission.bounty.winnings
+      ? Object.entries(submission.bounty.winnings as any).map(
+          ([position, amount]) => ({
+            position: parseInt(position),
+            amount: Number(amount),
+          })
+        )
+      : [];
+
     const winnerCount = winningsArray.length;
     const totalAmount = Number(submission.bounty.amount || 0);
 
@@ -153,8 +161,8 @@ export async function GET(
         email: isPublic ? undefined : submission.submitter.email, // Hide email for public submissions
         location: submission.submitter.location,
         bio: submission.submitter.bio,
-        skills: Array.isArray(submission.submitter.skills) 
-          ? submission.submitter.skills 
+        skills: Array.isArray(submission.submitter.skills)
+          ? submission.submitter.skills
           : (submission.submitter.skills as string[] | null) || [],
         github: submission.submitter.github,
         linkedin: submission.submitter.linkedin,
@@ -171,8 +179,8 @@ export async function GET(
         email: isPublic ? undefined : submission.submitter.email,
         location: submission.submitter.location,
         bio: submission.submitter.bio,
-        skills: Array.isArray(submission.submitter.skills) 
-          ? submission.submitter.skills 
+        skills: Array.isArray(submission.submitter.skills)
+          ? submission.submitter.skills
           : (submission.submitter.skills as string[] | null) || [],
         github: submission.submitter.github,
         linkedin: submission.submitter.linkedin,

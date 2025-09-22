@@ -29,7 +29,12 @@ interface RfpsSidebarProps {
   topBounties: TopBounty[]
   topBountiesLoading: boolean
   topBountiesError: Error | null
-  onFilterChange: (key: keyof RfpsFilters | 'showMobileFilters', value: unknown) => void
+  onFilterChange: {
+    onSortChange: (value: string) => void
+    onGrantChange: (value: string) => void
+    onSubmissionChange: (value: string) => void
+    onMobileFiltersToggle: (show: boolean) => void
+  }
   onClearAllFilters: () => void
 }
 
@@ -55,7 +60,12 @@ function RfpsSidebarComponent({
   topBounties,
   topBountiesLoading,
   topBountiesError,
-  onFilterChange,
+  onFilterChange: {
+    onSortChange,
+    onGrantChange,
+    onSubmissionChange,
+    onMobileFiltersToggle
+  },
   onClearAllFilters
 }: RfpsSidebarProps) {
   const getGradientClass = (index: number) => {
@@ -73,10 +83,10 @@ function RfpsSidebarComponent({
       {showMobileFilters && (
         <div 
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => onFilterChange('showMobileFilters', false)}
+          onClick={() => onMobileFiltersToggle(false)}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
-              onFilterChange('showMobileFilters', false);
+              onMobileFiltersToggle(false);
             }
           }}
           role="button"
@@ -106,7 +116,7 @@ function RfpsSidebarComponent({
           {/* Popular */}
           <div className="mb-6">
             <h4 className='mb-3 font-medium text-sm text-white/80'>Popular</h4>
-            <RadioGroup value={filters.sort} onValueChange={(value) => onFilterChange('sort', value)}>
+            <RadioGroup value={filters.sort} onValueChange={onSortChange}>
               <div className="space-y-2">
                 {SORT_OPTIONS.map((option) => (
                   <label
@@ -129,7 +139,7 @@ function RfpsSidebarComponent({
           {/* Grant */}
           <div className="mb-6">
             <h4 className='mb-3 font-medium text-sm text-white/80'>Grant</h4>
-            <RadioGroup value={filters.grant} onValueChange={(value) => onFilterChange('grant', value)}>
+            <RadioGroup value={filters.grant} onValueChange={onGrantChange}>
               <div className="space-y-2">
                 {GRANT_OPTIONS.map((option) => (
                   <label
@@ -152,7 +162,7 @@ function RfpsSidebarComponent({
           {/* Submission */}
           <div>
             <h4 className='mb-3 font-medium text-sm text-white/80'>Submission</h4>
-            <RadioGroup value={filters.submission} onValueChange={(value) => onFilterChange('submission', value)}>
+            <RadioGroup value={filters.submission} onValueChange={onSubmissionChange}>
               <div className="space-y-2">
                 {SUBMISSION_OPTIONS.map((option) => (
                   <label
@@ -243,7 +253,7 @@ function RfpsSidebarComponent({
           <div className="lg:hidden">
             <Button
               variant="outline"
-              onClick={() => onFilterChange('showMobileFilters', false)}
+              onClick={() => onMobileFiltersToggle(false)}
               className="w-full border-white/20 text-white hover:bg-white/10"
             >
               <X className="mr-2 h-4 w-4" />

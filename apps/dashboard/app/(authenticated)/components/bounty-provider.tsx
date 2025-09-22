@@ -8,6 +8,7 @@ import {
   type BountyDetails,
   type Submission,
 } from '@/hooks/use-bounty';
+import { useSubmission, type SubmissionDetails } from '@/hooks/use-submission';
 import { toast } from 'sonner';
 import { env } from '@/env';
 
@@ -51,6 +52,27 @@ interface BountyContextType {
   verifyPayment: () => Promise<void>;
   recordPayment: () => Promise<void>;
   resetPaymentState: () => void;
+
+  // Submission state
+  currentSubmission: SubmissionDetails | null;
+  submissionLoading: boolean;
+  submissionActionLoading: boolean;
+  submissionFeedback: string;
+  setSubmissionFeedback: (feedback: string) => void;
+  selectedPosition: number | null;
+  setSelectedPosition: (position: number | null) => void;
+  fetchSubmissionDetails: (
+    bountyId: string,
+    submissionId: string
+  ) => Promise<any>;
+  updateSubmissionStatus: (
+    bountyId: string,
+    submissionId: string,
+    newStatus: 'APPROVED' | 'REJECTED',
+    feedback?: string,
+    position?: number
+  ) => Promise<boolean>;
+  resetSubmissionState: () => void;
 }
 
 const BountyContext = createContext<BountyContextType | null>(null);
@@ -74,6 +96,20 @@ export function BountyProvider({
     error: submissionsError,
     refetch: refreshSubmissions,
   } = useBountySubmissions(bountyId);
+
+  // Submission hook
+  const {
+    submission: currentSubmission,
+    loading: submissionLoading,
+    actionLoading: submissionActionLoading,
+    feedback: submissionFeedback,
+    setFeedback: setSubmissionFeedback,
+    selectedPosition,
+    setSelectedPosition,
+    fetchSubmissionDetails,
+    updateSubmissionStatus,
+    resetSubmissionState,
+  } = useSubmission();
 
   // Winner selection state
   const [selectedWinners, setSelectedWinners] = useState<
@@ -280,6 +316,16 @@ export function BountyProvider({
         verifyPayment,
         recordPayment,
         resetPaymentState,
+        currentSubmission,
+        submissionLoading,
+        submissionActionLoading,
+        submissionFeedback,
+        setSubmissionFeedback,
+        selectedPosition,
+        setSelectedPosition,
+        fetchSubmissionDetails,
+        updateSubmissionStatus,
+        resetSubmissionState,
       }}
     >
       {children}

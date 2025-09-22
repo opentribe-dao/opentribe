@@ -39,6 +39,23 @@ export const grantQueryKeys = {
   skills: () => [...grantQueryKeys.all, 'skills'] as const,
 }
 
+// RFP query keys factory
+export const rfpQueryKeys = {
+  all: ['rfps'] as const,
+  lists: () => [...rfpQueryKeys.all, 'list'] as const,
+  list: (filters: Record<string, unknown>) => [...rfpQueryKeys.lists(), filters] as const,
+  details: () => [...rfpQueryKeys.all, 'detail'] as const,
+  detail: (id: string) => [...rfpQueryKeys.details(), id] as const,
+  stats: () => [...rfpQueryKeys.all, 'stats'] as const,
+  filterOptions: () => [...rfpQueryKeys.all, 'filter-options'] as const,
+}
+
+// Popular grants query keys factory
+export const popularGrantsQueryKeys = {
+  all: ['popular-grants'] as const,
+  list: () => [...popularGrantsQueryKeys.all, 'list'] as const,
+}
+
 // Top query keys factory
 export const topQueryKeys = {
   rfps: () => ['top', 'rfps'] as const,

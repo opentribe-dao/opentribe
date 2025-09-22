@@ -52,7 +52,6 @@ export async function GET(request: NextRequest) {
     // Parse search and filters
     const search = searchParams.get("search") || "";
     const sort = searchParams.get("sort") || "NEWEST";
-    const source = searchParams.get("source") || "ALL";
     const minAmount = searchParams.get("minAmount");
     const maxAmount = searchParams.get("maxAmount");
     const applicationCount = searchParams.get("applicationCount");
@@ -92,6 +91,25 @@ export async function GET(request: NextRequest) {
       )
     );
 
+    // Parse source filter as a list (like bounties status)
+    const sourceParam = searchParams.get("source");
+    const rawSources = sourceParam
+      ? decodeURIComponent(sourceParam)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s.toLowerCase())
+      : [];
+
+    // Validate against GrantSource enum values
+    const allowedSources = new Set(["NATIVE", "EXTERNAL"]);
+    const sources = Array.from(
+      new Set(
+        rawSources
+          .map((s) => s.trim().toUpperCase())
+          .filter((s) => allowedSources.has(s))
+      )
+    );
+
     // Build where clause
     const whereClause: any = {
       visibility: "PUBLISHED",
@@ -107,9 +125,11 @@ export async function GET(request: NextRequest) {
       whereClause.status = "OPEN";
     }
 
-    // Filter by source
-    if (source !== "ALL") {
-      whereClause.source = source;
+    // Filter by source (multiple values)
+    if (sources.length > 0) {
+      whereClause.source = {
+        in: sources,
+      };
     }
 
     // Filter by skills (array intersection)
@@ -294,7 +314,7 @@ export async function GET(request: NextRequest) {
           skills: uniqueSkills,
           statuses,
           sort,
-          source,
+          source: sources,
           minAmount,
           maxAmount,
           applicationCount,

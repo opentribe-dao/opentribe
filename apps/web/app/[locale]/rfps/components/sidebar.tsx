@@ -13,12 +13,12 @@ interface RfpsFilters {
   submission: string
 }
 
-interface PopularGrant {
+interface TopBounty {
   id: string;
-  name: string;
+  title: string;
+  voteCount: number;
   organization: {
     name: string;
-    logo?: string;
   };
 }
 
@@ -26,9 +26,9 @@ interface RfpsSidebarProps {
   filters: RfpsFilters
   activeFiltersCount: number
   showMobileFilters: boolean
-  popularGrants: PopularGrant[]
-  popularGrantsLoading: boolean
-  popularGrantsError: Error | null
+  topBounties: TopBounty[]
+  topBountiesLoading: boolean
+  topBountiesError: Error | null
   onFilterChange: (key: keyof RfpsFilters | 'showMobileFilters', value: unknown) => void
   onClearAllFilters: () => void
 }
@@ -52,9 +52,9 @@ function RfpsSidebarComponent({
   filters,
   activeFiltersCount,
   showMobileFilters,
-  popularGrants,
-  popularGrantsLoading,
-  popularGrantsError,
+  topBounties,
+  topBountiesLoading,
+  topBountiesError,
   onFilterChange,
   onClearAllFilters
 }: RfpsSidebarProps) {
@@ -173,11 +173,11 @@ function RfpsSidebarComponent({
           </div>
         </div>
 
-        {/* Popular Grants */}
+        {/* Top Bounties */}
         <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
-          <h3 className='mb-4 font-heading font-semibold text-lg'>Popular Grants</h3>
+          <h3 className='mb-4 font-heading font-semibold text-lg'>Top Bounties</h3>
           
-          {popularGrantsLoading && (
+          {topBountiesLoading && (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className='flex items-center gap-3 rounded-lg p-2'>
@@ -186,43 +186,47 @@ function RfpsSidebarComponent({
                     <div className='h-4 w-3/4 animate-pulse rounded bg-white/10 mb-1' />
                     <div className='h-3 w-1/2 animate-pulse rounded bg-white/10' />
                   </div>
+                  <div className='h-4 w-8 animate-pulse rounded bg-white/10' />
                 </div>
               ))}
             </div>
           )}
 
-          {popularGrantsError && (
+          {topBountiesError && (
             <div className='rounded-lg border border-red-500/20 bg-red-500/10 p-4'>
-              <div className='text-red-400 text-sm font-medium'>Error loading grants</div>
+              <div className='text-red-400 text-sm font-medium'>Error loading bounties</div>
               <div className='text-red-300 text-xs mt-1'>
-                {popularGrantsError.message || 'Failed to load popular grants'}
+                {topBountiesError.message || 'Failed to load top bounties'}
               </div>
             </div>
           )}
 
-          {!popularGrantsLoading && !popularGrantsError && popularGrants.length === 0 && (
+          {!topBountiesLoading && !topBountiesError && topBounties.length === 0 && (
             <div className='text-center py-4'>
-              <div className='text-white/40 text-sm'>No grants available</div>
+              <div className='text-white/40 text-sm'>No bounties available</div>
             </div>
           )}
 
-          {!popularGrantsLoading && !popularGrantsError && popularGrants.length > 0 && (
+          {!topBountiesLoading && !topBountiesError && topBounties.length > 0 && (
             <div className="space-y-3">
-              {popularGrants.map((grant, index) => (
+              {topBounties.map((bounty, index) => (
                 <Link 
-                  key={grant.id} 
-                  href={`/grants/${grant.id}`}
+                  key={bounty.id} 
+                  href={`/bounties/${bounty.id}`}
                   className='flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/5 cursor-pointer'
-                  aria-label={`View grant: ${grant.name} by ${grant.organization.name}`}
+                  aria-label={`View bounty: ${bounty.title} by ${bounty.organization.name}`}
                 >
                   <div className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getGradientClass(index)}`}>
                     <span className='text-sm font-bold text-white font-heading'>
-                      {grant.name.charAt(0).toUpperCase()}
+                      {index + 1}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className='text-sm font-medium text-white line-clamp-1'>{grant.name}</h4>
-                    <p className='text-xs text-white/50 truncate'>{grant.organization.name}</p>
+                    <h4 className='text-sm font-medium text-white line-clamp-1'>{bounty.title}</h4>
+                    <p className='text-xs text-white/50 truncate'>{bounty.organization.name}</p>
+                  </div>
+                  <div className='flex items-center gap-1 text-xs text-white/60'>
+                    <span>{bounty.voteCount}</span>
                   </div>
                 </Link>
               ))}

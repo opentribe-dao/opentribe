@@ -1,12 +1,23 @@
 "use client";
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import type { GrantsFilters } from './use-grants-data';
 
 export function useGrantsFilters() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // debounce ref for priceRange updates
+  const priceDebounceRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (priceDebounceRef.current) {
+        window.clearTimeout(priceDebounceRef.current);
+      }
+    };
+  }, []);
 
   // Parse current filters from URL
   const filters = useMemo((): GrantsFilters => {
@@ -17,6 +28,11 @@ export function useGrantsFilters() {
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
       source: params.get('source') || 'ALL',
       search: params.get('search') || '',
+      sortBy: params.get('sort') || 'newest',
+      priceRange: [
+        Number.parseInt(params.get('minAmount') || '0'),
+        Number.parseInt(params.get('maxAmount') || '100000')
+      ] as [number, number],
       page: Number.parseInt(params.get('page') || '1'),
       limit: Number.parseInt(params.get('limit') || '9'),
     };
@@ -38,6 +54,16 @@ export function useGrantsFilters() {
     
     // Source filter (if not default "ALL")
     if (filters.source?.trim() && filters.source !== 'ALL') {
+      count++;
+    }
+    
+    // Sort filter (if not default "newest")
+    if (filters.sortBy && filters.sortBy !== 'newest') {
+      count++;
+    }
+    
+    // Price range filter (if not default 0-100000)
+    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000)) {
       count++;
     }
     
@@ -75,6 +101,20 @@ export function useGrantsFilters() {
       params.delete('source');
     }
     
+    if (updatedFilters.sortBy && updatedFilters.sortBy !== 'newest') {
+      params.set('sort', updatedFilters.sortBy);
+    } else {
+      params.delete('sort');
+    }
+    
+    if (updatedFilters.priceRange && (updatedFilters.priceRange[0] > 0 || updatedFilters.priceRange[1] < 100000)) {
+      params.set('minAmount', updatedFilters.priceRange[0].toString());
+      params.set('maxAmount', updatedFilters.priceRange[1].toString());
+    } else {
+      params.delete('minAmount');
+      params.delete('maxAmount');
+    }
+    
     if (updatedFilters.search?.trim()) {
       params.set('search', updatedFilters.search);
     } else {
@@ -110,6 +150,18 @@ export function useGrantsFilters() {
       updates.page = 1;
     }
 
+    // Debounce priceRange updates
+    if (key === 'priceRange') {
+      if (priceDebounceRef.current) {
+        window.clearTimeout(priceDebounceRef.current);
+      }
+      priceDebounceRef.current = window.setTimeout(() => {
+        updateURL(updates);
+        priceDebounceRef.current = null;
+      }, 300);
+      return;
+    }
+
     updateURL(updates);
   }, [updateURL]);
 
@@ -138,6 +190,8 @@ export function useGrantsFilters() {
       skills: [],
       source: 'ALL',
       search: '',
+      sortBy: 'newest',
+      priceRange: [0, 100000],
       page: 1,
       limit: 9,
     };

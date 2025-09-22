@@ -51,8 +51,8 @@ function GrantsPageContent() {
             filters={{
               status: filtersHook.filters.status || 'OPEN',
               source: filtersHook.filters.source || 'ALL',
-              sortBy: 'newest', // UI-only for now
-              priceRange: [0, 100000], // UI-only for now
+              sortBy: filtersHook.filters.sortBy || 'newest',
+              priceRange: filtersHook.filters.priceRange || [0, 100000],
             }}
             hasMore={hasMore}
             activeFiltersCount={filtersHook.activeFiltersCount}
@@ -66,8 +66,8 @@ function GrantsPageContent() {
             filters={{
               status: filtersHook.filters.status || 'OPEN',
               source: filtersHook.filters.source || 'ALL',
-              sortBy: 'newest', // UI-only for now
-              priceRange: [0, 100000], // UI-only for now
+              sortBy: filtersHook.filters.sortBy || 'newest',
+              priceRange: filtersHook.filters.priceRange || [0, 100000],
             }}
             activeFiltersCount={filtersHook.activeFiltersCount}
             showMobileFilters={showMobileFilters}
@@ -78,7 +78,7 @@ function GrantsPageContent() {
               if (key === 'showMobileFilters') {
                 setShowMobileFilters(value as boolean);
               } else {
-                filtersHook.updateFilter(key as keyof typeof filtersHook.filters, value);
+                filtersHook.updateFilter(key as keyof typeof filtersHook.filters, value as any);
               }
             }}
             onStatusToggle={filtersHook.toggleStatus}

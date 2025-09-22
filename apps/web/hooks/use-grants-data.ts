@@ -47,8 +47,11 @@ interface GrantsFilters {
   skills?: string[];
   source?: string;
   search?: string;
+  sortBy?: string;
+  priceRange?: [number, number];
   page?: number;
   limit?: number;
+  [key: string]: unknown;
 }
 
 // Hook for fetching grants data with filters
@@ -78,6 +81,23 @@ export function useGrantsData(filters: GrantsFilters = {}) {
   // source
   if (filters.source !== undefined && filters.source !== '' && filters.source !== 'ALL') {
     queryParams.append('source', filters.source);
+  }
+  
+  // sortBy
+  if (filters.sortBy !== undefined && filters.sortBy !== '' && filters.sortBy !== 'newest') {
+    queryParams.append('sort', filters.sortBy);
+  }
+  
+  // priceRange
+  if (
+    filters.priceRange !== undefined && 
+    filters.priceRange &&
+    Array.isArray(filters.priceRange) &&
+    filters.priceRange.length === 2 &&
+    !(filters.priceRange[0] === 0 && filters.priceRange[1] === 100000)
+  ) {
+    queryParams.append('minAmount', filters.priceRange[0].toString());
+    queryParams.append('maxAmount', filters.priceRange[1].toString());
   }
   
   // pagination

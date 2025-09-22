@@ -1,7 +1,7 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for grant creation
@@ -44,41 +44,176 @@ const createGrantSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const page = parseInt(searchParams.get("page") || "1");
-    const skills = searchParams.get("skills")?.split(",").filter(Boolean) || [];
-    const status = searchParams.get("status");
-    const source = searchParams.get("source") || "ALL";
-    const search = searchParams.get("search") || "";
 
+    // Parse pagination parameters
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const page = Number.parseInt(searchParams.get("page") || "1");
+
+    // Parse search and filters
+    const search = searchParams.get("search") || "";
+    const sort = searchParams.get("sort") || "NEWEST";
+    const source = searchParams.get("source") || "ALL";
+    const minAmount = searchParams.get("minAmount");
+    const maxAmount = searchParams.get("maxAmount");
+    const applicationCount = searchParams.get("applicationCount");
+
+    // Parse skills array - handle URL encoded comma-separated values
+    const skillsParam = searchParams.get("skills");
+    const skills: string[] = [];
+
+    if (skillsParam) {
+      skills.push(
+        ...decodeURIComponent(skillsParam)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s)
+      );
+    }
+
+    // Remove duplicates
+    const uniqueSkills = [...new Set(skills)];
+
+    // Parse status filter as a list (like bounties)
+    const statusParam = searchParams.get("status");
+    const rawStatuses = statusParam
+      ? decodeURIComponent(statusParam)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s.toLowerCase())
+      : [];
+
+    // Validate against GrantStatus enum values
+    const allowedStatuses = new Set(["OPEN", "CLOSED"]);
+    const statuses = Array.from(
+      new Set(
+        rawStatuses
+          .map((s) => s.trim().toUpperCase())
+          .filter((s) => allowedStatuses.has(s))
+      )
+    );
+
+    // Build where clause
     const whereClause: any = {
       visibility: "PUBLISHED",
     };
 
-    if (status) {
-      whereClause.status = status;
+    // Filter by status (multiple values) - default to OPEN if no status provided
+    if (statuses.length > 0) {
+      whereClause.status = {
+        in: statuses,
+      };
     } else {
       // Default to open grants for homepage if status not supplied
       whereClause.status = "OPEN";
     }
 
+    // Filter by source
     if (source !== "ALL") {
       whereClause.source = source;
     }
 
-    if (skills.length > 0) {
+    // Filter by skills (array intersection)
+    if (uniqueSkills.length > 0) {
       whereClause.skills = {
-        hasSome: skills,
+        hasSome: uniqueSkills,
       };
     }
 
-    if (search.length > 0) {
+    // Filter by amount range - check for overlap with grant's minAmount and maxAmount
+    if (minAmount || maxAmount) {
+      const minAmountNum = minAmount ? Number.parseFloat(minAmount) : null;
+      const maxAmountNum = maxAmount ? Number.parseFloat(maxAmount) : null;
+
+      // Check for range overlap: grant range overlaps with filter range
+      const rangeConditions: any[] = [];
+
+      if (minAmountNum !== null && maxAmountNum !== null) {
+        // Both min and max provided - check for overlap
+        rangeConditions.push({
+          OR: [
+            // Grant's minAmount is within filter range
+            {
+              AND: [
+                { minAmount: { gte: minAmountNum } },
+                { minAmount: { lte: maxAmountNum } },
+              ],
+            },
+            // Grant's maxAmount is within filter range
+            {
+              AND: [
+                { maxAmount: { gte: minAmountNum } },
+                { maxAmount: { lte: maxAmountNum } },
+              ],
+            },
+            // Grant range encompasses filter range
+            {
+              AND: [
+                { minAmount: { lte: minAmountNum } },
+                { maxAmount: { gte: maxAmountNum } },
+              ],
+            },
+          ],
+        });
+      } else if (minAmountNum !== null) {
+        // Only min provided - grant's maxAmount should be >= filter min
+        rangeConditions.push({
+          OR: [
+            { maxAmount: { gte: minAmountNum } },
+            { maxAmount: null }, // Handle cases where maxAmount is not set
+          ],
+        });
+      } else if (maxAmountNum !== null) {
+        // Only max provided - grant's minAmount should be <= filter max
+        rangeConditions.push({
+          OR: [
+            { minAmount: { lte: maxAmountNum } },
+            { minAmount: null }, // Handle cases where minAmount is not set
+          ],
+        });
+      }
+
+      if (rangeConditions.length > 0) {
+        whereClause.AND = whereClause.AND || [];
+        whereClause.AND.push(...rangeConditions);
+      }
+    }
+
+    // Add search functionality
+    if (search) {
       whereClause.OR = [
         { title: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
         { summary: { contains: search, mode: "insensitive" } },
+        { skills: { hasSome: [search] } },
+        {
+          organization: {
+            name: { contains: search, mode: "insensitive" },
+          },
+        },
       ];
     }
+
+    // Determine sort order - case insensitive
+    let orderBy: any = { publishedAt: "desc" }; // Default to NEWEST
+    const sortUpper = sort.toUpperCase();
+
+    switch (sortUpper) {
+      case "NEWEST":
+        orderBy = { publishedAt: "desc" };
+        break;
+      case "OLDEST":
+        orderBy = { publishedAt: "asc" };
+        break;
+      default:
+        orderBy = { publishedAt: "desc" };
+    }
+
+    // For applicationCount sorting, we need to use a different approach
+    // since we can't directly sort by computed fields in Prisma
+    const needsApplicationCountSort =
+      applicationCount &&
+      (applicationCount.toLowerCase() === "highest" ||
+        applicationCount.toLowerCase() === "lowest");
 
     const grants = await database.grant.findMany({
       where: whereClause,
@@ -106,18 +241,35 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: [{ createdAt: "desc" }],
-      take: limit + 1,
-      skip: (page - 1) * limit,
+      orderBy: needsApplicationCountSort ? undefined : orderBy,
+      take: needsApplicationCountSort ? undefined : limit + 1,
+      skip: needsApplicationCountSort ? undefined : (page - 1) * limit,
     });
 
-    let hasMore = grants.length > limit;
+    // Handle application count sorting in memory if needed
+    let sortedGrants = grants;
+    if (needsApplicationCountSort) {
+      sortedGrants = grants.sort((a, b) => {
+        const countA = a._count.applications;
+        const countB = b._count.applications;
+        return applicationCount.toLowerCase() === "highest"
+          ? countB - countA
+          : countA - countB;
+      });
 
-    if (hasMore) {
-      grants.pop();
+      // Apply pagination after sorting
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit + 1;
+      sortedGrants = sortedGrants.slice(startIndex, endIndex);
     }
 
-    const transformedGrants = grants.map((grant) => ({
+    let hasMore = sortedGrants.length > limit;
+
+    if (hasMore) {
+      sortedGrants.pop();
+    }
+
+    const transformedGrants = sortedGrants.map((grant) => ({
       ...grant,
       applicationCount: grant._count.applications,
       rfpCount: grant._count.rfps,
@@ -137,6 +289,16 @@ export async function GET(request: NextRequest) {
           limit,
           hasMore: hasMore,
         },
+        filters: {
+          search,
+          skills: uniqueSkills,
+          statuses,
+          sort,
+          source,
+          minAmount,
+          maxAmount,
+          applicationCount,
+        },
       },
       {
         headers: {
@@ -150,7 +312,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching grants:", error);
     return NextResponse.json(
-      { error: "Failed to fetch grants" },
+      {
+        error: "Failed to fetch grants",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       {
         status: 500,
         headers: {

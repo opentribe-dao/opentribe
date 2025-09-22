@@ -12,8 +12,26 @@ interface BountyFilters {
   hasDeadline: boolean
 }
 
+interface Bounty {
+  id: string;
+  title: string;
+  organization?: {
+    name: string;
+  };
+  amount: string;
+  amountUSD?: number;
+  token?: string;
+  deadline?: string;
+  submissionCount?: number;
+  status?: string;
+  description?: string;
+  skills?: string[];
+  createdAt?: string;
+  winnersAnnouncedAt?: string;
+}
+
 interface BountiesContentSectionProps {
-  bounties: any[]
+  bounties: Bounty[]
   loading: boolean
   error: Error | null
   selectedSkills: string[]
@@ -56,6 +74,7 @@ function BountiesContentSectionComponent({
               : skillsOptions.map((skill) => (
                   <button
                     key={skill}
+                    type="button"
                     onClick={() => onSkillToggle(skill)}
                     className={`flex-shrink-0 whitespace-nowrap rounded-lg border px-3 py-1.5 font-medium text-sm transition-all duration-200 ${
                       selectedSkills.includes(skill)
@@ -74,15 +93,26 @@ function BountiesContentSectionComponent({
       {/* Error State */}
       {error && (
         <div className='mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-6'>
-          <div className='mb-2 text-red-400'>Error loading bounties</div>
-          <div className='mb-4 text-red-300 text-sm'>{error.message}</div>
-          <Button
-            onClick={onRetry}
-            variant="outline"
-            className="border-red-500/40 text-red-300 hover:bg-red-500/10"
-          >
-            Retry
-          </Button>
+          <div className='mb-2 font-semibold text-red-400'>Error loading bounties</div>
+          <div className='mb-4 text-red-300 text-sm'>
+            {error.message || 'Something went wrong while loading bounties. Please try again.'}
+          </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={onRetry}
+              variant="outline"
+              className="border-red-500/40 text-red-300 hover:bg-red-500/10"
+            >
+              Try Again
+            </Button>
+            <Button
+              onClick={onClearAllFilters}
+              variant="ghost"
+              className="text-red-300 hover:bg-red-500/10"
+            >
+              Clear Filters
+            </Button>
+          </div>
         </div>
       )}
 
@@ -118,12 +148,10 @@ function BountiesContentSectionComponent({
                     bounty.organization?.name || "Unknown Organization"
                   }
                   amount={
-                    bounty.amount ? Number.parseFloat(bounty.amount) : 0
+                    bounty.amount ? Number.parseFloat(String(bounty.amount)) : 0
                   }
                   amountUSD={
-                    bounty.amountUSD
-                      ? parseFloat(bounty.amountUSD)
-                      : undefined
+                    bounty.amountUSD || undefined
                   }
                   token={bounty.token || "DOT"}
                   deadline={bounty.deadline}
@@ -155,18 +183,23 @@ function BountiesContentSectionComponent({
           )}
         </>
       ) : !loading ? (
-        <div className="text-center py-12">
-          <div className="text-white/60 mb-4">No bounties found</div>
-          <div className="text-sm text-white/40 mb-4">
-            Try adjusting your search terms or filters
+        <div className="py-12 text-center">
+          <div className="mb-4 text-lg font-medium text-white/60">No bounties found</div>
+          <div className="mx-auto mb-6 max-w-md text-sm text-white/40">
+            {activeFiltersCount > 0 
+              ? "No bounties match your current filters. Try adjusting your search terms or clearing some filters."
+              : "There are currently no bounties available. Check back later for new opportunities."
+            }
           </div>
-          <Button
-            onClick={onClearAllFilters}
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/10"
-          >
-            Clear Filters
-          </Button>
+          {activeFiltersCount > 0 && (
+            <Button
+              onClick={onClearAllFilters}
+              variant="outline"
+              className="border-white/20 text-white hover:bg-white/10"
+            >
+              Clear All Filters
+            </Button>
+          )}
         </div>
       ) : null}
     </div>

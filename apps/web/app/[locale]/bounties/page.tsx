@@ -6,7 +6,6 @@ import { BountiesContentSection } from "./components/content-section";
 import { BountiesSidebar } from "./components/sidebar";
 import { useBountiesFilters } from "@/hooks/use-bounties-filters";
 import { useBountiesData, useBountiesSkills } from "@/hooks/use-bounties-data";
-import { useBountiesSkillsFilter } from "@/hooks/use-bounties-skills-filter";
 import { queryClientConfig } from "@/hooks/react-query";
 import { useState } from "react";
 
@@ -16,7 +15,6 @@ function BountiesPageContent() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const filtersHook = useBountiesFilters();
-  const skillsFilter = useBountiesSkillsFilter();
   const bountiesData = useBountiesData(filtersHook.filters);
   const skillsQuery = useBountiesSkills();
 
@@ -26,12 +24,16 @@ function BountiesPageContent() {
     filtersHook.updateFilter('page', nextPage);
   };
 
+  // Calculate if there are more bounties to load
+  const hasMore = bountiesData.data ? 
+    (bountiesData.data.bounties.length < bountiesData.data.pagination.total) : false;
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <BountiesHeroSection
           searchQuery={filtersHook.filters.search || ''}
-          totalCount={bountiesData.data?.bounties.length || 0}
+          totalCount={bountiesData.data?.pagination?.total || 0}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}
@@ -45,19 +47,18 @@ function BountiesPageContent() {
               bounties={bountiesData.data?.bounties || []}
               loading={bountiesData.isLoading}
               error={bountiesData.error}
-              selectedSkills={skillsFilter.selectedSkills}
+              selectedSkills={filtersHook.filters.skills || []}
               skillsOptions={(skillsQuery.data || []).map((s) => s.skill)}
               filters={{
                 status: filtersHook.filters.status || [],
                 sortBy: filtersHook.filters.sortBy || '',
-                priceRange: filtersHook.filters.priceRange || [0, 0],
+                priceRange: filtersHook.filters.priceRange || [0, 50000],
                 hasSubmissions: filtersHook.filters.hasSubmissions || false,
                 hasDeadline: filtersHook.filters.hasDeadline || false,
               }}
-              hasMore={bountiesData.data?.hasMore || false}
+              hasMore={hasMore}
               activeFiltersCount={filtersHook.activeFiltersCount}
-              onSkillToggle={skillsFilter.toggleSkill}
-              // onClearAllSkills={skillsFilter.clearSkills}
+              onSkillToggle={filtersHook.toggleSkill}
               onClearAllFilters={filtersHook.clearAllFilters}
               onLoadMore={handleLoadMore}
               onRetry={() => bountiesData.refetch()}
@@ -69,13 +70,19 @@ function BountiesPageContent() {
               status: filtersHook.filters.status || [],
               skills: filtersHook.filters.skills || [],
               sortBy: filtersHook.filters.sortBy || '',
-              priceRange: filtersHook.filters.priceRange || [0, 0],
+              priceRange: filtersHook.filters.priceRange || [0, 50000],
               hasSubmissions: filtersHook.filters.hasSubmissions || false,
               hasDeadline: filtersHook.filters.hasDeadline || false,
             }}
             activeFiltersCount={filtersHook.activeFiltersCount}
             showMobileFilters={showMobileFilters}
-            onFilterChange={filtersHook.updateFilter}
+            onFilterChange={(key, value) => {
+              if (key === 'showMobileFilters') {
+                setShowMobileFilters(value);
+              } else {
+                filtersHook.updateFilter(key as keyof typeof filtersHook.filters, value);
+              }
+            }}
             onStatusToggle={filtersHook.toggleStatus}
             onClearAllFilters={filtersHook.clearAllFilters}
           />

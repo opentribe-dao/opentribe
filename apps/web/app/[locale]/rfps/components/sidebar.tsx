@@ -41,6 +41,8 @@ interface RfpsSidebarProps {
 const SORT_OPTIONS = [
   { value: "popular", label: "Most Popular" },
   { value: "recent", label: "Most Recent" },
+  { value: "most_applications", label: "Most Applications" },
+  { value: "least_applications", label: "Least Applications" },
 ]
 
 const GRANT_OPTIONS = [
@@ -100,7 +102,7 @@ function RfpsSidebarComponent({
         {/* Filters */}
         <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
           <div className='mb-4 flex items-center justify-between'>
-            <h3 className='font-heading font-semibold text-lg'>Filter By</h3>
+            <h3 className='font-heading font-semibold text-lg'>Sort By</h3>
             {activeFiltersCount > 0 && (
               <Button
                 variant="ghost"
@@ -113,9 +115,9 @@ function RfpsSidebarComponent({
             )}
           </div>
 
-          {/* Popular */}
+          {/* Sort By */}
           <div className="mb-6">
-            <h4 className='mb-3 font-medium text-sm text-white/80'>Popular</h4>
+            <h4 className='mb-3 font-medium text-sm text-white/80'>Sort By</h4>
             <RadioGroup value={filters.sort} onValueChange={onSortChange}>
               <div className="space-y-2">
                 {SORT_OPTIONS.map((option) => (

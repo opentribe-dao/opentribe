@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@packages/base/compone
 import {
   Award,
   Briefcase,
+  Building2,
   Calendar,
   Edit,
   FileText,

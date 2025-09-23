@@ -5,7 +5,6 @@ import {
   inferAdditionalFields,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
-import type { auth } from "./server";
 
 // Create the auth client with proper configuration
 const authClient = createAuthClient({
@@ -18,19 +17,28 @@ const authClient = createAuthClient({
   plugins: [
     adminClient(),
     organizationClient(),
+    customSessionClient(),
     inferAdditionalFields({
       user: {
+        // Only include fields that are in the custom session
         profileCompleted: {
           type: "boolean",
-          input: false
+          input: false, // Don't require during signup
+        },
+        username: {
+          type: "string",
+          input: false, // Don't require during signup
+        },
+        role: {
+          type: "string",
+          input: false, // Don't require during signup
         },
       },
-    })
+    }),
   ],
 });
 
-// Export the client itself for direct usage
-export { authClient };
+export type Session = typeof authClient.$Infer.Session;
 
 // Export all the methods from the client
 export const {
@@ -40,6 +48,7 @@ export const {
   signUp,
   useSession,
   getSession,
+  verifyEmail,
 
   // Admin methods
   admin,
@@ -48,5 +57,6 @@ export const {
   organization,
   useListOrganizations,
   useActiveOrganization,
-  verifyEmail,
 } = authClient;
+
+export { authClient };

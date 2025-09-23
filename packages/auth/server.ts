@@ -73,6 +73,11 @@ const authOptions = {
       domain:
         process.env.NODE_ENV === "production" ? ".opentribe.io" : "localhost",
     },
+    defaultCookieAttributes: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "none",
+    },
   },
   trustedOrigins: [
     "http://localhost:3000",

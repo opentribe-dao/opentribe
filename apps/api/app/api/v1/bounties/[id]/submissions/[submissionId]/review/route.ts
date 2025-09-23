@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     const reviewSchema = z.object({
-      status: z.enum(['APPROVED', 'REJECTED', 'UNDER_REVIEW']),
+      status: z.enum(["APPROVED", "REJECTED", "UNDER_REVIEW"]),
       feedback: z.string().optional(),
       position: z.number().optional(),
     });
@@ -79,7 +79,7 @@ export async function PATCH(
     }
 
     // If selecting as winner, validate position
-    if (validatedData.status === 'APPROVED') {
+    if (validatedData.status === "APPROVED") {
       if (!validatedData.position) {
         return NextResponse.json(
           { error: "Position is required when selecting a winner" },
@@ -89,10 +89,10 @@ export async function PATCH(
 
       // Check if position is valid
       const winningsArray = submission.bounty.winnings as any;
-      const winningPosition = Array.isArray(winningsArray) 
+      const winningPosition = Array.isArray(winningsArray)
         ? winningsArray.find((w: any) => w.position === validatedData.position)
         : null;
-      
+
       if (!winningPosition) {
         return NextResponse.json(
           { error: "Invalid winner position" },
@@ -104,7 +104,7 @@ export async function PATCH(
       const existingWinner = await database.submission.findFirst({
         where: {
           bountyId: (await params).id,
-          status: 'APPROVED',
+          status: "APPROVED",
           position: validatedData.position,
           NOT: {
             id: (await params).submissionId,
@@ -129,12 +129,16 @@ export async function PATCH(
         status: validatedData.status as any,
         notes: validatedData.feedback,
         reviewedAt: new Date(),
-        position: validatedData.status === 'APPROVED' ? validatedData.position : null,
-        winningAmount: validatedData.status === 'APPROVED' 
-          ? (Array.isArray(submission.bounty.winnings as any) 
-              ? (submission.bounty.winnings as any).find((w: any) => w.position === validatedData.position)?.amount 
-              : null)
-          : null,
+        position:
+          validatedData.status === "APPROVED" ? validatedData.position : null,
+        winningAmount:
+          validatedData.status === "APPROVED"
+            ? Array.isArray(submission.bounty.winnings as any)
+              ? (submission.bounty.winnings as any).find(
+                  (w: any) => w.position === validatedData.position
+                )?.amount
+              : null
+            : null,
       },
       include: {
         bounty: {
@@ -157,7 +161,7 @@ export async function PATCH(
     // TODO: Send email notification to submitter about the decision
 
     return NextResponse.json(
-      { 
+      {
         submission: updatedSubmission,
         message: `Submission ${validatedData.status.toLowerCase()} successfully`,
       },

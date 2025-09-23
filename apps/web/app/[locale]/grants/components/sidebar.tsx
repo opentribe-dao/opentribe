@@ -9,7 +9,6 @@ import { ThumbsUp, X } from "lucide-react"
 
 interface GrantFilters {
   status: string
-  source: string[]
   sortBy: string
   priceRange: [number, number]
 }
@@ -34,7 +33,6 @@ interface GrantsSidebarProps {
   topRFPsError: Error | null
   onFilterChange: (key: keyof GrantFilters | 'showMobileFilters', value: unknown) => void
   onStatusToggle: (status: string) => void
-  onSourceToggle: (source: string) => void
   onClearAllFilters: () => void
 }
 
@@ -52,11 +50,6 @@ const STATUS_OPTIONS = [
   { value: "COMPLETED", label: "Completed" },
 ]
 
-const SOURCE_OPTIONS = [
-  { value: "ALL", label: "All Sources" },
-  { value: "NATIVE", label: "Native" },
-  { value: "EXTERNAL", label: "External" },
-]
 
 function GrantsSidebarComponent({
   filters,
@@ -67,7 +60,6 @@ function GrantsSidebarComponent({
   topRFPsError,
   onFilterChange,
   onStatusToggle,
-  onSourceToggle,
   onClearAllFilters
 }: GrantsSidebarProps) {
   return (
@@ -128,27 +120,6 @@ function GrantsSidebarComponent({
             </div>
           </div>
 
-          {/* Source */}
-          <div className="mb-6">
-            <h4 className='mb-3 font-medium text-sm text-white/80'>Source</h4>
-            <div className="space-y-2">
-              {SOURCE_OPTIONS.map((source) => (
-                <label
-                  key={source.value}
-                  htmlFor={`source-${source.value.toLowerCase()}`}
-                  className='flex cursor-pointer items-center gap-2'
-                >
-                  <Checkbox
-                    id={`source-${source.value.toLowerCase()}`}
-                    checked={filters.source.includes(source.value)}
-                    onCheckedChange={() => onSourceToggle(source.value)}
-                    className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
-                  />
-                  <span className="text-sm text-white/70">{source.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
 
           {/* Sort By */}
           <div className="mb-6">

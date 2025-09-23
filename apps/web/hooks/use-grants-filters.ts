@@ -26,7 +26,6 @@ export function useGrantsFilters() {
     return {
       status: params.get('status') || 'OPEN',
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
-      source: params.get('source')?.split(',').filter(Boolean) || [],
       search: params.get('search') || '',
       sortBy: params.get('sort') || 'newest',
       priceRange: [
@@ -52,10 +51,6 @@ export function useGrantsFilters() {
       count++;
     }
     
-    // Source filter (if not empty)
-    if (filters.source && filters.source.length > 0) {
-      count++;
-    }
     
     // Sort filter (if not default "newest")
     if (filters.sortBy && filters.sortBy !== 'newest') {
@@ -95,11 +90,6 @@ export function useGrantsFilters() {
       params.delete('skills');
     }
     
-    if (updatedFilters.source && updatedFilters.source.length > 0) {
-      params.set('source', updatedFilters.source.join(','));
-    } else {
-      params.delete('source');
-    }
     
     if (updatedFilters.sortBy && updatedFilters.sortBy !== 'newest') {
       params.set('sort', updatedFilters.sortBy);
@@ -179,19 +169,11 @@ export function useGrantsFilters() {
     updateFilter('skills', newSkills);
   }, [filters.skills, updateFilter]);
 
-  const toggleSource = useCallback((source: string) => {
-    const currentSources = filters.source || [];
-    const newSources = currentSources.includes(source)
-      ? currentSources.filter(s => s !== source)
-      : [...currentSources, source];
-    updateFilter('source', newSources);
-  }, [filters.source, updateFilter]);
 
   const clearAllFilters = useCallback(() => {
     const defaultFilters: GrantsFilters = {
       status: 'OPEN',
       skills: [],
-      source: [],
       search: '',
       sortBy: 'newest',
       priceRange: [0, 100000],
@@ -212,7 +194,6 @@ export function useGrantsFilters() {
     updateFilter,
     toggleStatus,
     toggleSkill,
-    toggleSource,
     clearAllFilters,
     clearAllSkills,
     hasActiveFilters: activeFiltersCount > 0,

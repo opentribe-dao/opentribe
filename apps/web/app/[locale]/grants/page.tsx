@@ -50,7 +50,6 @@ function GrantsPageContent() {
             skillsOptions={(skillsQuery.data || []).map((s) => s.skill)}
             filters={{
               status: filtersHook.filters.status || 'OPEN',
-              source: filtersHook.filters.source || [],
               sortBy: filtersHook.filters.sortBy || 'newest',
               priceRange: filtersHook.filters.priceRange || [0, 100000],
             }}
@@ -65,7 +64,6 @@ function GrantsPageContent() {
           <GrantsSidebar
             filters={{
               status: filtersHook.filters.status || 'OPEN',
-              source: filtersHook.filters.source || [],
               sortBy: filtersHook.filters.sortBy || 'newest',
               priceRange: filtersHook.filters.priceRange || [0, 100000],
             }}
@@ -83,9 +81,6 @@ function GrantsPageContent() {
                   case 'status':
                     filtersHook.updateFilter('status', value as string);
                     break;
-                  case 'source':
-                    filtersHook.updateFilter('source', value as string);
-                    break;
                   case 'sortBy':
                     filtersHook.updateFilter('sortBy', value as string);
                     break;
@@ -98,7 +93,6 @@ function GrantsPageContent() {
               }
             }}
             onStatusToggle={filtersHook.toggleStatus}
-            onSourceToggle={filtersHook.toggleSource}
             onClearAllFilters={filtersHook.clearAllFilters}
           />
         </div>

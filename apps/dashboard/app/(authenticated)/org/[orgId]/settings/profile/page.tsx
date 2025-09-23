@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useSession } from '@packages/auth/client';
+import { useSession } from "@packages/auth/client";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from '@packages/base/components/ui/avatar';
-import { Button } from '@packages/base/components/ui/button';
+} from "@packages/base/components/ui/avatar";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,32 +14,32 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
-import { useState } from 'react';
-import { Header } from '../../components/header';
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
+import { useState } from "react";
+import { Header } from "../../../../components/header";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
-  const [name, setName] = useState(session?.user?.name || '');
-  const [email, setEmail] = useState(session?.user?.email || '');
+  const [name, setName] = useState(session?.user?.name || "");
+  const [email, setEmail] = useState(session?.user?.email || "");
   const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
       // TODO: Implement profile update with Better Auth
-      setSuccess('Profile updated successfully');
+      setSuccess("Profile updated successfully");
     } catch (err) {
-      setError('Failed to update profile. Please try again.');
-      console.error('Failed to update profile:', err);
+      setError("Failed to update profile. Please try again.");
+      console.error("Failed to update profile:", err);
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +51,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <Header pages={['Settings']} page="Profile" />
+      <Header pages={["Settings"]} page="Profile" />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="max-w-2xl">
           <div className="mb-8">
@@ -117,7 +117,7 @@ export default function ProfilePage() {
               </CardContent>
               <CardFooter>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
               </CardFooter>
             </form>

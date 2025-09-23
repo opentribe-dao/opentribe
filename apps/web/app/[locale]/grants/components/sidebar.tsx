@@ -46,8 +46,8 @@ const SORT_OPTIONS = [
 ]
 
 const STATUS_OPTIONS = [
-  { value: "OPEN", label: "Open" },
-  { value: "COMPLETED", label: "Completed" },
+  { value: "open", label: "Open" },
+  { value: "closed", label: "Closed" },
 ]
 
 

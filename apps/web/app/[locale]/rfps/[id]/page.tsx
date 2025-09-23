@@ -20,7 +20,7 @@ import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
 
 async function getRfp(id: string) {
-  const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+  const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/api/v1/rfps/${id}`, {
     cache: "no-store",
   });

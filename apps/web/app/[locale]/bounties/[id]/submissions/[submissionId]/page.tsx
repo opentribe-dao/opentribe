@@ -9,7 +9,7 @@ import remarkGfm from "remark-gfm";
 import { CommentSection } from "./comment-section";
 
 async function getSubmission(bountyId: string, submissionId: string) {
-  const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+  const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(
     `${apiUrl}/api/v1/bounties/${bountyId}/submissions/${submissionId}`,
     {

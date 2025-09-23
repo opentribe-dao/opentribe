@@ -3,6 +3,7 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { GrantCard } from "../../components/cards/grant-card"
+import type { Grant } from '@/hooks/use-grants-data'
 
 interface GrantFilters {
   status: string[]
@@ -10,27 +11,6 @@ interface GrantFilters {
   priceRange: [number, number]
 }
 
-interface Grant {
-  id: string;
-  title: string;
-  organization: {
-    id: string;
-    name: string;
-    slug: string;
-    logo: string | null;
-  };
-  bannerUrl: string | null;
-  minAmount: string | null;
-  maxAmount: string | null;
-  token: string;
-  rfpCount: number;
-  applicationCount: number;
-  status: string;
-  summary: string;
-  skills: string[];
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface GrantsContentSectionProps {
   grants: Grant[]
@@ -165,16 +145,8 @@ function GrantsContentSectionComponent({
                 title={grant.title}
                 organization={grant.organization}
                 bannerUrl={grant.bannerUrl}
-                minAmount={
-                  grant.minAmount
-                    ? Number.parseFloat(grant.minAmount)
-                    : 0
-                }
-                maxAmount={
-                  grant.maxAmount
-                    ? Number.parseFloat(grant.maxAmount)
-                    : 0
-                }
+                minAmount={grant.minAmount}
+                maxAmount={grant.maxAmount}
                 token={grant.token}
                 rfpCount={grant.rfpCount}
                 applicationCount={grant.applicationCount}

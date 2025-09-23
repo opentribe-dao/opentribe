@@ -47,7 +47,7 @@ function RFPsPageContent() {
             error={rfpsData.error}
             filters={{
               search: filtersHook.filters.search || '',
-              status: filtersHook.filters.status || ['OPEN'],
+              status: filtersHook.filters.status || ['open'],
               sort: filtersHook.filters.sort || 'popular',
               grant: filtersHook.filters.grant || 'all',
               submission: filtersHook.filters.submission || 'highest',
@@ -62,7 +62,7 @@ function RFPsPageContent() {
           <RfpsSidebar
             filters={{
               search: filtersHook.filters.search || '',
-              status: filtersHook.filters.status || ['OPEN'],
+              status: filtersHook.filters.status || ['open'],
               sort: filtersHook.filters.sort || 'popular',
               grant: filtersHook.filters.grant || 'all',
               submission: filtersHook.filters.submission || 'highest',

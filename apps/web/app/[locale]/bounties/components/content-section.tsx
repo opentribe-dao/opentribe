@@ -3,6 +3,7 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { BountyCard } from "../../components/cards/bounty-card"
+import type { Bounty } from '@/hooks/use-bounties-data'
 
 interface BountyFilters {
   status: string[]
@@ -12,23 +13,6 @@ interface BountyFilters {
   hasDeadline: boolean
 }
 
-interface Bounty {
-  id: string;
-  title: string;
-  organization?: {
-    name: string;
-  };
-  amount: string;
-  amountUSD?: number;
-  token?: string;
-  deadline?: string;
-  submissionCount?: number;
-  status?: string;
-  description?: string;
-  skills?: string[];
-  createdAt?: string;
-  winnersAnnouncedAt?: string;
-}
 
 interface BountiesContentSectionProps {
   bounties: Bounty[]
@@ -145,13 +129,11 @@ function BountiesContentSectionComponent({
                   id={bounty.id}
                   title={bounty.title || "Untitled Bounty"}
                   organization={
-                    bounty.organization?.name || "Unknown Organization"
+                    bounty.organization
                   }
-                  amount={
-                    bounty.amount ? Number.parseFloat(String(bounty.amount)) : 0
-                  }
+                  amount={bounty.amount}
                   amountUSD={
-                    bounty.amountUSD || undefined
+                    bounty.amountUSD || null
                   }
                   token={bounty.token || "DOT"}
                   deadline={bounty.deadline}

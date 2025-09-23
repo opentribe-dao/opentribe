@@ -6,20 +6,22 @@ interface BountyCardProps {
   id: string;
   title: string;
   organization: {
+    id: string;
     name: string;
-    logo?: string;
+    slug: string;
+    logo: string | null;
   };
-  amount: number;
+  amount: string;
   token: string;
-  deadline?: Date;
+  deadline: string | null;
   submissionCount: number;
   skills: string[];
-  status: "OPEN" | "CLOSED";
+  status: string;
   variant?: "default" | "list";
-  amountUSD?: number;
+  amountUSD: number | null;
   description?: string;
-  createdAt?: Date;
-  winnersAnnouncedAt?: Date;
+  createdAt: string;
+  winnersAnnouncedAt: string | null;
 }
 
 export function BountyCard({
@@ -36,11 +38,11 @@ export function BountyCard({
   // Ensure skills is always an array
   const safeSkills = Array.isArray(skills) ? skills : [];
 
-  const formatDate = (date: Date | string | null | undefined) => {
+  const formatDate = (date: string) => {
     if (!date) return "No date";
     try {
       // Handle both Date objects and date strings
-      const dateObj = date instanceof Date ? date : new Date(date);
+      const dateObj = new Date(date);
       
       // Check if the date is valid
       if (Number.isNaN(dateObj.getTime())) {
@@ -121,8 +123,7 @@ export function BountyCard({
 
 
 
-  const safeAmount =
-    typeof amount === "number" && !Number.isNaN(amount) ? amount : null;
+  const safeAmount = Number(amount);
   const safeSubmissionCount =
     typeof submissionCount === "number" ? submissionCount : 0;
 

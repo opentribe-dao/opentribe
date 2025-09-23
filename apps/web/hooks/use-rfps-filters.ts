@@ -25,7 +25,7 @@ export function useRfpsFilters() {
     
     return {
       search: params.get('search') || '',
-      status: params.get('status')?.split(',').filter(Boolean) || ['OPEN'],
+      status: params.get('status')?.split(',').filter(Boolean) || ['open'],
       sort: params.get('sort') || 'popular',
       grant: params.get('grant') || 'all',
       submission: params.get('submission') || 'highest',
@@ -149,7 +149,7 @@ export function useRfpsFilters() {
   }, [updateURL]);
 
   const toggleStatus = useCallback((status: string) => {
-    const currentStatuses = filters.status || ['OPEN'];
+    const currentStatuses = filters.status || ['open'];
     const newStatuses = currentStatuses.includes(status)
       ? currentStatuses.filter(s => s !== status)
       : [...currentStatuses, status];
@@ -159,7 +159,7 @@ export function useRfpsFilters() {
   const clearAllFilters = useCallback(() => {
     const defaultFilters: RFPsFilters = {
       search: '',
-      status: ['OPEN'],
+      status: ['open'],
       sort: 'popular',
       grant: 'all',
       submission: 'highest',

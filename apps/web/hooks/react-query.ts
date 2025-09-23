@@ -1,4 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
+import type { BountiesFilters } from './use-bounties-data'
+import type { GrantsFilters } from './use-grants-data'
+import type { RFPsFilters } from './use-rfps-data'
 
 // Query keys for homepage data
 export const HOMEPAGE_QUERIES = {
@@ -19,7 +22,7 @@ export const BOUNTIES_QUERIES = {
 export const bountyQueryKeys = {
   all: ['bounties'] as const,
   lists: () => [...bountyQueryKeys.all, 'list'] as const,
-  list: (filters: Record<string, unknown>) => [...bountyQueryKeys.lists(), filters] as const,
+  list: (filters: BountiesFilters) => [...bountyQueryKeys.lists(), filters] as const,
   details: () => [...bountyQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...bountyQueryKeys.details(), id] as const,
   stats: () => [...bountyQueryKeys.all, 'stats'] as const,
@@ -31,7 +34,7 @@ export const bountyQueryKeys = {
 export const grantQueryKeys = {
   all: ['grants'] as const,
   lists: () => [...grantQueryKeys.all, 'list'] as const,
-  list: (filters: Record<string, unknown>) => [...grantQueryKeys.lists(), filters] as const,
+  list: (filters: GrantsFilters) => [...grantQueryKeys.lists(), filters] as const,
   details: () => [...grantQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...grantQueryKeys.details(), id] as const,
   stats: () => [...grantQueryKeys.all, 'stats'] as const,
@@ -43,7 +46,7 @@ export const grantQueryKeys = {
 export const rfpQueryKeys = {
   all: ['rfps'] as const,
   lists: () => [...rfpQueryKeys.all, 'list'] as const,
-  list: (filters: Record<string, unknown>) => [...rfpQueryKeys.lists(), filters] as const,
+  list: (filters: RFPsFilters) => [...rfpQueryKeys.lists(), filters] as const,
   details: () => [...rfpQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...rfpQueryKeys.details(), id] as const,
   stats: () => [...rfpQueryKeys.all, 'stats'] as const,

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { env } from '@/env';
+import { handleError } from '@packages/base/lib/utils';
 
 export interface DashboardResponse {
     stats: {
@@ -63,6 +64,10 @@ export function useDashboard(organizationId?: string) {
         }
       );
       if (!res.ok) {
+        
+        handleError(
+          new Error(`${res.statusText}`),
+        );
         throw new Error(`Failed to fetch dashboard: ${res.statusText}`);
       }
       const data = await res.json();

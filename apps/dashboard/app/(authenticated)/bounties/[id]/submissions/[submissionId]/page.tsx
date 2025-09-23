@@ -409,7 +409,7 @@ export default function SubmissionReviewPage({
                     </Button>
                     <Button
                       onClick={() => handleStatusUpdate('REJECTED')}
-                      disabled={actionLoading || !feedback}
+                      disabled={actionLoading}
                       variant="destructive"
                     >
                       {actionLoading ? (

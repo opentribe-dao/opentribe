@@ -27,6 +27,7 @@ interface RFP {
 
 interface RfpsFilters {
   search: string
+  status: string[]
   sort: string
   grant: string
   submission: string

@@ -24,7 +24,7 @@ export function useGrantsFilters() {
     const params = new URLSearchParams(searchParams);
     
     return {
-      status: params.get('status')?.split(',').filter(Boolean) || ['OPEN'],
+      status: params.get('status')?.split(',').filter(Boolean) || ['open'],
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
       search: params.get('search') || '',
       sortBy: params.get('sort') || 'newest',
@@ -156,7 +156,7 @@ export function useGrantsFilters() {
   }, [updateURL]);
 
   const toggleStatus = useCallback((status: string) => {
-    const currentStatuses = filters.status || ['OPEN'];
+    const currentStatuses = filters.status || ['open'];
     const newStatuses = currentStatuses.includes(status)
       ? currentStatuses.filter(s => s !== status)
       : [...currentStatuses, status];
@@ -175,7 +175,7 @@ export function useGrantsFilters() {
 
   const clearAllFilters = useCallback(() => {
     const defaultFilters: GrantsFilters = {
-      status: ['OPEN'],
+      status: ['open'],
       skills: [],
       search: '',
       sortBy: 'newest',

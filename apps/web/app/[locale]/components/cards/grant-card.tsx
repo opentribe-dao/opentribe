@@ -13,16 +13,16 @@ interface GrantCardProps {
     slug: string;
     logo: string | null;
   };
-  bannerUrl?: string;
-  minAmount?: number;
-  maxAmount?: number;
+  bannerUrl: string | null;
+  minAmount: string | null;
+  maxAmount: string | null;
   token: string;
   rfpCount: number;
   applicationCount: number;
-  status: "OPEN" | "CLOSED";
-  summary?: string;
-  skills?: string[];
-  createdAt?: string;
+  status: string;
+  summary: string;
+  skills: string[];
+  createdAt: string;
 }
 
 export function GrantCard({

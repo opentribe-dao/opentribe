@@ -23,7 +23,7 @@ interface Bounty {
   applicationUrl: string | null;
   skills: string[];
   organizationId: string;
-  amount: string; // API returns as string
+  amount: string; 
   amountUSD: number | null;
   token: string;
   winnings: Record<string, number> | null;

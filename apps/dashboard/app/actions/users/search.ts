@@ -1,9 +1,10 @@
-'use server';
+"use server";
 
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import Fuse from 'fuse.js';
-import { headers } from 'next/headers';
+import { useActiveOrganization } from "@packages/auth/client";
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import Fuse from "fuse.js";
+import { headers } from "next/headers";
 
 export const searchUsers = async (
   query: string
@@ -22,14 +23,14 @@ export const searchUsers = async (
     });
 
     if (!session?.user) {
-      throw new Error('Not authenticated');
+      throw new Error("Not authenticated");
     }
 
     // Get the current organization ID from session
-    const currentOrgId = session.session?.activeOrganizationId;
+    const currentOrg = useActiveOrganization();
 
-    if (!currentOrgId) {
-      throw new Error('No active organization');
+    if (!currentOrg) {
+      throw new Error("No active organization");
     }
 
     // If query is empty, return empty results
@@ -42,7 +43,7 @@ export const searchUsers = async (
       where: {
         members: {
           some: {
-            organizationId: currentOrgId,
+            organizationId: currentOrg.data?.id,
           },
         },
       },
@@ -56,8 +57,8 @@ export const searchUsers = async (
     // Use Fuse.js for fuzzy search
     const fuse = new Fuse(users, {
       keys: [
-        { name: 'name', weight: 0.7 },
-        { name: 'email', weight: 0.3 },
+        { name: "name", weight: 0.7 },
+        { name: "email", weight: 0.3 },
       ],
       threshold: 0.3, // Lower threshold means more strict matching
       includeScore: true,
@@ -73,7 +74,7 @@ export const searchUsers = async (
       data: userIds,
     };
   } catch (error) {
-    console.error('Error searching users:', error);
+    console.error("Error searching users:", error);
     return { error };
   }
 };

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Calendar, Users, DollarSign, Clock, Trophy } from "lucide-react";
+import { Calendar, Users, DollarSign, Clock } from "lucide-react";
+import Image from "next/image";
 
 interface BountyCardProps {
   id: string;
@@ -30,22 +31,74 @@ export function BountyCard({
   deadline,
   submissionCount,
   skills,
-  status,
-  variant = "default",
+  createdAt,
 }: BountyCardProps) {
   // Ensure skills is always an array
   const safeSkills = Array.isArray(skills) ? skills : [];
 
-  const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString) return "No date";
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) return "No date";
     try {
-      return new Date(dateString).toLocaleDateString("en-US", {
+      // Handle both Date objects and date strings
+      const dateObj = date instanceof Date ? date : new Date(date);
+      
+      // Check if the date is valid
+      if (Number.isNaN(dateObj.getTime())) {
+        return "Invalid date";
+      }
+      
+      return dateObj.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
       });
     } catch {
       return "Invalid date";
+    }
+  };
+
+  const getDeadlineInfo = (deadline: Date | string | null | undefined) => {
+    if (!deadline) return { timeRemaining: null, isExpired: false, isSoon: false };
+    
+    try {
+      const deadlineDate = deadline instanceof Date ? deadline : new Date(deadline);
+      const now = new Date();
+      
+      // Check if the date is valid
+      if (Number.isNaN(deadlineDate.getTime())) {
+        return { timeRemaining: null, isExpired: false, isSoon: false };
+      }
+      
+      const diffTime = deadlineDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // If deadline has passed
+      if (diffTime <= 0) {
+        return { timeRemaining: "Expired", isExpired: true, isSoon: false };
+      }
+      
+      // Check if deadline is soon (within 7 days)
+      const isSoon = diffDays <= 7;
+      
+      // Calculate time remaining display
+      const diffDaysFloor = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+      
+      let timeRemaining: string;
+      if (diffDaysFloor > 0) {
+        timeRemaining = `Due in ${diffDaysFloor} day${diffDaysFloor !== 1 ? 's' : ''}`;
+      } else if (diffHours > 0) {
+        timeRemaining = `Due in ${diffHours} hour${diffHours !== 1 ? 's' : ''} ${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''}`;
+      } else if (diffMinutes > 0) {
+        timeRemaining = `Due in ${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''}`;
+      } else {
+        timeRemaining = "Due very soon";
+      }
+      
+      return { timeRemaining, isExpired: false, isSoon };
+    } catch {
+      return { timeRemaining: null, isExpired: false, isSoon: false };
     }
   };
 
@@ -66,30 +119,10 @@ export function BountyCard({
     }
   };
 
-  const isDeadlineSoon = () => {
-    if (!deadline) return false;
-    try {
-      const deadlineDate = new Date(deadline);
-      const now = new Date();
-      const diffTime = deadlineDate.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays <= 7 && diffDays > 0;
-    } catch {
-      return false;
-    }
-  };
 
-  const isExpired = () => {
-    if (!deadline) return false;
-    try {
-      return new Date(deadline) < new Date();
-    } catch {
-      return false;
-    }
-  };
 
   const safeAmount =
-    typeof amount === "number" && !isNaN(amount) ? amount : null;
+    typeof amount === "number" && !Number.isNaN(amount) ? amount : null;
   const safeSubmissionCount =
     typeof submissionCount === "number" ? submissionCount : 0;
 
@@ -104,33 +137,37 @@ export function BountyCard({
     <Link href={`/bounties/${id}`} className='group block h-full'>
       <div className='flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10'>
         {/* Header */}
-        <div className='mb-4 flex items-start justify-between'>
+
+        <div className='mb-2 flex items-start justify-between'>
+
+        <div className='relative mr-2 h-14 w-14 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500'>
+        {organization?.logo ? (
+                    <Image
+                      src={organization?.logo}
+                      alt={organization?.name}
+                      fill
+                      className="bg-black object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <span className="font-bold text-3xl">
+                        {organization?.name[0]}
+                      </span>
+                    </div>
+                  )}
+          </div>
+
           <div className='min-w-0 flex-1'>
             <h3 className='mb-2 line-clamp-2 font-heading font-semibold text-lg text-white transition-colors group-hover:text-pink-300'>
               {title || "Untitled Bounty"}
             </h3>
             <p className='mb-2 text-sm text-white/60'>{organizationName}</p>
-            <div className="flex items-center gap-2">
-              <span
-                className={`inline-block rounded-md border px-2 py-1 text-xs ${getStatusColor(
-                  status
-                )}`}
-              >
-                {status ? status.toLowerCase().replace("_", " ") : "unknown"}
-              </span>
-              {/* {winnersAnnouncedAt && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500/20 text-yellow-300 rounded-md text-xs">
-                  <Trophy className="w-3 h-3" />
-                  Winners Announced
-                </span>
-              )} */}
-            </div>
           </div>
 
           {/* Amount */}
           {safeAmount && (
             <div className='ml-4 flex items-center gap-2'>
-              <DollarSign className='h-4 w-4 text-green-400' />
+              {/* <DollarSign className='h-4 w-4 text-green-400' /> */}
               <div className="text-right">
                 {safeAmount && (
                   <div className='font-semibold text-green-400 text-lg'>
@@ -178,22 +215,30 @@ export function BountyCard({
               <Users className='h-3 w-3' />
               <span>{safeSubmissionCount} submissions</span>
             </div>
-            {deadline && (
-              <div
-                className={`flex items-center gap-1 ${
-                  isExpired()
-                    ? "text-red-400"
-                    : isDeadlineSoon()
-                    ? "text-yellow-400"
-                    : "text-white/50"
-                }`}
-              >
-                <Calendar className='h-3 w-3' />
-                {/* <span>{isExpired() ? "Expired" : formatDate(deadline)}</span> */}
-              </div>
-            )}
+            {deadline && (() => {
+              const deadlineInfo = getDeadlineInfo(deadline);
+              return (
+                <div
+                  className={`flex items-center gap-1 ${
+                    deadlineInfo.isExpired
+                      ? "text-red-400"
+                      : deadlineInfo.isSoon
+                      ? "text-yellow-400"
+                      : "text-white/50"
+                  }`}
+                >
+                  <Clock className='h-3 w-3' />
+                  <span>{deadlineInfo.timeRemaining || "Invalid deadline"}</span>
+                </div>
+              );
+            })()}
           </div>
-          {/* <span>{formatDate(createdAt)}</span> */}
+          {createdAt && (
+            <div className="flex items-center gap-1">
+              <Calendar className='h-3 w-3' />
+              <span>{formatDate(createdAt)}</span>
+            </div>
+          )}
         </div>
       </div>
     </Link>

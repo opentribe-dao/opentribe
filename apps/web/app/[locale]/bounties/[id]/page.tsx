@@ -18,6 +18,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BountyContent } from "./bounty-content";
 import { CommentSection } from "./comment-section";
+import { ShareButton } from "./share-button";
 
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
@@ -150,13 +151,7 @@ export default async function BountyDetailPage({
                   </span>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
+                <ShareButton url={`/bounties/${id}`} />
 
                 <Link href={`/bounties/${id}/submit`}>
                   <Button

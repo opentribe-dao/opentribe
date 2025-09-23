@@ -64,7 +64,7 @@ async function main() {
         headline: 'Funding the decentralized web',
         description:
           'The Web3 Foundation nurtures and stewards technologies and applications in the fields of decentralized web software protocols.',
-        logo: 'https://web3.foundation/images/w3f-logo.svg',
+        logo: 'https://avatars.githubusercontent.com/u/30405397',
         twitter: 'web3foundation',
         github: 'w3f',
         websiteUrl: 'https://web3.foundation',
@@ -86,6 +86,7 @@ async function main() {
         headline: 'Ethereum-compatible smart contract platform on Polkadot',
         description:
           'Moonbeam is a smart contract platform for building cross-chain connected applications that can access users, assets, and services on any chain.',
+        logo: 'https://avatars.githubusercontent.com/u/84856768',
         twitter: 'MoonbeamNetwork',
         github: 'PureStake',
         websiteUrl: 'https://moonbeam.network',
@@ -107,6 +108,7 @@ async function main() {
         headline: 'The DeFi Hub of Polkadot',
         description:
           'Acala is the all-in-one DeFi hub of Polkadot. A blockchain platform for financial applications to use smart contracts or built-in protocols.',
+        logo: 'https://avatars.githubusercontent.com/u/54881907',
         twitter: 'AcalaNetwork',
         github: 'AcalaNetwork',
         websiteUrl: 'https://acala.network',
@@ -128,6 +130,7 @@ async function main() {
         headline: 'Supporting grassroots Polkadot initiatives',
         description:
           'A community-driven organization supporting small but impactful projects in the Polkadot ecosystem.',
+        logo: 'https://avatars.githubusercontent.com/u/89759498',
         isVerified: false,
         visibility: 'ACTIVE',
         members: {

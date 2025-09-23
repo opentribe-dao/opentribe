@@ -88,10 +88,9 @@ const authOptions = {
           "https://opentribe.io",
           "https://admin.opentribe.io",
           "https://api.opentribe.io",
-          "https://*.opentribe.io",
-          "https://opentribe-web.vercel.app",
-          "https://opentribe-api.vercel.app",
-          "https://opentribe-dashboard.vercel.app",
+          "https://dev.opentribe.io",
+          "https://api.dev.opentribe.io",
+          "https://dashboard.dev.opentribe.io",
         ]
       : []),
 

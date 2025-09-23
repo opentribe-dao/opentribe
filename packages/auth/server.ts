@@ -217,6 +217,8 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
         user: {
           ...user,
           profileCompleted: user.profileCompleted,
+          username: user.username,
+          role: user.role,
         },
         session,
       };

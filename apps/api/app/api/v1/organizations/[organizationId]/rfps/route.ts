@@ -195,26 +195,44 @@ export async function POST(
       counter++;
     }
 
-    // Create the RFP
-    const rfp = await database.rFP.create({
-      data: {
-        ...validatedData,
-        slug,
-        publishedAt:
-          validatedData.visibility === "PUBLISHED" ? new Date() : null,
-      },
-      include: {
-        grant: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
+    // Create the RFP and increment grant's rfpCount in an atomic transaction
+    const result = await database.$transaction(async (tx) => {
+      // Create the RFP
+      const rfp = await tx.rFP.create({
+        data: {
+          ...validatedData,
+          slug,
+          publishedAt:
+            validatedData.visibility === "PUBLISHED" ? new Date() : null,
+        },
+        include: {
+          grant: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+            },
           },
         },
-      },
+      });
+
+      // Increment the rfpCount for the associated grant
+      await tx.grant.update({
+        where: { id: validatedData.grantId },
+        data: {
+          rfpCount: {
+            increment: 1,
+          },
+        },
+      });
+
+      return rfp;
     });
 
-    return NextResponse.json({ rfp }, { status: 201, headers: corsHeaders });
+    return NextResponse.json(
+      { rfp: result },
+      { status: 201, headers: corsHeaders }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

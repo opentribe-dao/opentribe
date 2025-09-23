@@ -1,10 +1,10 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 interface OrgLayoutProps {
   children: ReactNode;
-  params: {
+  params: Promise<{
     orgId: string;
-  };
+  }>;
 }
 
 export default function OrgLayout({ children, params }: OrgLayoutProps) {

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,10 +9,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Badge } from '@packages/base/components/ui/badge';
-import { CreditCard, Package, Receipt } from 'lucide-react';
-import { Header } from '../../components/header';
+} from "@packages/base/components/ui/card";
+import { Badge } from "@packages/base/components/ui/badge";
+import { CreditCard, Package, Receipt } from "lucide-react";
+import { Header } from "../../../../components/header";
 
 export default function BillingPage() {
   const { data: session } = useSession();
@@ -24,13 +24,16 @@ export default function BillingPage() {
 
   return (
     <>
-      <Header pages={['Settings']} page="Billing" />
+      <Header pages={["Settings"]} page="Billing" />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="max-w-4xl">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold tracking-tight">Billing & Subscription</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              Billing & Subscription
+            </h2>
             <p className="text-muted-foreground">
-              Manage your subscription plan, payment methods, and billing history.
+              Manage your subscription plan, payment methods, and billing
+              history.
             </p>
           </div>
           {/* Current Plan */}
@@ -127,8 +130,9 @@ export default function BillingPage() {
           {activeOrg && (
             <div className="mt-6 p-4 bg-muted rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> Billing is managed at the organization level. 
-                You're viewing billing for <strong>{activeOrg.name}</strong>.
+                <strong>Note:</strong> Billing is managed at the organization
+                level. You're viewing billing for{" "}
+                <strong>{activeOrg.name}</strong>.
               </p>
             </div>
           )}

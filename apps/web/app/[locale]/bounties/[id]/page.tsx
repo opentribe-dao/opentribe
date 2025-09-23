@@ -21,7 +21,7 @@ import { CommentSection } from "./comment-section";
 import { ShareButton } from "./share-button";
 
 async function getBounty(id: string) {
-  const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+  const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/api/v1/bounties/${id}`, {
     cache: "no-store",
   });

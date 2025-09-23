@@ -1,9 +1,10 @@
 "use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { bountyQueryKeys } from './react-query';
+import { useQuery } from "@tanstack/react-query";
+import { bountyQueryKeys } from "./react-query";
+import { env } from "@/env";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
 interface Bounty {
   id: string;
@@ -89,44 +90,44 @@ interface BountiesFilters {
 // Hook for fetching bounties data with filters
 export function useBountiesData(filters: BountiesFilters = {}) {
   const queryParams = new URLSearchParams();
-  
+
   // search
-  if (filters.search !== undefined && filters.search !== '') {
-    queryParams.append('search', filters.search);
+  if (filters.search !== undefined && filters.search !== "") {
+    queryParams.append("search", filters.search);
   }
-  
+
   // status
   if (filters.status !== undefined && Array.isArray(filters.status)) {
     const statusValues = filters.status
-      .map((s) => (s ?? '').toString().trim())
-      .filter((s) => s !== '');
+      .map((s) => (s ?? "").toString().trim())
+      .filter((s) => s !== "");
     if (statusValues.length > 0) {
-      queryParams.append('status', statusValues.join(',').toLowerCase());
+      queryParams.append("status", statusValues.join(",").toLowerCase());
     }
   }
   // skills
   if (filters.skills !== undefined && Array.isArray(filters.skills)) {
     const skillsValues = filters.skills
-      .map((s) => (s ?? '').toString().trim())
-      .filter((s) => s !== '');
+      .map((s) => (s ?? "").toString().trim())
+      .filter((s) => s !== "");
     if (skillsValues.length > 0) {
-      queryParams.append('skills', skillsValues.join(','));
+      queryParams.append("skills", skillsValues.join(","));
     }
   }
   // sortBy
-  if (filters.sortBy !== undefined && filters.sortBy !== '') {
-    queryParams.append('sort', filters.sortBy);
+  if (filters.sortBy !== undefined && filters.sortBy !== "") {
+    queryParams.append("sort", filters.sortBy);
   }
   // priceRange
   if (
-    filters.priceRange !== undefined && 
+    filters.priceRange !== undefined &&
     filters.priceRange &&
     Array.isArray(filters.priceRange) &&
     filters.priceRange.length === 2 &&
     !(filters.priceRange[0] === 0 && filters.priceRange[1] === 50000)
   ) {
-    queryParams.append('minAmount', filters.priceRange[0].toString());
-    queryParams.append('maxAmount', filters.priceRange[1].toString());
+    queryParams.append("minAmount", filters.priceRange[0].toString());
+    queryParams.append("maxAmount", filters.priceRange[1].toString());
   }
   // hasSubmissions
   if (filters.hasSubmissions !== undefined && filters.hasSubmissions === true) {
@@ -138,11 +139,11 @@ export function useBountiesData(filters: BountiesFilters = {}) {
   }
   // pagination
   if (filters.page) {
-    queryParams.append('page', filters.page.toString());
+    queryParams.append("page", filters.page.toString());
   }
   // limit
   if (filters.limit) {
-    queryParams.append('limit', filters.limit.toString());
+    queryParams.append("limit", filters.limit.toString());
   }
 
   return useQuery({

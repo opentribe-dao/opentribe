@@ -13,6 +13,8 @@ import { PaymentModal } from './payment-modal';
 import { env } from '@/env';
 import { Badge } from '@packages/base/components/ui/badge';
 
+const BOUNTY_REGEX = /^\/bounties\/[^/]+\/submissions\/[^/]+$/;
+
 export default function BountyLayout({
   children,
   params,
@@ -20,7 +22,12 @@ export default function BountyLayout({
   const { id } = use(params);
   const pathname = usePathname();
 
-  if (pathname.endsWith('/edit') || pathname.includes('/submissions/')) {
+
+
+  if (
+    pathname.endsWith('/edit') ||
+    BOUNTY_REGEX.test(pathname)
+  ) {
     return <BountyProvider bountyId={id}>{children}</BountyProvider>;
   }
   return (
@@ -35,10 +42,7 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
     bounty,
     bountyLoading,
     bountyError,
-    paymentModalOpen,
     selectedPaymentSubmission,
-    setPaymentModalOpen,
-    setSelectedPaymentSubmission,
   } = useBountyContext();
 
   const pathname = usePathname();

@@ -36,7 +36,7 @@ export interface Submission {
   status: string;
   isWinner: boolean;
   position?: number;
-  winningAmount?: number;
+  winningAmount?: string;
   submittedAt?: string;
   submitter: {
     id: string;

@@ -85,7 +85,7 @@ export default function SubmissionsPage() {
     if (winners.length > 0) {
       const winnersMap = new Map<
         string,
-        { position: number; amount: number; username: string }
+        { position: number; amount: string; username: string }
       >();
       for (const s of winners) {
         if (
@@ -644,13 +644,15 @@ export default function SubmissionsPage() {
                   <CardTitle className="text-sm font-semibold">
                     Selected Winners
                   </CardTitle>
-                  <Button className="text-sm " onClick={clearSelectedWinners}>
-                    Reset
-                  </Button>
+                  {selectedWinners.size > 0 && (
+                    <Button className="text-sm " onClick={clearSelectedWinners}>
+                      Reset
+                    </Button>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <div>
-                    {[...selectedWinners.entries()].map(
+                    { selectedWinners.size > 0 ? [...selectedWinners.entries()].map(
                       ([submissionId, winnerData]) => {
                         const user = winnerData.username;
                         return (
@@ -720,7 +722,7 @@ export default function SubmissionsPage() {
                           </div>
                         );
                       }
-                    )}
+                    ):<div className=" flex items-center justify-center py-4 text-sm text-white/60">No Winners Selected  </div>}
                   </div>
                 </CardContent>
                 {bounty.status === 'OPEN' &&

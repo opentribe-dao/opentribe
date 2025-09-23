@@ -27,10 +27,10 @@ interface BountyContextType {
 
   selectedWinners: Map<
     string,
-    { position: number; amount: number; username: string }
+    { position: number; amount: string; username: string }
   >;
   setSelectedWinners: (
-    winners: Map<string, { position: number; amount: number; username: string }>
+    winners: Map<string, { position: number; amount: string; username: string }>
   ) => void;
   clearSelectedWinners: () => void;
 
@@ -113,7 +113,7 @@ export function BountyProvider({
 
   // Winner selection state
   const [selectedWinners, setSelectedWinners] = useState<
-    Map<string, { position: number; amount: number; username: string }>
+    Map<string, { position: number; amount: string; username: string }>
   >(new Map());
   const [isAnnouncing, setIsAnnouncing] = useState(false);
 
@@ -205,7 +205,7 @@ export function BountyProvider({
           body: JSON.stringify({
             extrinsicHash: transactionId,
             expectedTo: selectedPaymentSubmission.submitter.walletAddress,
-            expectedAmount: Number(selectedPaymentSubmission.winningAmount),
+            expectedAmount: selectedPaymentSubmission.winningAmount,
           }),
         }
       );
@@ -254,7 +254,7 @@ export function BountyProvider({
           body: JSON.stringify({
             submissionId: selectedPaymentSubmission.id,
             extrinsicHash: transactionId,
-            amount: Number(selectedPaymentSubmission.winningAmount),
+            amount: selectedPaymentSubmission.winningAmount,
             token: bounty.token,
           }),
         }

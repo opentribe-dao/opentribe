@@ -5,7 +5,7 @@ import { Button } from "@packages/base/components/ui/button"
 import { GrantCard } from "../../components/cards/grant-card"
 
 interface GrantFilters {
-  status: string
+  status: string[]
   sortBy: string
   priceRange: [number, number]
 }

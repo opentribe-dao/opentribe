@@ -8,7 +8,7 @@ import { Slider } from "@packages/base/components/ui/slider"
 import { ThumbsUp, X } from "lucide-react"
 
 interface GrantFilters {
-  status: string
+  status: string[]
   sortBy: string
   priceRange: [number, number]
 }
@@ -39,10 +39,11 @@ interface GrantsSidebarProps {
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
   { value: "oldest", label: "Oldest First" },
-  { value: "amount_high", label: "Highest Amount" },
-  { value: "amount_low", label: "Lowest Amount" },
-  { value: "applications", label: "Most Applications" },
-  { value: "rfps", label: "Most RFPs" },
+  { value: "max_amount", label: "Highest Amount" },
+  { value: "min_amount", label: "Lowest Amount" },
+  { value: "max_funds", label: "Highest Funds" },
+  { value: "most_applications", label: "Most Applications" },
+  { value: "most_rfps", label: "Most RFPs" },
 ]
 
 const STATUS_OPTIONS = [
@@ -110,7 +111,7 @@ function GrantsSidebarComponent({
                 >
                   <Checkbox
                     id={`status-${status.value.toLowerCase()}`}
-                    checked={filters.status === status.value}
+                    checked={filters.status.includes(status.value)}
                     onCheckedChange={() => onStatusToggle(status.value)}
                     className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
                   />

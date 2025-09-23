@@ -49,7 +49,7 @@ function GrantsPageContent() {
             selectedSkills={filtersHook.filters.skills || []}
             skillsOptions={(skillsQuery.data || []).map((s) => s.skill)}
             filters={{
-              status: filtersHook.filters.status || 'OPEN',
+              status: filtersHook.filters.status || ['OPEN'],
               sortBy: filtersHook.filters.sortBy || 'newest',
               priceRange: filtersHook.filters.priceRange || [0, 100000],
             }}
@@ -63,7 +63,7 @@ function GrantsPageContent() {
 
           <GrantsSidebar
             filters={{
-              status: filtersHook.filters.status || 'OPEN',
+              status: filtersHook.filters.status || ['OPEN'],
               sortBy: filtersHook.filters.sortBy || 'newest',
               priceRange: filtersHook.filters.priceRange || [0, 100000],
             }}

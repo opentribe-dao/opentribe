@@ -1,7 +1,7 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for grant creation
@@ -51,10 +51,9 @@ export async function GET(request: NextRequest) {
 
     // Parse search and filters
     const search = searchParams.get("search") || "";
-    const sort = searchParams.get("sort") || "NEWEST";
+    const sort = searchParams.get("sort") || "newest"; // newest, oldest, max_amount, min_amount, max_funds, most_applications, most_rfps
     const minAmount = searchParams.get("minAmount");
     const maxAmount = searchParams.get("maxAmount");
-    const applicationCount = searchParams.get("applicationCount");
 
     // Parse skills array - handle URL encoded comma-separated values
     const skillsParam = searchParams.get("skills");
@@ -91,25 +90,6 @@ export async function GET(request: NextRequest) {
       )
     );
 
-    // Parse source filter as a list (like bounties status)
-    const sourceParam = searchParams.get("source");
-    const rawSources = sourceParam
-      ? decodeURIComponent(sourceParam)
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s.toLowerCase())
-      : [];
-
-    // Validate against Grant source enum values
-    const allowedSources = new Set(["ALL", "NATIVE", "EXTERNAL"]);
-    const sources = Array.from(
-      new Set(
-        rawSources
-          .map((s) => s.trim().toUpperCase())
-          .filter((s) => allowedSources.has(s))
-      )
-    );
-
     // Build where clause
     const whereClause: any = {
       visibility: "PUBLISHED",
@@ -123,13 +103,6 @@ export async function GET(request: NextRequest) {
     } else {
       // Default to open grants for homepage if status not supplied
       whereClause.status = "OPEN";
-    }
-
-    // Filter by source (multiple values)
-    if (sources.length > 0) {
-      whereClause.source = {
-        in: sources,
-      };
     }
 
     // Filter by skills (array intersection)
@@ -218,22 +191,28 @@ export async function GET(request: NextRequest) {
     const sortUpper = sort.toUpperCase();
 
     switch (sortUpper) {
-      case "NEWEST":
-        orderBy = { publishedAt: "desc" };
-        break;
       case "OLDEST":
         orderBy = { publishedAt: "asc" };
         break;
+      case "MAX_AMOUNT":
+        orderBy = { maxAmount: "desc" };
+        break;
+      case "MIN_AMOUNT":
+        orderBy = { minAmount: "asc" };
+        break;
+      case "MAX_FUNDS":
+        orderBy = { totalFunds: "desc" };
+        break;
+      case "MOST_APPLICATIONS":
+        orderBy = { applicationCount: "desc" };
+        break;
+      case "MOST_RFPs":
+        orderBy = { rfpCount: "desc" };
+        break;
+      case "NEWEST":
       default:
         orderBy = { publishedAt: "desc" };
     }
-
-    // For applicationCount sorting, we need to use a different approach
-    // since we can't directly sort by computed fields in Prisma
-    const needsApplicationCountSort =
-      applicationCount &&
-      (applicationCount.toLowerCase() === "highest" ||
-        applicationCount.toLowerCase() === "lowest");
 
     const grants = await database.grant.findMany({
       where: whereClause,
@@ -248,51 +227,20 @@ export async function GET(request: NextRequest) {
             industry: true,
           },
         },
-        _count: {
-          select: {
-            applications: {
-              where: {
-                status: {
-                  in: ["SUBMITTED", "APPROVED", "REJECTED"],
-                },
-              },
-            },
-            rfps: true,
-          },
-        },
       },
-      orderBy: needsApplicationCountSort ? undefined : orderBy,
-      take: needsApplicationCountSort ? undefined : limit + 1,
-      skip: needsApplicationCountSort ? undefined : (page - 1) * limit,
+      orderBy: orderBy,
+      take: limit + 1,
+      skip: (page - 1) * limit,
     });
 
-    // Handle application count sorting in memory if needed
-    let sortedGrants = grants;
-    if (needsApplicationCountSort) {
-      sortedGrants = grants.sort((a, b) => {
-        const countA = a._count.applications;
-        const countB = b._count.applications;
-        return applicationCount.toLowerCase() === "highest"
-          ? countB - countA
-          : countA - countB;
-      });
-
-      // Apply pagination after sorting
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit + 1;
-      sortedGrants = sortedGrants.slice(startIndex, endIndex);
-    }
-
-    let hasMore = sortedGrants.length > limit;
+    let hasMore = grants.length > limit;
 
     if (hasMore) {
-      sortedGrants.pop();
+      grants.pop();
     }
 
-    const transformedGrants = sortedGrants.map((grant) => ({
+    const transformedGrants = grants.map((grant) => ({
       ...grant,
-      applicationCount: grant._count.applications,
-      rfpCount: grant._count.rfps,
       minAmount: grant.minAmount
         ? parseFloat(grant.minAmount.toString())
         : undefined,
@@ -314,10 +262,8 @@ export async function GET(request: NextRequest) {
           skills: uniqueSkills,
           statuses,
           sort,
-          source: sources,
           minAmount,
           maxAmount,
-          applicationCount,
         },
       },
       {
@@ -406,10 +352,16 @@ export async function POST(request: NextRequest) {
     let slug = baseSlug;
     let counter = 1;
 
-    // Check if slug exists and append number if needed
-    while (await database.grant.findUnique({ where: { slug } })) {
+    while (
+      (await database.grant.findUnique({ where: { slug } })) &&
+      counter < 1000
+    ) {
       slug = `${baseSlug}-${counter}`;
       counter++;
+    }
+    if (counter >= 1000) {
+      // Fallback to UUID or timestamp
+      slug = `${baseSlug}-${Date.now()}`;
     }
 
     // Create the grant

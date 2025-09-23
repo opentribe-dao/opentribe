@@ -1,5 +1,5 @@
 import { database } from "@packages/db";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
     // Parse search and filters
     const search = searchParams.get("search") || "";
     const sort = searchParams.get("sort") || "recent";
-    const applicationCount = searchParams.get("applicationCount");
 
     // Parse status filter as a list (like grants)
     const statusParam = searchParams.get("status");
@@ -93,22 +92,24 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Determine sort order - case insensitive
+    // Determine sort order using switch case, case insensitive
     let orderBy: any = { publishedAt: "desc" }; // Default to recent
-    const sortUpper = sort.toUpperCase();
+    const sortLower = sort.toLowerCase();
 
-    // Handle popular sorting (by voteCount) vs recent sorting (by publishedAt)
-    const needsPopularSort = sortUpper === "POPULAR";
-    const needsApplicationCountSort =
-      applicationCount &&
-      (applicationCount.toLowerCase() === "highest" ||
-        applicationCount.toLowerCase() === "lowest");
-
-    if (needsPopularSort) {
-      orderBy = { voteCount: "desc" };
-    } else {
-      // Default to recent (publishedAt desc)
-      orderBy = { publishedAt: "desc" };
+    switch (sortLower) {
+      case "popular":
+        orderBy = { voteCount: "desc" };
+        break;
+      case "most_applications":
+        orderBy = { applicationCount: "desc" };
+        break;
+      case "least_applications":
+        orderBy = { applicationCount: "asc" };
+        break;
+      case "recent":
+      default:
+        orderBy = { publishedAt: "desc" };
+        break;
     }
 
     const rfps = await database.rFP.findMany({
@@ -128,56 +129,21 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        _count: {
-          select: {
-            applications: {
-              where: {
-                status: {
-                  in: ["SUBMITTED", "APPROVED", "REJECTED"],
-                },
-              },
-            },
-            comments: true,
-          },
-        },
       },
-      orderBy: needsApplicationCountSort ? undefined : orderBy,
-      take: needsApplicationCountSort ? undefined : limit + 1,
-      skip: needsApplicationCountSort ? undefined : (page - 1) * limit,
+      orderBy: orderBy,
+      take: limit + 1,
+      skip: (page - 1) * limit,
     });
 
-    // Handle application count sorting in memory if needed
-    let sortedRfps = rfps;
-    if (needsApplicationCountSort) {
-      sortedRfps = rfps.sort((a, b) => {
-        const countA = a._count.applications;
-        const countB = b._count.applications;
-        return applicationCount.toLowerCase() === "highest"
-          ? countB - countA
-          : countA - countB;
-      });
-
-      // Apply pagination after sorting
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit + 1;
-      sortedRfps = sortedRfps.slice(startIndex, endIndex);
-    }
-
-    let hasMore = sortedRfps.length > limit;
+    let hasMore = rfps.length > limit;
 
     if (hasMore) {
-      sortedRfps.pop();
+      rfps.pop();
     }
-
-    const transformedRfps = sortedRfps.map((rfp) => ({
-      ...rfp,
-      applicationCount: rfp._count.applications,
-      commentCount: rfp._count.comments,
-    }));
 
     return NextResponse.json(
       {
-        rfps: transformedRfps,
+        rfps: rfps,
         pagination: {
           page,
           limit,
@@ -187,7 +153,6 @@ export async function GET(request: NextRequest) {
           search,
           statuses,
           sort,
-          applicationCount,
         },
       },
       {

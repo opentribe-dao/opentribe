@@ -24,7 +24,7 @@ export function useBountiesFilters() {
     const params = new URLSearchParams(searchParams);
     
     return {
-      status: params.get('status')?.split(',').filter(Boolean) || [],
+      status: params.get('status')?.split(',').filter(Boolean) || ['open'],
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
       sortBy: params.get('sort') || 'newest',
       priceRange: [

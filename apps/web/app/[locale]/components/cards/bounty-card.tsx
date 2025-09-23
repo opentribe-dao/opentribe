@@ -151,7 +151,7 @@ export function BountyCard({
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
                       <span className="font-bold text-3xl">
-                        {organization?.name[0]}
+                        {organizationName[0]}
                       </span>
                     </div>
                   )}

@@ -3,15 +3,17 @@ title: Environment Variables
 description: Complete guide to configuring type-safe environment variables for all Turbocamp applications
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Callout } from "fumadocs-ui/components/callout";
+import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
 ## Overview
 
 Turbocamp uses a **type-safe environment variable system** powered by [@t3-oss/env-nextjs](https://env.t3.gg/). This ensures all environment variables are validated at build time and provides full TypeScript support throughout your application.
 
 <Callout type="info">
-  **Type Safety First**: All environment variables are validated using Zod schemas and accessed through typed `env` objects. Never use `process.env` directly!
+  **Type Safety First**: All environment variables are validated using Zod
+  schemas and accessed through typed `env` objects. Never use `process.env`
+  directly!
 </Callout>
 
 ## Type-Safe Environment System
@@ -22,8 +24,8 @@ Each package and app defines its environment variables in a `keys.ts` file:
 
 ```typescript
 // packages/auth/keys.ts
-import { createEnv } from '@t3-oss/env-nextjs';
-import { z } from 'zod';
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const keys = () =>
   createEnv({
@@ -32,12 +34,12 @@ export const keys = () =>
       BETTER_AUTH_URL: z.string().url().optional(),
     },
     client: {
-      NEXT_PUBLIC_AUTH_API_URL: z.string().url(),
+      NEXT_PUBLIC_BETTER_AUTH_URL: z.string().url(),
     },
     runtimeEnv: {
       BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
       BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
-      NEXT_PUBLIC_AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL,
+      NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
     },
   });
 ```
@@ -48,7 +50,7 @@ Always import and use the typed `env` object:
 
 ```typescript
 // ✅ CORRECT - Type-safe access
-import { env } from '@/env';
+import { env } from "@/env";
 
 if (env.VERCEL) {
   // This is type-safe and validated
@@ -84,27 +86,25 @@ packages/
 # Required: Better Auth secret (min 32 characters)
 BETTER_AUTH_SECRET="your-32-character-secret-key-here"
 
-# Optional: Better Auth URL
+# Better Auth URL
 BETTER_AUTH_URL="http://localhost:3002"
-
-# API URL for auth endpoints
-AUTH_API_URL="http://localhost:3002"
 
 # Optional: Additional trusted origins for CORS
 ADDITIONAL_TRUSTED_ORIGINS="http://localhost:3003,http://localhost:3004"
 
 # Client-side auth URLs
 NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
-NEXT_PUBLIC_AUTH_API_URL="http://localhost:3002"
 ```
 
 Generate a secure secret:
+
 ```bash
 openssl rand -base64 32
 ```
 
 <Callout type="warn">
-  The `BETTER_AUTH_SECRET` must be identical across all applications for session sharing to work properly.
+  The `BETTER_AUTH_SECRET` must be identical across all applications for session
+  sharing to work properly.
 </Callout>
 
 ### Database (packages/db)
@@ -121,14 +121,17 @@ DATABASE_URL="postgresql://username:password@localhost:5432/turbocamp?schema=pub
 DATABASE_URL="postgresql://postgres@localhost:5432/turbocamp"
 
 # With password
+
 DATABASE_URL="postgresql://postgres:password@localhost:5432/turbocamp"
-```
+
+````
 </Tab>
 <Tab title="Neon (Cloud)" value="neon">
 ```bash
 # Neon database URL (get from Neon dashboard)
 DATABASE_URL="postgresql://username:password@ep-xxx.region.aws.neon.tech/turbocamp?sslmode=require"
-```
+````
+
 </Tab>
 <Tab title="Supabase" value="supabase">
 ```bash
@@ -257,8 +260,8 @@ UPSTASH_REDIS_REST_TOKEN="xxxxxxxxxxxxxxxx"
 ```bash
 # Authentication
 BETTER_AUTH_SECRET="your-32-character-secret"
-AUTH_API_URL="http://localhost:3002"
-NEXT_PUBLIC_AUTH_API_URL="http://localhost:3002"
+BETTER_AUTH_URL="http://localhost:3002"
+NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
 
 # Application URLs
 NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
@@ -273,8 +276,8 @@ NEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"
 
 ```bash
 # Authentication
-AUTH_API_URL="http://localhost:3002"
-NEXT_PUBLIC_AUTH_API_URL="http://localhost:3002"
+BETTER_AUTH_URL="http://localhost:3002"
+NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
 
 # Application URLs
 NEXT_PUBLIC_WEB_URL="http://localhost:3000"
@@ -308,7 +311,7 @@ export const keys = () =>
 
 ```typescript
 // apps/your-app/env.ts
-import { keys as yourPackageKeys } from '@packages/your-package/keys';
+import { keys as yourPackageKeys } from "@packages/your-package/keys";
 
 export const env = createEnv({
   extends: [
@@ -321,7 +324,7 @@ export const env = createEnv({
 3. **Use the typed env** in your code:
 
 ```typescript
-import { env } from '@/env';
+import { env } from "@/env";
 
 console.log(env.MY_NEW_VAR); // Type-safe!
 ```
@@ -336,6 +339,7 @@ We've created a convenient setup script that automatically creates all required 
 ```
 
 This script will:
+
 - Generate a secure Better Auth secret
 - Create all necessary `.env` files for each app and package
 - Set up database connections and authentication URLs
@@ -374,10 +378,10 @@ Error: Missing required environment variable: BETTER_AUTH_SECRET
 All environment variables are fully typed:
 
 ```typescript
-env.BETTER_AUTH_SECRET // string
-env.NEXT_PUBLIC_POSTHOG_KEY // string
-env.ANALYZE // string | undefined
-env.NEXT_RUNTIME // "nodejs" | "edge" | undefined
+env.BETTER_AUTH_SECRET; // string
+env.NEXT_PUBLIC_POSTHOG_KEY; // string
+env.ANALYZE; // string | undefined
+env.NEXT_RUNTIME; // "nodejs" | "edge" | undefined
 ```
 
 ### Custom Validation
@@ -401,11 +405,12 @@ BETTER_AUTH_SECRET: z.string().min(32),
 ## Security Best Practices
 
 <Callout type="error" title="Security Rules">
-1. **Never commit `.env` files** - They're in `.gitignore` for a reason
-2. **Use different secrets per environment** - Dev, staging, and production should have unique values
-3. **Rotate secrets regularly** - Especially after team member changes
-4. **Use secret managers in production** - AWS Secrets Manager, Vercel, etc.
-5. **Limit access** - Only necessary team members should have production secrets
+  1. **Never commit `.env` files** - They're in `.gitignore` for a reason 2.
+  **Use different secrets per environment** - Dev, staging, and production
+  should have unique values 3. **Rotate secrets regularly** - Especially after
+  team member changes 4. **Use secret managers in production** - AWS Secrets
+  Manager, Vercel, etc. 5. **Limit access** - Only necessary team members should
+  have production secrets
 </Callout>
 
 ### Client vs Server Variables
@@ -415,10 +420,10 @@ BETTER_AUTH_SECRET: z.string().min(32),
 
 ```typescript
 // Server-only (secret)
-BETTER_AUTH_SECRET="secret-key"
+BETTER_AUTH_SECRET = "secret-key";
 
 // Client-side (public)
-NEXT_PUBLIC_API_URL="https://api.example.com"
+NEXT_PUBLIC_API_URL = "https://api.example.com";
 ```
 
 ## Troubleshooting
@@ -426,35 +431,33 @@ NEXT_PUBLIC_API_URL="https://api.example.com"
 ### Common Issues
 
 <Callout type="error" title="Build fails with missing env var">
-Ensure the variable is:
-1. Defined in the appropriate `keys.ts` file
-2. Added to the `runtimeEnv` object
-3. Present in your `.env` file
-4. Properly imported in the app's `env.ts`
+  Ensure the variable is: 1. Defined in the appropriate `keys.ts` file 2. Added
+  to the `runtimeEnv` object 3. Present in your `.env` file 4. Properly imported
+  in the app's `env.ts`
 </Callout>
 
 <Callout type="error" title="TypeScript doesn't recognize env variable">
-1. Check that you're importing from `@/env`, not using `process.env`
-2. Ensure the variable is defined in the schema
-3. Restart your TypeScript server (VS Code: Cmd+Shift+P → "Restart TS Server")
+  1. Check that you're importing from `@/env`, not using `process.env` 2. Ensure
+  the variable is defined in the schema 3. Restart your TypeScript server (VS
+  Code: Cmd+Shift+P → "Restart TS Server")
 </Callout>
 
 <Callout type="error" title="Variable works locally but not in production">
-1. Verify the variable is set in your deployment platform
-2. Check for typos in variable names
-3. Ensure build-time variables are available during build
-4. Remember: Client variables need `NEXT_PUBLIC_` prefix
+  1. Verify the variable is set in your deployment platform 2. Check for typos
+  in variable names 3. Ensure build-time variables are available during build 4.
+  Remember: Client variables need `NEXT_PUBLIC_` prefix
 </Callout>
 
 ### Debug Environment Variables
 
 ```typescript
 // Debug all loaded environment variables (dev only!)
-if (process.env.NODE_ENV === 'development') {
-  console.log('Loaded env:', env);
+if (process.env.NODE_ENV === "development") {
+  console.log("Loaded env:", env);
 }
 ```
 
 <Callout type="info">
-  **Need help?** Check the specific package's `keys.ts` file to see all available environment variables and their validation rules.
+  **Need help?** Check the specific package's `keys.ts` file to see all
+  available environment variables and their validation rules.
 </Callout>

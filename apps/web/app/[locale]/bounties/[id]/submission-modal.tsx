@@ -1,20 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@packages/base/components/ui/button';
-import { Dialog, DialogContent, DialogHeader } from '@packages/base/components/ui/dialog';
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@packages/base/components/ui/button";
 import {
-  X,
-  Calendar,
-  ExternalLink,
-  Trophy,
-  User,
-} from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { CommentSection } from './submissions/[submissionId]/comment-section';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+} from "@packages/base/components/ui/dialog";
+import { X, Calendar, ExternalLink, Trophy, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { CommentSection } from "./submissions/[submissionId]/comment-section";
+import { env } from "@/env";
 
 interface SubmissionModalProps {
   bountyId: string;
@@ -22,15 +21,21 @@ interface SubmissionModalProps {
   onClose: () => void;
 }
 
-export function SubmissionModal({ bountyId, submissionId, onClose }: SubmissionModalProps) {
+export function SubmissionModal({
+  bountyId,
+  submissionId,
+  onClose,
+}: SubmissionModalProps) {
   const [submission, setSubmission] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch submission data
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/v1/bounties/${bountyId}/submissions/${submissionId}`)
-      .then(res => res.json())
-      .then(data => {
+    fetch(
+      `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
         if (data.submission) {
           setSubmission(data.submission);
         }
@@ -40,19 +45,19 @@ export function SubmissionModal({ bountyId, submissionId, onClose }: SubmissionM
   }, [bountyId, submissionId]);
 
   const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -133,7 +138,7 @@ export function SubmissionModal({ bountyId, submissionId, onClose }: SubmissionM
               <h3 className="text-lg font-semibold mb-3">Description</h3>
               <div className="prose prose-invert prose-sm max-w-none prose-headings:font-heading prose-p:text-white/80 prose-li:text-white/80 prose-strong:text-white prose-code:text-pink-400 prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {submission.description || 'No description provided.'}
+                  {submission.description || "No description provided."}
                 </ReactMarkdown>
               </div>
             </section>
@@ -141,7 +146,9 @@ export function SubmissionModal({ bountyId, submissionId, onClose }: SubmissionM
             {/* Screening Answers */}
             {submission.answers && submission.answers.length > 0 && (
               <section>
-                <h3 className="text-lg font-semibold mb-3">Screening Answers</h3>
+                <h3 className="text-lg font-semibold mb-3">
+                  Screening Answers
+                </h3>
                 <div className="space-y-3">
                   {submission.answers.map((answer: any, idx: number) => (
                     <div

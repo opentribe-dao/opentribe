@@ -25,7 +25,7 @@ export function FileUpload({
   className,
 }: FileUploadProps) {
   const [files, setFiles] = useState<string[]>(value);
-  const { upload, uploading, progress, error } = useFileUpload(type, entityId);
+  const { upload, isUploading: uploading, uploadProgress: progress, error } = useFileUpload(type, entityId);
 
   // Show error toast when error state changes
   useEffect(() => {
@@ -44,9 +44,9 @@ export function FileUpload({
 
       for (const file of filesToUpload) {
         try {
-          const url = await upload(file);
-          if (url) {
-            const newFiles = [...files, url];
+          const result = await upload(file);
+          if (result?.url) {
+            const newFiles = [...files, result.url];
             setFiles(newFiles);
             onChange?.(newFiles);
             toast.success(`${file.name} uploaded successfully`);

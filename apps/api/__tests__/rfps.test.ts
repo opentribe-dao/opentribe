@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { POST as createRFP } from "../app/api/v1/organizations/[organizationId]/rfps/route";
 import { GET as getRFP } from "../app/api/v1/rfps/[id]/route";
 import { GET as getRFPs } from "../app/api/v1/rfps/route";
+import { NextRequest } from "next/server";
 
 // Mock database (align with route usage: rFP, member, grant)
 vi.mock("@packages/db", () => ({
@@ -20,7 +21,9 @@ vi.mock("@packages/db", () => ({
     },
     grant: {
       findFirst: vi.fn(),
+      update: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
 }));
 
@@ -68,7 +71,7 @@ describe("RFP Flow", () => {
 
       vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs as any);
 
-      const request = new Request("http://localhost:3002/api/v1/rfps");
+      const request = new NextRequest("http://localhost:3002/api/v1/rfps");
       const response = await getRFPs(request);
       const data = await response.json();
 
@@ -96,7 +99,7 @@ describe("RFP Flow", () => {
 
       vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs as any);
 
-      const request = new Request(
+      const request = new NextRequest(
         "http://localhost:3002/api/v1/rfps?status=OPEN"
       );
       const response = await getRFPs(request);
@@ -104,6 +107,119 @@ describe("RFP Flow", () => {
 
       expect(response.status).toBe(200);
       expect(data.rfps[0].status).toBe("OPEN");
+    });
+
+    test("should handle new sorting options", async () => {
+      const mockRFPs = [
+        {
+          id: "rfp-1",
+          title: "Popular RFP",
+          status: "OPEN",
+          visibility: "PUBLISHED",
+          voteCount: 100,
+          grant: {
+            id: "grant-1",
+            title: "Grant",
+            organization: { id: "org-1", name: "Org", slug: "org" },
+          },
+          _count: { votes: 100, comments: 0, applications: 0 },
+        },
+      ];
+
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs as any);
+
+      // Test popular sorting
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps?sort=popular"
+      );
+      const response = await getRFPs(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.filters.sort).toBe("popular");
+    });
+
+    test("should handle most_applications sorting", async () => {
+      const mockRFPs = [
+        {
+          id: "rfp-1",
+          title: "High Application RFP",
+          status: "OPEN",
+          visibility: "PUBLISHED",
+          grant: {
+            id: "grant-1",
+            title: "Grant",
+            organization: { id: "org-1", name: "Org", slug: "org" },
+          },
+          _count: { votes: 0, comments: 0, applications: 50 },
+        },
+      ];
+
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs as any);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps?sort=most_applications"
+      );
+      const response = await getRFPs(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.filters.sort).toBe("most_applications");
+    });
+
+    test("should handle least_applications sorting", async () => {
+      const mockRFPs = [
+        {
+          id: "rfp-1",
+          title: "Low Application RFP",
+          status: "OPEN",
+          visibility: "PUBLISHED",
+          grant: {
+            id: "grant-1",
+            title: "Grant",
+            organization: { id: "org-1", name: "Org", slug: "org" },
+          },
+          _count: { votes: 0, comments: 0, applications: 1 },
+        },
+      ];
+
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs as any);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps?sort=least_applications"
+      );
+      const response = await getRFPs(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.filters.sort).toBe("least_applications");
+    });
+
+    test("should default to recent sorting", async () => {
+      const mockRFPs = [
+        {
+          id: "rfp-1",
+          title: "Recent RFP",
+          status: "OPEN",
+          visibility: "PUBLISHED",
+          publishedAt: new Date(),
+          grant: {
+            id: "grant-1",
+            title: "Grant",
+            organization: { id: "org-1", name: "Org", slug: "org" },
+          },
+          _count: { votes: 0, comments: 0, applications: 0 },
+        },
+      ];
+
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRFPs as any);
+
+      const request = new NextRequest("http://localhost:3002/api/v1/rfps");
+      const response = await getRFPs(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.filters.sort).toBe("recent");
     });
   });
 
@@ -161,7 +277,9 @@ describe("RFP Flow", () => {
 
       vi.mocked(database.rFP.findFirst).mockResolvedValue(mockRFP as any);
 
-      const request = new Request("http://localhost:3002/api/v1/rfps/rfp-1");
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps/rfp-1"
+      );
       const response = await getRFP(request, {
         params: Promise.resolve({ id: "rfp-1" }),
       });
@@ -175,7 +293,7 @@ describe("RFP Flow", () => {
   });
 
   describe("POST /api/v1/organizations/[organizationId]/rfps", () => {
-    test("should create RFP for organization member", async () => {
+    test("should create RFP for organization member with atomic transaction", async () => {
       const mockSession = {
         user: {
           id: "member-1",
@@ -192,7 +310,24 @@ describe("RFP Flow", () => {
         status: "OPEN",
         visibility: "PUBLISHED",
         createdAt: new Date(),
+        grant: {
+          id: "grant-1",
+          title: "Test Grant",
+          slug: "test-grant",
+        },
       };
+
+      // Mock transaction to return the RFP
+      vi.mocked(database.$transaction).mockImplementation(async (callback) => {
+        return await callback({
+          rFP: {
+            create: vi.fn().mockResolvedValue(mockRFP),
+          },
+          grant: {
+            update: vi.fn().mockResolvedValue({}),
+          },
+        } as any);
+      });
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
       // Member with required role
@@ -208,7 +343,6 @@ describe("RFP Flow", () => {
       } as any);
       // Slug unique
       vi.mocked(database.rFP.findUnique).mockResolvedValue(null as any);
-      vi.mocked(database.rFP.create).mockResolvedValue(mockRFP as any);
 
       const body = JSON.stringify({
         title: "New RFP",
@@ -217,7 +351,7 @@ describe("RFP Flow", () => {
         visibility: "PUBLISHED",
       });
 
-      const request = new Request(
+      const request = new NextRequest(
         "http://localhost:3002/api/v1/organizations/org-1/rfps",
         {
           method: "POST",
@@ -235,6 +369,59 @@ describe("RFP Flow", () => {
 
       expect(response.status).toBe(201);
       expect(data.rfp.title).toBe("New RFP");
+
+      // Verify transaction was called
+      expect(database.$transaction).toHaveBeenCalledTimes(1);
+    });
+
+    test("should handle transaction failure gracefully", async () => {
+      const mockSession = {
+        user: {
+          id: "member-1",
+          email: "member@org.com",
+        },
+      };
+
+      // Mock transaction to throw an error
+      vi.mocked(database.$transaction).mockRejectedValue(
+        new Error("Transaction failed")
+      );
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
+      vi.mocked(database.member.findFirst).mockResolvedValue({
+        organizationId: "org-1",
+        userId: "member-1",
+        role: "owner",
+      } as any);
+      vi.mocked(database.grant.findFirst).mockResolvedValue({
+        id: "grant-1",
+        organizationId: "org-1",
+      } as any);
+      vi.mocked(database.rFP.findUnique).mockResolvedValue(null as any);
+
+      const body = JSON.stringify({
+        title: "New RFP",
+        description: "New RFP description",
+        grantId: "grant-1",
+        visibility: "PUBLISHED",
+      });
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/rfps",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createRFP(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
+
+      expect(response.status).toBe(500);
     });
 
     test("should require organization membership", async () => {
@@ -255,7 +442,7 @@ describe("RFP Flow", () => {
         grantId: "grant-1",
       });
 
-      const request = new Request(
+      const request = new NextRequest(
         "http://localhost:3002/api/v1/organizations/org-1/rfps",
         {
           method: "POST",

@@ -47,8 +47,9 @@ export default function SubmissionsPage() {
     announceWinners,
     setSelectedWinners,
     isAnnouncing,
-    clearSelectedWinners,
     selectedWinners,
+    resetWinners,
+    isResetingWinners,
   } = useBountyContext();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -645,84 +646,98 @@ export default function SubmissionsPage() {
                     Selected Winners
                   </CardTitle>
                   {selectedWinners.size > 0 && (
-                    <Button className="text-sm " onClick={clearSelectedWinners}>
+                    <Button
+                      className="text-sm"
+                      onClick={resetWinners}
+                      variant={'ghost'}
+                      disabled={isResetingWinners}
+                    >
+                      {isResetingWinners ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
                       Reset
                     </Button>
                   )}
                 </CardHeader>
                 <CardContent>
                   <div>
-                    { selectedWinners.size > 0 ? [...selectedWinners.entries()].map(
-                      ([submissionId, winnerData]) => {
-                        const user = winnerData.username;
-                        return (
-                          <div
-                            key={submissionId}
-                            className="mb-2 flex items-center justify-between rounded-lg bg-white/5 p-2 px-3"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                  winnerData.position === 1
-                                    ? 'bg-yellow-500/20'
-                                    : winnerData.position === 2
-                                      ? 'bg-gray-400/20'
-                                      : winnerData.position === 3
-                                        ? 'bg-orange-600/20'
-                                        : 'bg-white/10'
-                                }`}
-                              >
-                                <Trophy
-                                  className={`h-4 w-4 ${
+                    {selectedWinners.size > 0 ? (
+                      [...selectedWinners.entries()].map(
+                        ([submissionId, winnerData]) => {
+                          const user = winnerData.username;
+                          return (
+                            <div
+                              key={submissionId}
+                              className="mb-2 flex items-center justify-between rounded-lg bg-white/5 p-2 px-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={`flex h-8 w-8 items-center justify-center rounded-full ${
                                     winnerData.position === 1
-                                      ? 'text-yellow-500'
+                                      ? 'bg-yellow-500/20'
                                       : winnerData.position === 2
-                                        ? 'text-gray-400'
+                                        ? 'bg-gray-400/20'
                                         : winnerData.position === 3
-                                          ? 'text-orange-600'
-                                          : 'text-white/60'
+                                          ? 'bg-orange-600/20'
+                                          : 'bg-white/10'
                                   }`}
-                                />
+                                >
+                                  <Trophy
+                                    className={`h-4 w-4 ${
+                                      winnerData.position === 1
+                                        ? 'text-yellow-500'
+                                        : winnerData.position === 2
+                                          ? 'text-gray-400'
+                                          : winnerData.position === 3
+                                            ? 'text-orange-600'
+                                            : 'text-white/60'
+                                    }`}
+                                  />
+                                </div>
+                                <span className="font-medium text-white">
+                                  {(() => {
+                                    if (winnerData.position === 1) {
+                                      return '1st';
+                                    }
+                                    if (winnerData.position === 2) {
+                                      return '2nd';
+                                    }
+                                    if (winnerData.position === 3) {
+                                      return '3rd';
+                                    }
+                                    if (
+                                      typeof winnerData.position === 'number' &&
+                                      winnerData.position > 0
+                                    ) {
+                                      const j = winnerData.position % 10,
+                                        k = winnerData.position % 100;
+                                      if (j === 1 && k !== 11) {
+                                        return `${winnerData.position}st`;
+                                      }
+                                      if (j === 2 && k !== 12) {
+                                        return `${winnerData.position}nd`;
+                                      }
+                                      if (j === 3 && k !== 13) {
+                                        return `${winnerData.position}rd`;
+                                      }
+                                      return `${winnerData.position}th`;
+                                    }
+                                    return '';
+                                  })()} Place
+                                </span>
                               </div>
-                              <span className="font-medium text-white">
-                                {(() => {
-                                  if (winnerData.position === 1) {
-                                    return '1st';
-                                  }
-                                  if (winnerData.position === 2) {
-                                    return '2nd';
-                                  }
-                                  if (winnerData.position === 3) {
-                                    return '3rd';
-                                  }
-                                  if (
-                                    typeof winnerData.position === 'number' &&
-                                    winnerData.position > 0
-                                  ) {
-                                    const j = winnerData.position % 10,
-                                      k = winnerData.position % 100;
-                                    if (j === 1 && k !== 11) {
-                                      return `${winnerData.position}st`;
-                                    }
-                                    if (j === 2 && k !== 12) {
-                                      return `${winnerData.position}nd`;
-                                    }
-                                    if (j === 3 && k !== 13) {
-                                      return `${winnerData.position}rd`;
-                                    }
-                                    return `${winnerData.position}th`;
-                                  }
-                                  return '';
-                                })()} Place
+                              <span className="font-semibold text-white">
+                                {user}
                               </span>
                             </div>
-                            <span className="font-semibold text-white">
-                              {user}
-                            </span>
-                          </div>
-                        );
-                      }
-                    ):<div className=" flex items-center justify-center py-4 text-sm text-white/60">No Winners Selected  </div>}
+                          );
+                        }
+                      )
+                    ) : (
+                      <div className=" flex items-center justify-center py-4 text-sm text-white/60">
+                        No Winners Selected{' '}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
                 {bounty.status === 'OPEN' &&

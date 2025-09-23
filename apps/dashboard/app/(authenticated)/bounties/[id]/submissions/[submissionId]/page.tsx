@@ -114,7 +114,7 @@ export default function SubmissionReviewPage({
         setSelectedPosition(null);
       }
       
-      router.push(`/bounties/${id}/submissions`);
+      router.back();
     } catch (error) {
       // Error handling is done in the hook
     }

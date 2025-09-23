@@ -36,6 +36,7 @@ interface BountyContextType {
 
   announceWinners: () => Promise<void>;
   isAnnouncing: boolean;
+  isResetingWinners: boolean;
 
   paymentModalOpen: boolean;
   setPaymentModalOpen: (open: boolean) => void;
@@ -73,6 +74,7 @@ interface BountyContextType {
     position?: number
   ) => Promise<boolean>;
   resetSubmissionState: () => void;
+  resetWinners: () => Promise<void>;
 }
 
 const BountyContext = createContext<BountyContextType | null>(null);
@@ -116,6 +118,7 @@ export function BountyProvider({
     Map<string, { position: number; amount: string; username: string }>
   >(new Map());
   const [isAnnouncing, setIsAnnouncing] = useState(false);
+  const [isResetingWinners, setIsResetingWinners] = useState(false);
 
   // Payment modal & selection state
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
@@ -181,6 +184,37 @@ export function BountyProvider({
       setIsAnnouncing(false);
     }
   }, [selectedWinners, bountyId, refreshBounty, refreshSubmissions]);
+
+  const resetWinners = useCallback(async () => {
+    try {
+      // setActionLoading(true);
+      setIsResetingWinners(true);
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/winners/reset`,
+        {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to removed selected winners');
+      }
+      setSelectedWinners(new Map());
+      refreshSubmissions();
+
+      toast.success('Winners removed successfully');
+      return true;
+    } catch (error) {
+      toast.error('Failed to remove selected winners');
+      throw error;
+    } finally {
+      setIsResetingWinners(false);
+    }
+  }, [bountyId, refreshSubmissions]);
 
   // Verify payment via blockchain
   const verifyPayment = useCallback(async () => {
@@ -303,6 +337,7 @@ export function BountyProvider({
         clearSelectedWinners: () => setSelectedWinners(new Map()),
         announceWinners,
         isAnnouncing,
+        isResetingWinners,
         paymentModalOpen,
         setPaymentModalOpen,
         selectedPaymentSubmission,
@@ -326,6 +361,7 @@ export function BountyProvider({
         fetchSubmissionDetails,
         updateSubmissionStatus,
         resetSubmissionState,
+        resetWinners,
       }}
     >
       {children}

@@ -89,12 +89,17 @@ export async function PATCH(
       }
 
       // Check if position is valid
-      const winningsArray = submission.bounty.winnings as any;
-      const winningPosition = Array.isArray(winningsArray)
-        ? winningsArray.find((w: any) => w.position === validatedData.position)
-        : null;
+      // The bounty.winnings field is a JSON object like { "1": 8000, "2": 5000, "3": 2000 }
+      // We need to check if the validatedData.position exists as a key in this object.
+      const winningsObj = submission.bounty.winnings as Record<string, number> | null;
+      const positionKey = String(validatedData.position);
 
-      if (!winningPosition) {
+       winningAmount =
+        winningsObj && Object.prototype.hasOwnProperty.call(winningsObj, positionKey)
+          ? winningsObj[positionKey]
+          : null;
+
+      if (winningAmount === null || typeof winningAmount !== 'number') {
         return NextResponse.json(
           { error: 'Invalid winner position' },
           { status: 400, headers: corsHeaders }
@@ -132,14 +137,7 @@ export async function PATCH(
         reviewedAt: new Date(),
         position:
           validatedData.status === "APPROVED" ? validatedData.position : null,
-        winningAmount:
-          validatedData.status === "APPROVED"
-            ? Array.isArray(submission.bounty.winnings as any)
-              ? (submission.bounty.winnings as any).find(
-                  (w: any) => w.position === validatedData.position
-                )?.amount
-              : null
-            : null,
+        winningAmount: winningAmount
       },
       include: {
         bounty: {

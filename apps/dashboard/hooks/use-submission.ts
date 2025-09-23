@@ -128,7 +128,7 @@ export function useSubmission() {
     } finally {
       setActionLoading(false);
     }
-  }, []);
+  }, []); 
 
   const resetSubmissionState = useCallback(() => {
     setSubmission(null);
@@ -148,6 +148,6 @@ export function useSubmission() {
     setSelectedPosition,
     fetchSubmissionDetails,
     updateSubmissionStatus,
-    resetSubmissionState,
+    resetSubmissionState,    
   };
 }

@@ -87,13 +87,13 @@ export function HeroSection() {
 
       try {
         setIsSearching(true);
-        const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+        const apiUrl = env.NEXT_PUBLIC_API_URL;
         const controller = new AbortController();
         searchAbortRef.current = controller;
 
         const res = await fetch(
           `${apiUrl}/api/v1/search?q=${encodeURIComponent(searchTerm)}`,
-          { signal: controller.signal },
+          { signal: controller.signal }
         );
 
         if (!res.ok) {

@@ -1,5 +1,5 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 type AuthSession = {
   userId?: string;
@@ -13,7 +13,7 @@ type AuthSession = {
 } | null;
 
 const isProtectedRoute = (request: NextRequest) => {
-  return request.url.includes('/dashboard'); // change this to your protected route
+  return request.url.includes("/dashboard"); // change this to your protected route
 };
 
 // Simple middleware for direct usage (like in main app)
@@ -21,33 +21,33 @@ export const authMiddleware = async (
   request: NextRequest
 ): Promise<NextResponse | null> => {
   // Get the API URL from environment, fallback to localhost for development
-  const apiUrl = process.env.AUTH_API_URL || 'http://localhost:3002';
-  const url = new URL('/api/auth/get-session', apiUrl);
+  const apiUrl = process.env.BETTER_AUTH_URL;
+  const url = new URL("/api/auth/get-session", apiUrl);
 
   let session: AuthSession = null;
 
   try {
     const response = await fetch(url, {
       headers: {
-        cookie: request.headers.get('cookie') || '',
+        cookie: request.headers.get("cookie") || "",
       },
     });
 
     // Check if response is ok and has JSON content type
     if (response.ok) {
-      const contentType = response.headers.get('content-type');
-      if (contentType?.includes('application/json')) {
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
         session = await response.json();
       }
     }
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    console.error("Auth middleware error:", error);
     session = null;
   }
 
   // Check if user should be redirected for protected routes
   if (isProtectedRoute(request) && !session) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+    return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
   // Return null if no redirect is needed (let the request continue)
@@ -63,33 +63,33 @@ export const authMiddlewareWrapper = (
 ) => {
   return async (request: NextRequest) => {
     // Get the API URL from environment, fallback to localhost for development
-    const apiUrl = process.env.AUTH_API_URL || 'http://localhost:3002';
-    const url = new URL('/api/auth/get-session', apiUrl);
+    const apiUrl = process.env.BETTER_AUTH_URL;
+    const url = new URL("/api/auth/get-session", apiUrl);
 
     let session: AuthSession = null;
 
     try {
       const response = await fetch(url, {
         headers: {
-          cookie: request.headers.get('cookie') || '',
+          cookie: request.headers.get("cookie") || "",
         },
       });
 
       // Check if response is ok and has JSON content type
       if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType?.includes('application/json')) {
+        const contentType = response.headers.get("content-type");
+        if (contentType?.includes("application/json")) {
           session = await response.json();
         }
       }
     } catch (error) {
-      console.error('Auth middleware error:', error);
+      console.error("Auth middleware error:", error);
       session = null;
     }
 
     // Check if user should be redirected for protected routes
     if (isProtectedRoute(request) && !session) {
-      return NextResponse.redirect(new URL('/sign-in', request.url));
+      return NextResponse.redirect(new URL("/sign-in", request.url));
     }
 
     // Call the wrapped middleware with auth session and request

@@ -13,7 +13,7 @@ import Image from "next/image";
 const FILTER_TABS = ["All", "Good", "Strong", "Creator", "Open", "Safe", "Active New", "Backend"];
 
 export default function RFPsPage() {
-  const [rfps, setRfps] = useState([]);
+  const [rfps, setRfps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");

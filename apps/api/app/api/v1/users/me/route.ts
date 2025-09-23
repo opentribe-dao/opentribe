@@ -51,13 +51,48 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         user: {
+          // Core fields
           id: user.id,
           name: user.name,
           email: user.email,
+          emailVerified: user.emailVerified,
+          image: user.image,
+          role: user.role,
+
+          // Profile fields
+          firstName: user.firstName,
+          lastName: user.lastName,
           username: user.username,
           avatarUrl: user.avatarUrl,
-          image: user.image,
+          headline: user.headline,
+          bio: user.bio,
+          interests: user.interests,
+          location: user.location,
+          skills: user.skills,
+          walletAddress: user.walletAddress,
+
+          // Social profiles
+          twitter: user.twitter,
+          discord: user.discord,
+          github: user.github,
+          linkedin: user.linkedin,
+          website: user.website,
+          telegram: user.telegram,
+
+          // Work profile
+          employer: user.employer,
+          workExperience: user.workExperience,
+          cryptoExperience: user.cryptoExperience,
+          workPreference: user.workPreference,
+
+          // Metadata
           profileCompleted: user.profileCompleted,
+          private: user.private,
+          acceptedTOS: user.acceptedTOS,
+          preferences: user.preferences,
+          lastSeen: user.lastSeen,
+
+          // Organizations
           organizations: user.members.map((member) => ({
             id: member.organization.id,
             name: member.organization.name,

@@ -1,6 +1,7 @@
 {
   "extends": "@tooling/typescript-config/nextjs.json",
   "compilerOptions": {
+    "strict": true,
     "baseUrl": "."
   },
   "include": ["**/*.ts", "**/*.tsx"],

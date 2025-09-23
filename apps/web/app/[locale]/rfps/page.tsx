@@ -47,6 +47,7 @@ function RFPsPageContent() {
             error={rfpsData.error}
             filters={{
               search: filtersHook.filters.search || '',
+              status: filtersHook.filters.status || ['OPEN'],
               sort: filtersHook.filters.sort || 'popular',
               grant: filtersHook.filters.grant || 'all',
               submission: filtersHook.filters.submission || 'highest',
@@ -61,6 +62,7 @@ function RFPsPageContent() {
           <RfpsSidebar
             filters={{
               search: filtersHook.filters.search || '',
+              status: filtersHook.filters.status || ['OPEN'],
               sort: filtersHook.filters.sort || 'popular',
               grant: filtersHook.filters.grant || 'all',
               submission: filtersHook.filters.submission || 'highest',
@@ -76,6 +78,7 @@ function RFPsPageContent() {
               onSubmissionChange: (value) => filtersHook.updateFilter('submission', value),
               onMobileFiltersToggle: (show) => setShowMobileFilters(show),
             }}
+            onStatusToggle={filtersHook.toggleStatus}
             onClearAllFilters={filtersHook.clearAllFilters}
           />
         </div>

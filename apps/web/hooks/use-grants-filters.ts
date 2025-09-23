@@ -24,7 +24,7 @@ export function useGrantsFilters() {
     const params = new URLSearchParams(searchParams);
     
     return {
-      status: params.get('status') || 'OPEN',
+      status: params.get('status')?.split(',').filter(Boolean) || ['OPEN'],
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
       search: params.get('search') || '',
       sortBy: params.get('sort') || 'newest',
@@ -41,8 +41,8 @@ export function useGrantsFilters() {
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     
-    // Status filter (if not default "OPEN")
-    if (filters.status?.trim() && filters.status !== 'OPEN') {
+    // Status filter (if not default [OPEN])
+    if (filters.status && filters.status.length > 0 && !(filters.status.length === 1 && filters.status[0] === 'OPEN')) {
       count++;
     }
     
@@ -78,8 +78,8 @@ export function useGrantsFilters() {
     const updatedFilters = { ...filters, ...newFilters };
     
     // Update URL parameters
-    if (updatedFilters.status && updatedFilters.status !== 'OPEN') {
-      params.set('status', updatedFilters.status);
+    if (updatedFilters.status && updatedFilters.status.length > 0 && !(updatedFilters.status.length === 1 && updatedFilters.status[0] === 'OPEN')) {
+      params.set('status', updatedFilters.status.join(','));
     } else {
       params.delete('status');
     }
@@ -156,8 +156,11 @@ export function useGrantsFilters() {
   }, [updateURL]);
 
   const toggleStatus = useCallback((status: string) => {
-    const newStatus = filters.status === status ? 'OPEN' : status;
-    updateFilter('status', newStatus);
+    const currentStatuses = filters.status || ['OPEN'];
+    const newStatuses = currentStatuses.includes(status)
+      ? currentStatuses.filter(s => s !== status)
+      : [...currentStatuses, status];
+    updateFilter('status', newStatuses);
   }, [filters.status, updateFilter]);
 
   const toggleSkill = useCallback((skill: string) => {
@@ -172,7 +175,7 @@ export function useGrantsFilters() {
 
   const clearAllFilters = useCallback(() => {
     const defaultFilters: GrantsFilters = {
-      status: 'OPEN',
+      status: ['OPEN'],
       skills: [],
       search: '',
       sortBy: 'newest',

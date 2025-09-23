@@ -37,6 +37,7 @@ interface RFPsResponse {
 
 interface RFPsFilters {
   search?: string;
+  status?: string[];
   sort?: string;
   grant?: string;
   submission?: string;
@@ -52,6 +53,11 @@ export function useRfpsData(filters: RFPsFilters = {}) {
   // search
   if (filters.search !== undefined && filters.search !== '') {
     queryParams.append('search', filters.search);
+  }
+  
+  // status
+  if (filters.status !== undefined && Array.isArray(filters.status) && filters.status.length > 0) {
+    queryParams.append('status', filters.status.join(','));
   }
   
   // sort

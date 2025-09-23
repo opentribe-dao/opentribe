@@ -2,12 +2,14 @@
 
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
+import { Checkbox } from "@packages/base/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@packages/base/components/ui/radio-group"
 import { X } from "lucide-react"
 import Link from "next/link"
 
 interface RfpsFilters {
   search: string
+  status: string[]
   sort: string
   grant: string
   submission: string
@@ -35,8 +37,14 @@ interface RfpsSidebarProps {
     onSubmissionChange: (value: string) => void
     onMobileFiltersToggle: (show: boolean) => void
   }
+  onStatusToggle: (status: string) => void
   onClearAllFilters: () => void
 }
+
+const STATUS_OPTIONS = [
+  { value: "open", label: "Open" },
+  { value: "closed", label: "Closed" },
+]
 
 const SORT_OPTIONS = [
   { value: "popular", label: "Most Popular" },
@@ -68,6 +76,7 @@ function RfpsSidebarComponent({
     onSubmissionChange,
     onMobileFiltersToggle
   },
+  onStatusToggle,
   onClearAllFilters
 }: RfpsSidebarProps) {
   const getGradientClass = (index: number) => {
@@ -102,7 +111,7 @@ function RfpsSidebarComponent({
         {/* Filters */}
         <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
           <div className='mb-4 flex items-center justify-between'>
-            <h3 className='font-heading font-semibold text-lg'>Sort By</h3>
+            <h3 className='font-heading font-semibold text-lg'>Filters</h3>
             {activeFiltersCount > 0 && (
               <Button
                 variant="ghost"
@@ -113,6 +122,28 @@ function RfpsSidebarComponent({
                 Clear all
               </Button>
             )}
+          </div>
+
+          {/* Status */}
+          <div className="mb-6">
+            <h4 className='mb-3 font-medium text-sm text-white/80'>Status</h4>
+            <div className="space-y-2">
+              {STATUS_OPTIONS.map((status) => (
+                <label
+                  key={status.value}
+                  htmlFor={`status-${status.value.toLowerCase()}`}
+                  className='flex cursor-pointer items-center gap-2'
+                >
+                  <Checkbox
+                    id={`status-${status.value.toLowerCase()}`}
+                    checked={filters.status.includes(status.value)}
+                    onCheckedChange={() => onStatusToggle(status.value)}
+                    className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
+                  />
+                  <span className="text-sm text-white/70">{status.label}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           {/* Sort By */}

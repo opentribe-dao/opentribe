@@ -43,7 +43,7 @@ interface GrantSkillCount {
 }
 
 interface GrantsFilters {
-  status?: string;
+  status?: string[];
   skills?: string[];
   search?: string;
   sortBy?: string;
@@ -63,8 +63,8 @@ export function useGrantsData(filters: GrantsFilters = {}) {
   }
   
   // status
-  if (filters.status !== undefined && filters.status !== '') {
-    queryParams.append('status', filters.status);
+  if (filters.status !== undefined && Array.isArray(filters.status) && filters.status.length > 0) {
+    queryParams.append('status', filters.status.join(','));
   }
   
   // skills

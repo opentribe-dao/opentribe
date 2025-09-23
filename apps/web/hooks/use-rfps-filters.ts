@@ -25,6 +25,7 @@ export function useRfpsFilters() {
     
     return {
       search: params.get('search') || '',
+      status: params.get('status')?.split(',').filter(Boolean) || ['OPEN'],
       sort: params.get('sort') || 'popular',
       grant: params.get('grant') || 'all',
       submission: params.get('submission') || 'highest',
@@ -57,6 +58,11 @@ export function useRfpsFilters() {
       count++;
     }
     
+    // Status filter (if not default [OPEN])
+    if (filters.status && filters.status.length > 0 && !(filters.status.length === 1 && filters.status[0] === 'OPEN')) {
+      count++;
+    }
+    
     return count;
   }, [filters]);
 
@@ -72,6 +78,12 @@ export function useRfpsFilters() {
       params.set('search', updatedFilters.search);
     } else {
       params.delete('search');
+    }
+    
+    if (updatedFilters.status && updatedFilters.status.length > 0 && !(updatedFilters.status.length === 1 && updatedFilters.status[0] === 'OPEN')) {
+      params.set('status', updatedFilters.status.join(','));
+    } else {
+      params.delete('status');
     }
     
     if (updatedFilters.sort && updatedFilters.sort !== 'popular') {
@@ -136,9 +148,18 @@ export function useRfpsFilters() {
     updateURL(updates);
   }, [updateURL]);
 
+  const toggleStatus = useCallback((status: string) => {
+    const currentStatuses = filters.status || ['OPEN'];
+    const newStatuses = currentStatuses.includes(status)
+      ? currentStatuses.filter(s => s !== status)
+      : [...currentStatuses, status];
+    updateFilter('status', newStatuses);
+  }, [filters.status, updateFilter]);
+
   const clearAllFilters = useCallback(() => {
     const defaultFilters: RFPsFilters = {
       search: '',
+      status: ['OPEN'],
       sort: 'popular',
       grant: 'all',
       submission: 'highest',
@@ -153,6 +174,7 @@ export function useRfpsFilters() {
     filters,
     activeFiltersCount,
     updateFilter,
+    toggleStatus,
     clearAllFilters,
     hasActiveFilters: activeFiltersCount > 0,
   };

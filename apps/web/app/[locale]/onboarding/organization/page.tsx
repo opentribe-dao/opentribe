@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { env } from '@/env';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 const ORGANIZATION_TYPES = [
   { value: 'protocol', label: 'Protocol' },
@@ -42,10 +43,11 @@ interface TeamMember {
 
 export default function OrganizationOnboardingPage() {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending: sessionLoading } = useSession();
+  const { data: userProfile, isLoading: profileLoading } = useUserProfile();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  
+
   // Form data
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
@@ -57,7 +59,7 @@ export default function OrganizationOnboardingPage() {
     website: '',
     twitter: '',
     linkedin: '',
-    
+
     // Step 2 - Organization Details
     organizationName: '',
     organizationType: '',
@@ -66,38 +68,39 @@ export default function OrganizationOnboardingPage() {
     organizationLogo: '',
     organizationLocation: '',
     organizationIndustry: '',
-    
+
     // Step 3 - Team Members
     teamMembers: [] as TeamMember[],
   });
 
   useEffect(() => {
-    if (!isPending) {
-      if (!session?.user) {
-        // User is not authenticated, redirect to home
-        router.push('/');
-      } else {
-        // Pre-fill form with existing user data
-        const user = session.user;
-        setFormData(prev => ({
-          ...prev,
-          firstName: user.firstName || (user.name ? user.name.split(' ')[0] : ''),
-          lastName: user.lastName || (user.name ? user.name.split(' ').slice(1).join(' ') : ''),
-          username: user.username || '',
-          location: user.location || '',
-          walletAddress: user.walletAddress || '',
-          website: user.website || '',
-          twitter: user.twitter || '',
-          linkedin: user.linkedin || '',
-        }));
-        
-        // If user has completed profile, skip to step 2
-        if (user.profileCompleted) {
-          setCurrentStep(2);
-        }
+    if (!sessionLoading && !session?.user) {
+      // User is not authenticated, redirect to home
+      router.push('/');
+    }
+  }, [session, sessionLoading, router]);
+
+  useEffect(() => {
+    // Pre-fill form with user profile data when it loads
+    if (userProfile) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: userProfile.firstName || (userProfile.name ? userProfile.name.split(' ')[0] : ''),
+        lastName: userProfile.lastName || (userProfile.name ? userProfile.name.split(' ').slice(1).join(' ') : ''),
+        username: userProfile.username || '',
+        location: userProfile.location || '',
+        walletAddress: userProfile.walletAddress || '',
+        website: userProfile.website || '',
+        twitter: userProfile.twitter || '',
+        linkedin: userProfile.linkedin || '',
+      }));
+
+      // If user has completed profile, skip to step 2
+      if (userProfile.profileCompleted) {
+        setCurrentStep(2);
       }
     }
-  }, [session, isPending, router]);
+  }, [userProfile]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -252,7 +255,7 @@ export default function OrganizationOnboardingPage() {
     }
   };
 
-  if (isPending) {
+  if (sessionLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>

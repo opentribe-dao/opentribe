@@ -3,9 +3,9 @@ title: Authentication Setup
 description: Complete guide to setting up authentication across all Turbocamp applications
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps } from 'fumadocs-ui/components/steps';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Callout } from "fumadocs-ui/components/callout";
+import { Steps } from "fumadocs-ui/components/steps";
+import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
 ## Architecture Overview
 
@@ -32,6 +32,7 @@ Install PostgreSQL locally and create a database:
 ```bash
 createdb turbocamp
 ```
+
 </Tab>
 <Tab title="Cloud Database" value="cloud">
 Use [Neon](https://neon.tech) (recommended) or [Supabase](https://supabase.com) for managed PostgreSQL.
@@ -46,12 +47,14 @@ BETTER_AUTH_SECRET="your-32-character-secret-key-here"
 ```
 
 Generate a secure secret:
+
 ```bash
 openssl rand -base64 32
 ```
 
 <Callout type="warn">
-  Use the same `BETTER_AUTH_SECRET` across all applications for session sharing to work properly.
+  Use the same `BETTER_AUTH_SECRET` across all applications for session sharing
+  to work properly.
 </Callout>
 
 ### Application URLs
@@ -61,20 +64,20 @@ openssl rand -base64 32
 ```bash
 # API App (Primary auth server)
 BETTER_AUTH_URL="http://localhost:3002"
-AUTH_API_URL="http://localhost:3002"
-NEXT_PUBLIC_AUTH_API_URL="http://localhost:3002"
+NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
 
 # Application URLs
+
 NEXT_PUBLIC_WEB_URL="http://localhost:3000"
 NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
-```
+
+````
 </Tab>
 <Tab title="Production" value="production">
 ```bash
 # API App
 BETTER_AUTH_URL="https://api.turbocamp.dev"
-AUTH_API_URL="https://api.turbocamp.dev"
-NEXT_PUBLIC_AUTH_API_URL="https://api.turbocamp.dev"
+NEXT_PUBLIC_BETTER_AUTH_URL="https://api.turbocamp.dev"
 
 # Application URLs
 NEXT_PUBLIC_WEB_URL="https://turbocamp.dev"
@@ -82,7 +85,8 @@ NEXT_PUBLIC_DASHBOARD_URL="https://dashboard.turbocamp.dev"
 
 # Optional: Additional trusted origins
 ADDITIONAL_TRUSTED_ORIGINS="https://staging.turbocamp.dev"
-```
+````
+
 </Tab>
 </Tabs>
 
@@ -115,7 +119,7 @@ Copy environment files for each application:
 # API App (Primary auth server)
 cp .env.example apps/api/.env.local
 
-# Dashboard App  
+# Dashboard App
 cp .env.example apps/dashboard/.env.local
 
 # Web App
@@ -133,27 +137,28 @@ DATABASE_URL="your-database-url"
 BETTER_AUTH_SECRET="your-32-character-secret"
 BETTER_AUTH_URL="http://localhost:3002"
 ```
+
 </Tab>
 <Tab title="Dashboard App" value="dashboard">
 Edit `apps/dashboard/.env.local`:
 
 ```bash
-AUTH_API_URL="http://localhost:3002"
-NEXT_PUBLIC_AUTH_API_URL="http://localhost:3002"
+NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
 NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
 NEXT_PUBLIC_WEB_URL="http://localhost:3000"
 BETTER_AUTH_SECRET="same-secret-as-api"
 ```
+
 </Tab>
 <Tab title="Web App" value="web">
 Edit `apps/web/.env.local`:
 
 ```bash
-AUTH_API_URL="http://localhost:3002"
-NEXT_PUBLIC_AUTH_API_URL="http://localhost:3002"
+NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
 NEXT_PUBLIC_WEB_URL="http://localhost:3000"
 NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
 ```
+
 </Tab>
 </Tabs>
 
@@ -164,8 +169,9 @@ pnpm dev
 ```
 
 Your applications will be running on:
+
 - 🌐 **Web App**: http://localhost:3000 (Marketing site)
-- 📊 **Dashboard**: http://localhost:3001 (Main application)  
+- 📊 **Dashboard**: http://localhost:3001 (Main application)
 - 🔌 **API**: http://localhost:3002 (Auth server)
 
 </Steps>
@@ -175,12 +181,14 @@ Your applications will be running on:
 ### Dual Auth Experience
 
 **Option 1: Quick Signup (Modal)**
+
 1. User clicks "Get Started" on web app
 2. Modal opens with signup/signin tabs
 3. User completes authentication
 4. Modal closes and redirects to dashboard
 
 **Option 2: Full Page Auth (Redirect)**
+
 1. User clicks "Sign In" on web app
 2. Redirects to dashboard login page
 3. User completes authentication
@@ -257,21 +265,19 @@ NEXT_PUBLIC_SENTRY_DSN="https://xxxxxxxxxxxxxxxx@sentry.io/xxxxxxxx"
 ### Common Issues
 
 <Callout type="error" title="Authentication not working">
-- ✅ Check `BETTER_AUTH_SECRET` is the same across all apps
-- ✅ Verify `AUTH_API_URL` points to your API app
-- ✅ Ensure database is running and connected
+  - ✅ Check `BETTER_AUTH_SECRET` is the same across all apps - ✅ Verify
+  `BETTER_AUTH_URL` points to your API app - ✅ Ensure database is running and
+  connected
 </Callout>
 
 <Callout type="error" title="Cross-domain issues">
-- ✅ Check `trustedOrigins` in auth configuration
-- ✅ Verify CORS headers are properly set
-- ✅ Ensure cookies domain is configured correctly
+  - ✅ Check `trustedOrigins` in auth configuration - ✅ Verify CORS headers are
+  properly set - ✅ Ensure cookies domain is configured correctly
 </Callout>
 
 <Callout type="error" title="Modal not appearing">
-- ✅ Check if `AuthModal` is properly imported
-- ✅ Verify `BaseProvider` includes `Toaster` component
-- ✅ Check for JavaScript errors in console
+  - ✅ Check if `AuthModal` is properly imported - ✅ Verify `BaseProvider`
+  includes `Toaster` component - ✅ Check for JavaScript errors in console
 </Callout>
 
 ### Debug Mode
@@ -311,7 +317,7 @@ Set up your DNS records:
 
 ```
 A    turbocamp.dev              → Your web server IP
-A    dashboard.turbocamp.dev    → Your dashboard server IP  
+A    dashboard.turbocamp.dev    → Your dashboard server IP
 A    api.turbocamp.dev         → Your API server IP
 ```
 
@@ -340,6 +346,7 @@ The centralized API is ready for mobile app integration:
 ### REST API Endpoints
 
 All auth operations available via REST:
+
 - `POST /api/auth/sign-in` - Email/password login
 - `POST /api/auth/sign-up` - Create account
 - `POST /api/auth/sign-out` - Sign out
@@ -350,10 +357,10 @@ All auth operations available via REST:
 
 ```typescript
 // Mobile app can directly call API endpoints
-const authResponse = await fetch('https://api.turbocamp.dev/api/auth/sign-in', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
+const authResponse = await fetch("https://api.turbocamp.dev/api/auth/sign-in", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password }),
 });
 ```
 
@@ -369,5 +376,7 @@ Once authentication is working:
 6. **Mobile Apps**: Integrate with React Native or other mobile frameworks
 
 <Callout type="info">
-  Need help? Check the [Better Auth documentation](https://www.better-auth.com/docs) or open an issue in the repository.
+  Need help? Check the [Better Auth
+  documentation](https://www.better-auth.com/docs) or open an issue in the
+  repository.
 </Callout>

@@ -5,18 +5,21 @@ Opentribe is a centralized talent marketplace for the Polkadot ecosystem, servin
 ## 🚀 Features
 
 ### For Builders
+
 - **Browse Opportunities**: Discover grants, bounties, and RFPs from across the Polkadot ecosystem
 - **Build Your Profile**: Showcase your skills, experience, and contributions
 - **Apply & Submit**: Apply for grants and submit work to bounties with transparent tracking
 - **Get Recognized**: Earn likes and build your reputation through quality contributions
 
 ### For Organizations & DAOs
+
 - **Post Bounties**: Create multi-winner bounties with tiered rewards
 - **Manage Submissions**: Review, select winners, and track payments in one place
 - **Build Your Team**: Find and engage talented contributors for your projects
 - **Organization Management**: Invite team members and manage roles
 
 ### For Grant Curators
+
 - **Publish RFPs**: Create official Request for Proposals to guide applicants
 - **Manage Applications**: Review and process grant applications efficiently
 - **Track Interest**: See community engagement through votes and comments
@@ -51,6 +54,7 @@ packages/
 ## 🚦 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ (v22 recommended)
 - PostgreSQL 15+
 - pnpm 8+
@@ -58,18 +62,21 @@ packages/
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone git@github.com:opentribe-dao/opentribe.git
 cd opentribe
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Set up environment variables:
-Create `.env.local` files in each app directory:
+   Create `.env.local` files in each app directory:
+
 ```bash
 # apps/web/.env.local
 DATABASE_URL="postgresql://[your-user]@localhost:5432/opentribe"
@@ -80,6 +87,7 @@ NEXT_PUBLIC_API_URL="http://localhost:3002"
 ```
 
 4. Set up the database:
+
 ```bash
 # Create database
 createdb opentribe
@@ -89,11 +97,13 @@ pnpm db:push  # Run from packages/db
 ```
 
 5. Start the development servers:
+
 ```bash
 pnpm dev
 ```
 
 6. Seed the database with test data:
+
 ```bash
 # IMPORTANT: The API server must be running in a separate terminal window(step 5) before seeding
 # This uses Better Auth's API to create users with properly hashed passwords
@@ -106,15 +116,18 @@ pnpm db:seed
 ```
 
 ### Access Points
+
 - **Web**: http://localhost:3000
 - **Dashboard**: http://localhost:3001
 - **API**: http://localhost:3002
 - **Docs**: http://localhost:3004
 
 ### Test Accounts
+
 After running `pnpm db:seed:auth`, use these credentials:
+
 - `alice.rust@example.com` / `password123` - Builder
-- `bob.ui@example.com` / `password123` - Builder  
+- `bob.ui@example.com` / `password123` - Builder
 - `carol.writer@example.com` / `password123` - Builder
 - `david.w3f@example.com` / `password123` - Org Admin (Web3 Foundation)
 - `emma.moonbeam@example.com` / `password123` - Org Admin (Moonbeam)
@@ -172,10 +185,10 @@ apps/api/__tests__/
 We use [Vitest](https://vitest.dev/) for testing. Example test:
 
 ```typescript
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect } from "vitest";
 
-describe('Bounty Management', () => {
-  test('should create a new bounty', async () => {
+describe("Bounty Management", () => {
+  test("should create a new bounty", async () => {
     // Test implementation
   });
 });
@@ -184,6 +197,7 @@ describe('Bounty Management', () => {
 ### Test Coverage
 
 Core modules with test coverage:
+
 - ✅ Authentication (session management, role-based access)
 - ✅ Bounty Management (CRUD, filtering, status updates)
 - ✅ Submission System (creation, winner selection, payment tracking)

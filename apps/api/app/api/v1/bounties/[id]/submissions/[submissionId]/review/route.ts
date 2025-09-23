@@ -35,7 +35,7 @@ export async function PATCH(
     }
 
     const reviewSchema = z.object({
-      status: z.enum(['APPROVED', 'REJECTED', 'UNDER_REVIEW']),
+      status: z.enum(["APPROVED", "REJECTED", "UNDER_REVIEW"]),
       feedback: z.string().optional(),
       position: z.number().optional(),
     });
@@ -80,7 +80,7 @@ export async function PATCH(
     }
 
     // If selecting as winner, validate position
-    if (validatedData.status === 'APPROVED') {
+    if (validatedData.status === "APPROVED") {
       if (!validatedData.position) {
         return NextResponse.json(
           { error: 'Position is required when selecting a winner' },
@@ -90,13 +90,11 @@ export async function PATCH(
 
       // Check if position is valid
       const winningsArray = submission.bounty.winnings as any;
-      winningAmount = Array.isArray(winningsArray)
+      const winningPosition = Array.isArray(winningsArray)
         ? winningsArray.find((w: any) => w.position === validatedData.position)
-        : winningsArray && typeof winningsArray === 'object'
-          ? winningsArray[validatedData.position]
-          : null;
+        : null;
 
-      if (!winningAmount) {
+      if (!winningPosition) {
         return NextResponse.json(
           { error: 'Invalid winner position' },
           { status: 400, headers: corsHeaders }
@@ -107,7 +105,7 @@ export async function PATCH(
       const existingWinner = await database.submission.findFirst({
         where: {
           bountyId: (await params).id,
-          status: 'APPROVED',
+          status: "APPROVED",
           position: validatedData.position,
           NOT: {
             id: (await params).submissionId,
@@ -133,9 +131,15 @@ export async function PATCH(
         notes: validatedData.feedback,
         reviewedAt: new Date(),
         position:
-          validatedData.status === 'APPROVED' ? validatedData.position : null,
+          validatedData.status === "APPROVED" ? validatedData.position : null,
         winningAmount:
-          validatedData.status === 'APPROVED' ? winningAmount : null,
+          validatedData.status === "APPROVED"
+            ? Array.isArray(submission.bounty.winnings as any)
+              ? (submission.bounty.winnings as any).find(
+                  (w: any) => w.position === validatedData.position
+                )?.amount
+              : null
+            : null,
       },
       include: {
         bounty: {

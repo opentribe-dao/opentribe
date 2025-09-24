@@ -49,7 +49,11 @@ nextConfig.images?.remotePatterns?.push(
   {
     protocol: "https",
     hostname: "logosandtypes.com",
-  }
+  },
+  {
+    protocol: "https",
+    hostname: "blob.vercel-storage.com",
+  },
 );
 
 if (process.env.NODE_ENV === "production") {

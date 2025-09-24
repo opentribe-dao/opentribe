@@ -2,9 +2,9 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import type { BountiesFilters } from './use-bounties-data';
+import type { GrantsFilters } from './use-grants-data';
 
-export function useBountiesFilters() {
+export function useGrantsFilters() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -20,22 +20,20 @@ export function useBountiesFilters() {
   }, []);
 
   // Parse current filters from URL
-  const filters = useMemo((): BountiesFilters => {
+  const filters = useMemo((): GrantsFilters => {
     const params = new URLSearchParams(searchParams);
     
     return {
       status: params.get('status')?.split(',').filter(Boolean) || ['open'],
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
+      search: params.get('search') || '',
       sortBy: params.get('sort') || 'newest',
       priceRange: [
         Number.parseInt(params.get('minAmount') || '0'),
-        Number.parseInt(params.get('maxAmount') || '50000')
+        Number.parseInt(params.get('maxAmount') || '100000')
       ] as [number, number],
-      hasSubmissions: params.get('hasSubmissions') === 'true',
-      hasDeadline: params.get('hasDeadline') === 'true',
-      search: params.get('search') || '',
       page: Number.parseInt(params.get('page') || '1'),
-      limit: Number.parseInt(params.get('limit') || '10'),
+      limit: Number.parseInt(params.get('limit') || '9'),
     };
   }, [searchParams]);
 
@@ -43,8 +41,8 @@ export function useBountiesFilters() {
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     
-    // Status filter (if not empty)
-    if (filters.status && filters.status.length > 0) {
+    // Status filter (if not default [OPEN])
+    if (filters.status && filters.status.length > 0 && !(filters.status.length === 1 && filters.status[0] === 'OPEN')) {
       count++;
     }
     
@@ -53,22 +51,19 @@ export function useBountiesFilters() {
       count++;
     }
     
+    
     // Sort filter (if not default "newest")
     if (filters.sortBy && filters.sortBy !== 'newest') {
       count++;
     }
     
-    // Price range filter (if not default 0-50000)
-    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 50000)) {
+    // Price range filter (if not default 0-100000)
+    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000)) {
       count++;
     }
     
-    // Boolean filters
-    if (filters.hasSubmissions) count++;
-    if (filters.hasDeadline) count++;
-    
     // Search query (if not empty)
-    if (filters.search && filters.search.trim()) {
+    if (filters.search?.trim()) {
       count++;
     }
     
@@ -76,14 +71,14 @@ export function useBountiesFilters() {
   }, [filters]);
 
   // Update URL with new filters
-  const updateURL = useCallback((newFilters: Partial<BountiesFilters>, replace = true) => {
+  const updateURL = useCallback((newFilters: Partial<GrantsFilters>, replace = true) => {
     const params = new URLSearchParams(searchParams);
     
     // Merge with current filters
     const updatedFilters = { ...filters, ...newFilters };
     
     // Update URL parameters
-    if (updatedFilters.status && updatedFilters.status.length > 0) {
+    if (updatedFilters.status && updatedFilters.status.length > 0 && !(updatedFilters.status.length === 1 && updatedFilters.status[0] === 'OPEN')) {
       params.set('status', updatedFilters.status.join(','));
     } else {
       params.delete('status');
@@ -95,13 +90,14 @@ export function useBountiesFilters() {
       params.delete('skills');
     }
     
+    
     if (updatedFilters.sortBy && updatedFilters.sortBy !== 'newest') {
       params.set('sort', updatedFilters.sortBy);
     } else {
       params.delete('sort');
     }
     
-    if (updatedFilters.priceRange && (updatedFilters.priceRange[0] > 0 || updatedFilters.priceRange[1] < 50000)) {
+    if (updatedFilters.priceRange && (updatedFilters.priceRange[0] > 0 || updatedFilters.priceRange[1] < 100000)) {
       params.set('minAmount', updatedFilters.priceRange[0].toString());
       params.set('maxAmount', updatedFilters.priceRange[1].toString());
     } else {
@@ -109,19 +105,7 @@ export function useBountiesFilters() {
       params.delete('maxAmount');
     }
     
-    if (updatedFilters.hasSubmissions && updatedFilters.hasSubmissions === true) {
-      params.set('hasSubmissions', 'true');
-    } else {
-      params.delete('hasSubmissions');
-    }
-    
-    if (updatedFilters.hasDeadline && updatedFilters.hasDeadline === true) {
-      params.set('hasDeadline', 'true');
-    } else {
-      params.delete('hasDeadline');
-    }
-    
-    if (updatedFilters.search && updatedFilters.search.trim()) {
+    if (updatedFilters.search?.trim()) {
       params.set('search', updatedFilters.search);
     } else {
       params.delete('search');
@@ -133,7 +117,7 @@ export function useBountiesFilters() {
       params.delete('page');
     }
     
-    if (updatedFilters.limit && updatedFilters.limit !== 10) {
+    if (updatedFilters.limit && updatedFilters.limit !== 9) {
       params.set('limit', updatedFilters.limit.toString());
     } else {
       params.delete('limit');
@@ -148,8 +132,8 @@ export function useBountiesFilters() {
   }, [searchParams, router, filters]);
 
   // Individual filter update functions
-  const updateFilter = useCallback((key: keyof BountiesFilters, value: BountiesFilters[typeof key]) => {
-    const updates: Partial<BountiesFilters> = { [key]: value };
+  const updateFilter = useCallback((key: keyof GrantsFilters, value: GrantsFilters[typeof key]) => {
+    const updates: Partial<GrantsFilters> = { [key]: value };
 
     // Reset page when changing filters (except page itself)
     if (key !== 'page') {
@@ -172,11 +156,10 @@ export function useBountiesFilters() {
   }, [updateURL]);
 
   const toggleStatus = useCallback((status: string) => {
-    const currentStatuses = filters.status || [];
+    const currentStatuses = filters.status || ['open'];
     const newStatuses = currentStatuses.includes(status)
       ? currentStatuses.filter(s => s !== status)
-      : [...currentStatuses.filter(s => s !== ''), status];
-    
+      : [...currentStatuses, status];
     updateFilter('status', newStatuses);
   }, [filters.status, updateFilter]);
 
@@ -189,17 +172,16 @@ export function useBountiesFilters() {
     updateFilter('skills', newSkills);
   }, [filters.skills, updateFilter]);
 
+
   const clearAllFilters = useCallback(() => {
-    const defaultFilters: BountiesFilters = {
-      status: [],
+    const defaultFilters: GrantsFilters = {
+      status: ['open'],
       skills: [],
-      sortBy: 'newest',
-      priceRange: [0, 50000],
-      hasSubmissions: false,
-      hasDeadline: false,
       search: '',
+      sortBy: 'newest',
+      priceRange: [0, 100000],
       page: 1,
-      limit: 10,
+      limit: 9,
     };
     
     updateURL(defaultFilters);

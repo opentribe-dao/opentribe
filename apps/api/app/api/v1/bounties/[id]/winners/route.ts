@@ -98,7 +98,7 @@ export async function POST(
       where: {
         id: { in: submissionIds },
         bountyId: bountyId,
-        status: 'SUBMITTED',
+        status: 'APPROVED',
       },
     });
 

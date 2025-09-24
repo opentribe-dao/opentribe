@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@packages/base/components/ui/button';
 import {
   Dialog,
@@ -14,129 +13,47 @@ import { Input } from '@packages/base/components/ui/input';
 import { Label } from '@packages/base/components/ui/label';
 import { Alert, AlertDescription } from '@packages/base/components/ui/alert';
 import { Loader2, ExternalLink, AlertCircle, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { env } from '@/env';
+import { useBountyContext } from '@/app/(authenticated)/components/bounty-provider';
 
-interface PaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  submission: {
-    id: string;
+export function PaymentModal() {
+  const {
+    bounty,
+    paymentModalOpen,
+    setPaymentModalOpen,
+    selectedPaymentSubmission,
+    transactionId,
+    setTransactionId,
+    isSubmittingPayment,
+    isVerifyingPayment,
+    verificationStatus,
+    verificationMessage,
+    verifyPayment,
+    recordPayment,
+    resetPaymentState,
+  } = useBountyContext();
+
+  const onClose = () => {
+    setPaymentModalOpen(false);
+    resetPaymentState();
+  };
+
+  if (!bounty || !selectedPaymentSubmission) {
+    return null;
+  }
+
+  const submission = {
+    id: selectedPaymentSubmission.id,
     submitter: {
-      firstName?: string;
-      username?: string;
-      walletAddress?: string;
-    };
-    position?: number;
-    winningAmount?: number;
-  };
-  bounty: {
-    id: string;
-    title: string;
-    token: string;
-  };
-  onPaymentRecorded: () => void;
-}
-
-export function PaymentModal({
-  isOpen,
-  onClose,
-  submission,
-  bounty,
-  onPaymentRecorded,
-}: PaymentModalProps) {
-  const [transactionId, setTransactionId] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [verificationMessage, setVerificationMessage] = useState('');
-
-  const handleVerifyTransaction = async () => {
-    if (!transactionId || !submission.submitter.walletAddress) return;
-
-    setIsVerifying(true);
-    setVerificationStatus('idle');
-    setVerificationMessage('');
-
-    try {
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/payments/verify`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            extrinsicHash: transactionId,
-            expectedTo: submission.submitter.walletAddress,
-            expectedAmount: submission.winningAmount?.toString(),
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok && data.verified) {
-        setVerificationStatus('success');
-        setVerificationMessage('Transaction verified successfully on the blockchain!');
-      } else {
-        setVerificationStatus('error');
-        setVerificationMessage(data.error || 'Could not verify transaction. Please check the transaction ID.');
-      }
-    } catch (error) {
-      console.error('Verification error:', error);
-      setVerificationStatus('error');
-      setVerificationMessage('Failed to verify transaction. Please try again.');
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!transactionId) {
-      toast.error('Please enter a transaction ID');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}/payments`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            submissionId: submission.id,
-            extrinsicHash: transactionId,
-            amount: Number(submission.winningAmount),
-            token: bounty.token,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to record payment');
-      }
-
-      toast.success('Payment recorded successfully!');
-      onPaymentRecorded();
-      onClose();
-    } catch (error) {
-      console.error('Payment recording error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to record payment');
-    } finally {
-      setIsSubmitting(false);
-    }
+      firstName: (selectedPaymentSubmission as any)?.submitter?.firstName,
+      username: (selectedPaymentSubmission as any)?.submitter?.username,
+      walletAddress: (selectedPaymentSubmission as any)?.submitter?.walletAddress,
+    },
+    position: (selectedPaymentSubmission as any)?.position,
+    winningAmount: (selectedPaymentSubmission as any)?.winningAmount,
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={paymentModalOpen} onOpenChange={onClose}>
       <DialogContent className="bg-zinc-900 border-white/10 text-white max-w-md">
         <DialogHeader>
           <DialogTitle>Record Payment</DialogTitle>
@@ -146,7 +63,6 @@ export function PaymentModal({
         </DialogHeader>
 
         <div className="space-y-4 my-4">
-          {/* Payment Details */}
           <div className="p-4 bg-white/5 rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-white/60">Recipient</span>
@@ -173,18 +89,13 @@ export function PaymentModal({
             )}
           </div>
 
-          {/* Transaction ID Input */}
           <div className="space-y-2">
             <Label htmlFor="transactionId">Transaction ID (Extrinsic Hash)</Label>
             <div className="flex gap-2">
               <Input
                 id="transactionId"
                 value={transactionId}
-                onChange={(e) => {
-                  setTransactionId(e.target.value);
-                  setVerificationStatus('idle');
-                  setVerificationMessage('');
-                }}
+                onChange={(e) => setTransactionId(e.target.value)}
                 placeholder="0x..."
                 className="bg-white/5 border-white/10 text-white font-mono text-sm"
               />
@@ -192,11 +103,11 @@ export function PaymentModal({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={handleVerifyTransaction}
-                disabled={!transactionId || isVerifying}
+                onClick={verifyPayment}
+                disabled={!transactionId || isVerifyingPayment}
                 className="border-white/20 text-white hover:bg-white/10"
               >
-                {isVerifying ? (
+                {isVerifyingPayment ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   'Verify'
@@ -208,7 +119,6 @@ export function PaymentModal({
             </p>
           </div>
 
-          {/* Verification Status */}
           {verificationStatus !== 'idle' && (
             <Alert className={`border ${
               verificationStatus === 'success' ? 'border-green-500/50 bg-green-500/10' : 'border-red-500/50 bg-red-500/10'
@@ -226,7 +136,6 @@ export function PaymentModal({
             </Alert>
           )}
 
-          {/* Subscan Link */}
           {transactionId && (
             <div className="flex items-center gap-2 text-xs text-white/60">
               <span>View on Subscan:</span>
@@ -252,11 +161,11 @@ export function PaymentModal({
             Cancel
           </Button>
           <Button
-            onClick={handleSubmit}
-            disabled={!transactionId || isSubmitting}
+            onClick={recordPayment}
+            disabled={!transactionId || isSubmittingPayment || (verificationStatus === 'idle') || (verificationStatus === 'error')}
             className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
           >
-            {isSubmitting ? (
+            {isSubmittingPayment ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Recording...

@@ -9,9 +9,9 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, prefix, className }: StatsCardProps) {
   return (
-    <Card className={`border-white/10 bg-zinc-900/50 ${className ?? ""}`}>
+    <Card className={` border border-white/10 bg-white/5 backdrop-blur-md rounded-xl  ${className ?? ""}`}>
       <CardHeader className="pb-3">
-        <CardDescription className="text-white/40 text-xs">
+        <CardDescription className="text-white/70 text-xl font-extralight">
           {title}
         </CardDescription>
       </CardHeader>

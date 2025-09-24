@@ -181,7 +181,7 @@ const BountiesPage = () => {
         {/* Search and Filters */}
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40 z-10" />
             <Input
               placeholder="Search by name or email"
               value={searchQuery}
@@ -231,7 +231,7 @@ const BountiesPage = () => {
                   <tr key={bounty.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
                       <Link 
-                        href={`/bounties/${bounty.id}`}
+                        href={`/bounties/${bounty.id}/`}
                         className="text-white hover:text-[#E6007A] transition-colors font-medium"
                       >
                         {bounty.title}

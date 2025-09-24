@@ -245,7 +245,7 @@ export async function GET(
         count: info.count,
         resourceId: bountyId,
         resourceType: 'bounty',
-        actionUrl: `/bounties/${bountyId}/submissions/`,
+        actionUrl: `/bounties/${bountyId}/submissions`,
         priority: 'medium',
       });
     }

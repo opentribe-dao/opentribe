@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-export type UploadType = 
-  | 'organization-logo' 
-  | 'grant-banner' 
-  | 'bounty-banner' 
-  | 'resource' 
-  | 'submission' 
-  | 'profile-avatar';
+export type UploadType =
+  | "organization-logo"
+  | "grant-banner"
+  | "bounty-banner"
+  | "resource"
+  | "submission"
+  | "profile-avatar";
 
 interface UploadResult {
   url: string;
@@ -39,17 +39,22 @@ export function useFileUpload(
       // Validate file size
       const maxSize = options?.maxSize || getDefaultMaxSize(type);
       if (file.size > maxSize) {
-        const error = new Error(`File too large. Maximum size is ${maxSize / 1024 / 1024}MB`);
+        const error = new Error(
+          `File too large. Maximum size is ${maxSize / 1024 / 1024}MB`
+        );
         setError(error.message);
         options?.onError?.(error);
         return null;
       }
 
       // Validate file type
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
-      const allowedTypes = options?.allowedTypes || getDefaultAllowedTypes(type);
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
+      const allowedTypes =
+        options?.allowedTypes || getDefaultAllowedTypes(type);
       if (!fileExtension || !allowedTypes.includes(fileExtension)) {
-        const error = new Error(`Invalid file type. Allowed types: ${allowedTypes.join(', ')}`);
+        const error = new Error(
+          `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`
+        );
         setError(error.message);
         options?.onError?.(error);
         return null;
@@ -61,21 +66,21 @@ export function useFileUpload(
 
       try {
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('metadata', JSON.stringify({ type, entityId }));
+        formData.append("file", file);
+        formData.append("metadata", JSON.stringify({ type, entityId }));
 
         // Upload with progress tracking
         const xhr = new XMLHttpRequest();
-        
+
         return new Promise((resolve, reject) => {
-          xhr.upload.addEventListener('progress', (event) => {
+          xhr.upload.addEventListener("progress", (event) => {
             if (event.lengthComputable) {
               const percentComplete = (event.loaded / event.total) * 100;
               setUploadProgress(Math.round(percentComplete));
             }
           });
 
-          xhr.addEventListener('load', () => {
+          xhr.addEventListener("load", () => {
             if (xhr.status === 200) {
               const result = JSON.parse(xhr.responseText);
               setIsUploading(false);
@@ -83,7 +88,7 @@ export function useFileUpload(
               options?.onSuccess?.(result);
               resolve(result);
             } else {
-              const error = new Error('Upload failed');
+              const error = new Error("Upload failed");
               setIsUploading(false);
               setError(error.message);
               options?.onError?.(error);
@@ -91,23 +96,23 @@ export function useFileUpload(
             }
           });
 
-          xhr.addEventListener('error', () => {
-            const error = new Error('Upload failed');
+          xhr.addEventListener("error", () => {
+            const error = new Error("Upload failed");
             setIsUploading(false);
             setError(error.message);
             options?.onError?.(error);
             reject(error);
           });
 
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-          xhr.open('POST', `${apiUrl}/api/v1/upload`);
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+          xhr.open("POST", `${apiUrl}/api/v1/upload`);
           xhr.withCredentials = true;
           xhr.send(formData);
         });
       } catch (error) {
         setIsUploading(false);
         const err = error as Error;
-        setError(err.message || 'Upload failed');
+        setError(err.message || "Upload failed");
         options?.onError?.(err);
         return null;
       }
@@ -115,28 +120,28 @@ export function useFileUpload(
     [type, entityId, options]
   );
 
-  const deleteFile = useCallback(
-    async (url: string): Promise<boolean> => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-        const response = await fetch(`${apiUrl}/api/v1/upload?url=${encodeURIComponent(url)}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete file');
+  const deleteFile = useCallback(async (url: string): Promise<boolean> => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(
+        `${apiUrl}/api/v1/upload?url=${encodeURIComponent(url)}`,
+        {
+          method: "DELETE",
+          credentials: "include",
         }
+      );
 
-        return true;
-      } catch (error) {
-        const err = error as Error;
-        setError(err.message || 'Delete failed');
-        return false;
+      if (!response.ok) {
+        throw new Error("Failed to delete file");
       }
-    },
-    []
-  );
+
+      return true;
+    } catch (error) {
+      const err = error as Error;
+      setError(err.message || "Delete failed");
+      return false;
+    }
+  }, []);
 
   return {
     upload,
@@ -150,14 +155,14 @@ export function useFileUpload(
 // Helper functions
 function getDefaultMaxSize(type: UploadType): number {
   switch (type) {
-    case 'organization-logo':
-    case 'profile-avatar':
+    case "organization-logo":
+    case "profile-avatar":
       return 2 * 1024 * 1024; // 2MB
-    case 'grant-banner':
-    case 'bounty-banner':
+    case "grant-banner":
+    case "bounty-banner":
       return 5 * 1024 * 1024; // 5MB
-    case 'resource':
-    case 'submission':
+    case "resource":
+    case "submission":
       return 10 * 1024 * 1024; // 10MB
     default:
       return 5 * 1024 * 1024; // 5MB default
@@ -166,15 +171,27 @@ function getDefaultMaxSize(type: UploadType): number {
 
 function getDefaultAllowedTypes(type: UploadType): string[] {
   switch (type) {
-    case 'organization-logo':
-    case 'profile-avatar':
-    case 'grant-banner':
-    case 'bounty-banner':
-      return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
-    case 'resource':
-    case 'submission':
-      return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'txt', 'md', 'zip'];
+    case "organization-logo":
+    case "profile-avatar":
+    case "grant-banner":
+    case "bounty-banner":
+      return ["jpg", "jpeg", "png", "gif", "webp", "svg"];
+    case "resource":
+    case "submission":
+      return [
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp",
+        "pdf",
+        "doc",
+        "docx",
+        "txt",
+        "md",
+        "zip",
+      ];
     default:
-      return ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+      return ["jpg", "jpeg", "png", "gif", "webp"];
   }
 }

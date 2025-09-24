@@ -1,16 +1,21 @@
-'use client';
+"use client";
 
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@packages/base/components/ui/tabs';
+} from "@packages/base/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@packages/base/components/ui/tabs";
 import {
   ArrowLeft,
   Edit,
@@ -22,15 +27,15 @@ import {
   ThumbsUp,
   Trash2,
   Users,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { toast } from 'sonner';
-import { Header } from '../../components/header';
-import { env } from '@/env';
+} from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, use } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
+import { Header } from "../../components/header";
+import { env } from "@/env";
 
 interface RFPDetails {
   id: string;
@@ -87,13 +92,13 @@ interface RFPDetails {
 
 export default function RFPDetailPage() {
   const params = useParams();
-  const { id } = use(params as Promise<{ id: string }>);
+  const { id } = params as { id: string };
   const router = useRouter();
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();
   const [rfp, setRfp] = useState<RFPDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     if (id) {
@@ -107,86 +112,86 @@ export default function RFPDetailPage() {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch RFP details');
+        throw new Error("Failed to fetch RFP details");
       }
 
       const data = await response.json();
       setRfp(data.rfp);
-      
+
       // Check if user has access to this RFP
       if (data.rfp.grant.organization.id !== activeOrg?.id) {
-        toast.error('You do not have access to this RFP');
-        router.push('/rfps');
+        toast.error("You do not have access to this RFP");
+        router.push("/rfps");
       }
     } catch (error) {
-      console.error('Error fetching RFP:', error);
-      toast.error('Failed to load RFP details');
-      router.push('/rfps');
+      console.error("Error fetching RFP:", error);
+      toast.error("Failed to load RFP details");
+      router.push("/rfps");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this RFP?')) return;
+    if (!confirm("Are you sure you want to delete this RFP?")) return;
 
     try {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/rfps/${id}`,
         {
-          method: 'DELETE',
-          credentials: 'include',
+          method: "DELETE",
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to delete RFP');
+        throw new Error("Failed to delete RFP");
       }
 
-      toast.success('RFP deleted successfully');
-      router.push('/rfps');
+      toast.success("RFP deleted successfully");
+      router.push("/rfps");
     } catch (error) {
-      console.error('Error deleting RFP:', error);
-      toast.error('Failed to delete RFP');
+      console.error("Error deleting RFP:", error);
+      toast.error("Failed to delete RFP");
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'OPEN':
-        return 'bg-green-500/20 text-green-400';
-      case 'CLOSED':
-        return 'bg-red-500/20 text-red-400';
-      case 'COMPLETED':
-        return 'bg-blue-500/20 text-blue-400';
+      case "OPEN":
+        return "bg-green-500/20 text-green-400";
+      case "CLOSED":
+        return "bg-red-500/20 text-red-400";
+      case "COMPLETED":
+        return "bg-blue-500/20 text-blue-400";
       default:
-        return 'bg-white/10 text-white/60';
+        return "bg-white/10 text-white/60";
     }
   };
 
   const getVisibilityColor = (visibility: string) => {
     switch (visibility) {
-      case 'PUBLISHED':
-        return 'bg-green-500/20 text-green-400';
-      case 'DRAFT':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'ARCHIVED':
-        return 'bg-gray-500/20 text-gray-400';
+      case "PUBLISHED":
+        return "bg-green-500/20 text-green-400";
+      case "DRAFT":
+        return "bg-yellow-500/20 text-yellow-400";
+      case "ARCHIVED":
+        return "bg-gray-500/20 text-gray-400";
       default:
-        return 'bg-white/10 text-white/60';
+        return "bg-white/10 text-white/60";
     }
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -204,12 +209,12 @@ export default function RFPDetailPage() {
 
   return (
     <>
-      <Header pages={['RFPs', rfp.title]} page={rfp.title} />
+      <Header pages={["RFPs", rfp.title]} page={rfp.title} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
-            onClick={() => router.push('/rfps')}
+            onClick={() => router.push("/rfps")}
             className="text-white/60 hover:text-white"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -218,7 +223,12 @@ export default function RFPDetailPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={() => window.open(`${env.NEXT_PUBLIC_WEB_URL}/rfps/${rfp.slug}`, '_blank')}
+              onClick={() =>
+                window.open(
+                  `${env.NEXT_PUBLIC_WEB_URL}/rfps/${rfp.slug}`,
+                  "_blank"
+                )
+              }
               className="border-white/20 text-white hover:bg-white/10"
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -248,7 +258,9 @@ export default function RFPDetailPage() {
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="text-2xl text-white mb-2">{rfp.title}</CardTitle>
+                <CardTitle className="text-2xl text-white mb-2">
+                  {rfp.title}
+                </CardTitle>
                 <CardDescription className="text-white/60">
                   <div className="flex items-center gap-4">
                     <span>Grant: </span>
@@ -265,7 +277,9 @@ export default function RFPDetailPage() {
                 <Badge className={`${getStatusColor(rfp.status)} border-0`}>
                   {rfp.status}
                 </Badge>
-                <Badge className={`${getVisibilityColor(rfp.visibility)} border-0`}>
+                <Badge
+                  className={`${getVisibilityColor(rfp.visibility)} border-0`}
+                >
                   {rfp.visibility}
                 </Badge>
               </div>
@@ -285,21 +299,27 @@ export default function RFPDetailPage() {
                   <MessageSquare className="h-4 w-4" />
                   <span className="text-sm">Comments</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{rfp._count.comments}</p>
+                <p className="text-2xl font-bold text-white">
+                  {rfp._count.comments}
+                </p>
               </div>
               <div className="bg-white/5 rounded-lg p-4 text-center">
                 <div className="flex items-center justify-center gap-2 text-white/60 mb-1">
                   <ThumbsUp className="h-4 w-4" />
                   <span className="text-sm">Votes</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{rfp._count.votes}</p>
+                <p className="text-2xl font-bold text-white">
+                  {rfp._count.votes}
+                </p>
               </div>
               <div className="bg-white/5 rounded-lg p-4 text-center">
                 <div className="flex items-center justify-center gap-2 text-white/60 mb-1">
                   <FileText className="h-4 w-4" />
                   <span className="text-sm">Applications</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{rfp._count.applications}</p>
+                <p className="text-2xl font-bold text-white">
+                  {rfp._count.applications}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -308,16 +328,28 @@ export default function RFPDetailPage() {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-white/10 border-white/20">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-white/20">
+            <TabsTrigger
+              value="overview"
+              className="data-[state=active]:bg-white/20"
+            >
               Overview
             </TabsTrigger>
-            <TabsTrigger value="applications" className="data-[state=active]:bg-white/20">
+            <TabsTrigger
+              value="applications"
+              className="data-[state=active]:bg-white/20"
+            >
               Applications ({rfp._count.applications})
             </TabsTrigger>
-            <TabsTrigger value="comments" className="data-[state=active]:bg-white/20">
+            <TabsTrigger
+              value="comments"
+              className="data-[state=active]:bg-white/20"
+            >
               Comments ({rfp._count.comments})
             </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-white/20">
+            <TabsTrigger
+              value="settings"
+              className="data-[state=active]:bg-white/20"
+            >
               Settings
             </TabsTrigger>
           </TabsList>
@@ -341,7 +373,9 @@ export default function RFPDetailPage() {
             {rfp.resources && rfp.resources.length > 0 && (
               <Card className="bg-white/5 backdrop-blur-md border-white/10">
                 <CardHeader>
-                  <CardTitle className="text-white">Resources & Links</CardTitle>
+                  <CardTitle className="text-white">
+                    Resources & Links
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -379,21 +413,29 @@ export default function RFPDetailPage() {
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
                     <dt className="text-sm text-white/60">Created</dt>
-                    <dd className="text-white mt-1">{formatDate(rfp.createdAt)}</dd>
+                    <dd className="text-white mt-1">
+                      {formatDate(rfp.createdAt)}
+                    </dd>
                   </div>
                   {rfp.publishedAt && (
                     <div>
                       <dt className="text-sm text-white/60">Published</dt>
-                      <dd className="text-white mt-1">{formatDate(rfp.publishedAt)}</dd>
+                      <dd className="text-white mt-1">
+                        {formatDate(rfp.publishedAt)}
+                      </dd>
                     </div>
                   )}
                   <div>
                     <dt className="text-sm text-white/60">Slug</dt>
-                    <dd className="text-white mt-1 font-mono text-sm">/{rfp.slug}</dd>
+                    <dd className="text-white mt-1 font-mono text-sm">
+                      /{rfp.slug}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-sm text-white/60">Organization</dt>
-                    <dd className="text-white mt-1">{rfp.grant.organization.name}</dd>
+                    <dd className="text-white mt-1">
+                      {rfp.grant.organization.name}
+                    </dd>
                   </div>
                 </dl>
               </CardContent>
@@ -415,9 +457,12 @@ export default function RFPDetailPage() {
                             {application.applicant.name.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-medium text-white">{application.title}</p>
+                            <p className="font-medium text-white">
+                              {application.title}
+                            </p>
                             <p className="text-sm text-white/60">
-                              by {application.applicant.name} • {formatDate(application.createdAt)}
+                              by {application.applicant.name} •{" "}
+                              {formatDate(application.createdAt)}
                             </p>
                           </div>
                         </div>
@@ -443,14 +488,19 @@ export default function RFPDetailPage() {
                 {rfp.comments && rfp.comments.length > 0 ? (
                   <div className="space-y-4">
                     {rfp.comments.map((comment) => (
-                      <div key={comment.id} className="border-b border-white/10 pb-4 last:border-0">
+                      <div
+                        key={comment.id}
+                        className="border-b border-white/10 pb-4 last:border-0"
+                      >
                         <div className="flex items-start gap-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 flex items-center justify-center text-white text-sm font-bold">
                             {comment.author.name.charAt(0)}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium text-white">{comment.author.name}</p>
+                              <p className="font-medium text-white">
+                                {comment.author.name}
+                              </p>
                               <span className="text-xs text-white/40">
                                 {formatDate(comment.createdAt)}
                               </span>

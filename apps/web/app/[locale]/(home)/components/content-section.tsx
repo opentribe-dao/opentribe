@@ -14,7 +14,7 @@ const Button = (props: any) => {
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+      className={`inline-flex items-center justify-center rounded-md px-4 py-2 font-medium text-sm transition-colors ${
         variant === "ghost"
           ? "hover:bg-white/10 hover:text-white"
           : variant === "outline"
@@ -69,20 +69,20 @@ function ContentBlock({
 }: ContentBlockProps) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold font-heading text-white">{title}</h2>
+      <div className='mb-6 flex items-center justify-between'>
+        <h2 className='font-bold font-heading text-2xl text-white'>{title}</h2>
         <Link
           href={viewAllHref}
-          className="text-pink-400 hover:text-pink-300 transition-colors"
+          className='text-pink-400 transition-colors hover:text-pink-300'
         >
           View All →
         </Link>
       </div>
 
       {error ? (
-        <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <div className='rounded-lg border border-red-500/20 bg-red-500/10 p-6'>
           <p className="text-red-400">Failed to load {title.toLowerCase()}</p>
-          <p className="text-sm text-red-300/80 mt-1">{error.message}</p>
+          <p className='mt-1 text-red-300/80 text-sm'>{error.message}</p>
         </div>
       ) : loading ? (
         <div className={gridClassName}>
@@ -135,15 +135,15 @@ export function ContentSection({
     <div className="space-y-12">
       {/* Active Filters Display */}
       {hasActiveFilters && (
-        <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+        <div className='flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4'>
           <div className="flex items-center gap-2">
             <span className="text-sm text-white/60">Filtering by:</span>
-            <div className="flex gap-1 flex-wrap">
+            <div className='flex flex-wrap gap-1'>
               {selectedSkills.map((skill) => (
                 <Badge
                   key={skill}
                   variant="secondary"
-                  className="bg-[#E6007A]/20 text-white border-[#E6007A]/30"
+                  className='border-[#E6007A]/30 bg-[#E6007A]/20 text-white'
                 >
                   {skill}
                 </Badge>
@@ -154,7 +154,7 @@ export function ContentSection({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="text-white/60 hover:text-white hover:bg-white/10"
+            className='text-white/60 hover:bg-white/10 hover:text-white'
           >
             Clear filters
           </Button>
@@ -215,12 +215,8 @@ export function ContentSection({
               title={grant.title}
               organization={grant.organization}
               bannerUrl={grant.bannerUrl}
-              minAmount={
-                grant.minAmount ? parseFloat(grant.minAmount) : undefined
-              }
-              maxAmount={
-                grant.maxAmount ? parseFloat(grant.maxAmount) : undefined
-              }
+              minAmount={grant.minAmount}
+              maxAmount={grant.maxAmount}
               token={grant.token}
               rfpCount={grant.rfpCount}
               applicationCount={grant.applicationCount}

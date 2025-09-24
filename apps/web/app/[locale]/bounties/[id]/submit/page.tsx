@@ -29,27 +29,7 @@ import { toast } from "sonner";
 import { Header } from "../../../components/header";
 import { AuthModal } from "../../../components/auth-modal";
 import { env } from "@/env";
-
-interface Bounty {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  visibility: string;
-  amount?: number;
-  token: string;
-  deadline?: string;
-  screening?: Array<{
-    question: string;
-    type: "text" | "url" | "file";
-    optional: boolean;
-  }>;
-  organization: {
-    id: string;
-    name: string;
-    logo?: string;
-  };
-}
+import type { Bounty } from "@/hooks/use-bounties-data";
 
 const BountySubmissionPage = () => {
   const params = useParams();
@@ -189,7 +169,7 @@ const BountySubmissionPage = () => {
 
   if (loading || sessionLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className='flex min-h-screen items-center justify-center'>
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -210,11 +190,11 @@ const BountySubmissionPage = () => {
   return (
     <>
       <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-12 relative z-10">
-          <div className="max-w-2xl mx-auto">
+        <div className='container relative z-10 mx-auto px-4 py-12'>
+          <div className='mx-auto max-w-2xl'>
             {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white mb-4">
+            <div className='mb-8 text-center'>
+              <h1 className='mb-4 font-bold text-3xl text-white'>
                 Bounty Submission
               </h1>
 
@@ -232,16 +212,16 @@ const BountySubmissionPage = () => {
             </div>
 
             {/* Bounty Info Card */}
-            <Card className="bg-white/5 backdrop-blur-md border-white/10 mb-8">
+            <Card className='mb-8 border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
-                <h2 className="text-xl font-semibold text-white">
+                <h2 className='font-semibold text-white text-xl'>
                   {bounty.title}
                 </h2>
-                <div className="flex items-center gap-4 mt-2 text-sm text-white/60">
+                <div className='mt-2 flex items-center gap-4 text-sm text-white/60'>
                   <span>Bounty #{params.id?.slice(0, 8)}</span>
                   {bounty.amount && (
                     <span>
-                      Prize: {formatAmount(bounty.amount)} {bounty.token}
+                      Prize: {formatAmount(Number(bounty.amount))} {bounty.token}
                     </span>
                   )}
                 </div>
@@ -250,12 +230,12 @@ const BountySubmissionPage = () => {
 
             {/* Submission Form */}
             <form onSubmit={handleSubmit}>
-              <Card className="bg-white/5 backdrop-blur-md border-white/10">
+              <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
                 <CardHeader>
-                  <h3 className="text-lg font-medium text-white">
+                  <h3 className='font-medium text-lg text-white'>
                     Link to your submission
                   </h3>
-                  <p className="text-sm text-white/60 mt-1">
+                  <p className='mt-1 text-sm text-white/60'>
                     Make sure this link is accessible to everyone
                   </p>
                 </CardHeader>
@@ -266,7 +246,7 @@ const BountySubmissionPage = () => {
                       Submission Link *
                     </Label>
                     <div className="relative mt-2">
-                      <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                      <Link2 className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
                       <Input
                         id="submissionUrl"
                         type="url"
@@ -278,7 +258,7 @@ const BountySubmissionPage = () => {
                           }))
                         }
                         placeholder="https://..."
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pl-10"
+                        className='border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40'
                         required
                       />
                     </div>
@@ -300,7 +280,7 @@ const BountySubmissionPage = () => {
                         }))
                       }
                       placeholder="Give your submission a title"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/40 mt-2"
+                      className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
                     />
                   </div>
 
@@ -329,7 +309,7 @@ const BountySubmissionPage = () => {
                     <Label htmlFor="attachments" className="text-white">
                       Attachments (optional)
                     </Label>
-                    <p className="text-sm text-white/60 mt-1 mb-3">
+                    <p className='mt-1 mb-3 text-sm text-white/60'>
                       Upload supporting documents, images, or demo files (PDF,
                       ZIP, images, videos)
                     </p>
@@ -348,8 +328,8 @@ const BountySubmissionPage = () => {
 
                   {/* Screening Questions */}
                   {bounty.screening && bounty.screening.length > 0 && (
-                    <div className="space-y-6 pt-6 border-t border-white/10">
-                      <h4 className="text-lg font-medium text-white">
+                    <div className='space-y-6 border-white/10 border-t pt-6'>
+                      <h4 className='font-medium text-lg text-white'>
                         Screening Questions
                       </h4>
                       {bounty.screening.map((question, index) => (
@@ -370,7 +350,7 @@ const BountySubmissionPage = () => {
                               }
                               placeholder="Enter your response..."
                               rows={3}
-                              className="bg-white/5 border-white/10 text-white placeholder:text-white/40 mt-2"
+                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
                               required={!question.optional}
                             />
                           ) : question.type === "url" ? (
@@ -386,7 +366,7 @@ const BountySubmissionPage = () => {
                                 )
                               }
                               placeholder="https://..."
-                              className="bg-white/5 border-white/10 text-white placeholder:text-white/40 mt-2"
+                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
                               required={!question.optional}
                             />
                           ) : (
@@ -402,7 +382,7 @@ const BountySubmissionPage = () => {
                                 )
                               }
                               placeholder="File URL or description..."
-                              className="bg-white/5 border-white/10 text-white placeholder:text-white/40 mt-2"
+                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
                               required={!question.optional}
                             />
                           )}
@@ -416,11 +396,11 @@ const BountySubmissionPage = () => {
                     <Button
                       type="submit"
                       disabled={submitting}
-                      className="w-full bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+                      className='w-full bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
                     >
                       {submitting ? (
                         <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                           Submitting...
                         </>
                       ) : (

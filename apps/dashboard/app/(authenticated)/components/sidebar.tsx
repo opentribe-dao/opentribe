@@ -49,13 +49,15 @@ import {
   HelpCircleIcon,
   ChevronDownIcon,
   Plus,
+  LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { OrganizationSwitcher } from './organization-switcher';
 import { Search } from './search';
 import { UserButton } from './user-button';
+import { env } from '@/env';
 
 type GlobalSidebarProperties = {
   readonly children: ReactNode;
@@ -104,6 +106,11 @@ const useNavData = () => {
         url: '/help',
         icon: HelpCircleIcon,
       },
+       {
+        title: 'Sign out',
+        url: '/sign-out',
+        icon: LogOut,
+      },
     ],
   };
 };
@@ -113,6 +120,18 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
   const data = useNavData();
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();
+
+
+  const handleSignOut = async () => {
+    try {
+      const { signOut } = await import("@packages/auth/client");
+      await signOut();
+      redirect(`${env.NEXT_PUBLIC_WEB_URL}/sign-in`);
+    } catch (error) {
+     redirect(`${env.NEXT_PUBLIC_WEB_URL}/sign-in`);
+    }
+  };
+
 
   return (
     <>
@@ -212,10 +231,21 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
                   asChild 
                   className="w-full justify-start rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
                 >
-                  <Link href={item.url}>
-                    <item.icon className="mr-3 h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
+                  {item.url === "/sign-out" ? (
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="flex w-full items-center"
+                    >
+                      <item.icon className="mr-3 h-4 w-4" />
+                      <span>{item.title}</span>
+                    </button>
+                  ) : (
+                    <Link href={item.url}>
+                      <item.icon className="mr-3 h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

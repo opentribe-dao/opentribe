@@ -24,6 +24,7 @@ export const authMiddleware = async (
       headers: {
         cookie: request.headers.get("cookie") || "",
       },
+      credentials: "include",
     });
 
     // Check if response is ok and has JSON content type

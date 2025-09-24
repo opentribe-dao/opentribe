@@ -66,6 +66,7 @@ export default function SubmissionReviewPage({
     setSelectedPosition,
     fetchSubmissionDetails,
     updateSubmissionStatus,
+    refreshSubmissions,
     selectedWinners,
     setSelectedWinners,
   } = useBountyContext();
@@ -113,8 +114,12 @@ export default function SubmissionReviewPage({
         handleSelectWinner(submissionId, selectedPosition ?? 0, 0, submission?.creator.username ?? '');
         setSelectedPosition(null);
       }
-      
+
       router.back();
+
+      refreshSubmissions();
+      
+     
     } catch (error) {
       // Error handling is done in the hook
     }

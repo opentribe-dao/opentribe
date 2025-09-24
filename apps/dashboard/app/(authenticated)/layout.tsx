@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { PostHogIdentifier } from './components/posthog-identifier';
 import { GlobalSidebar } from './components/sidebar';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { env } from '@/env';
 
 type AppLayoutProperties = {
   readonly children: ReactNode;
@@ -21,7 +22,8 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
   const betaFeature = await showBetaFeature();
 
   if (!session?.user) {
-    return redirect('/sign-in');
+
+    return redirect(`${env.NEXT_PUBLIC_WEB_URL}/sign-in`);
   }
 
   return (

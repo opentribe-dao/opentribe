@@ -1,9 +1,9 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { PaymentService } from '@packages/polkadot';
-import { headers } from 'next/headers';
-import { type NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { PaymentService } from "@packages/polkadot";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Schema for payment verification
 const verifyPaymentSchema = z.object({
@@ -20,8 +20,8 @@ export async function POST(request: NextRequest) {
       headers: await headers(),
     });
 
-    if(!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await database.user.findUnique({
@@ -29,11 +29,14 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if(!user?.walletAddress){
-      return NextResponse.json({ error: 'No user wallet address found' }, { status: 400 });
+    if (!user?.walletAddress) {
+      return NextResponse.json(
+        { error: "No user wallet address found" },
+        { status: 400 }
+      );
     }
 
     // Parse and validate request body
@@ -42,33 +45,24 @@ export async function POST(request: NextRequest) {
 
     // Development mode: Accept test transactions
     if (
-      process.env.NODE_ENV === 'development' &&
-      validatedData.extrinsicHash.startsWith('0xtest')
+      process.env.NODE_ENV === "development" &&
+      validatedData.extrinsicHash.startsWith("0xtest")
     ) {
-      return NextResponse.json(
-        {
-          verified: true,
-          details: {
-            blockNumber: 12345678,
-            from: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-            to: validatedData.expectedTo,
-            amount: validatedData.expectedAmount,
-            fee: '0.01',
-          },
-          message: 'Payment verified successfully (development mode)',
+      return NextResponse.json({
+        verified: true,
+        details: {
+          blockNumber: 12345678,
+          from: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+          to: validatedData.expectedTo,
+          amount: validatedData.expectedAmount,
+          fee: "0.01",
         },
-        {
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-        }
-      );
+        message: "Payment verified successfully (development mode)",
+      });
     }
 
     // Initialize payment service (uses Dedot + Subscan under the hood)
-    const payments = new PaymentService('polkadot');
+    const payments = new PaymentService("polkadot");
 
     // Verify the transaction
     const result = await payments.verifyPayment({
@@ -79,43 +73,29 @@ export async function POST(request: NextRequest) {
     });
 
     if (result.verified) {
-      return NextResponse.json(
-        {
-          verified: true,
-          details: result.details,
-          message: 'Payment verified successfully on the blockchain',
-        },
-        {
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-        }
-      );
+      return NextResponse.json({
+        verified: true,
+        details: result.details,
+        message: "Payment verified successfully on the blockchain",
+      });
     }
 
     return NextResponse.json(
       {
         verified: false,
-        error: result.error || 'Payment verification failed',
+        error: result.error || "Payment verification failed",
       },
       {
         status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
       }
     );
     // No persistent connection to close; PaymentService verifies via Subscan
   } catch (error) {
-    console.error('Payment verification error:', error);
+    console.error("Payment verification error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid data", details: error.errors },
         { status: 400 }
       );
     }
@@ -124,15 +104,10 @@ export async function POST(request: NextRequest) {
       {
         verified: false,
         error:
-          'Failed to verify payment. Please check the transaction hash and try again.',
+          "Failed to verify payment. Please check the transaction hash and try again.",
       },
       {
         status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
       }
     );
   }
@@ -142,10 +117,5 @@ export async function POST(request: NextRequest) {
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
   });
 }

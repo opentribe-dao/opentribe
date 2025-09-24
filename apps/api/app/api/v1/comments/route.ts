@@ -1,54 +1,70 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { sendCommentReplyEmail } from '@packages/email';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { sendCommentReplyEmail } from "@packages/email";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // Schema for comment creation
-const createCommentSchema = z.object({
-  body: z.string().min(1).max(5000),
-  parentId: z.string().cuid().optional(),
-  rfpId: z.string().cuid().optional(),
-  bountyId: z.string().cuid().optional(),
-  applicationId: z.string().cuid().optional(),
-  submissionId: z.string().cuid().optional(),
-  type: z.enum(['NORMAL', 'SUBMISSION', 'DEADLINE_EXTENSION', 'WINNER_ANNOUNCEMENT']).default('NORMAL'),
-}).refine(
-  (data) => {
-    const targets = [data.rfpId, data.bountyId, data.applicationId, data.submissionId].filter(Boolean);
-    return targets.length === 1;
-  },
-  { message: 'Exactly one target (rfpId, bountyId, applicationId, or submissionId) must be provided' }
-);
+const createCommentSchema = z
+  .object({
+    body: z.string().min(1).max(5000),
+    parentId: z.string().cuid().optional(),
+    rfpId: z.string().cuid().optional(),
+    bountyId: z.string().cuid().optional(),
+    applicationId: z.string().cuid().optional(),
+    submissionId: z.string().cuid().optional(),
+    type: z
+      .enum([
+        "NORMAL",
+        "SUBMISSION",
+        "DEADLINE_EXTENSION",
+        "WINNER_ANNOUNCEMENT",
+      ])
+      .default("NORMAL"),
+  })
+  .refine(
+    (data) => {
+      const targets = [
+        data.rfpId,
+        data.bountyId,
+        data.applicationId,
+        data.submissionId,
+      ].filter(Boolean);
+      return targets.length === 1;
+    },
+    {
+      message:
+        "Exactly one target (rfpId, bountyId, applicationId, or submissionId) must be provided",
+    }
+  );
 
 // GET /api/v1/comments - Get comments for a specific entity
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const rfpId = searchParams.get('rfpId');
-    const bountyId = searchParams.get('bountyId');
-    const applicationId = searchParams.get('applicationId');
-    const submissionId = searchParams.get('submissionId');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const rfpId = searchParams.get("rfpId");
+    const bountyId = searchParams.get("bountyId");
+    const applicationId = searchParams.get("applicationId");
+    const submissionId = searchParams.get("submissionId");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const offset = parseInt(searchParams.get("offset") || "0");
 
     // Validate that exactly one ID is provided
-    const providedIds = [rfpId, bountyId, applicationId, submissionId].filter(Boolean);
+    const providedIds = [rfpId, bountyId, applicationId, submissionId].filter(
+      Boolean
+    );
     if (providedIds.length !== 1) {
       return NextResponse.json(
-        { error: 'Exactly one of rfpId, bountyId, applicationId, or submissionId must be provided' },
-        { status: 400, headers: corsHeaders }
+        {
+          error:
+            "Exactly one of rfpId, bountyId, applicationId, or submissionId must be provided",
+        },
+        { status: 400 }
       );
     }
 
@@ -96,10 +112,10 @@ export async function GET(request: NextRequest) {
               },
             },
           },
-          orderBy: { createdAt: 'asc' },
+          orderBy: { createdAt: "asc" },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit,
       skip: offset,
     });
@@ -107,20 +123,17 @@ export async function GET(request: NextRequest) {
     // Get total count
     const total = await database.comment.count({ where });
 
-    return NextResponse.json(
-      {
-        comments,
-        total,
-        limit,
-        offset,
-      },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({
+      comments,
+      total,
+      limit,
+      offset,
+    });
   } catch (error) {
-    console.error('Error fetching comments:', error);
+    console.error("Error fetching comments:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch comments' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to fetch comments" },
+      { status: 500 }
     );
   }
 }
@@ -134,10 +147,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -248,26 +258,33 @@ export async function POST(request: NextRequest) {
 
         // Only send email if parent comment author is different from reply author
         if (parentComment && parentComment.author.id !== sessionData.user.id) {
-          let contextType: 'grant' | 'bounty' | 'rfp' | 'submission' | 'application' = 'bounty';
-          let contextTitle = '';
-          let threadUrl = '';
+          let contextType:
+            | "grant"
+            | "bounty"
+            | "rfp"
+            | "submission"
+            | "application" = "bounty";
+          let contextTitle = "";
+          let threadUrl = "";
 
           if (parentComment.bounty) {
-            contextType = 'bounty';
+            contextType = "bounty";
             contextTitle = parentComment.bounty.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io'}/bounties/${parentComment.bounty.id}#comment-${result.id}`;
+            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/bounties/${parentComment.bounty.id}#comment-${result.id}`;
           } else if (parentComment.rfp) {
-            contextType = 'rfp';
+            contextType = "rfp";
             contextTitle = parentComment.rfp.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io'}/rfps/${parentComment.rfp.id}#comment-${result.id}`;
+            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/rfps/${parentComment.rfp.id}#comment-${result.id}`;
           } else if (parentComment.application) {
-            contextType = 'application';
+            contextType = "application";
             contextTitle = parentComment.application.grant.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io'}/grants/${parentComment.applicationId}#comment-${result.id}`;
+            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/grants/${parentComment.applicationId}#comment-${result.id}`;
           } else if (parentComment.submission) {
-            contextType = 'submission';
-            contextTitle = parentComment.submission.title || parentComment.submission.bounty.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io'}/bounties/${parentComment.submissionId}#comment-${result.id}`;
+            contextType = "submission";
+            contextTitle =
+              parentComment.submission.title ||
+              parentComment.submission.bounty.title;
+            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/bounties/${parentComment.submissionId}#comment-${result.id}`;
           }
 
           // TODO: Implement sendCommentReplyEmail in @packages/email
@@ -286,27 +303,24 @@ export async function POST(request: NextRequest) {
           // );
         }
       } catch (emailError) {
-        console.error('Failed to send comment reply notification:', emailError);
+        console.error("Failed to send comment reply notification:", emailError);
         // Don't fail the request if email fails
       }
     }
 
-    return NextResponse.json(
-      { comment: result },
-      { status: 201, headers: corsHeaders }
-    );
+    return NextResponse.json({ comment: result }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: error.errors },
+        { status: 400 }
       );
     }
 
-    console.error('Error creating comment:', error);
+    console.error("Error creating comment:", error);
     return NextResponse.json(
-      { error: 'Failed to create comment' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to create comment" },
+      { status: 500 }
     );
   }
 }

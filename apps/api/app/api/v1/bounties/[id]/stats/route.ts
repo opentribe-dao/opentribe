@@ -1,13 +1,7 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 
 // Response schema
 export interface BountyStats {
@@ -35,7 +29,7 @@ export interface BountyStatsResponse {
 }
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // GET /api/v1/bounties/[id]/stats
@@ -49,10 +43,7 @@ export async function GET(
     const sessionData = await auth.api.getSession({ headers: authHeaders });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bountyIdOrSlug = (await params).id;
@@ -62,7 +53,7 @@ export async function GET(
       where: {
         OR: [
           { id: bountyIdOrSlug },
-          { slug: { equals: bountyIdOrSlug, mode: 'insensitive' } as any },
+          { slug: { equals: bountyIdOrSlug, mode: "insensitive" } as any },
         ],
       },
       select: {
@@ -77,10 +68,7 @@ export async function GET(
     });
 
     if (!bounty) {
-      return NextResponse.json(
-        { error: 'Bounty not found' },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
     // Organization membership check
@@ -92,10 +80,7 @@ export async function GET(
     });
 
     if (!membership) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Overview counts (use submissionCount from bounty)
@@ -105,19 +90,25 @@ export async function GET(
       rejectedSubmissions,
       firstSubmission,
     ] = await Promise.all([
-      database.submission.count({ where: { bountyId: bounty.id, status: 'SUBMITTED' as any } }),
+      database.submission.count({
+        where: { bountyId: bounty.id, status: "SUBMITTED" as any },
+      }),
       // Winners determined by isWinner=true
-      database.submission.count({ where: { bountyId: bounty.id, isWinner: true } }),
-      database.submission.count({ where: { bountyId: bounty.id, status: 'REJECTED' as any } }),
+      database.submission.count({
+        where: { bountyId: bounty.id, isWinner: true },
+      }),
+      database.submission.count({
+        where: { bountyId: bounty.id, status: "REJECTED" as any },
+      }),
       database.submission.findFirst({
         where: { bountyId: bounty.id },
         select: { submittedAt: true },
-        orderBy: { submittedAt: 'asc' },
+        orderBy: { submittedAt: "asc" },
       }),
     ]);
 
     // Engagement metrics: placeholders until we track more signals
-    const engagement: BountyStats['engagement'] = {
+    const engagement: BountyStats["engagement"] = {
       viewCount: Number(bounty.viewCount || 0),
       applicationRate: 0,
       completionRate: 0,
@@ -132,7 +123,9 @@ export async function GET(
       },
       timeline: {
         createdAt: bounty.createdAt.toISOString(),
-        publishedAt: bounty.publishedAt ? bounty.publishedAt.toISOString() : null,
+        publishedAt: bounty.publishedAt
+          ? bounty.publishedAt.toISOString()
+          : null,
         firstSubmissionAt: firstSubmission?.submittedAt
           ? firstSubmission.submittedAt.toISOString()
           : null,
@@ -143,15 +136,12 @@ export async function GET(
       engagement,
     };
 
-    return NextResponse.json(
-      { stats } as BountyStatsResponse,
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ stats } as BountyStatsResponse);
   } catch (error) {
-    console.error('Error fetching bounty stats:', error);
+    console.error("Error fetching bounty stats:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch bounty stats' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to fetch bounty stats" },
+      { status: 500 }
     );
   }
 }

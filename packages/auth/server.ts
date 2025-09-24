@@ -8,8 +8,19 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
   sendWelcomeEmail,
-  type BaseEmailUser,
 } from "@packages/email";
+
+const trustedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+  "https://opentribe.io",
+  "https://admin.opentribe.io",
+  "https://api.opentribe.io",
+  "https://dev.opentribe.io",
+  "https://api.dev.opentribe.io",
+  "https://dashboard.dev.opentribe.io",
+];
 
 /**
  * Role Architecture (Better Auth based):
@@ -80,20 +91,7 @@ const authOptions = {
     },
   },
   trustedOrigins: [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-    ...(process.env.NODE_ENV === "production"
-      ? [
-          "https://opentribe.io",
-          "https://admin.opentribe.io",
-          "https://api.opentribe.io",
-          "https://dev.opentribe.io",
-          "https://api.dev.opentribe.io",
-          "https://dashboard.dev.opentribe.io",
-        ]
-      : []),
-
+    ...trustedOrigins,
     ...(process.env.ADDITIONAL_TRUSTED_ORIGINS
       ? process.env.ADDITIONAL_TRUSTED_ORIGINS.split(",").map((origin) =>
           origin.trim()

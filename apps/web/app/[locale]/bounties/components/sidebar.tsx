@@ -63,7 +63,7 @@ function BountiesSidebarComponent({
         {/* Status */}
         <div className="mb-6">
           <h4 className='mb-3 font-medium text-sm text-white/80'>Status</h4>
-          <div className="space-y-2">
+          <div className="space-y-2 flex align-center justify-between items-center">
             {["Open", "In Review", "Completed"].map((status) => (
               <label
                 key={status}

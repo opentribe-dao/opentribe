@@ -4,6 +4,8 @@ import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Input } from "@packages/base/components/ui/input"
 import { Search, Filter, X } from "lucide-react"
+import { DollarSign, Briefcase } from "lucide-react";
+
 
 interface BountiesHeroSectionProps {
   searchQuery: string
@@ -25,14 +27,14 @@ function BountiesHeroSectionComponent({
   onToggleMobileFilters
 }: BountiesHeroSectionProps) {
   return (
-    <div className="mb-4">
+    <div className="mb-8">
       <h1 className='mb-2 font-bold font-heading text-4xl'>Bounties</h1>
       <p className="text-white/60">
         Complete tasks and earn rewards in the Polkadot ecosystem
       </p>
 
       {/* Search and Stats */}
-      <div className='mt-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center'>
+      <div className='mt-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-end'>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -65,9 +67,31 @@ function BountiesHeroSectionComponent({
         </form>
 
         <div className="flex items-center gap-4">
-          <div className="text-sm">
-            <span className="text-white/60">Total bounties: </span>
-            <span className="font-semibold text-white">{totalCount}</span>
+          <div className="text-sm bounty-value-container flex gap-4">
+            <div className='flex items-center gap-2 '>
+              <div className='icon'>
+                <DollarSign className="w-8 h-8 bg-white/10 p-2 rounded-full" />
+              </div>
+              <div className='flex flex-col '>
+                <span className="font-semibold text-white">{totalCount}</span>
+                <span className="text-white/60">bounties: </span>
+              </div>
+            </div>
+
+            <div className='flex items-center gap-2  border-l border-white/10 pl-4'>
+              <div className='icon'>
+              <Briefcase className="w-8 h-8 bg-white/10 p-2 rounded-full" />
+              </div>
+              <div className='flex flex-col'>
+                <span className="text-white font-semibold">150 </span>
+                <span className="text-white/60">Opportunities</span>
+              </div>
+            </div>
+
+            <div>
+
+            </div>
+
           </div>
         </div>
       </div>

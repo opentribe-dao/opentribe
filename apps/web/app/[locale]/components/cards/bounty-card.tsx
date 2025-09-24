@@ -49,7 +49,7 @@ export function BountyCard({
   const getStatusColor = (status: string) => {
     switch (status?.toUpperCase()) {
       case "OPEN":
-        return "bg-green-500/20 text-green-300 border-green-500/20";
+        return "";
       case "REVIEWING":
         return "bg-yellow-500/20 text-yellow-300 border-yellow-500/20";
       case "COMPLETED":
@@ -98,21 +98,27 @@ export function BountyCard({
         : "Unknown Organization";
 
   return (
-    <Link href={`/bounties/${id}`} className="block group h-full">
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-200 h-full flex flex-col">
+    <Link href={`/bounties/${id}`} className="block group h-full ">
+      <div className="bg-white/5 backdrop-blur-sm border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-200 h-full flex flex-col card-bg">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold font-heading text-white group-hover:text-pink-300 transition-colors line-clamp-2 mb-2">
+            <h3 className="text-xl font-semibold font-heading text-white group-hover:text-pink-300 transition-colors line-clamp-2 mb-2">
               {title || "Untitled Bounty"}
+              <span
+                className={` ml-1 pl-1 ${getStatusColor(status)}`}
+              >
+                {/* {status ? status.toLowerCase().replace("_", " ") : "unknown"} */}
+                {status?.toUpperCase() === "OPEN" ? (
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-400" />
+                ) : (
+                  status ? status.toLowerCase().replace("_", " ") : "unknown"
+                )}
+              </span>
             </h3>
             <p className="text-sm text-white/60 mb-2">{organizationName}</p>
             <div className="flex items-center gap-2">
-              <span
-                className={`inline-block px-2 py-1 text-xs rounded-md border ${getStatusColor(status)}`}
-              >
-                {status ? status.toLowerCase().replace("_", " ") : "unknown"}
-              </span>
+
               {/* {winnersAnnouncedAt && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500/20 text-yellow-300 rounded-md text-xs">
                   <Trophy className="w-3 h-3" />
@@ -125,10 +131,10 @@ export function BountyCard({
           {/* Amount */}
           {safeAmount && (
             <div className="flex items-center ml-4">
-              <DollarSign className="w-4 h-4 text-green-400" />
+              <DollarSign className="w-6 h-6 text-green-400" />
               <div className="text-right">
                 {safeAmount && (
-                  <div className="text-lg font-semibold text-green-400">
+                  <div className="text-2xl font-semibold text-green-400">
                     {safeAmount.toLocaleString()} {token}
                   </div>
                 )}
@@ -168,7 +174,7 @@ export function BountyCard({
 
         {/* Footer */}
         <div className="flex items-center justify-between text-xs text-white/50 pt-4 border-t border-white/10">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
               <Users className="w-3 h-3" />
               <span>{safeSubmissionCount} submissions</span>

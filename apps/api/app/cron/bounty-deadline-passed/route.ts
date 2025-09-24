@@ -2,10 +2,10 @@ import { database } from "@packages/db";
 import { sendBountyWinnerReminderEmail } from "@packages/email";
 import { NextResponse } from "next/server";
 
-// GET /cron/bounty-deadline-pass - Update bounties whose deadline has passed to REVIEWING status
+// GET /cron/bounty-deadline-passed - Update bounties whose deadline has passed to REVIEWING status
 export const GET = async () => {
   try {
-    console.log("Running bounty deadline pass cron job");
+    console.log("Running bounty deadline passed cron job");
 
     const now = new Date();
 

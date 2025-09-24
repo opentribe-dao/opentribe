@@ -7,7 +7,7 @@
       "schedule": "0 1 * * *"
     },
     {
-      "path": "/cron/bounty-deadline-pass",
+      "path": "/cron/bounty-deadline-passed",
       "schedule": "0,30 * * * *"
     }
   ]

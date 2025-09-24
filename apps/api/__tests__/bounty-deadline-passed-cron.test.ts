@@ -1,7 +1,7 @@
 import { database } from "@packages/db";
 import { sendBountyWinnerReminderEmail } from "@packages/email";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { GET as bountyDeadlineCron } from "../app/cron/bounty-deadline-pass/route";
+import { GET as bountyDeadlineCron } from "../app/cron/bounty-deadline-passed/route";
 
 // Mock database
 vi.mock("@packages/db", () => ({
@@ -18,12 +18,12 @@ vi.mock("@packages/email", () => ({
   sendBountyWinnerReminderEmail: vi.fn(),
 }));
 
-describe("Bounty Deadline Cron Job", () => {
+describe("Bounty Deadline Passed Cron Job", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("GET /cron/bounty-deadline-pass", () => {
+  describe("GET /cron/bounty-deadline-passed", () => {
     const mockExpiredBounty = {
       id: "bounty-1",
       title: "Test Bounty",

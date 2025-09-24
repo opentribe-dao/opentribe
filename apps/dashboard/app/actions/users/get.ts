@@ -1,14 +1,15 @@
-'use server';
+"use server";
 
-import { auth } from '@packages/auth/server';
-import { type User, database } from '@packages/db';
-import { headers } from 'next/headers';
+import { useActiveOrganization } from "@packages/auth/client";
+import { auth } from "@packages/auth/server";
+import { type User, database } from "@packages/db";
+import { headers } from "next/headers";
 
 export const getUsers = async (
   userIds: string[]
 ): Promise<
   | {
-      data: Pick<User, 'id' | 'name' | 'image' | 'email'>[];
+      data: Pick<User, "id" | "name" | "image" | "email">[];
     }
   | {
       error: unknown;
@@ -21,14 +22,14 @@ export const getUsers = async (
     });
 
     if (!session?.user) {
-      throw new Error('Not authenticated');
+      throw new Error("Not authenticated");
     }
 
     // Get the current organization ID from session
-    const currentOrgId = session.session?.activeOrganizationId;
+    const currentOrg = useActiveOrganization();
 
-    if (!currentOrgId) {
-      throw new Error('No active organization');
+    if (!currentOrg) {
+      throw new Error("No active organization");
     }
 
     // Query users who are members of the current organization
@@ -37,7 +38,7 @@ export const getUsers = async (
         id: { in: userIds },
         members: {
           some: {
-            organizationId: currentOrgId,
+            organizationId: currentOrg.data?.id,
           },
         },
       },
@@ -53,7 +54,7 @@ export const getUsers = async (
       data: users,
     };
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error("Error fetching users:", error);
     return { error };
   }
 };

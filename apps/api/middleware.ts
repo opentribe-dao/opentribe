@@ -1,5 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { trustedOrigins } from "@packages/auth/server";
+
+const trustedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+  "https://opentribe.io",
+  "https://admin.opentribe.io",
+  "https://api.opentribe.io",
+  "https://dev.opentribe.io",
+  "https://api.dev.opentribe.io",
+  "https://dashboard.dev.opentribe.io",
+];
 
 const corsOptions: {
   allowedMethods: string[];

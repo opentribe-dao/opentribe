@@ -1,30 +1,25 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // Schema for like creation
-const createLikeSchema = z.object({
-  applicationId: z.string().cuid().optional(),
-  submissionId: z.string().cuid().optional(),
-}).refine(
-  (data) => data.applicationId || data.submissionId,
-  { message: 'Either applicationId or submissionId must be provided' }
-).refine(
-  (data) => !(data.applicationId && data.submissionId),
-  { message: 'Cannot like both application and submission at the same time' }
-);
+const createLikeSchema = z
+  .object({
+    applicationId: z.string().cuid().optional(),
+    submissionId: z.string().cuid().optional(),
+  })
+  .refine((data) => data.applicationId || data.submissionId, {
+    message: "Either applicationId or submissionId must be provided",
+  })
+  .refine((data) => !(data.applicationId && data.submissionId), {
+    message: "Cannot like both application and submission at the same time",
+  });
 
 // POST /api/v1/likes - Create a like
 export async function POST(request: NextRequest) {
@@ -35,10 +30,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -48,16 +40,17 @@ export async function POST(request: NextRequest) {
     const existingLike = await database.like.findFirst({
       where: {
         userId: sessionData.user.id,
-        ...(validatedData.applicationId && { applicationId: validatedData.applicationId }),
-        ...(validatedData.submissionId && { submissionId: validatedData.submissionId }),
+        ...(validatedData.applicationId && {
+          applicationId: validatedData.applicationId,
+        }),
+        ...(validatedData.submissionId && {
+          submissionId: validatedData.submissionId,
+        }),
       },
     });
 
     if (existingLike) {
-      return NextResponse.json(
-        { error: 'Already liked' },
-        { status: 400, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Already liked" }, { status: 400 });
     }
 
     // Create like and update count in a transaction
@@ -66,8 +59,12 @@ export async function POST(request: NextRequest) {
       const like = await tx.like.create({
         data: {
           userId: sessionData.user.id,
-          ...(validatedData.applicationId && { applicationId: validatedData.applicationId }),
-          ...(validatedData.submissionId && { submissionId: validatedData.submissionId }),
+          ...(validatedData.applicationId && {
+            applicationId: validatedData.applicationId,
+          }),
+          ...(validatedData.submissionId && {
+            submissionId: validatedData.submissionId,
+          }),
         },
       });
 
@@ -88,7 +85,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         like: {
           id: result.id,
@@ -96,22 +93,22 @@ export async function POST(request: NextRequest) {
           applicationId: result.applicationId,
           submissionId: result.submissionId,
           createdAt: result.createdAt,
-        }
+        },
       },
-      { status: 201, headers: corsHeaders }
+      { status: 201 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: error.errors },
+        { status: 400 }
       );
     }
 
-    console.error('Error creating like:', error);
+    console.error("Error creating like:", error);
     return NextResponse.json(
-      { error: 'Failed to create like' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to create like" },
+      { status: 500 }
     );
   }
 }
@@ -125,27 +122,24 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const applicationId = searchParams.get('applicationId');
-    const submissionId = searchParams.get('submissionId');
+    const applicationId = searchParams.get("applicationId");
+    const submissionId = searchParams.get("submissionId");
 
     if (!applicationId && !submissionId) {
       return NextResponse.json(
-        { error: 'Either applicationId or submissionId must be provided' },
-        { status: 400, headers: corsHeaders }
+        { error: "Either applicationId or submissionId must be provided" },
+        { status: 400 }
       );
     }
 
     if (applicationId && submissionId) {
       return NextResponse.json(
-        { error: 'Cannot specify both applicationId and submissionId' },
-        { status: 400, headers: corsHeaders }
+        { error: "Cannot specify both applicationId and submissionId" },
+        { status: 400 }
       );
     }
 
@@ -159,10 +153,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!like) {
-      return NextResponse.json(
-        { error: 'Like not found' },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Like not found" }, { status: 404 });
     }
 
     // Delete like and update count in a transaction
@@ -186,15 +177,12 @@ export async function DELETE(request: NextRequest) {
       }
     });
 
-    return NextResponse.json(
-      { success: true },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error removing like:', error);
+    console.error("Error removing like:", error);
     return NextResponse.json(
-      { error: 'Failed to remove like' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to remove like" },
+      { status: 500 }
     );
   }
 }

@@ -141,29 +141,19 @@ export async function GET(request: NextRequest) {
       rfps.pop();
     }
 
-    return NextResponse.json(
-      {
-        rfps: rfps,
-        pagination: {
-          page,
-          limit,
-          hasMore: hasMore,
-        },
-        filters: {
-          search,
-          statuses,
-          sort,
-        },
+    return NextResponse.json({
+      rfps: rfps,
+      pagination: {
+        page,
+        limit,
+        hasMore: hasMore,
       },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-          "Cache-Control": "max-age=120",
-        },
-      }
-    );
+      filters: {
+        search,
+        statuses,
+        sort,
+      },
+    });
   } catch (error) {
     console.error("Error fetching RFPs:", error);
     return NextResponse.json(
@@ -173,11 +163,6 @@ export async function GET(request: NextRequest) {
       },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
       }
     );
   }
@@ -187,10 +172,5 @@ export async function GET(request: NextRequest) {
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
   });
 }

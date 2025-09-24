@@ -2,14 +2,8 @@ import { database } from "@packages/db";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // GET /api/v1/users - Search users
@@ -22,13 +16,13 @@ export async function GET(request: NextRequest) {
     if (!username && !id) {
       return NextResponse.json(
         { error: "Username or ID parameter required" },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
 
     // Handle both username and ID searches
     let whereCondition: any = {};
-    
+
     if (username) {
       // First try exact username match, then try as ID
       whereCondition = {
@@ -55,15 +49,12 @@ export async function GET(request: NextRequest) {
       take: 10,
     });
 
-    return NextResponse.json(
-      { users },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ users });
   } catch (error) {
     console.error("Error searching users:", error);
     return NextResponse.json(
       { error: "Failed to search users" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

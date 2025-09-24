@@ -29,11 +29,6 @@ export async function GET(
         { error: "Unauthorized" },
         {
           status: 401,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
@@ -53,11 +48,6 @@ export async function GET(
         { error: "You are not a member of this organization" },
         {
           status: 403,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
@@ -179,35 +169,21 @@ export async function GET(
       };
     });
 
-    return NextResponse.json(
-      {
-        grants: grantsWithStats,
-        pagination: {
-          total,
-          limit,
-          offset,
-          hasMore: offset + limit < total,
-        },
+    return NextResponse.json({
+      grants: grantsWithStats,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
       },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    });
   } catch (error) {
     console.error("Error fetching organization grants:", error);
     return NextResponse.json(
       { error: "Failed to fetch grants" },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   }
@@ -217,10 +193,5 @@ export async function GET(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

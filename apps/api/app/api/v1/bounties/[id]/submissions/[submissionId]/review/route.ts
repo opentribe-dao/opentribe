@@ -1,18 +1,12 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { z } from 'zod';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'PATCH, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { z } from "zod";
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // PATCH /api/v1/bounties/[id]/submissions/[submissionId]/review - Review submission
@@ -28,10 +22,7 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const reviewSchema = z.object({
@@ -56,8 +47,8 @@ export async function PATCH(
 
     if (!submission) {
       return NextResponse.json(
-        { error: 'Submission not found' },
-        { status: 404, headers: corsHeaders }
+        { error: "Submission not found" },
+        { status: 404 }
       );
     }
 
@@ -67,7 +58,7 @@ export async function PATCH(
         organizationId: submission.bounty.organizationId,
         userId: sessionData.user.id,
         role: {
-          in: ['owner', 'admin'],
+          in: ["owner", "admin"],
         },
       },
     });
@@ -75,7 +66,7 @@ export async function PATCH(
     if (!userMember) {
       return NextResponse.json(
         { error: "You don't have permission to review submissions" },
-        { status: 403, headers: corsHeaders }
+        { status: 403 }
       );
     }
 
@@ -83,26 +74,30 @@ export async function PATCH(
     if (validatedData.status === "APPROVED") {
       if (!validatedData.position) {
         return NextResponse.json(
-          { error: 'Position is required when selecting a winner' },
-          { status: 400, headers: corsHeaders }
+          { error: "Position is required when selecting a winner" },
+          { status: 400 }
         );
       }
 
       // Check if position is valid
       // The bounty.winnings field is a JSON object like { "1": 8000, "2": 5000, "3": 2000 }
       // We need to check if the validatedData.position exists as a key in this object.
-      const winningsObj = submission.bounty.winnings as Record<string, number> | null;
+      const winningsObj = submission.bounty.winnings as Record<
+        string,
+        number
+      > | null;
       const positionKey = String(validatedData.position);
 
-       winningAmount =
-        winningsObj && Object.prototype.hasOwnProperty.call(winningsObj, positionKey)
+      winningAmount =
+        winningsObj &&
+        Object.prototype.hasOwnProperty.call(winningsObj, positionKey)
           ? winningsObj[positionKey]
           : null;
 
-      if (winningAmount === null || typeof winningAmount !== 'number') {
+      if (winningAmount === null || typeof winningAmount !== "number") {
         return NextResponse.json(
-          { error: 'Invalid winner position' },
-          { status: 400, headers: corsHeaders }
+          { error: "Invalid winner position" },
+          { status: 400 }
         );
       }
 
@@ -120,8 +115,8 @@ export async function PATCH(
 
       if (existingWinner) {
         return NextResponse.json(
-          { error: 'This position is already taken by another submission' },
-          { status: 400, headers: corsHeaders }
+          { error: "This position is already taken by another submission" },
+          { status: 400 }
         );
       }
     }
@@ -137,7 +132,7 @@ export async function PATCH(
         reviewedAt: new Date(),
         position:
           validatedData.status === "APPROVED" ? validatedData.position : null,
-        winningAmount: winningAmount
+        winningAmount: winningAmount,
       },
       include: {
         bounty: {
@@ -159,25 +154,22 @@ export async function PATCH(
 
     // TODO: Send email notification to submitter about the decision
 
-    return NextResponse.json(
-      {
-        submission: updatedSubmission,
-        message: `Submission ${validatedData.status.toLowerCase()} successfully`,
-      },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({
+      submission: updatedSubmission,
+      message: `Submission ${validatedData.status.toLowerCase()} successfully`,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: error.errors },
+        { status: 400 }
       );
     }
 
-    console.error('Error reviewing submission:', error);
+    console.error("Error reviewing submission:", error);
     return NextResponse.json(
-      { error: 'Failed to review submission' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to review submission" },
+      { status: 500 }
     );
   }
 }

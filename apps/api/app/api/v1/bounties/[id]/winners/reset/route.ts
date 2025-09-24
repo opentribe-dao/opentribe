@@ -4,14 +4,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "PATCH, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // PATCH /api/v1/bounties/[id]/winners/reset - Reset all approved submissions
@@ -26,10 +20,7 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bountyId = (await params).id;
@@ -42,10 +33,7 @@ export async function PATCH(
     });
 
     if (!bounty) {
-      return NextResponse.json(
-        { error: "Bounty not found" },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
     // Check if user has permission to manage submissions
@@ -62,7 +50,7 @@ export async function PATCH(
     if (!userMember) {
       return NextResponse.json(
         { error: "You don't have permission to manage submissions" },
-        { status: 403, headers: corsHeaders }
+        { status: 403 }
       );
     }
 
@@ -89,13 +77,10 @@ export async function PATCH(
     });
 
     if (approvedSubmissions.length === 0) {
-      return NextResponse.json(
-        {
-          message: "No approved submissions found to reset",
-          resetCount: 0,
-        },
-        { headers: corsHeaders }
-      );
+      return NextResponse.json({
+        message: "No approved submissions found to reset",
+        resetCount: 0,
+      });
     }
 
     // Reset all approved submissions to submitted status
@@ -115,23 +100,20 @@ export async function PATCH(
 
     // TODO: Send email notifications to all affected submitters
 
-    return NextResponse.json(
-      {
-        message: `Successfully reset ${resetResult.count} approved submissions to submitted status`,
-        resetCount: resetResult.count,
-        affectedSubmissions: approvedSubmissions.map((sub) => ({
-          id: sub.id,
-          title: sub.title,
-          submitter: sub.submitter,
-        })),
-      },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({
+      message: `Successfully reset ${resetResult.count} approved submissions to submitted status`,
+      resetCount: resetResult.count,
+      affectedSubmissions: approvedSubmissions.map((sub) => ({
+        id: sub.id,
+        title: sub.title,
+        submitter: sub.submitter,
+      })),
+    });
   } catch (error) {
     console.error("Error resetting approved submissions:", error);
     return NextResponse.json(
       { error: "Failed to reset approved submissions" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

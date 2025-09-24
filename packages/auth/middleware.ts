@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
 
-type AuthSession = {
+export type AuthSession = {
   userId?: string;
   user?: {
     id: string;
@@ -12,40 +11,31 @@ type AuthSession = {
   };
 } | null;
 
-// Higher-Order Function version for web app (wraps other middleware)
-export const authMiddlewareWrapper = (
-  middleware: (
-    auth: AuthSession,
-    request: NextRequest
-  ) => NextResponse | Promise<NextResponse>
-) => {
-  return async (request: NextRequest) => {
-    // Get the API URL from environment, fallback to localhost for development
-    const apiUrl = process.env.BETTER_AUTH_URL;
-    const url = new URL("/api/auth/get-session", apiUrl);
+export const authMiddleware = async (
+  request: NextRequest
+): Promise<AuthSession | null> => {
+  const apiUrl = process.env.BETTER_AUTH_URL;
+  const url = new URL("/api/auth/get-session", apiUrl);
 
-    let session: AuthSession = null;
+  let session: AuthSession = null;
 
-    try {
-      const response = await fetch(url, {
-        headers: {
-          cookie: request.headers.get("cookie") || "",
-        },
-      });
+  try {
+    const response = await fetch(url, {
+      headers: {
+        cookie: request.headers.get("cookie") || "",
+      },
+    });
 
-      // Check if response is ok and has JSON content type
-      if (response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType?.includes("application/json")) {
-          session = await response.json();
-        }
+    // Check if response is ok and has JSON content type
+    if (response.ok) {
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        session = await response.json();
       }
-    } catch (error) {
-      console.error("Auth middleware error:", error);
-      session = null;
     }
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+  }
 
-    // Call the wrapped middleware with auth session and request
-    return middleware(session, request);
-  };
+  return session;
 };

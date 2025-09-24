@@ -30,6 +30,7 @@ export const authMiddleware = async (
     const response = await fetch(url, {
       headers: {
         cookie: request.headers.get("cookie") || "",
+        "Access-Control-Allow-Origin": "*",
       },
     });
 
@@ -72,6 +73,7 @@ export const authMiddlewareWrapper = (
       const response = await fetch(url, {
         headers: {
           cookie: request.headers.get("cookie") || "",
+          "Access-Control-Allow-Origin": "*",
         },
       });
 

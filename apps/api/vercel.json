@@ -5,10 +5,10 @@
     {
       "path": "/cron/keep-alive",
       "schedule": "0 1 * * *"
-    },
-    {
-      "path": "/cron/bounty-deadline-passed",
-      "schedule": "0,30 * * * *"
     }
+    // {
+    //   "path": "/cron/bounty-deadline-passed",
+    //   "schedule": "0,30 * * * *"
+    // }
   ]
 }

@@ -8,8 +8,24 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
   sendWelcomeEmail,
-  type BaseEmailUser,
 } from "@packages/email";
+
+export const trustedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+  "https://opentribe.io",
+  "https://admin.opentribe.io",
+  "https://api.opentribe.io",
+  "https://dev.opentribe.io",
+  "https://api.dev.opentribe.io",
+  "https://dashboard.dev.opentribe.io",
+  ...(process.env.ADDITIONAL_TRUSTED_ORIGINS
+    ? process.env.ADDITIONAL_TRUSTED_ORIGINS.split(",").map((origin) =>
+        origin.trim()
+      )
+    : []),
+];
 
 /**
  * Role Architecture (Better Auth based):
@@ -79,27 +95,7 @@ const authOptions = {
       sameSite: "none",
     },
   },
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-    ...(process.env.NODE_ENV === "production"
-      ? [
-          "https://opentribe.io",
-          "https://admin.opentribe.io",
-          "https://api.opentribe.io",
-          "https://dev.opentribe.io",
-          "https://api.dev.opentribe.io",
-          "https://dashboard.dev.opentribe.io",
-        ]
-      : []),
-
-    ...(process.env.ADDITIONAL_TRUSTED_ORIGINS
-      ? process.env.ADDITIONAL_TRUSTED_ORIGINS.split(",").map((origin) =>
-          origin.trim()
-        )
-      : []),
-  ],
+  trustedOrigins: trustedOrigins,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Temporarily disabled for testing

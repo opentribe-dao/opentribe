@@ -1,4 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from "next/server";
+import { trustedOrigins } from "@packages/auth/server";
 
 const corsOptions: {
   allowedMethods: string[];
@@ -8,36 +9,31 @@ const corsOptions: {
   maxAge?: number;
   credentials: boolean;
 } = {
-  allowedMethods: ['GET', 'DELETE', 'PATCH', 'POST', 'PUT', 'OPTIONS'],
-  allowedOrigins: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'https://opentribe.io',
-    'https://dashboard.opentribe.io',
-  ],
+  allowedMethods: ["GET", "DELETE", "PATCH", "POST", "PUT", "OPTIONS"],
+  allowedOrigins: trustedOrigins,
   allowedHeaders: [
-    'X-CSRF-Token',
-    'X-Requested-With',
-    'Accept',
-    'Accept-Version',
-    'Content-Length',
-    'Content-MD5',
-    'Content-Type',
-    'Date',
-    'X-Api-Version',
-    'Authorization',
-    'Cookie',
+    "X-CSRF-Token",
+    "X-Requested-With",
+    "Accept",
+    "Accept-Version",
+    "Content-Length",
+    "Content-MD5",
+    "Content-Type",
+    "Date",
+    "X-Api-Version",
+    "Authorization",
+    "Cookie",
   ],
   exposedHeaders: [
-    'X-CSRF-Token',
-    'X-Requested-With',
-    'Accept',
-    'Accept-Version',
-    'Content-Length',
-    'Content-MD5',
-    'Content-Type',
-    'Date',
-    'X-Api-Version',
+    "X-CSRF-Token",
+    "X-Requested-With",
+    "Accept",
+    "Accept-Version",
+    "Content-Length",
+    "Content-MD5",
+    "Content-Type",
+    "Date",
+    "X-Api-Version",
   ],
   maxAge: 60 * 60 * 24 * 30, // 30 days
   credentials: true,
@@ -51,34 +47,34 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Allowed origins check
-  const origin = request.headers.get('origin') ?? '';
+  const origin = request.headers.get("origin") ?? "";
   if (
-    corsOptions.allowedOrigins.includes('*') ||
+    corsOptions.allowedOrigins.includes("*") ||
     corsOptions.allowedOrigins.includes(origin)
   ) {
-    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set("Access-Control-Allow-Origin", origin);
   }
 
   // Set default CORS headers
   response.headers.set(
-    'Access-Control-Allow-Credentials',
+    "Access-Control-Allow-Credentials",
     corsOptions.credentials.toString()
   );
   response.headers.set(
-    'Access-Control-Allow-Methods',
-    corsOptions.allowedMethods.join(',')
+    "Access-Control-Allow-Methods",
+    corsOptions.allowedMethods.join(",")
   );
   response.headers.set(
-    'Access-Control-Allow-Headers',
-    corsOptions.allowedHeaders.join(',')
+    "Access-Control-Allow-Headers",
+    corsOptions.allowedHeaders.join(",")
   );
   response.headers.set(
-    'Access-Control-Expose-Headers',
-    corsOptions.exposedHeaders.join(',')
+    "Access-Control-Expose-Headers",
+    corsOptions.exposedHeaders.join(",")
   );
   response.headers.set(
-    'Access-Control-Max-Age',
-    corsOptions.maxAge?.toString() ?? ''
+    "Access-Control-Max-Age",
+    corsOptions.maxAge?.toString() ?? ""
   );
 
   // Return
@@ -87,5 +83,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: '/api/:path*',
+  matcher: "/api/:path*",
 };

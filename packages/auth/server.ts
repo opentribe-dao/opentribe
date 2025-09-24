@@ -10,7 +10,7 @@ import {
   sendWelcomeEmail,
 } from "@packages/email";
 
-export const trustedOrigins = [
+const trustedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:3002",
@@ -20,11 +20,6 @@ export const trustedOrigins = [
   "https://dev.opentribe.io",
   "https://api.dev.opentribe.io",
   "https://dashboard.dev.opentribe.io",
-  ...(process.env.ADDITIONAL_TRUSTED_ORIGINS
-    ? process.env.ADDITIONAL_TRUSTED_ORIGINS.split(",").map((origin) =>
-        origin.trim()
-      )
-    : []),
 ];
 
 /**
@@ -95,7 +90,14 @@ const authOptions = {
       sameSite: "none",
     },
   },
-  trustedOrigins: trustedOrigins,
+  trustedOrigins: [
+    ...trustedOrigins,
+    ...(process.env.ADDITIONAL_TRUSTED_ORIGINS
+      ? process.env.ADDITIONAL_TRUSTED_ORIGINS.split(",").map((origin) =>
+          origin.trim()
+        )
+      : []),
+  ],
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Temporarily disabled for testing

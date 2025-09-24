@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useQuery } from '@tanstack/react-query';
 import { rfpQueryKeys, topQueryKeys } from './react-query';
 
@@ -46,8 +47,7 @@ interface RFPsFilters {
   [key: string]: unknown;
 }
 
-// Hook for fetching RFPs data with filters
-export function useRfpsData(filters: RFPsFilters = {}) {
+export function fetchRfpsData(filters: RFPsFilters = {}) {
   const queryParams = new URLSearchParams();
   
   // search
@@ -148,7 +148,7 @@ export function useTopBounties() {
     queryKey: topQueryKeys.bounties(),
     queryFn: async (): Promise<TopBounty[]> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/top/bounties?refresh=true`);
+        const response = await fetch(`${API_BASE_URL}/api/v1/top/bounties`);
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -194,6 +194,111 @@ export function useTopBounties() {
       return failureCount < 2;
     },
   });
+}
+
+export function useRfpsData(filters: RFPsFilters = {}) {
+  const [allRfps, setAllRfps] = React.useState<RFP[]>([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
+  const [hasMore, setHasMore] = React.useState(true);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  // Reset when filters change (except page)
+  React.useEffect(() => {
+    setAllRfps([]);
+    setCurrentPage(1);
+    setHasMore(true);
+    setError(null);
+  }, [
+    filters.search,
+    filters.status,
+    filters.sort,
+    filters.grant,
+    filters.submission
+  ]);
+
+  // Fetch initial data
+  const initialQuery = fetchRfpsData({ ...filters, page: 1 });
+
+  // Update state when initial data loads
+  React.useEffect(() => {
+    if (initialQuery.data) {
+      setAllRfps(initialQuery.data.rfps);
+      setHasMore(initialQuery.data.pagination.hasMore);
+      setError(null);
+    }
+    if (initialQuery.error) {
+      setError(initialQuery.error);
+    }
+  }, [initialQuery.data, initialQuery.error]);
+
+  // Load more function
+  const loadMore = React.useCallback(async () => {
+    if (isLoadingMore || !hasMore) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    setError(null);
+
+    try {
+      const nextPage = currentPage + 1;
+      const queryParams = new URLSearchParams();
+
+      // Add all filters except page
+      if (filters.search !== undefined && filters.search !== '') {
+        queryParams.append('search', filters.search);
+      }
+      if (filters.status !== undefined && Array.isArray(filters.status) && filters.status.length > 0) {
+        queryParams.append('status', filters.status.join(','));
+      }
+      if (filters.sort !== undefined && filters.sort !== '' && filters.sort !== 'popular') {
+        queryParams.append('sort', filters.sort);
+      }
+      if (filters.grant !== undefined && filters.grant !== '' && filters.grant !== 'all') {
+        queryParams.append('grant', filters.grant);
+      }
+      if (filters.submission !== undefined && filters.submission !== '' && filters.submission !== 'highest') {
+        queryParams.append('submission', filters.submission);
+      }
+      if (filters.limit) {
+        queryParams.append('limit', filters.limit.toString());
+      }
+
+      // Add page parameter
+      queryParams.append('page', nextPage.toString());
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/rfps?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch RFPs (${response.status})`);
+      }
+      
+      const data: RFPsResponse = await response.json();
+      
+      // Append new RFPs to existing ones
+      setAllRfps(prev => [...prev, ...data.rfps]);
+      setCurrentPage(nextPage);
+      
+      // Check if there are more pages
+      setHasMore(data.pagination.hasMore);
+      
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to load more RFPs'));
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [currentPage, hasMore, isLoadingMore, filters]);
+
+  return {
+    rfps: allRfps,
+    isLoading: initialQuery.isLoading,
+    isLoadingMore,
+    error: error || initialQuery.error,
+    hasMore,
+    loadMore,
+    refetch: initialQuery.refetch
+  };
 }
 
 // Export types for use in components

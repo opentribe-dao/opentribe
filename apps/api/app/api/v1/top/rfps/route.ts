@@ -133,6 +133,7 @@ async function getAllRfps(): Promise<TopRFP[]> {
     orderBy: {
       voteCount: "desc",
     },
+    take: TOP_RFP_COUNT,
   });
 
   return rfps.map((rfp) => ({

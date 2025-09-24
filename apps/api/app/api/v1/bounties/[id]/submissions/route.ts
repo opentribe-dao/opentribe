@@ -127,7 +127,6 @@ export async function GET(
     // Add additional stats
     const submissionsWithStats = submissions.map((submission) => ({
       ...submission,
-      winningAmount: submission.winningAmount?.toNumber(),
       stats: {
         commentsCount: submission._count.comments,
         likesCount: submission._count.likes,

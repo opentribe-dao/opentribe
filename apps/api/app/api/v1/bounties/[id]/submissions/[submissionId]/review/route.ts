@@ -1,14 +1,14 @@
-import { auth } from "@packages/auth/server";
-import { database } from "@packages/db";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { z } from "zod";
+import { auth } from '@packages/auth/server';
+import { database } from '@packages/db';
+import { headers } from 'next/headers';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { z } from 'zod';
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "PATCH, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'PATCH, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 export async function OPTIONS() {
@@ -22,13 +22,14 @@ export async function PATCH(
 ) {
   try {
     const authHeaders = await headers();
+    let winningAmount = null;
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
     });
 
     if (!sessionData?.user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: 'Unauthorized' },
         { status: 401, headers: corsHeaders }
       );
     }
@@ -55,7 +56,7 @@ export async function PATCH(
 
     if (!submission) {
       return NextResponse.json(
-        { error: "Submission not found" },
+        { error: 'Submission not found' },
         { status: 404, headers: corsHeaders }
       );
     }
@@ -66,7 +67,7 @@ export async function PATCH(
         organizationId: submission.bounty.organizationId,
         userId: sessionData.user.id,
         role: {
-          in: ["owner", "admin"],
+          in: ['owner', 'admin'],
         },
       },
     });
@@ -82,20 +83,25 @@ export async function PATCH(
     if (validatedData.status === "APPROVED") {
       if (!validatedData.position) {
         return NextResponse.json(
-          { error: "Position is required when selecting a winner" },
+          { error: 'Position is required when selecting a winner' },
           { status: 400, headers: corsHeaders }
         );
       }
 
       // Check if position is valid
-      const winningsArray = submission.bounty.winnings as any;
-      const winningPosition = Array.isArray(winningsArray)
-        ? winningsArray.find((w: any) => w.position === validatedData.position)
-        : null;
+      // The bounty.winnings field is a JSON object like { "1": 8000, "2": 5000, "3": 2000 }
+      // We need to check if the validatedData.position exists as a key in this object.
+      const winningsObj = submission.bounty.winnings as Record<string, number> | null;
+      const positionKey = String(validatedData.position);
 
-      if (!winningPosition) {
+       winningAmount =
+        winningsObj && Object.prototype.hasOwnProperty.call(winningsObj, positionKey)
+          ? winningsObj[positionKey]
+          : null;
+
+      if (winningAmount === null || typeof winningAmount !== 'number') {
         return NextResponse.json(
-          { error: "Invalid winner position" },
+          { error: 'Invalid winner position' },
           { status: 400, headers: corsHeaders }
         );
       }
@@ -114,7 +120,7 @@ export async function PATCH(
 
       if (existingWinner) {
         return NextResponse.json(
-          { error: "This position is already taken by another submission" },
+          { error: 'This position is already taken by another submission' },
           { status: 400, headers: corsHeaders }
         );
       }
@@ -131,14 +137,7 @@ export async function PATCH(
         reviewedAt: new Date(),
         position:
           validatedData.status === "APPROVED" ? validatedData.position : null,
-        winningAmount:
-          validatedData.status === "APPROVED"
-            ? Array.isArray(submission.bounty.winnings as any)
-              ? (submission.bounty.winnings as any).find(
-                  (w: any) => w.position === validatedData.position
-                )?.amount
-              : null
-            : null,
+        winningAmount: winningAmount
       },
       include: {
         bounty: {
@@ -170,14 +169,14 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
+        { error: 'Invalid request data', details: error.errors },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    console.error("Error reviewing submission:", error);
+    console.error('Error reviewing submission:', error);
     return NextResponse.json(
-      { error: "Failed to review submission" },
+      { error: 'Failed to review submission' },
       { status: 500, headers: corsHeaders }
     );
   }

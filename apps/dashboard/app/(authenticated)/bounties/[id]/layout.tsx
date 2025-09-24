@@ -110,28 +110,6 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
             >
             {bounty.status}
             </Badge>
-            {/* {bounty.status === 'OPEN' &&
-              submissions.length > 0 &&
-              !bounty.winnersAnnouncedAt && (
-                <Button
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  onClick={announceWinners}
-                  disabled={isAnnouncing || selectedWinners.size === 0}
-                >
-                  {isAnnouncing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Announcing...
-                    </>
-                  ) : (
-                    <>
-                      <Award className="h-4 w-4 mr-2" />
-                      Announce Winners ({selectedWinners.size})
-                    </>
-                  )}
-                </Button>
-              )} */}
             <Button
               variant="outline"
               size="sm"

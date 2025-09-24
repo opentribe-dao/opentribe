@@ -14,10 +14,6 @@ export const noseconeOptions: NoseconeOptions = {
   // https://www.next-forge.com/packages/security/headers for guidance on how
   // to configure it.
   contentSecurityPolicy: false,
-  crossOriginResourcePolicy: {
-    ...defaults.crossOriginResourcePolicy,
-    policy: "cross-origin",
-  },
 };
 
 export const noseconeOptionsWithToolbar: NoseconeOptions =

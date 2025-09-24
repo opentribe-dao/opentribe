@@ -74,7 +74,7 @@ const authOptions = {
         process.env.NODE_ENV === "production" ? ".opentribe.io" : "localhost",
     },
     defaultCookieAttributes: {
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       httpOnly: true,
       sameSite: "none",
     },

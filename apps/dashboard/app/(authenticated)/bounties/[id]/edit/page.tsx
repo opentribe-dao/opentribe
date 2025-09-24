@@ -389,14 +389,6 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="description">Description *</Label>
-                  {/* <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => updateFormData('description', e.target.value)}
-                    placeholder="Describe what you need built, the problem it solves, and any specific requirements..."
-                    rows={6}
-                    className="bg-white/5 border-white/10 text-white"
-                  /> */}
                   <MarkdownEditor
                   value={formData.description}
                   onChange={(value) => updateFormData('description', value)}

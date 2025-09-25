@@ -1,8 +1,11 @@
-import { parseError } from '@packages/logging/error';
-import { clsx } from 'clsx';
-import type { ClassValue } from 'clsx';
-import { toast } from 'sonner';
-import { twMerge } from 'tailwind-merge';
+import { parseError } from "@packages/logging/error";
+import { clsx } from "clsx";
+import type { ClassValue } from "clsx";
+import { toast } from "sonner";
+import { twMerge } from "tailwind-merge";
+
+export const URL_REGEX =
+  /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?$/i;
 
 export const cn = (...inputs: ClassValue[]): string => twMerge(clsx(inputs));
 
@@ -28,7 +31,7 @@ export const relativeTime = (time: Date): string => {
   const timeFormats = [
     {
       check: diffWeak < 1,
-      value: `a week${diffWeak > 1 ? 's' : ''} ago`,
+      value: `a week${diffWeak > 1 ? "s" : ""} ago`,
     },
     {
       check: diffDay >= 1,
@@ -36,14 +39,14 @@ export const relativeTime = (time: Date): string => {
     },
     {
       check: diffHour >= 1,
-      value: `${diffHour} hour${diffHour > 1 ? 's' : ''} ago`,
+      value: `${diffHour} hour${diffHour > 1 ? "s" : ""} ago`,
     },
     {
       check: diffMin >= 1,
-      value: `${diffMin} min${diffMin > 1 ? 's' : ''} ago`,
+      value: `${diffMin} min${diffMin > 1 ? "s" : ""} ago`,
     },
   ];
 
   const found = timeFormats.find((f) => f.check);
-  return found ? found.value : 'just now';
-}
+  return found ? found.value : "just now";
+};

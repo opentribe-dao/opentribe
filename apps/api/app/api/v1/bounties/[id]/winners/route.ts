@@ -2,7 +2,7 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendBountyWinnerEmail } from "@packages/email";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for announcing winners
@@ -246,7 +246,7 @@ export async function POST(
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }

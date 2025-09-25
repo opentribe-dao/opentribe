@@ -1,5 +1,5 @@
-import { createEnv } from '@t3-oss/env-nextjs';
-import { z } from 'zod';
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const keys = () =>
   createEnv({
@@ -9,7 +9,7 @@ export const keys = () =>
     },
     client: {
       // Added by Sentry Integration, Vercel Marketplace
-      NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+      NEXT_PUBLIC_SENTRY_DSN: z.url().optional(),
     },
     runtimeEnv: {
       SENTRY_ORG: process.env.SENTRY_ORG,

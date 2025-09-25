@@ -10,12 +10,13 @@
     "lodash.merge": "^4.6.2",
     "react": "19.1.1",
     "react-dom": "19.1.1",
+    "react-email": "^4.2.6",
     "schema-dts": "^1.1.5"
   },
   "devDependencies": {
     "@tooling/typescript-config": "workspace:*",
     "@types/lodash.merge": "^4.6.9",
-    "@types/node": "22.15.21",
+    "@types/node": "24.5.2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.5",
     "next": "15.3.2"

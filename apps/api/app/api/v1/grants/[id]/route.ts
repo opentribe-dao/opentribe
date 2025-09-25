@@ -1,7 +1,8 @@
 import { auth } from "@packages/auth/server";
+import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for grant update
@@ -10,8 +11,8 @@ const updateGrantSchema = z.object({
   description: z.string().min(1).optional(),
   summary: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z.string().url().optional().nullable(),
-  bannerUrl: z.string().url().optional().nullable(),
+  logoUrl: z.string().regex(URL_REGEX).optional().nullable(),
+  bannerUrl: z.string().regex(URL_REGEX).optional().nullable(),
   skills: z.array(z.string()).optional(),
   minAmount: z.number().positive().optional().nullable(),
   maxAmount: z.number().positive().optional().nullable(),
@@ -21,7 +22,7 @@ const updateGrantSchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z.string().regex(URL_REGEX),
         description: z.string().optional(),
       })
     )
@@ -35,7 +36,7 @@ const updateGrantSchema = z.object({
       })
     )
     .optional(),
-  applicationUrl: z.string().url().optional().nullable(),
+  applicationUrl: z.string().regex(URL_REGEX).optional().nullable(),
   visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   status: z.enum(["OPEN", "PAUSED", "CLOSED"]).optional(),
   source: z.enum(["NATIVE", "EXTERNAL"]).optional(),
@@ -309,7 +310,7 @@ export async function PATCH(
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }

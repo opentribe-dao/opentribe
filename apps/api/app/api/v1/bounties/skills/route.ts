@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { database } from "@packages/db";
 import { redis } from "@packages/security/cache";
 

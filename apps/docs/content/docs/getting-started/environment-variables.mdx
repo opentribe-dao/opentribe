@@ -31,10 +31,10 @@ export const keys = () =>
   createEnv({
     server: {
       BETTER_AUTH_SECRET: z.string().min(32),
-      BETTER_AUTH_URL: z.string().url().optional(),
+      BETTER_AUTH_URL: z.url().optional(),
     },
     client: {
-      NEXT_PUBLIC_BETTER_AUTH_URL: z.string().url(),
+      NEXT_PUBLIC_BETTER_AUTH_URL: z.url(),
     },
     runtimeEnv: {
       BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
@@ -393,7 +393,7 @@ Add custom validation rules:
 RESEND_FROM: z.string().email(),
 
 // Validate URL format
-BETTER_AUTH_URL: z.string().url(),
+BETTER_AUTH_URL: z.url(),
 
 // Validate specific prefixes
 STRIPE_SECRET_KEY: z.string().startsWith('sk_'),

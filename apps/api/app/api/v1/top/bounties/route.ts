@@ -3,6 +3,7 @@ import { database } from "@packages/db";
 import { redis } from "@packages/security/cache";
 
 interface TopBounty {
+  id: string;
   title: string;
   viewCount: number;
   token: string;
@@ -75,6 +76,7 @@ async function getTopBounties(): Promise<TopBounty[]> {
       visibility: "PUBLISHED",
     },
     select: {
+      id: true,
       title: true,
       viewCount: true,
       token: true,
@@ -91,6 +93,7 @@ async function getTopBounties(): Promise<TopBounty[]> {
   });
 
   return bounties.map((bounty) => ({
+    id: bounty.id,
     title: bounty.title,
     viewCount: bounty.viewCount,
     token: bounty.token,

@@ -75,7 +75,7 @@ export default function SubmissionReviewPage({
   const handleSelectWinner = (
     submissionId: string,
     position: number,
-    amount: number,
+    amount: string,
     username: string
   ) => {
     const newSelected = new Map(selectedWinners);
@@ -111,7 +111,7 @@ export default function SubmissionReviewPage({
       await updateSubmissionStatus(id, submissionId, newStatus, feedback, selectedPosition || undefined);
       
       if (newStatus === 'APPROVED') {
-        handleSelectWinner(submissionId, selectedPosition ?? 0, 0, submission?.creator.username ?? '');
+        handleSelectWinner(submissionId, selectedPosition ?? 0, '', submission?.creator.username ?? '');
         setSelectedPosition(null);
       }
 

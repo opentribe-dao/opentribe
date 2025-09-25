@@ -39,6 +39,7 @@ interface RfpsContentSectionProps {
   error: Error | null
   filters: RfpsFilters
   hasMore: boolean
+  isLoadingMore: boolean
   activeFiltersCount: number
   onClearAllFilters: () => void
   onLoadMore: () => void
@@ -50,6 +51,7 @@ function RfpsContentSectionComponent({
   loading,
   error,
   hasMore,
+  isLoadingMore,
   activeFiltersCount,
   onClearAllFilters,
   onLoadMore,
@@ -157,12 +159,19 @@ function RfpsContentSectionComponent({
             <div className="mt-8 text-center">
               <Button
                 onClick={onLoadMore}
-                disabled={loading}
+                disabled={isLoadingMore}
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
-                aria-label={loading ? "Loading more RFPs" : "Load more RFPs"}
+                className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
+                aria-label={isLoadingMore ? "Loading more RFPs" : "Load more RFPs"}
               >
-                {loading ? "Loading..." : "View More →"}
+                {isLoadingMore ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Loading more RFPs...
+                  </div>
+                ) : (
+                  "View More →"
+                )}
               </Button>
             </div>
           )}

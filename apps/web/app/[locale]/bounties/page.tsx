@@ -18,22 +18,12 @@ function BountiesPageContent() {
   const bountiesData = useBountiesData(filtersHook.filters);
   const skillsQuery = useBountiesSkills();
 
-  // Load more bounties (pagination)
-  const handleLoadMore = () => {
-    const nextPage = (filtersHook.filters.page || 1) + 1;
-    filtersHook.updateFilter('page', nextPage);
-  };
-
-  // Calculate if there are more bounties to load
-  const hasMore = bountiesData.data ? 
-    (bountiesData.data.bounties.length < bountiesData.data.pagination.total) : false;
-
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <BountiesHeroSection
           searchQuery={filtersHook.filters.search || ''}
-          totalCount={bountiesData.data?.pagination?.total || 0}
+          totalCount={bountiesData.bounties.length}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}
@@ -44,7 +34,7 @@ function BountiesPageContent() {
         <div className='grid grid-cols-1 gap-8 lg:grid-cols-4'>
           <div className="lg:col-span-3">
             <BountiesContentSection
-              bounties={bountiesData.data?.bounties || []}
+              bounties={bountiesData.bounties}
               loading={bountiesData.isLoading}
               error={bountiesData.error}
               selectedSkills={filtersHook.filters.skills || []}
@@ -56,11 +46,12 @@ function BountiesPageContent() {
                 hasSubmissions: filtersHook.filters.hasSubmissions || false,
                 hasDeadline: filtersHook.filters.hasDeadline || false,
               }}
-              hasMore={hasMore}
+              hasMore={bountiesData.hasMore}
+              isLoadingMore={bountiesData.isLoadingMore}
               activeFiltersCount={filtersHook.activeFiltersCount}
               onSkillToggle={filtersHook.toggleSkill}
               onClearAllFilters={filtersHook.clearAllFilters}
-              onLoadMore={handleLoadMore}
+              onLoadMore={bountiesData.loadMore}
               onRetry={() => bountiesData.refetch()}
             />
           </div>

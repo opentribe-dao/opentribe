@@ -19,21 +19,12 @@ function GrantsPageContent() {
   const skillsQuery = useGrantsSkills();
   const topRFPsQuery = useTopRFPs();
 
-  // Load more grants (pagination)
-  const handleLoadMore = () => {
-    const nextPage = (filtersHook.filters.page || 1) + 1;
-    filtersHook.updateFilter('page', nextPage);
-  };
-
-  // Calculate if there are more grants to load
-  const hasMore = grantsData.data ? grantsData.data.pagination.hasMore : false;
-
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <GrantsHeroSection
           searchQuery={filtersHook.filters.search || ''}
-          totalCount={grantsData.data?.grants?.length || 0}
+          totalCount={grantsData.grants.length}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}
@@ -43,7 +34,7 @@ function GrantsPageContent() {
 
         <div className='grid grid-cols-1 gap-8 lg:grid-cols-4'>
           <GrantsContentSection
-            grants={grantsData.data?.grants || []}
+            grants={grantsData.grants}
             loading={grantsData.isLoading}
             error={grantsData.error}
             selectedSkills={filtersHook.filters.skills || []}
@@ -53,11 +44,12 @@ function GrantsPageContent() {
               sortBy: filtersHook.filters.sortBy || 'newest',
               priceRange: filtersHook.filters.priceRange || [0, 100000],
             }}
-            hasMore={hasMore}
+            hasMore={grantsData.hasMore}
+            isLoadingMore={grantsData.isLoadingMore}
             activeFiltersCount={filtersHook.activeFiltersCount}
             onSkillToggle={filtersHook.toggleSkill}
             onClearAllFilters={filtersHook.clearAllFilters}
-            onLoadMore={handleLoadMore}
+            onLoadMore={grantsData.loadMore}
             onRetry={() => grantsData.refetch()}
           />
 

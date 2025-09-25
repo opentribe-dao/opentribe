@@ -265,7 +265,7 @@ $RECYCLE.BIN/
 .content-collections
 
 # AI Rules
-.cursor/rules
+.cursor
 .github/copilot-instructions.md
 
 # Claude Code files

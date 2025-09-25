@@ -1,8 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { grantQueryKeys } from "./react-query";
+import React from "react";
+import { useQuery } from '@tanstack/react-query';
+import { grantQueryKeys } from './react-query';
 import { env } from "@/env";
+
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
@@ -54,8 +56,7 @@ interface GrantsFilters {
   [key: string]: unknown;
 }
 
-// Hook for fetching grants data with filters
-export function useGrantsData(filters: GrantsFilters = {}) {
+export function fetchGrantsData(filters: GrantsFilters = {}) {
   const queryParams = new URLSearchParams();
 
   // search
@@ -166,7 +167,7 @@ export function useGrantsData(filters: GrantsFilters = {}) {
   });
 }
 
-// Hook for fetching grants skills with counts (unauthenticated, cached)
+// Hook for fetching grants skills with counts
 export function useGrantsSkills() {
   return useQuery({
     queryKey: grantQueryKeys.skills(),
@@ -226,8 +227,8 @@ export function useTopRFPs() {
     queryKey: ["top", "rfps"],
     queryFn: async (): Promise<TopRfp[]> => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/top/rfps?refresh=true`);
-
+        const res = await fetch(`${API_BASE_URL}/api/v1/top/rfps`);
+        
         if (!res.ok) {
           if (res.status === 404) {
             throw new Error("Top RFPs API endpoint not found");
@@ -283,6 +284,123 @@ interface TopRfp {
     organization: {
       name: string;
     };
+  };
+}
+
+export function useGrantsData(filters: GrantsFilters = {}) {
+  const [allGrants, setAllGrants] = React.useState<Grant[]>([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
+  const [hasMore, setHasMore] = React.useState(true);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  // Reset when filters change (except page)
+  React.useEffect(() => {
+    setAllGrants([]);
+    setCurrentPage(1);
+    setHasMore(true);
+    setError(null);
+  }, [
+    filters.search,
+    filters.status,
+    filters.skills,
+    filters.sortBy,
+    filters.priceRange
+  ]);
+
+  // Fetch initial data
+  const initialQuery = fetchGrantsData({ ...filters, page: 1 });
+
+  // Update state when initial data loads
+  React.useEffect(() => {
+    if (initialQuery.data) {
+      setAllGrants(initialQuery.data.grants);
+      setHasMore(initialQuery.data.pagination.hasMore);
+      setError(null);
+    }
+    if (initialQuery.error) {
+      setError(initialQuery.error);
+    }
+  }, [initialQuery.data, initialQuery.error]);
+
+  // Load more function
+  const loadMore = React.useCallback(async () => {
+    if (isLoadingMore || !hasMore) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    setError(null);
+
+    try {
+      const nextPage = currentPage + 1;
+      const queryParams = new URLSearchParams();
+
+      // Add all filters except page
+      if (filters.search !== undefined && filters.search !== '') {
+        queryParams.append('search', filters.search);
+      }
+      if (filters.status !== undefined && Array.isArray(filters.status) && filters.status.length > 0) {
+        queryParams.append('status', filters.status.join(','));
+      }
+      if (filters.skills !== undefined && Array.isArray(filters.skills)) {
+        const skillsValues = filters.skills
+          .map((s) => (s ?? '').toString().trim())
+          .filter((s) => s !== '');
+        if (skillsValues.length > 0) {
+          queryParams.append('skills', skillsValues.join(','));
+        }
+      }
+      if (filters.sortBy !== undefined && filters.sortBy !== '' && filters.sortBy !== 'newest') {
+        queryParams.append('sort', filters.sortBy);
+      }
+      if (
+        filters.priceRange !== undefined && 
+        filters.priceRange &&
+        Array.isArray(filters.priceRange) &&
+        filters.priceRange.length === 2 &&
+        !(filters.priceRange[0] === 0 && filters.priceRange[1] === 100000)
+      ) {
+        queryParams.append('minAmount', filters.priceRange[0].toString());
+        queryParams.append('maxAmount', filters.priceRange[1].toString());
+      }
+      if (filters.limit) {
+        queryParams.append('limit', filters.limit.toString());
+      }
+
+      // Add page parameter
+      queryParams.append('page', nextPage.toString());
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/grants?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch grants (${response.status})`);
+      }
+      
+      const data: GrantsResponse = await response.json();
+      
+      // Append new grants to existing ones
+      setAllGrants(prev => [...prev, ...data.grants]);
+      setCurrentPage(nextPage);
+      
+      // Check if there are more pages
+      setHasMore(data.pagination.hasMore);
+      
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to load more grants'));
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [currentPage, hasMore, isLoadingMore, filters]);
+
+  return {
+    grants: allGrants,
+    isLoading: initialQuery.isLoading,
+    isLoadingMore,
+    error: error || initialQuery.error,
+    hasMore,
+    loadMore,
+    refetch: initialQuery.refetch
   };
 }
 

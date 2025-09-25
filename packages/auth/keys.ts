@@ -5,7 +5,7 @@ export const keys = () =>
   createEnv({
     server: {
       BETTER_AUTH_SECRET: z.string().min(32),
-      BETTER_AUTH_URL: z.string().url().optional(),
+      BETTER_AUTH_URL: z.url().optional(),
       // Additional trusted origins for flexibility (comma-separated)
       ADDITIONAL_TRUSTED_ORIGINS: z.string().optional(),
       // OAuth providers
@@ -15,7 +15,7 @@ export const keys = () =>
       GITHUB_CLIENT_SECRET: z.string().optional(),
     },
     client: {
-      NEXT_PUBLIC_BETTER_AUTH_URL: z.string().url().optional(),
+      NEXT_PUBLIC_BETTER_AUTH_URL: z.url().optional(),
     },
     runtimeEnv: {
       BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,

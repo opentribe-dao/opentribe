@@ -1,4 +1,5 @@
 import { auth } from "@packages/auth/server";
+import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -104,12 +105,12 @@ export async function PATCH(
       name: z.string().min(1).max(100).optional(),
       slug: z.string().min(3).max(50).optional(),
       email: z.string().email().optional().nullable(),
-      website: z.string().url().optional().nullable(),
+      website: z.string().regex(URL_REGEX).optional().nullable(),
       twitter: z.string().optional().nullable(),
       instagram: z.string().optional().nullable(),
       shortDescription: z.string().max(200).optional().nullable(),
       longDescription: z.string().optional().nullable(),
-      logo: z.string().url().optional().nullable(),
+      logo: z.string().regex(URL_REGEX).optional().nullable(),
     });
 
     const body = await request.json();
@@ -158,7 +159,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }

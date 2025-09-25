@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { database } from "@packages/db";
 import { redis } from "@packages/security/cache";
 
@@ -44,7 +44,10 @@ export async function GET(request: NextRequest) {
 }
 
 function withHeaders(response: NextResponse) {
-  response.headers.set("Cache-Control", `s-maxage=1800, max-age=${CACHE_TTL_SECONDS}`);
+  response.headers.set(
+    "Cache-Control",
+    `s-maxage=1800, max-age=${CACHE_TTL_SECONDS}`
+  );
   return response;
 }
 

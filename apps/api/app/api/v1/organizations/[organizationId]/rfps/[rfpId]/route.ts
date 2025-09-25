@@ -1,4 +1,5 @@
 import { auth } from "@packages/auth/server";
+import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -67,7 +68,7 @@ export async function PATCH(
         .array(
           z.object({
             title: z.string(),
-            url: z.string().url(),
+            url: z.string().regex(URL_REGEX),
             description: z.string().optional(),
           })
         )
@@ -175,7 +176,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }

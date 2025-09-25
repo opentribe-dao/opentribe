@@ -1,13 +1,14 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
+import { URL_REGEX } from "@packages/base/lib/utils";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
-  submissionUrl: z.string().url().optional(),
+  submissionUrl: z.string().regex(URL_REGEX).optional(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
   responses: z.record(z.string(), z.any()).optional(), // For screening question responses
@@ -311,7 +312,7 @@ export async function POST(
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }

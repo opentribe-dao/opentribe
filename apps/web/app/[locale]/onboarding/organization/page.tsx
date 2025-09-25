@@ -13,12 +13,14 @@ import {
 } from "@packages/base/components/ui/select";
 import { Textarea } from "@packages/base/components/ui/textarea";
 import { ImageUpload } from "@packages/base";
-import { ChevronLeft, Globe, Loader2, Plus, X } from "lucide-react";
+import { ChevronLeft, Contact, Globe, Loader2, Mail, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/hooks/react-query";
 
 const ORGANIZATION_TYPES = [
   { value: "protocol", label: "Protocol" },
@@ -47,7 +49,16 @@ interface TeamMember {
   role: "admin" | "member";
 }
 
+
 export default function OrganizationOnboardingPage() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <OrganizationOnboardingPageContent />
+    </QueryClientProvider>
+  );
+}
+
+function OrganizationOnboardingPageContent() {
   const router = useRouter();
   const { data: session, isPending: sessionLoading } = useSession();
   const { data: userProfile, isLoading: profileLoading } = useUserProfile();
@@ -223,7 +234,7 @@ export default function OrganizationOnboardingPage() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     } else {
-      router.push("/onboarding");
+      router.back();
     }
   };
 
@@ -305,15 +316,18 @@ export default function OrganizationOnboardingPage() {
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="text-xs font-medium text-white/70 tracking-[0.2em]">
+          <div className="text-sm font-medium font-heading font-bold text-white/70 tracking-[0.2em]">
             OPENTRIBE
           </div>
-          <div className="flex items-center gap-6">
-            <span className="text-sm text-white/60">Questions?</span>
-            <span className="text-sm text-white/60">Contact</span>
-            <Button variant="ghost" size="sm" className="text-white/60">
-              <Globe className="h-4 w-4 mr-1" />
-              EN
+          <div className="flex items-center mr-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-white/60"
+              onClick={() => window.open("mailto:support@opentribe.io", "_self")}
+            >
+              <Mail className="h-4 w-4 mr-1" />
+              Contact
             </Button>
           </div>
         </div>

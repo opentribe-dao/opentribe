@@ -104,7 +104,7 @@ export default function OnboardingPage() {
           <button
             type="button"
             onClick={() => setSelectedType("builder")}
-            className={`relative mb-4 rounded-xl border-2 p-6 transition-all ${
+            className={`relative rounded-xl border-2 p-6 transition-all ${
               selectedType === "builder"
                 ? "border-[#E6007A] bg-[#E6007A]/10"
                 : "border-white/20 bg-white/5 hover:bg-white/10"
@@ -177,10 +177,10 @@ export default function OnboardingPage() {
         </Button>
 
         {/* Footer text */}
-        <div className="mt-4 text-center text-white/40 text-xs">
+        {/* <div className="mt-4 text-center text-white/40 text-xs">
           {selectedType === "builder" && <p>Join 94,500 above</p>}
           {selectedType === "organization" && <p>Logos</p>}
-        </div>
+        </div> */}
       </div>
     </div>
   );

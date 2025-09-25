@@ -1,32 +1,44 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@packages/base/components/ui/card";
-import { Button } from "@packages/base/components/ui/button";
-import { Input } from "@packages/base/components/ui/input";
-import { Textarea } from "@packages/base/components/ui/textarea";
-import { Label } from "@packages/base/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@packages/base/components/ui/select";
-import { MarkdownEditor } from "@packages/base/components/ui/markdown-editor";
-import { Badge } from "@packages/base/components/ui/badge";
-import { useBountyContext } from "../../../components/bounty-provider";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@packages/base/components/ui/card';
+import { Button } from '@packages/base/components/ui/button';
+import { Input } from '@packages/base/components/ui/input';
+import { Textarea } from '@packages/base/components/ui/textarea';
+import { Label } from '@packages/base/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@packages/base/components/ui/select';
+import { MarkdownEditor } from '@packages/base/components/ui/markdown-editor';
+import { Badge } from '@packages/base/components/ui/badge';
+import { useBountyContext } from '../../../components/bounty-provider';
 import { toast } from 'sonner';
 import { env } from '@/env';
-import { 
-  Save, 
-  Loader2, 
-  AlertTriangle, 
-  Calendar, 
-  DollarSign, 
-  Users, 
-  Eye, 
+import {
+  Save,
+  Loader2,
+  AlertTriangle,
+  Calendar,
+  DollarSign,
+  Users,
+  Eye,
   EyeOff,
   Trash2,
   Plus,
   X,
   Settings,
   Award,
-  Clock
+  Clock,
 } from 'lucide-react';
 
 interface BountyFormData {
@@ -39,7 +51,11 @@ interface BountyFormData {
   winnings: Record<string, number>;
   deadline: string;
   resources: Array<{ title: string; url: string; description?: string }>;
-  screening: Array<{ question: string; type: 'text' | 'url' | 'file'; optional: boolean }>;
+  screening: Array<{
+    question: string;
+    type: 'text' | 'url' | 'file';
+    optional: boolean;
+  }>;
   visibility: 'DRAFT' | 'PUBLISHED';
   status: 'OPEN' | 'REVIEWING' | 'COMPLETED' | 'CLOSED' | 'CANCELLED';
 }
@@ -60,59 +76,141 @@ export default function SettingsPage() {
     visibility: 'DRAFT',
     status: 'OPEN',
   });
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [newSkill, setNewSkill] = useState('');
-  const [newResource, setNewResource] = useState({ title: '', url: '', description: '' });
-  const [newScreening, setNewScreening] = useState({ question: '', type: 'text' as const, optional: false });
+  const [newResource, setNewResource] = useState({
+    title: '',
+    url: '',
+    description: '',
+  });
+  const [newScreening, setNewScreening] = useState({
+    question: '',
+    type: 'text' as const,
+    optional: false,
+  });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Initialize form data from bounty
   useEffect(() => {
-    if (bounty) {
-      const deadline = bounty.deadline ? new Date(bounty.deadline).toISOString().slice(0, 16) : '';
-      setFormData({
-        title: bounty.title || '',
-        description: bounty.description || '',
-        skills: bounty.skills || [],
-        amount: bounty.amount || 0,
-        token: bounty.token || 'DOT',
-        split: (bounty.split as any) || 'FIXED',
-        winnings: bounty.winnings || {},
-        deadline,
-        resources: bounty.resources || [],
-        screening: bounty.screening || [],
-        visibility: (bounty.visibility as any) || 'DRAFT',
-        status: (bounty.status as any) || 'OPEN',
-      });
+    if (!bounty) {
+      return;
     }
+    const getDeadline = (dateStr?: string) => {
+      if (!dateStr) {
+        return '';
+      }
+      const date = new Date(dateStr);
+      return Number.isNaN(date.getTime())
+        ? ''
+        : date.toISOString().slice(0, 16);
+    };
+
+    const getString = (value: unknown, fallback: string) =>
+      typeof value === 'string' && value.length > 0 ? value : fallback;
+
+    const getArray = <T,>(value: unknown, fallback: T[]) =>
+      Array.isArray(value) ? value : fallback;
+
+    const getObject = <T,>(value: unknown, fallback: T) =>
+      value && typeof value === 'object' ? (value as T) : fallback;
+
+    setFormData({
+      title: getString(bounty.title, ''),
+      description: getString(bounty.description, ''),
+      skills: getArray<string>(bounty.skills, []),
+      amount: bounty.amount || 0,
+      token: getString(bounty.token, 'DOT'),
+      split: getString(bounty.split, 'FIXED') as
+        | 'FIXED'
+        | 'EQUAL_SPLIT'
+        | 'VARIABLE',
+      winnings: getObject<Record<string, number>>(bounty.winnings, {}),
+      deadline: getDeadline(bounty.deadline),
+      resources: getArray<{ title: string; url: string; description?: string }>(
+        bounty.resources,
+        []
+      ),
+      screening: getArray<{
+        question: string;
+        type: 'text' | 'url' | 'file';
+        optional: boolean;
+      }>(bounty.screening, []),
+      visibility: getString(bounty.visibility, 'DRAFT') as
+        | 'DRAFT'
+        | 'PUBLISHED',
+      status: getString(bounty.status, 'OPEN') as
+        | 'OPEN'
+        | 'REVIEWING'
+        | 'COMPLETED'
+        | 'CLOSED'
+        | 'CANCELLED',
+    });
   }, [bounty]);
 
   // Track changes
   useEffect(() => {
-    if (bounty) {
-      const hasFormChanges = JSON.stringify(formData) !== JSON.stringify({
-        title: bounty.title || '',
-        description: bounty.description || '',
-        skills: bounty.skills || [],
-        amount: bounty.amount || 0,
-        token: bounty.token || 'DOT',
-        split: (bounty.split as any) || 'FIXED',
-        winnings: bounty.winnings || {},
-        deadline: bounty.deadline ? new Date(bounty.deadline).toISOString().slice(0, 16) : '',
-        resources: bounty.resources || [],
-        screening: bounty.screening || [],
-        visibility: (bounty.visibility as any) || 'DRAFT',
-        status: (bounty.status as any) || 'OPEN',
-      });
-      setHasChanges(hasFormChanges);
+    if (!bounty) {
+      return;
     }
+    const getDeadline = (dateStr?: string) => {
+      if (!dateStr) {
+        return '';
+      }
+      const date = new Date(dateStr);
+      return Number.isNaN(date.getTime())
+        ? ''
+        : date.toISOString().slice(0, 16);
+    };
+
+    const getString = (value: unknown, fallback: string) =>
+      typeof value === 'string' && value.length > 0 ? value : fallback;
+
+    const getArray = <T,>(value: unknown, fallback: T[]) =>
+      Array.isArray(value) ? value : fallback;
+
+    const getObject = <T,>(value: unknown, fallback: T) =>
+      value && typeof value === 'object' ? (value as T) : fallback;
+
+    const initialFormData = {
+      title: getString(bounty.title, ''),
+      description: getString(bounty.description, ''),
+      skills: getArray<string>(bounty.skills, []),
+      amount: bounty.amount || 0,
+      token: getString(bounty.token, 'DOT'),
+      split: getString(bounty.split, 'FIXED') as
+        | 'FIXED'
+        | 'EQUAL_SPLIT'
+        | 'VARIABLE',
+      winnings: getObject<Record<string, number>>(bounty.winnings, {}),
+      deadline: getDeadline(bounty.deadline),
+      resources: getArray<{ title: string; url: string; description?: string }>(
+        bounty.resources,
+        []
+      ),
+      screening: getArray<{
+        question: string;
+        type: 'text' | 'url' | 'file';
+        optional: boolean;
+      }>(bounty.screening, []),
+      visibility: getString(bounty.visibility, 'DRAFT') as
+        | 'DRAFT'
+        | 'PUBLISHED',
+      status: getString(bounty.status, 'OPEN') as
+        | 'OPEN'
+        | 'REVIEWING'
+        | 'COMPLETED'
+        | 'CLOSED'
+        | 'CANCELLED',
+    };
+
+    setHasChanges(JSON.stringify(formData) !== JSON.stringify(initialFormData));
   }, [formData, bounty]);
 
   const handleInputChange = (field: keyof BountyFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addSkill = () => {
@@ -123,29 +221,44 @@ export default function SettingsPage() {
   };
 
   const removeSkill = (skill: string) => {
-    handleInputChange('skills', formData.skills.filter(s => s !== skill));
+    handleInputChange(
+      'skills',
+      formData.skills.filter((s) => s !== skill)
+    );
   };
 
   const addResource = () => {
     if (newResource.title.trim() && newResource.url.trim()) {
-      handleInputChange('resources', [...formData.resources, { ...newResource }]);
+      handleInputChange('resources', [
+        ...formData.resources,
+        { ...newResource },
+      ]);
       setNewResource({ title: '', url: '', description: '' });
     }
   };
 
   const removeResource = (index: number) => {
-    handleInputChange('resources', formData.resources.filter((_, i) => i !== index));
+    handleInputChange(
+      'resources',
+      formData.resources.filter((_, i) => i !== index)
+    );
   };
 
   const addScreening = () => {
     if (newScreening.question.trim()) {
-      handleInputChange('screening', [...formData.screening, { ...newScreening }]);
+      handleInputChange('screening', [
+        ...formData.screening,
+        { ...newScreening },
+      ]);
       setNewScreening({ question: '', type: 'text', optional: false });
     }
   };
 
   const removeScreening = (index: number) => {
-    handleInputChange('screening', formData.screening.filter((_, i) => i !== index));
+    handleInputChange(
+      'screening',
+      formData.screening.filter((_, i) => i !== index)
+    );
   };
 
   const updateWinnings = (position: string, amount: number) => {
@@ -159,19 +272,27 @@ export default function SettingsPage() {
   };
 
   const saveBounty = async () => {
-    if (!bounty) return;
-    
+    if (!bounty) {
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          ...formData,
-          deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
-        }),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            ...formData,
+            amount: Number(formData.amount),
+            deadline: formData.deadline
+              ? new Date(formData.deadline).toISOString()
+              : undefined,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -179,24 +300,29 @@ export default function SettingsPage() {
       }
 
       toast.success('Bounty updated successfully!');
-      await refreshBounty();
+      refreshBounty();
       setHasChanges(false);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update bounty');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update bounty'
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
   const deleteBounty = async () => {
-    if (!bounty) return;
-    
+    if (!bounty) {return;}
+
     setIsLoading(true);
     try {
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to delete bounty');
@@ -225,7 +351,6 @@ export default function SettingsPage() {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between">
-      
         <div className="flex gap-2 mb-4">
           {hasChanges && (
             <Button
@@ -321,70 +446,105 @@ export default function SettingsPage() {
           <Card className="bg-zinc-900/50 border-white/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
-                <Award className="h-5 w-5" />
+                <Award className="size-4" />
                 Prize Distribution
               </CardTitle>
               <CardDescription className="text-white/60">
                 Set the total amount and how it's distributed
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="amount" className="text-white/80">Total Amount</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="amount" className="text-white/80">
+                    Total Amount
+                  </Label>
                   <Input
                     id="amount"
                     type="number"
                     value={formData.amount}
-                    onChange={(e) => handleInputChange('amount', Number(e.target.value))}
+                    onChange={(e) =>
+                      handleInputChange('amount', Number(e.target.value))
+                    }
                     className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
                     placeholder="0"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="token" className="text-white/80">Token</Label>
-                  <Select value={formData.token} onValueChange={(value) => handleInputChange('token', value)}>
+                <div className="space-y-2">
+                  <Label htmlFor="token" className="text-white/80">
+                    Token
+                  </Label>
+                  <Select
+                    value={formData.token}
+                    onValueChange={(value) => handleInputChange('token', value)}
+                  >
                     <SelectTrigger className="bg-white/5 border-white/10 text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10">
-                      <SelectItem value="DOT" className="text-white">DOT</SelectItem>
-                      <SelectItem value="USDT" className="text-white">USDT</SelectItem>
-                      <SelectItem value="USDC" className="text-white">USDC</SelectItem>
+                      <SelectItem value="DOT" className="text-white">
+                        DOT
+                      </SelectItem>
+                      <SelectItem value="USDT" className="text-white">
+                        USDT
+                      </SelectItem>
+                      <SelectItem value="USDC" className="text-white">
+                        USDC
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label className="text-white/80">Distribution Type</Label>
-                <Select value={formData.split} onValueChange={(value: any) => handleInputChange('split', value)}>
+                <Select
+                  value={formData.split}
+                  onValueChange={(value: any) =>
+                    handleInputChange('split', value)
+                  }
+                >
                   <SelectTrigger className="bg-white/5 border-white/10 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-white/10">
-                    <SelectItem value="FIXED" className="text-white">Fixed Amounts</SelectItem>
-                    <SelectItem value="EQUAL_SPLIT" className="text-white">Equal Split</SelectItem>
-                    <SelectItem value="VARIABLE" className="text-white">Variable</SelectItem>
+                    <SelectItem value="FIXED" className="text-white">
+                      Fixed Amounts
+                    </SelectItem>
+                    <SelectItem value="EQUAL_SPLIT" className="text-white">
+                      Equal Split
+                    </SelectItem>
+                    <SelectItem value="VARIABLE" className="text-white">
+                      Variable
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {formData.split === 'FIXED' && (
-                <div>
+                <div className="space-y-2">
                   <Label className="text-white/80">Winner Prizes</Label>
                   <div className="space-y-2">
                     {[1, 2, 3, 4, 5].map((position) => (
                       <div key={position} className="flex items-center gap-2">
-                        <span className="w-16 text-sm text-white/60">{position}st Place</span>
+                        <span className="w-16 text-sm text-white/60">
+                          {position}st Place
+                        </span>
                         <Input
                           type="number"
                           value={formData.winnings[position.toString()] || ''}
-                          onChange={(e) => updateWinnings(position.toString(), Number(e.target.value))}
+                          onChange={(e) =>
+                            updateWinnings(
+                              position.toString(),
+                              Number(e.target.value)
+                            )
+                          }
                           className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
                           placeholder="0"
                         />
-                        <span className="text-sm text-white/60">{formData.token}</span>
+                        <span className="text-sm text-white/60">
+                          {formData.token}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -393,72 +553,11 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-
-          {/* Screening Questions */}
-          <Card className="bg-zinc-900/50 border-white/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <DollarSign className="h-5 w-5" />
-                Screening Questions
-              </CardTitle>
-              <CardDescription className="text-white/60">
-                Add questions to screen participants
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Textarea
-                  value={newScreening.question}
-                  onChange={(e) => setNewScreening(prev => ({ ...prev, question: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                  placeholder="Enter screening question"
-                />
-                <div className="flex gap-2">
-                  <Select value={newScreening.type} onValueChange={(value: any) => setNewScreening(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/10">
-                      <SelectItem value="text" className="text-white">Text</SelectItem>
-                      <SelectItem value="url" className="text-white">URL</SelectItem>
-                      <SelectItem value="file" className="text-white">File</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={addScreening} size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Question
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {formData.screening.map((question, index) => (
-                  <div key={index} className="rounded-lg bg-white/5 p-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white">{question.question}</div>
-                        <div className="text-xs text-white/60 mt-1">
-                          Type: {question.type} • {question.optional ? 'Optional' : 'Required'}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => removeScreening(index)}
-                        className="ml-2 text-white/40 hover:text-red-400"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Timeline */}
           <Card className="bg-zinc-900/50 border-white/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
-                <Clock className="h-5 w-5" />
+                <Clock className="size-4" />
                 Timeline
               </CardTitle>
               <CardDescription className="text-white/60">
@@ -467,12 +566,16 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent>
               <div>
-                <Label htmlFor="deadline" className="text-white/80">Deadline</Label>
+                <Label htmlFor="deadline" className="text-white/80">
+                  Deadline
+                </Label>
                 <Input
                   id="deadline"
                   type="datetime-local"
                   value={formData.deadline}
-                  onChange={(e) => handleInputChange('deadline', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('deadline', e.target.value)
+                  }
                   className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
                 />
               </div>
@@ -486,7 +589,7 @@ export default function SettingsPage() {
           <Card className="bg-zinc-900/50 border-white/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
-                <Eye className="h-5 w-5" />
+                <Eye className="size-4" />
                 Status & Visibility
               </CardTitle>
               <CardDescription className="text-white/60">
@@ -494,31 +597,55 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
+              <div className="space-y-2">
                 <Label className="text-white/80">Status</Label>
-                <Select value={formData.status} onValueChange={(value: any) => handleInputChange('status', value)}>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: any) =>
+                    handleInputChange('status', value)
+                  }
+                >
                   <SelectTrigger className="bg-white/5 border-white/10 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-white/10">
-                    <SelectItem value="OPEN" className="text-white">Open</SelectItem>
-                    <SelectItem value="REVIEWING" className="text-white">Reviewing</SelectItem>
-                    <SelectItem value="COMPLETED" className="text-white">Completed</SelectItem>
-                    <SelectItem value="CLOSED" className="text-white">Closed</SelectItem>
-                    <SelectItem value="CANCELLED" className="text-white">Cancelled</SelectItem>
+                    <SelectItem value="OPEN" className="text-white">
+                      Open
+                    </SelectItem>
+                    <SelectItem value="REVIEWING" className="text-white">
+                      Reviewing
+                    </SelectItem>
+                    <SelectItem value="COMPLETED" className="text-white">
+                      Completed
+                    </SelectItem>
+                    <SelectItem value="CLOSED" className="text-white">
+                      Closed
+                    </SelectItem>
+                    <SelectItem value="CANCELLED" className="text-white">
+                      Cancelled
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label className="text-white/80">Visibility</Label>
-                <Select value={formData.visibility} onValueChange={(value: any) => handleInputChange('visibility', value)}>
+                <Select
+                  value={formData.visibility}
+                  onValueChange={(value: any) =>
+                    handleInputChange('visibility', value)
+                  }
+                >
                   <SelectTrigger className="bg-white/5 border-white/10 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-white/10">
-                    <SelectItem value="DRAFT" className="text-white">Draft (Private)</SelectItem>
-                    <SelectItem value="PUBLISHED" className="text-white">Published (Public)</SelectItem>
+                    <SelectItem value="DRAFT" className="text-white">
+                      Draft (Private)
+                    </SelectItem>
+                    <SelectItem value="PUBLISHED" className="text-white">
+                      Published (Public)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -528,12 +655,16 @@ export default function SettingsPage() {
                 <div className="space-y-1">
                   <div className="flex justify-between">
                     <span className="text-white/80">Created:</span>
-                    <span className="text-white">{new Date(bounty.createdAt).toLocaleDateString()}</span>
+                    <span className="text-white">
+                      {new Date(bounty.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                   {bounty.publishedAt && (
                     <div className="flex justify-between">
                       <span className="text-white/80">Published:</span>
-                      <span className="text-white">{new Date(bounty.publishedAt).toLocaleDateString()}</span>
+                      <span className="text-white">
+                        {new Date(bounty.publishedAt).toLocaleDateString()}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -545,78 +676,15 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Resources */}
-          <Card className="bg-zinc-900/50 border-white/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Users className="h-5 w-5" />
-                Resources
-              </CardTitle>
-              <CardDescription className="text-white/60">
-                Add helpful resources for participants
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="grid grid-cols-1 gap-2">
-                  <Input
-                    value={newResource.title}
-                    onChange={(e) => setNewResource(prev => ({ ...prev, title: e.target.value }))}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                    placeholder="Resource title"
-                  />
-                  <Input
-                    value={newResource.url}
-                    onChange={(e) => setNewResource(prev => ({ ...prev, url: e.target.value }))}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                    placeholder="Resource URL"
-                  />
-                  <Input
-                    value={newResource.description}
-                    onChange={(e) => setNewResource(prev => ({ ...prev, description: e.target.value }))}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                    placeholder="Description (optional)"
-                  />
-                </div>
-                <Button onClick={addResource} size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Resource
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                {formData.resources.map((resource, index) => (
-                  <div key={index} className="rounded-lg bg-white/5 p-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-white truncate">{resource.title}</div>
-                        <div className="text-sm text-white/60 truncate">{resource.url}</div>
-                        {resource.description && (
-                          <div className="text-xs text-white/40 mt-1">{resource.description}</div>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => removeResource(index)}
-                        className="ml-2 text-white/40 hover:text-red-400"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-
           {/* Danger Zone */}
           <Card className="bg-red-500/10 border-red-500/30">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-red-400">
-              Delete Bounty
+                Delete Bounty
               </CardTitle>
               <CardDescription className="text-red-400/60">
-              This will permanently delete the bounty and all associated data. This action cannot be undone.
+                This will permanently delete the bounty and all associated data.
+                This action cannot be undone.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -636,12 +704,15 @@ export default function SettingsPage() {
                       <p className="text-sm text-red-400/80">
                         Are you sure? Type "DELETE" to confirm.
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
                         <Input
                           placeholder="Type DELETE to confirm"
                           className="bg-white/5 border-red-500/50 text-white placeholder:text-white/40"
                           onKeyPress={(e) => {
-                            if (e.key === 'Enter' && e.currentTarget.value === 'DELETE') {
+                            if (
+                              e.key === 'Enter' &&
+                              e.currentTarget.value === 'DELETE'
+                            ) {
                               deleteBounty();
                             }
                           }}

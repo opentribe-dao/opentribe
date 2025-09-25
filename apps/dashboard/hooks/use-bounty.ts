@@ -13,7 +13,7 @@ export interface BountyDetails {
   winnings: Record<string, number>;
   deadline: string;
   resources?: Array<{ title: string; url: string; description?: string }>;
-  screening?: Array<{ question: string; type: string; optional: boolean }>;
+  screening?: Array<{ question: string; type: 'text' | 'url' | 'file'; optional: boolean }>;
   status: string;
   visibility: string;
   submissionCount: number;

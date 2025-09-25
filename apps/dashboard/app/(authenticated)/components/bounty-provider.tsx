@@ -207,7 +207,7 @@ export function BountyProvider({
       refreshSubmissions();
 
       toast.success('Winners removed successfully');
-      return true;
+   
     } catch (error) {
       toast.error('Failed to remove selected winners');
       throw error;

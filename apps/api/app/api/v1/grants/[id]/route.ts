@@ -143,11 +143,6 @@ export async function GET(
         { error: "Grant not found" },
         {
           status: 404,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
@@ -158,27 +153,13 @@ export async function GET(
       data: { viewCount: { increment: 1 } },
     });
 
-    return NextResponse.json(
-      { grant },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({ grant });
   } catch (error) {
     console.error("Error fetching grant:", error);
     return NextResponse.json(
       { error: "Failed to fetch grant" },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   }
@@ -319,19 +300,10 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        grant: updatedGrant,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      grant: updatedGrant,
+    });
   } catch (error) {
     console.error("Grant update error:", error);
 
@@ -417,19 +389,10 @@ export async function DELETE(
       where: { id: grantId },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Grant deleted successfully",
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "Grant deleted successfully",
+    });
   } catch (error) {
     console.error("Grant deletion error:", error);
 
@@ -444,10 +407,5 @@ export async function DELETE(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

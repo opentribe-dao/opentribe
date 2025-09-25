@@ -1,8 +1,9 @@
 import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { PaymentService } from "@packages/polkadot";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { Client } from "@packages/polkadot";
 
 // Schema for payment verification
 const verifyPaymentSchema = z.object({
@@ -19,8 +20,23 @@ export async function POST(request: NextRequest) {
       headers: await headers(),
     });
 
-    if (!session?.user) {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await database.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!user?.walletAddress) {
+      return NextResponse.json(
+        { error: "No user wallet address found" },
+        { status: 400 }
+      );
     }
 
     // Parse and validate request body
@@ -32,78 +48,48 @@ export async function POST(request: NextRequest) {
       process.env.NODE_ENV === "development" &&
       validatedData.extrinsicHash.startsWith("0xtest")
     ) {
-      return NextResponse.json(
-        {
-          verified: true,
-          details: {
-            blockNumber: 12345678,
-            from: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-            to: validatedData.expectedTo,
-            amount: validatedData.expectedAmount,
-            fee: "0.01",
-          },
-          message: "Payment verified successfully (development mode)",
+      return NextResponse.json({
+        verified: true,
+        details: {
+          blockNumber: 12345678,
+          from: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+          to: validatedData.expectedTo,
+          amount: validatedData.expectedAmount,
+          fee: "0.01",
         },
-        {
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
-        }
-      );
-    }
-
-    // Initialize Polkadot client
-    const client = new Client();
-
-    try {
-      // Connect to the blockchain
-      await client.connect();
-
-      // Verify the transaction
-      const result = await client.verifyTransfer({
-        extrinsicHash: validatedData.extrinsicHash,
-        expectedFrom: "", // We don't check the sender
-        expectedTo: validatedData.expectedTo,
-        expectedAmount: validatedData.expectedAmount,
+        message: "Payment verified successfully (development mode)",
       });
-
-      if (result.verified) {
-        return NextResponse.json(
-          {
-            verified: true,
-            details: result.details,
-            message: "Payment verified successfully on the blockchain",
-          },
-          {
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods": "POST, OPTIONS",
-              "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            },
-          }
-        );
-      } else {
-        return NextResponse.json(
-          {
-            verified: false,
-            error: result.error || "Payment verification failed",
-          },
-          {
-            status: 400,
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods": "POST, OPTIONS",
-              "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            },
-          }
-        );
-      }
-    } finally {
-      // Always disconnect
-      await client.disconnect();
     }
+
+    // Initialize payment service (uses Dedot + Subscan under the hood)
+    const payments = new PaymentService("polkadot");
+
+    // Verify the transaction
+    const result = await payments.verifyPayment({
+      extrinsicHash: validatedData.extrinsicHash,
+      fromAddress: user?.walletAddress,
+      toAddress: validatedData.expectedTo,
+      expectedAmount: validatedData.expectedAmount,
+    });
+
+    if (result.verified) {
+      return NextResponse.json({
+        verified: true,
+        details: result.details,
+        message: "Payment verified successfully on the blockchain",
+      });
+    }
+
+    return NextResponse.json(
+      {
+        verified: false,
+        error: result.error || "Payment verification failed",
+      },
+      {
+        status: 400,
+      }
+    );
+    // No persistent connection to close; PaymentService verifies via Subscan
   } catch (error) {
     console.error("Payment verification error:", error);
 
@@ -122,11 +108,6 @@ export async function POST(request: NextRequest) {
       },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   }
@@ -136,10 +117,5 @@ export async function POST(request: NextRequest) {
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

@@ -17,6 +17,7 @@ import { OverviewSkeleton } from '@/components/loading-states';
 import { relativeTime } from '@packages/base/lib/utils';
 import { StatsCard } from '@/components/overview/stats-card';
 import { UrgentActionsCard } from '@/components/overview/urgent-actions-card';
+import { useErrorHandler } from '@/hooks/use-error-handler';
 
 const App = () => {
   const { data: session } = useSession();
@@ -60,7 +61,7 @@ const App = () => {
       <Header pages={[]} page="Overview" />
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Stats Cards */}
-        <div className="grid gap-12 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           <StatsCard
             title="Active Bounties"
             value={stats.activeBounties ?? 0}
@@ -124,7 +125,7 @@ const App = () => {
 
         {/* Reviews Section */}
         <div className="space-y-4">
-          <h2 className="font-medium text-lg text-white">Reviews</h2>
+          <h2 className="font-medium text-lg text-white">Recent Activity</h2>
 
           {recentActivities != null &&
             recentActivities.length > 0 &&

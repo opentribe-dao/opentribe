@@ -5,14 +5,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // GET /api/v1/organizations/[organizationId] - Get organization details
@@ -28,10 +22,7 @@ export async function GET(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const organization = await database.organization.findUnique({
@@ -55,7 +46,7 @@ export async function GET(
     if (!organization) {
       return NextResponse.json(
         { error: "Organization not found" },
-        { status: 404, headers: corsHeaders }
+        { status: 404 }
       );
     }
 
@@ -65,18 +56,15 @@ export async function GET(
     );
 
     if (!isMember) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json({ organization }, { headers: corsHeaders });
+    return NextResponse.json({ organization });
   } catch (error) {
     console.error("Error fetching organization:", error);
     return NextResponse.json(
       { error: "Failed to fetch organization" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -94,10 +82,7 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user has permission to update organization
@@ -112,10 +97,7 @@ export async function PATCH(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const updateSchema = z.object({
@@ -145,7 +127,7 @@ export async function PATCH(
       if (existingOrg) {
         return NextResponse.json(
           { error: "Slug already taken" },
-          { status: 400, headers: corsHeaders }
+          { status: 400 }
         );
       }
     }
@@ -172,22 +154,19 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(
-      { organization: updatedOrganization },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ organization: updatedOrganization });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid request data", details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
 
     console.error("Error updating organization:", error);
     return NextResponse.json(
       { error: "Failed to update organization" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -205,10 +184,7 @@ export async function DELETE(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user is the owner
@@ -223,7 +199,7 @@ export async function DELETE(
     if (!member) {
       return NextResponse.json(
         { error: "Only the owner can delete the organization" },
-        { status: 403, headers: corsHeaders }
+        { status: 403 }
       );
     }
 
@@ -232,15 +208,12 @@ export async function DELETE(
       where: { id: organizationId },
     });
 
-    return NextResponse.json(
-      { message: "Organization deleted successfully" },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ message: "Organization deleted successfully" });
   } catch (error) {
     console.error("Error deleting organization:", error);
     return NextResponse.json(
       { error: "Failed to delete organization" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

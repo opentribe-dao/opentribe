@@ -48,10 +48,10 @@ export async function GET(request: NextRequest) {
 }
 
 function withHeaders(response: NextResponse) {
-  response.headers.set("Access-Control-Allow-Origin", "*");
-  response.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-  response.headers.set("Access-Control-Allow-Headers", "Content-Type");
-  response.headers.set("Cache-Control", "s-maxage=1800, max-age=300");
+  response.headers.set(
+    "Cache-Control",
+    `s-maxage=1800, max-age=${CACHE_TTL_SECONDS}`
+  );
   return response;
 }
 

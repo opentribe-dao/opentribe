@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -10,7 +10,6 @@ import {
 } from '@packages/base/components/ui/card';
 import { Button } from '@packages/base/components/ui/button';
 import { Input } from '@packages/base/components/ui/input';
-import { Textarea } from '@packages/base/components/ui/textarea';
 import { Label } from '@packages/base/components/ui/label';
 import {
   Select,
@@ -19,27 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@packages/base/components/ui/select';
-import { MarkdownEditor } from '@packages/base/components/ui/markdown-editor';
-import { Badge } from '@packages/base/components/ui/badge';
 import { useBountyContext } from '../../../components/bounty-provider';
 import { toast } from 'sonner';
 import { env } from '@/env';
-import {
-  Save,
-  Loader2,
-  AlertTriangle,
-  Calendar,
-  DollarSign,
-  Users,
-  Eye,
-  EyeOff,
-  Trash2,
-  Plus,
-  X,
-  Settings,
-  Award,
-  Clock,
-} from 'lucide-react';
+import { Save, Loader2, Eye, Trash2, Award, Clock, Plus } from 'lucide-react';
 
 interface BountyFormData {
   title: string;
@@ -80,17 +62,6 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [newSkill, setNewSkill] = useState('');
-  const [newResource, setNewResource] = useState({
-    title: '',
-    url: '',
-    description: '',
-  });
-  const [newScreening, setNewScreening] = useState({
-    question: '',
-    type: 'text' as const,
-    optional: false,
-  });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Initialize form data from bounty
@@ -213,54 +184,6 @@ export default function SettingsPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const addSkill = () => {
-    if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
-      handleInputChange('skills', [...formData.skills, newSkill.trim()]);
-      setNewSkill('');
-    }
-  };
-
-  const removeSkill = (skill: string) => {
-    handleInputChange(
-      'skills',
-      formData.skills.filter((s) => s !== skill)
-    );
-  };
-
-  const addResource = () => {
-    if (newResource.title.trim() && newResource.url.trim()) {
-      handleInputChange('resources', [
-        ...formData.resources,
-        { ...newResource },
-      ]);
-      setNewResource({ title: '', url: '', description: '' });
-    }
-  };
-
-  const removeResource = (index: number) => {
-    handleInputChange(
-      'resources',
-      formData.resources.filter((_, i) => i !== index)
-    );
-  };
-
-  const addScreening = () => {
-    if (newScreening.question.trim()) {
-      handleInputChange('screening', [
-        ...formData.screening,
-        { ...newScreening },
-      ]);
-      setNewScreening({ question: '', type: 'text', optional: false });
-    }
-  };
-
-  const removeScreening = (index: number) => {
-    handleInputChange(
-      'screening',
-      formData.screening.filter((_, i) => i !== index)
-    );
-  };
-
   const updateWinnings = (position: string, amount: number) => {
     const newWinnings = { ...formData.winnings };
     if (amount > 0) {
@@ -312,7 +235,9 @@ export default function SettingsPage() {
   };
 
   const deleteBounty = async () => {
-    if (!bounty) {return;}
+    if (!bounty) {
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -350,100 +275,28 @@ export default function SettingsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2 mb-4">
-          {hasChanges && (
-            <Button
-              onClick={saveBounty}
-              disabled={isSaving}
-              className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
-            >
-              {isSaving ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-4 w-4" />
-              )}
-              Save Changes
-            </Button>
-          )}
-        </div>
+      <div className="mb-4 flex justify-end gap-2">
+        {hasChanges && (
+          <Button
+            onClick={saveBounty}
+            disabled={isSaving}
+            className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
+          >
+            {isSaving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            Save Changes
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left Column - Basic Settings */}
         <div className="space-y-6">
-          {/* Basic Information */}
-          {/* <Card className="bg-zinc-900/50 border-white/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Settings className="h-5 w-5" />
-                Basic Information
-              </CardTitle>
-              <CardDescription className="text-white/60">
-                Core bounty details and description
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="title" className="text-white/80">Title</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                  placeholder="Enter bounty title"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="description" className="text-white/80">Description</Label>
-                <MarkdownEditor
-                  value={formData.description}
-                  onChange={(value) => handleInputChange('description', value)}
-                  placeholder="Describe the bounty requirements and deliverables..."
-                  height={200}
-                />
-              </div>
-
-              <div>
-                <Label className="text-white/80">Required Skills</Label>
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newSkill}
-                      onChange={(e) => setNewSkill(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                      placeholder="Add a skill"
-                    />
-                    <Button onClick={addSkill} size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.skills.map((skill) => (
-                      <Badge
-                        key={skill}
-                        variant="secondary"
-                        className="bg-white/10 text-white border-white/20"
-                      >
-                        {skill}
-                        <button
-                          onClick={() => removeSkill(skill)}
-                          className="ml-2 hover:text-red-400"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card> */}
-
           {/* Prize Distribution */}
-          <Card className="bg-zinc-900/50 border-white/10">
+          <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Award className="size-4" />
@@ -466,7 +319,7 @@ export default function SettingsPage() {
                     onChange={(e) =>
                       handleInputChange('amount', Number(e.target.value))
                     }
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                    className='border-white/10 bg-white/5 text-white placeholder:text-white/40'
                     placeholder="0"
                   />
                 </div>
@@ -478,10 +331,10 @@ export default function SettingsPage() {
                     value={formData.token}
                     onValueChange={(value) => handleInputChange('token', value)}
                   >
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectTrigger className='border-white/10 bg-white/5 text-white'>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/10">
+                    <SelectContent className='border-white/10 bg-zinc-900'>
                       <SelectItem value="DOT" className="text-white">
                         DOT
                       </SelectItem>
@@ -500,14 +353,14 @@ export default function SettingsPage() {
                 <Label className="text-white/80">Distribution Type</Label>
                 <Select
                   value={formData.split}
-                  onValueChange={(value: any) =>
+                  onValueChange={(value: string) =>
                     handleInputChange('split', value)
                   }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectTrigger className='border-white/10 bg-white/5 text-white'>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10">
+                  <SelectContent className='border-white/10 bg-zinc-900'>
                     <SelectItem value="FIXED" className="text-white">
                       Fixed Amounts
                     </SelectItem>
@@ -522,31 +375,78 @@ export default function SettingsPage() {
               </div>
 
               {formData.split === 'FIXED' && (
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label className="text-white/80">Winner Prizes</Label>
                   <div className="space-y-2">
-                    {[1, 2, 3, 4, 5].map((position) => (
-                      <div key={position} className="flex items-center gap-2">
-                        <span className="w-16 text-sm text-white/60">
-                          {position}st Place
-                        </span>
-                        <Input
-                          type="number"
-                          value={formData.winnings[position.toString()] || ''}
-                          onChange={(e) =>
-                            updateWinnings(
-                              position.toString(),
-                              Number(e.target.value)
-                            )
-                          }
-                          className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                          placeholder="0"
-                        />
-                        <span className="text-sm text-white/60">
-                          {formData.token}
-                        </span>
-                      </div>
-                    ))}
+                    {Object.keys(formData.winnings)
+                      .sort((a, b) => Number(a) - Number(b))
+                      .map((position,) => (
+                        <div key={position} className="flex items-center gap-2">
+                          <span className="w-16 text-sm text-white/60">
+                            {position}
+                            {position === '1'
+                              ? 'st'
+                              : position === '2'
+                                ? 'nd'
+                                : position === '3'
+                                  ? 'rd'
+                                  : 'th'}{' '}
+                            Place
+                          </span>
+                          <Input
+                            type="number"
+                            value={formData.winnings[position] || ''}
+                            onChange={(e) =>
+                              updateWinnings(position, Number(e.target.value))
+                            }
+                            className='border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                            placeholder="0"
+                          />
+                          <span className="text-sm text-white/60">
+                            {formData.token}
+                          </span>
+                          {Object.keys(formData.winnings).length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="ml-2 text-white/40 hover:text-white"
+                              onClick={() => {
+                                const newWinnings = { ...formData.winnings };
+                                delete newWinnings[position];
+                                handleInputChange('winnings', newWinnings);
+                              }}
+                              aria-label="Remove tier"
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className='mt-4 border-white/20 bg-white/10 text-white hover:bg-white/20'
+                      onClick={() => {
+                        // Find the next available position number
+                        const existing = Object.keys(formData.winnings).map(
+                          Number
+                        );
+                        let next = 1;
+                        while (existing.includes(next)) {
+                          next++;
+                        }
+                        const newWinnings = {
+                          ...formData.winnings,
+                          [next]: '',
+                        };
+                        handleInputChange('winnings', newWinnings);
+                      }}
+                    >
+                      <Plus className="size-4" />
+                      Add Winning Tier
+                    </Button>
                   </div>
                 </div>
               )}
@@ -554,7 +454,7 @@ export default function SettingsPage() {
           </Card>
 
           {/* Timeline */}
-          <Card className="bg-zinc-900/50 border-white/10">
+          <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Clock className="size-4" />
@@ -565,7 +465,7 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="deadline" className="text-white/80">
                   Deadline
                 </Label>
@@ -576,7 +476,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     handleInputChange('deadline', e.target.value)
                   }
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                  className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
                 />
               </div>
             </CardContent>
@@ -586,7 +486,7 @@ export default function SettingsPage() {
         {/* Right Column - Advanced Settings */}
         <div className="space-y-6">
           {/* Status & Visibility */}
-          <Card className="bg-zinc-900/50 border-white/10">
+          <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Eye className="size-4" />
@@ -597,61 +497,63 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-white/80">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value: any) =>
-                    handleInputChange('status', value)
-                  }
-                >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10">
-                    <SelectItem value="OPEN" className="text-white">
-                      Open
-                    </SelectItem>
-                    <SelectItem value="REVIEWING" className="text-white">
-                      Reviewing
-                    </SelectItem>
-                    <SelectItem value="COMPLETED" className="text-white">
-                      Completed
-                    </SelectItem>
-                    <SelectItem value="CLOSED" className="text-white">
-                      Closed
-                    </SelectItem>
-                    <SelectItem value="CANCELLED" className="text-white">
-                      Cancelled
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <div className="flex gap-6">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-white/80">Status</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value: string) =>
+                      handleInputChange('status', value)
+                    }
+                  >
+                    <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/10 bg-zinc-900">
+                      <SelectItem value="OPEN" className="text-white">
+                        Open
+                      </SelectItem>
+                      <SelectItem value="REVIEWING" className="text-white">
+                        Reviewing
+                      </SelectItem>
+                      <SelectItem value="COMPLETED" className="text-white">
+                        Completed
+                      </SelectItem>
+                      <SelectItem value="CLOSED" className="text-white">
+                        Closed
+                      </SelectItem>
+                      <SelectItem value="CANCELLED" className="text-white">
+                        Cancelled
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label className="text-white/80">Visibility</Label>
-                <Select
-                  value={formData.visibility}
-                  onValueChange={(value: any) =>
-                    handleInputChange('visibility', value)
-                  }
-                >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10">
-                    <SelectItem value="DRAFT" className="text-white">
-                      Draft (Private)
-                    </SelectItem>
-                    <SelectItem value="PUBLISHED" className="text-white">
-                      Published (Public)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex-1 space-y-2">
+                  <Label className="text-white/80">Visibility</Label>
+                  <Select
+                    value={formData.visibility}
+                    onValueChange={(value: string) =>
+                      handleInputChange('visibility', value)
+                    }
+                  >
+                    <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/10 bg-zinc-900">
+                      <SelectItem value="DRAFT" className="text-white">
+                        Draft (Private)
+                      </SelectItem>
+                      <SelectItem value="PUBLISHED" className="text-white">
+                        Published (Public)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="rounded-lg bg-white/5 p-3">
-                <div className="text-sm text-white/60 mb-2">Current Status</div>
+                <div className="mb-2 text-sm text-white/60">Current Info</div>
                 <div className="space-y-1">
                   <div className="flex justify-between">
                     <span className="text-white/80">Created:</span>
@@ -677,7 +579,7 @@ export default function SettingsPage() {
           </Card>
 
           {/* Danger Zone */}
-          <Card className="bg-red-500/10 border-red-500/30">
+          <Card className="border-red-500/30 bg-red-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-red-400">
                 Delete Bounty
@@ -690,25 +592,16 @@ export default function SettingsPage() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  {!showDeleteConfirm ? (
-                    <Button
-                      onClick={() => setShowDeleteConfirm(true)}
-                      variant="destructive"
-                      size="sm"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Bounty
-                    </Button>
-                  ) : (
+                  {showDeleteConfirm ? (
                     <div className="space-y-2">
-                      <p className="text-sm text-red-400/80">
+                      <p className="text-red-400/80 text-sm">
                         Are you sure? Type "DELETE" to confirm.
                       </p>
-                      <div className="flex gap-2 items-center">
+                      <div className="flex items-center gap-2">
                         <Input
                           placeholder="Type DELETE to confirm"
-                          className="bg-white/5 border-red-500/50 text-white placeholder:text-white/40"
-                          onKeyPress={(e) => {
+                          className="border-red-500/50 bg-white/5 text-white placeholder:text-white/40"
+                          onKeyDown={(e) => {
                             if (
                               e.key === 'Enter' &&
                               e.currentTarget.value === 'DELETE'
@@ -727,6 +620,15 @@ export default function SettingsPage() {
                         </Button>
                       </div>
                     </div>
+                  ) : (
+                    <Button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      <Trash2 className="size-4" />
+                      Delete Bounty
+                    </Button>
                   )}
                 </div>
               </div>

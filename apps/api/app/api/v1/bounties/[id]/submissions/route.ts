@@ -50,11 +50,6 @@ export async function GET(
         { error: "Bounty not found" },
         {
           status: 404,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
@@ -133,31 +128,17 @@ export async function GET(
       },
     }));
 
-    return NextResponse.json(
-      {
-        submissions: submissionsWithStats,
-        total: submissionsWithStats.length,
-        isOrgMember,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      submissions: submissionsWithStats,
+      total: submissionsWithStats.length,
+      isOrgMember,
+    });
   } catch (error) {
     console.error("Error fetching submissions:", error);
     return NextResponse.json(
       { error: "Failed to fetch submissions" },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   }
@@ -323,11 +304,6 @@ export async function POST(
       },
       {
         status: 201,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   } catch (error) {
@@ -351,10 +327,5 @@ export async function POST(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendGrantStatusUpdateEmail } from "@packages/email";
@@ -6,14 +7,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "PATCH, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // PATCH /api/v1/grants/[id]/applications/[applicationId]/review - Review application
@@ -30,7 +26,7 @@ export async function PATCH(
     if (!sessionData?.user) {
       return NextResponse.json(
         { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
+        { status: 401,  }
       );
     }
 
@@ -60,7 +56,7 @@ export async function PATCH(
     if (!application) {
       return NextResponse.json(
         { error: "Application not found" },
-        { status: 404, headers: corsHeaders }
+        { status: 404,  }
       );
     }
 
@@ -81,7 +77,7 @@ export async function PATCH(
     if (!userMember && !isCurator) {
       return NextResponse.json(
         { error: "You don't have permission to review applications" },
-        { status: 403, headers: corsHeaders }
+        { status: 403,  }
       );
     }
 
@@ -125,7 +121,7 @@ export async function PATCH(
         updatedApplication.title,
         validatedData.status,
         validatedData.feedback,
-        `${process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io'}/grants/${updatedApplication.grantId}/applications/${updatedApplication.id}`
+        `${env.NEXT_PUBLIC_WEB_URL}/grants/${updatedApplication.grantId}/applications/${updatedApplication.id}`
       );
     } catch (emailError) {
       console.error("Failed to send status update email:", emailError);
@@ -137,20 +133,20 @@ export async function PATCH(
         application: updatedApplication,
         message: `Application ${validatedData.status.toLowerCase()} successfully`,
       },
-      { headers: corsHeaders }
+      
     );
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+  } catch (err) {
+    if (err instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: err.errors },
+        { status: 400 }
       );
     }
 
-    console.error("Error reviewing application:", error);
+    console.error("Error reviewing application:", err);
     return NextResponse.json(
       { error: "Failed to review application" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

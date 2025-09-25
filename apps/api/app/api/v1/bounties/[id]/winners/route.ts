@@ -1,17 +1,21 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { sendBountyWinnerEmail } from '@packages/email';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { sendBountyWinnerEmail } from "@packages/email";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Schema for announcing winners
 const announceWinnersSchema = z.object({
-  winners: z.array(z.object({
-    submissionId: z.string(),
-    position: z.number().int().positive(),
-    amount: z.number().positive(),
-  })).min(1),
+  winners: z
+    .array(
+      z.object({
+        submissionId: z.string(),
+        position: z.number().int().positive(),
+        amount: z.number().positive(),
+      })
+    )
+    .min(1),
 });
 
 // POST /api/v1/bounties/[id]/winners - Announce winners
@@ -26,10 +30,7 @@ export async function POST(
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bountyId = (await params).id;
@@ -44,7 +45,7 @@ export async function POST(
               where: {
                 userId: session.user.id,
                 role: {
-                  in: ['owner', 'admin'],
+                  in: ["owner", "admin"],
                 },
               },
             },
@@ -54,23 +55,26 @@ export async function POST(
     });
 
     if (!bounty) {
-      return NextResponse.json(
-        { error: 'Bounty not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
     if (bounty.organization.members.length === 0) {
       return NextResponse.json(
-        { error: 'You do not have permission to announce winners for this bounty' },
+        {
+          error:
+            "You do not have permission to announce winners for this bounty",
+        },
         { status: 403 }
       );
     }
 
     // Check if bounty is in a valid state
-    if (bounty.status !== 'OPEN' && bounty.status !== 'REVIEWING') {
+    if (bounty.status !== "OPEN" && bounty.status !== "REVIEWING") {
       return NextResponse.json(
-        { error: 'Cannot announce winners for a bounty that is not open or under review' },
+        {
+          error:
+            "Cannot announce winners for a bounty that is not open or under review",
+        },
         { status: 400 }
       );
     }
@@ -80,31 +84,40 @@ export async function POST(
     const validatedData = announceWinnersSchema.parse(body);
 
     // Validate that total winner amounts match bounty winnings structure
-    const totalWinnerAmount = validatedData.winners.reduce((sum, winner) => sum + winner.amount, 0);
-    const totalBountyAmount = bounty.winnings 
-      ? Object.values(bounty.winnings as Record<string, number>).reduce((sum, amount) => sum + amount, 0)
+    const totalWinnerAmount = validatedData.winners.reduce(
+      (sum, winner) => sum + winner.amount,
+      0
+    );
+    const totalBountyAmount = bounty.winnings
+      ? Object.values(bounty.winnings as Record<string, number>).reduce(
+          (sum, amount) => sum + amount,
+          0
+        )
       : Number(bounty.amount) || 0;
 
     if (Math.abs(totalWinnerAmount - totalBountyAmount) > 0.01) {
       return NextResponse.json(
-        { error: 'Total winner amounts must match the bounty prize pool' },
+        { error: "Total winner amounts must match the bounty prize pool" },
         { status: 400 }
       );
     }
 
     // Validate all submissions exist and belong to this bounty
-    const submissionIds = validatedData.winners.map(w => w.submissionId);
+    const submissionIds = validatedData.winners.map((w) => w.submissionId);
     const submissions = await database.submission.findMany({
       where: {
         id: { in: submissionIds },
         bountyId: bountyId,
-        status: 'APPROVED',
+        status: "APPROVED",
       },
     });
 
     if (submissions.length !== submissionIds.length) {
       return NextResponse.json(
-        { error: 'One or more submissions are invalid or not in submitted status' },
+        {
+          error:
+            "One or more submissions are invalid or not in submitted status",
+        },
         { status: 400 }
       );
     }
@@ -126,8 +139,10 @@ export async function POST(
       });
 
       // Then set the new winners
-      const updatePromises = validatedData.winners.map(winner => {
-        const submission = submissions.find(s => s.id === winner.submissionId)!;
+      const updatePromises = validatedData.winners.map((winner) => {
+        const submission = submissions.find(
+          (s) => s.id === winner.submissionId
+        )!;
         return tx.submission.update({
           where: { id: winner.submissionId },
           data: {
@@ -135,7 +150,7 @@ export async function POST(
             position: winner.position,
             winningAmount: winner.amount,
             winnerUserId: submission.userId,
-            status: 'APPROVED',
+            status: "APPROVED",
             reviewedAt: new Date(),
           },
         });
@@ -147,7 +162,7 @@ export async function POST(
       const updatedBounty = await tx.bounty.update({
         where: { id: bountyId },
         data: {
-          status: 'COMPLETED',
+          status: "COMPLETED",
           winnersAnnouncedAt: new Date(),
         },
         include: {
@@ -209,7 +224,7 @@ export async function POST(
               id: submission.id,
               position: submission.position || 1,
               prizeAmount: String(submission.winningAmount || 0),
-              token: result.token || 'USDT',
+              token: result.token || "USDT",
             }
           );
         }
@@ -217,36 +232,27 @@ export async function POST(
 
       await Promise.allSettled(emailPromises);
     } catch (emailError) {
-      console.error('Failed to send winner notification emails:', emailError);
+      console.error("Failed to send winner notification emails:", emailError);
       // Don't fail the request if emails fail
     }
 
-    return NextResponse.json(
-      { 
-        success: true,
-        bounty: result,
-        message: 'Winners announced successfully',
-      },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      bounty: result,
+      message: "Winners announced successfully",
+    });
   } catch (error) {
-    console.error('Announce winners error:', error);
-    
+    console.error("Announce winners error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid data", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to announce winners' },
+      { error: "Failed to announce winners" },
       { status: 500 }
     );
   }
@@ -256,10 +262,5 @@ export async function POST(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
   });
 }

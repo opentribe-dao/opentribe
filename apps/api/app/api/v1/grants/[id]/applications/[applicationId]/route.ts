@@ -4,14 +4,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // GET /api/v1/grants/[id]/applications/[applicationId] - Get application details
@@ -26,10 +20,7 @@ export async function GET(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Fetch application with all related data
@@ -72,7 +63,7 @@ export async function GET(
     if (!application) {
       return NextResponse.json(
         { error: "Application not found" },
-        { status: 404, headers: corsHeaders }
+        { status: 404 }
       );
     }
 
@@ -86,10 +77,7 @@ export async function GET(
 
     // Only organization members can view applications
     if (!userMember) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Transform the application data
@@ -108,21 +96,18 @@ export async function GET(
       grant: application.grant,
       applicant: {
         ...application.applicant,
-        skills: Array.isArray(application.applicant.skills) 
-          ? application.applicant.skills 
+        skills: Array.isArray(application.applicant.skills)
+          ? application.applicant.skills
           : (application.applicant.skills as string[] | null) || [],
       },
     };
 
-    return NextResponse.json(
-      { application: transformedApplication },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ application: transformedApplication });
   } catch (error) {
     console.error("Error fetching application:", error);
     return NextResponse.json(
       { error: "Failed to fetch application" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

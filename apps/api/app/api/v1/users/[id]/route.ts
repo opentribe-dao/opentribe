@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import type {
-  Session,
   User,
   Member,
   Organization,
@@ -14,14 +13,8 @@ import type {
 } from "@packages/db";
 import { sendOnboardingCompleteEmail } from "@packages/email";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 interface UserWithRelations extends User {
@@ -105,10 +98,7 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check if the requesting user can view this profile
@@ -117,20 +107,17 @@ export async function GET(
 
     if (!isOwnProfile && !isPublicProfile) {
       // Return limited data for private profiles
-      return NextResponse.json(
-        {
-          user: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            avatarUrl: user.avatarUrl,
-            image: user.image,
-            headline: user.headline,
-            private: true,
-          },
+      return NextResponse.json({
+        user: {
+          id: user.id,
+          name: user.name,
+          username: user.username,
+          avatarUrl: user.avatarUrl,
+          image: user.image,
+          headline: user.headline,
+          private: true,
         },
-        { headers: corsHeaders }
-      );
+      });
     }
 
     // Remove sensitive fields
@@ -151,22 +138,19 @@ export async function GET(
       organizations: user.members.length,
     };
 
-    return NextResponse.json(
-      {
-        user: {
-          ...publicUser,
-          email: isOwnProfile ? email : undefined, // Only show email to profile owner
-          isOwnProfile,
-        },
-        stats,
+    return NextResponse.json({
+      user: {
+        ...publicUser,
+        email: isOwnProfile ? email : undefined, // Only show email to profile owner
+        isOwnProfile,
       },
-      { headers: corsHeaders }
-    );
+      stats,
+    });
   } catch (error) {
     console.error("Error fetching user profile:", error);
     return NextResponse.json(
       { error: "Failed to fetch user profile" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -183,20 +167,14 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id: userId } = await params;
 
     // Only allow users to update their own profile
     if (sessionData.user.id !== userId) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const updateProfileSchema = z.object({
@@ -238,7 +216,7 @@ export async function PATCH(
       if (existingUser) {
         return NextResponse.json(
           { error: "Username already taken" },
-          { status: 400, headers: corsHeaders }
+          { status: 400 }
         );
       }
     }
@@ -255,7 +233,7 @@ export async function PATCH(
       if (existingUser) {
         return NextResponse.json(
           { error: "Wallet address already associated with another account" },
-          { status: 400, headers: corsHeaders }
+          { status: 400 }
         );
       }
     }
@@ -304,27 +282,24 @@ export async function PATCH(
       ...publicUser
     } = updatedUser;
 
-    return NextResponse.json(
-      {
-        user: {
-          ...publicUser,
-          email, // Include email for own profile
-        },
+    return NextResponse.json({
+      user: {
+        ...publicUser,
+        email, // Include email for own profile
       },
-      { headers: corsHeaders }
-    );
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid request data", details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
 
     console.error("Error updating user profile:", error);
     return NextResponse.json(
       { error: "Failed to update user profile" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

@@ -4,14 +4,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // GET /api/v1/bounties/[id]/submissions/[submissionId] - Get submission details
@@ -68,7 +62,7 @@ export async function GET(
     if (!submission) {
       return NextResponse.json(
         { error: "Submission not found" },
-        { status: 404, headers: corsHeaders }
+        { status: 404 }
       );
     }
 
@@ -83,10 +77,7 @@ export async function GET(
       });
 
       if (!sessionData?.user) {
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 401, headers: corsHeaders }
-        );
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
       // Check if user is the creator of the submission
@@ -103,10 +94,7 @@ export async function GET(
 
         // Only organization members can view non-public submissions they didn't create
         if (!userMember) {
-          return NextResponse.json(
-            { error: "Forbidden" },
-            { status: 403, headers: corsHeaders }
-          );
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
       }
     }
@@ -189,15 +177,12 @@ export async function GET(
       },
     };
 
-    return NextResponse.json(
-      { submission: transformedSubmission },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ submission: transformedSubmission });
   } catch (error) {
     console.error("Error fetching submission:", error);
     return NextResponse.json(
       { error: "Failed to fetch submission" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

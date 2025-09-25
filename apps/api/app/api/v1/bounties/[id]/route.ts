@@ -143,11 +143,6 @@ export async function GET(
         { error: "Bounty not found" },
         {
           status: 404,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
@@ -166,27 +161,13 @@ export async function GET(
     }
     // If winners have been announced, all submissions are already included from the query
 
-    return NextResponse.json(
-      { bounty },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({ bounty });
   } catch (error) {
     console.error("Error fetching bounty:", error);
     return NextResponse.json(
       { error: "Failed to fetch bounty" },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   }
@@ -304,19 +285,10 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        bounty: updatedBounty,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      bounty: updatedBounty,
+    });
   } catch (error) {
     console.error("Bounty update error:", error);
 
@@ -402,19 +374,10 @@ export async function DELETE(
       where: { id: bountyId },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Bounty deleted successfully",
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "Bounty deleted successfully",
+    });
   } catch (error) {
     console.error("Bounty deletion error:", error);
 
@@ -429,10 +392,5 @@ export async function DELETE(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

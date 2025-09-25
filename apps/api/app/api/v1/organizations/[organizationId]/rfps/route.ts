@@ -5,14 +5,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // GET /api/v1/organizations/[organizationId]/rfps - List organization's RFPs
@@ -27,10 +21,7 @@ export async function GET(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user is a member of the organization
@@ -42,10 +33,7 @@ export async function GET(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Get RFPs for this organization's grants
@@ -96,15 +84,12 @@ export async function GET(
       grant: rfp.grant,
     }));
 
-    return NextResponse.json(
-      { rfps: transformedRfps },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ rfps: transformedRfps });
   } catch (error) {
     console.error("Error fetching organization RFPs:", error);
     return NextResponse.json(
       { error: "Failed to fetch RFPs" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -121,10 +106,7 @@ export async function POST(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user has permission to create RFPs
@@ -139,10 +121,7 @@ export async function POST(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const createRfpSchema = z.object({
@@ -176,12 +155,12 @@ export async function POST(
     if (!grant) {
       return NextResponse.json(
         { error: "Grant not found or doesn't belong to this organization" },
-        { status: 404, headers: corsHeaders }
+        { status: 404 }
       );
     }
 
     // Generate slug from title
-    let baseSlug = validatedData.title
+    const baseSlug = validatedData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
@@ -229,22 +208,19 @@ export async function POST(
       return rfp;
     });
 
-    return NextResponse.json(
-      { rfp: result },
-      { status: 201, headers: corsHeaders }
-    );
+    return NextResponse.json({ rfp: result }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid request data", details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
 
     console.error("Error creating RFP:", error);
     return NextResponse.json(
       { error: "Failed to create RFP" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

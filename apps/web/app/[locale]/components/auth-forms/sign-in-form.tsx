@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { env } from "@/env";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -106,7 +107,7 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
       // We'll check profile completion in middleware
       await authClient.signIn.social({
         provider,
-        callbackURL: redirectTo || "/onboarding",
+        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/onboarding`,
       });
     } catch (error) {
       const errorMessage =

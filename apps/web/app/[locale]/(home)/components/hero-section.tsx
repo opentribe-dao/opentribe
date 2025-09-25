@@ -129,7 +129,7 @@ export function HeroSection() {
                   Welcome Back{userName ? `, ${userName}` : ""}!
                 </h1>
                 <p className="text-white/60">
-                  We are so glad to have you back on OPEN TRIBE
+                  We are so glad to have you back on Opentribe
                 </p>
               </>
             ) : (

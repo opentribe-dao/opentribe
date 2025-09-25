@@ -1,4 +1,4 @@
-import { resend } from '../index';
+import { resend } from "../index";
 import {
   VerificationEmail,
   WelcomeEmail,
@@ -15,12 +15,13 @@ import {
   CommentReplyEmail,
   WeeklyDigestEmail,
   PaymentConfirmationEmail,
-} from '../templates';
+} from "../templates";
 
-const FROM_EMAIL_ADDRESS = process.env.RESEND_FROM || 'hello@notifications.opentribe.io';
-const FROM_EMAIL = `Opentribe <${FROM_EMAIL_ADDRESS}>`
-const BASE_URL = process.env.NEXT_PUBLIC_WEB_URL || 'https://opentribe.io';
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.opentribe.io';
+const FROM_EMAIL_ADDRESS =
+  process.env.RESEND_FROM || "hello@notifications.opentribe.io";
+const FROM_EMAIL = `Opentribe <${FROM_EMAIL_ADDRESS}>`;
+const BASE_URL = process.env.NEXT_PUBLIC_WEB_URL;
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL;
 
 export { FROM_EMAIL_ADDRESS, FROM_EMAIL, BASE_URL, DASHBOARD_URL };
 
@@ -32,7 +33,7 @@ interface EmailUser {
 
 // Helper to get user display name
 const getUserName = (user: EmailUser) => {
-  return user.firstName || user.username || 'there';
+  return user.firstName || user.username || "there";
 };
 
 // Authentication & Onboarding Emails
@@ -47,7 +48,7 @@ export async function sendVerificationEmail(
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [user.email],
-    subject: 'Verify your email for Opentribe',
+    subject: "Verify your email for Opentribe",
     react: VerificationEmail({
       username: getUserName(user),
       verificationUrl,
@@ -60,10 +61,10 @@ export async function sendWelcomeEmail(user: EmailUser) {
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [user.email],
-    subject: 'Welcome to Opentribe!',
+    subject: "Welcome to Opentribe!",
     react: WelcomeEmail({
       firstName: getUserName(user),
-      dashboardUrl: `${DASHBOARD_URL}/onboarding`,
+      dashboardUrl: `${BASE_URL}/onboarding`,
     }),
   });
 }
@@ -73,11 +74,11 @@ export async function sendPasswordResetEmail(
   resetToken: string
 ) {
   const resetUrl = `${BASE_URL}/reset-password?token=${resetToken}`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [user.email],
-    subject: 'Reset your Opentribe password',
+    subject: "Reset your Opentribe password",
     react: PasswordResetEmail({
       username: getUserName(user),
       resetUrl,
@@ -87,19 +88,21 @@ export async function sendPasswordResetEmail(
 
 export async function sendOnboardingCompleteEmail(
   user: EmailUser,
-  userType: 'builder' | 'organization'
+  userType: "builder" | "organization"
 ) {
-  const exploreUrl = userType === 'builder' 
-    ? `${BASE_URL}/bounties` 
-    : `${DASHBOARD_URL}/bounties/new`;
-  const profileUrl = userType === 'builder'
-    ? `${BASE_URL}/profile/${user.username}`
-    : `${DASHBOARD_URL}/org/settings`;
-    
+  const exploreUrl =
+    userType === "builder"
+      ? `${BASE_URL}/bounties`
+      : `${DASHBOARD_URL}/bounties/new`;
+  const profileUrl =
+    userType === "builder"
+      ? `${BASE_URL}/profile/${user.username}`
+      : `${DASHBOARD_URL}/org/settings`;
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [user.email],
-    subject: 'Your Opentribe profile is ready!',
+    subject: "Your Opentribe profile is ready!",
     react: OnboardingCompleteEmail({
       firstName: getUserName(user),
       userType,
@@ -118,11 +121,11 @@ export async function sendOrgInviteEmail(
     name: string;
     logo?: string;
   },
-  role: 'admin' | 'member',
+  role: "admin" | "member",
   inviteToken: string
 ) {
   const inviteUrl = `${DASHBOARD_URL}/invite?token=${inviteToken}`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [inviteeEmail],
@@ -158,7 +161,7 @@ export async function sendBountyFirstSubmissionEmail(
 ) {
   const viewSubmissionUrl = `${DASHBOARD_URL}/bounties/${bounty.id}/submissions/${submission.id}`;
   const viewAllUrl = `${DASHBOARD_URL}/bounties/${bounty.id}/submissions`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [recipient.email],
@@ -166,7 +169,8 @@ export async function sendBountyFirstSubmissionEmail(
     react: BountyFirstSubmissionEmail({
       recipientName: getUserName(recipient),
       bountyTitle: bounty.title,
-      submitterName: submission.submitter.firstName || submission.submitter.username,
+      submitterName:
+        submission.submitter.firstName || submission.submitter.username,
       submissionTitle: submission.title,
       submissionPreview: submission.description,
       viewSubmissionUrl,
@@ -186,9 +190,11 @@ export async function sendBountyDeadlineReminderEmail(
     token: string;
   }
 ) {
-  const daysRemaining = Math.ceil((bounty.deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const daysRemaining = Math.ceil(
+    (bounty.deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  );
   const reviewUrl = `${DASHBOARD_URL}/bounties/${bounty.id}/submissions`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [recipient.email],
@@ -216,13 +222,15 @@ export async function sendBountyWinnerReminderEmail(
     token: string;
   }
 ) {
-  const daysPastDeadline = Math.ceil((Date.now() - bounty.deadline.getTime()) / (1000 * 60 * 60 * 24));
-  const announceUrl = `${DASHBOARD_URL}/bounties/${bounty.id}/announce-winners`;
-  
+  const daysPastDeadline = Math.ceil(
+    (Date.now() - bounty.deadline.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  const announceUrl = `${DASHBOARD_URL}/bounties/${bounty.id}/submissions`;
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [recipient.email],
-    subject: 'Time to announce bounty winners!',
+    subject: "Time to announce bounty winners!",
     react: BountyWinnerReminderEmail({
       recipientName: getUserName(recipient),
       bountyTitle: bounty.title,
@@ -252,11 +260,11 @@ export async function sendBountyWinnerEmail(
 ) {
   const submissionUrl = `${BASE_URL}/bounties/${bounty.id}/submissions/${submission.id}`;
   const profileUrl = `${BASE_URL}/profile/${winner.username}`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [winner.email],
-    subject: 'Congratulations! You won a bounty 🎉',
+    subject: "Congratulations! You won a bounty 🎉",
     react: BountyWinnerEmail({
       winnerName: getUserName(winner),
       bountyTitle: bounty.title,
@@ -291,7 +299,7 @@ export async function sendGrantFirstApplicationEmail(
 ) {
   const viewApplicationUrl = `${DASHBOARD_URL}/grants/${grant.id}/applications/${application.id}`;
   const viewAllUrl = `${DASHBOARD_URL}/grants/${grant.id}/applications`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [curator.email],
@@ -299,7 +307,8 @@ export async function sendGrantFirstApplicationEmail(
     react: GrantFirstApplicationEmail({
       curatorName: getUserName(curator),
       grantTitle: grant.title,
-      applicantName: application.applicant.firstName || application.applicant.username,
+      applicantName:
+        application.applicant.firstName || application.applicant.username,
       applicationTitle: application.title,
       applicationSummary: application.summary,
       requestedAmount: application.requestedAmount,
@@ -312,24 +321,26 @@ export async function sendGrantFirstApplicationEmail(
 export async function sendGrantStatusUpdateEmail(
   applicant: EmailUser,
   grantTitle: string,
-  newStatus: 'APPROVED' | 'REJECTED' | 'UNDER_REVIEW',
+  newStatus: "APPROVED" | "REJECTED" | "UNDER_REVIEW",
   feedback?: string,
   applicationUrl?: string
 ) {
-  const isApproved = newStatus === 'APPROVED';
-  const subject = isApproved 
+  const isApproved = newStatus === "APPROVED";
+  const subject = isApproved
     ? `🎉 Your grant application has been approved!`
-    : newStatus === 'REJECTED'
+    : newStatus === "REJECTED"
     ? `Grant application update`
     : `Your application is under review`;
-  
-  const defaultUrl = applicationUrl || `${BASE_URL}/profile/${applicant.username || 'me'}/applications`;
-  const nextSteps = isApproved 
-    ? 'The organization will contact you soon with next steps and funding details.'
-    : newStatus === 'UNDER_REVIEW'
-    ? 'Your application is being carefully reviewed. We\'ll notify you once a decision is made.'
+
+  const defaultUrl =
+    applicationUrl ||
+    `${BASE_URL}/profile/${applicant.username || "me"}/applications`;
+  const nextSteps = isApproved
+    ? "The organization will contact you soon with next steps and funding details."
+    : newStatus === "UNDER_REVIEW"
+    ? "Your application is being carefully reviewed. We'll notify you once a decision is made."
     : undefined;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [applicant.email],
@@ -337,8 +348,8 @@ export async function sendGrantStatusUpdateEmail(
     react: GrantStatusUpdateEmail({
       applicantName: getUserName(applicant),
       grantTitle,
-      organizationName: '', // We'll update the template to not require this
-      previousStatus: 'PENDING',
+      organizationName: "", // We'll update the template to not require this
+      previousStatus: "PENDING",
       newStatus,
       feedback,
       applicationUrl: defaultUrl,
@@ -354,7 +365,7 @@ export async function sendCommentReplyEmail(
   comment: {
     id: string;
     body: string;
-    contextType: 'grant' | 'bounty' | 'rfp' | 'submission' | 'application';
+    contextType: "grant" | "bounty" | "rfp" | "submission" | "application";
     contextTitle: string;
     contextId: string;
   },
@@ -367,11 +378,13 @@ export async function sendCommentReplyEmail(
   }
 ) {
   const threadUrl = `${BASE_URL}/${comment.contextType}s/${comment.contextId}#comment-${comment.id}`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [recipient.email],
-    subject: `${reply.author.firstName || reply.author.username} replied to your comment`,
+    subject: `${
+      reply.author.firstName || reply.author.username
+    } replied to your comment`,
     react: CommentReplyEmail({
       recipientName: getUserName(recipient),
       replierName: reply.author.firstName || reply.author.username,
@@ -413,39 +426,39 @@ export async function sendWeeklyDigestEmail(
   }
 ) {
   const opportunities = [
-    ...digestData.newBounties.map(b => ({
+    ...digestData.newBounties.map((b) => ({
       ...b,
       url: `${BASE_URL}/bounties/${b.id}`,
     })),
-    ...digestData.newGrants.map(g => ({
+    ...digestData.newGrants.map((g) => ({
       ...g,
       url: `${BASE_URL}/grants/${g.id}`,
     })),
   ];
-  
-  const applicationUpdates = digestData.applicationUpdates.map(a => ({
+
+  const applicationUpdates = digestData.applicationUpdates.map((a) => ({
     ...a,
     url: `${BASE_URL}/applications/${a.id}`,
   }));
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [recipient.email],
-    subject: 'Your Opentribe weekly digest',
+    subject: "Your Opentribe weekly digest",
     react: WeeklyDigestEmail({
       recipientName: getUserName(recipient),
       weekStartDate: digestData.weekStartDate,
-      newBounties: digestData.newBounties.map(b => ({
+      newBounties: digestData.newBounties.map((b) => ({
         ...b,
         url: `${BASE_URL}/bounties/${b.id}`,
       })),
-      newGrants: digestData.newGrants.map(g => ({
+      newGrants: digestData.newGrants.map((g) => ({
         ...g,
         url: `${BASE_URL}/grants/${g.id}`,
       })),
       applicationUpdates,
       platformStats: digestData.platformStats,
-      dashboardUrl: DASHBOARD_URL,
+      dashboardUrl: DASHBOARD_URL || "",
     }),
   });
 }
@@ -466,7 +479,7 @@ export async function sendSkillMatchBountyEmail(
   matchingSkills: string[]
 ) {
   const bountyUrl = `${BASE_URL}/bounties/${bounty.id}`;
-  
+
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [recipient.email],
@@ -504,7 +517,7 @@ export async function sendPaymentConfirmationEmail(
   return resend.emails.send({
     from: FROM_EMAIL,
     to: [recipient.email],
-    subject: 'Payment Confirmed! 💸',
+    subject: "Payment Confirmed! 💸",
     react: PaymentConfirmationEmail({
       user: recipient,
       bounty,

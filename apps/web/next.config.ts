@@ -54,6 +54,10 @@ nextConfig.images?.remotePatterns?.push(
     protocol: "https",
     hostname: "blob.vercel-storage.com",
   },
+  {
+    protocol: "https",
+    hostname: "googleusercontent.com",
+  }
 );
 
 if (process.env.NODE_ENV === "production") {

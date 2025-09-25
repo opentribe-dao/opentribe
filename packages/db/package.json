@@ -23,6 +23,7 @@
     "@t3-oss/env-nextjs": "^0.13.4",
     "react": "19.1.1",
     "react-dom": "19.1.1",
+    "react-email": "^4.2.6",
     "server-only": "^0.0.1",
     "undici": "^7.10.0",
     "ws": "^8.18.2",
@@ -30,7 +31,7 @@
   },
   "devDependencies": {
     "@tooling/typescript-config": "workspace:*",
-    "@types/node": "22.15.21",
+    "@types/node": "24.5.2",
     "@types/ws": "^8.18.1",
     "bcryptjs": "^2.4.3",
     "bufferutil": "^4.0.9",

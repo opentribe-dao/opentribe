@@ -16,6 +16,7 @@
     "fumadocs-core": "^15.4.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
+    "react-email": "^4.2.6",
     "zod": "^4.1.11"
   },
   "devDependencies": {
@@ -23,7 +24,7 @@
     "@content-collections/core": "^0.9.1",
     "@content-collections/next": "^0.2.6",
     "@tooling/typescript-config": "workspace:*",
-    "@types/node": "22.15.21",
+    "@types/node": "24.5.2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.5",
     "next": "15.3.2"

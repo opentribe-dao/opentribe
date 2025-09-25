@@ -6,8 +6,8 @@ import { z } from "zod";
 
 // Query params schema
 const queryParamsSchema = z.object({
-  limit: z.string().transform(Number).default("10"),
-  offset: z.string().transform(Number).default("0"),
+  limit: z.string().transform(Number).default(10),
+  offset: z.string().transform(Number).default(0),
   status: z
     .enum(["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED", "ALL"])
     .default("ALL"),
@@ -50,8 +50,8 @@ export async function GET(
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const offset = Number.parseInt(searchParams.get("offset") || "0");
     const status = searchParams.get("status") || "ALL";
     const visibility = searchParams.get("visibility") || "ALL";
     const search = searchParams.get("search") || "";

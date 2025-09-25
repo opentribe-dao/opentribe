@@ -1,4 +1,5 @@
 import { auth } from "@packages/auth/server";
+import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -10,20 +11,8 @@ const createGrantSchema = z.object({
   description: z.string().min(1),
   summary: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z
-    .string()
-    .regex(
-      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
-      "Invalid URL format"
-    )
-    .optional(),
-  bannerUrl: z
-    .string()
-    .regex(
-      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
-      "Invalid URL format"
-    )
-    .optional(),
+  logoUrl: z.string().regex(URL_REGEX).optional(),
+  bannerUrl: z.string().regex(URL_REGEX).optional(),
   skills: z.array(z.string()).default([]),
   minAmount: z.number().positive().optional(),
   maxAmount: z.number().positive().optional(),
@@ -33,12 +22,7 @@ const createGrantSchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z
-          .string()
-          .regex(
-            /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
-            "Invalid URL format"
-          ),
+        url: z.string().regex(URL_REGEX),
         description: z.string().optional(),
       })
     )
@@ -52,13 +36,7 @@ const createGrantSchema = z.object({
       })
     )
     .optional(),
-  applicationUrl: z
-    .string()
-    .regex(
-      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
-      "Invalid URL format"
-    )
-    .optional(),
+  applicationUrl: z.string().regex(URL_REGEX).optional(),
   visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   source: z.enum(["NATIVE", "EXTERNAL"]).default("NATIVE"),
   organizationId: z.string(),
@@ -424,7 +402,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }

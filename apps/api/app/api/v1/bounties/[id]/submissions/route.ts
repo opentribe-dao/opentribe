@@ -4,16 +4,11 @@ import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
+import { URL_REGEX } from "@packages/base/lib/utils";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
-  submissionUrl: z
-    .string()
-    .regex(
-      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
-      "Invalid URL format"
-    )
-    .optional(),
+  submissionUrl: z.string().regex(URL_REGEX).optional(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
   responses: z.record(z.string(), z.any()).optional(), // For screening question responses
@@ -317,7 +312,7 @@ export async function POST(
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }

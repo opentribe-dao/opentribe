@@ -7,7 +7,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-
 export async function OPTIONS() {
   return NextResponse.json({});
 }
@@ -24,14 +23,11 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401,  }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const reviewSchema = z.object({
-      status: z.enum(['APPROVED', 'REJECTED', 'UNDER_REVIEW']),
+      status: z.enum(["APPROVED", "REJECTED", "UNDER_REVIEW"]),
       feedback: z.string().optional(),
     });
 
@@ -56,7 +52,7 @@ export async function PATCH(
     if (!application) {
       return NextResponse.json(
         { error: "Application not found" },
-        { status: 404,  }
+        { status: 404 }
       );
     }
 
@@ -77,7 +73,7 @@ export async function PATCH(
     if (!userMember && !isCurator) {
       return NextResponse.json(
         { error: "You don't have permission to review applications" },
-        { status: 403,  }
+        { status: 403 }
       );
     }
 
@@ -128,22 +124,19 @@ export async function PATCH(
       // Don't fail the request if email fails
     }
 
-    return NextResponse.json(
-      { 
-        application: updatedApplication,
-        message: `Application ${validatedData.status.toLowerCase()} successfully`,
-      },
-      
-    );
-  } catch (err) {
-    if (err instanceof z.ZodError) {
+    return NextResponse.json({
+      application: updatedApplication,
+      message: `Application ${validatedData.status.toLowerCase()} successfully`,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: err.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }
 
-    console.error("Error reviewing application:", err);
+    console.error("Error reviewing application:", error);
     return NextResponse.json(
       { error: "Failed to review application" },
       { status: 500 }

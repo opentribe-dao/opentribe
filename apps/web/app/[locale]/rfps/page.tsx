@@ -18,21 +18,12 @@ function RFPsPageContent() {
   const rfpsData = useRfpsData(filtersHook.filters);
   const topBountiesQuery = useTopBounties();
 
-  // Load more RFPs (pagination)
-  const handleLoadMore = () => {
-    const nextPage = (filtersHook.filters.page || 1) + 1;
-    filtersHook.updateFilter('page', nextPage);
-  };
-
-  // Calculate if there are more RFPs to load
-  const hasMore = rfpsData.data ? rfpsData.data.pagination.hasMore : false;
-
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <RfpsHeroSection
           searchQuery={filtersHook.filters.search || ''}
-          totalCount={rfpsData.data?.rfps?.length || 0}
+          totalCount={rfpsData.rfps.length}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}
@@ -42,7 +33,7 @@ function RFPsPageContent() {
 
         <div className='grid grid-cols-1 gap-8 lg:grid-cols-4'>
           <RfpsContentSection
-            rfps={rfpsData.data?.rfps || []}
+            rfps={rfpsData.rfps}
             loading={rfpsData.isLoading}
             error={rfpsData.error}
             filters={{
@@ -52,10 +43,11 @@ function RFPsPageContent() {
               grant: filtersHook.filters.grant || 'all',
               submission: filtersHook.filters.submission || 'highest',
             }}
-            hasMore={hasMore}
+            hasMore={rfpsData.hasMore}
+            isLoadingMore={rfpsData.isLoadingMore}
             activeFiltersCount={filtersHook.activeFiltersCount}
             onClearAllFilters={filtersHook.clearAllFilters}
-            onLoadMore={handleLoadMore}
+            onLoadMore={rfpsData.loadMore}
             onRetry={() => rfpsData.refetch()}
           />
 

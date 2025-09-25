@@ -1,8 +1,9 @@
+import { env } from "@/env";
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendCommentReplyEmail } from "@packages/email";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 export async function OPTIONS() {
@@ -270,21 +271,21 @@ export async function POST(request: NextRequest) {
           if (parentComment.bounty) {
             contextType = "bounty";
             contextTitle = parentComment.bounty.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/bounties/${parentComment.bounty.id}#comment-${result.id}`;
+            threadUrl = `${env.NEXT_PUBLIC_WEB_URL}/bounties/${parentComment.bounty.id}#comment-${result.id}`;
           } else if (parentComment.rfp) {
             contextType = "rfp";
             contextTitle = parentComment.rfp.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/rfps/${parentComment.rfp.id}#comment-${result.id}`;
+            threadUrl = `${env.NEXT_PUBLIC_WEB_URL}/rfps/${parentComment.rfp.id}#comment-${result.id}`;
           } else if (parentComment.application) {
             contextType = "application";
             contextTitle = parentComment.application.grant.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/grants/${parentComment.applicationId}#comment-${result.id}`;
+            threadUrl = `${env.NEXT_PUBLIC_WEB_URL}/grants/${parentComment.applicationId}#comment-${result.id}`;
           } else if (parentComment.submission) {
             contextType = "submission";
             contextTitle =
               parentComment.submission.title ||
               parentComment.submission.bounty.title;
-            threadUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io"}/bounties/${parentComment.submissionId}#comment-${result.id}`;
+            threadUrl = `${env.NEXT_PUBLIC_WEB_URL}/bounties/${parentComment.submissionId}#comment-${result.id}`;
           }
 
           // TODO: Implement sendCommentReplyEmail in @packages/email

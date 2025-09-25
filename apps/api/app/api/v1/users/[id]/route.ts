@@ -181,7 +181,13 @@ export async function PATCH(
       firstName: z.string().optional(),
       lastName: z.string().optional(),
       username: z.string().min(3).max(30).optional(),
-      avatarUrl: z.string().url().optional(),
+      avatarUrl: z
+        .string()
+        .regex(
+          /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+          "Invalid URL format"
+        )
+        .optional(),
       headline: z.string().max(100).optional(),
       bio: z.string().max(500).optional(),
       interests: z.array(z.string()).optional(),
@@ -192,7 +198,13 @@ export async function PATCH(
       discord: z.string().optional(),
       github: z.string().optional(),
       linkedin: z.string().optional(),
-      website: z.string().url().optional(),
+      website: z
+        .string()
+        .regex(
+          /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+          "Invalid URL format"
+        )
+        .optional(),
       telegram: z.string().optional(),
       employer: z.string().optional(),
       workExperience: z.string().optional(),

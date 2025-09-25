@@ -13,7 +13,7 @@
     "dedot": "^0.16.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "zod": "^3.25.28"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@dedot/chaintypes": "^0.154.0",

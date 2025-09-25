@@ -1,13 +1,19 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
-  submissionUrl: z.string().url().optional(),
+  submissionUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+      "Invalid URL format"
+    )
+    .optional(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
   responses: z.record(z.string(), z.any()).optional(), // For screening question responses

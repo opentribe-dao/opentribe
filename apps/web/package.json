@@ -43,7 +43,7 @@
     "sharp": "^0.34.2",
     "shiki": "^3.4.2",
     "sonner": "^1.7.0",
-    "zod": "^3.25.28"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@content-collections/cli": "^0.1.6",

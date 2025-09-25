@@ -1,7 +1,7 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for grant creation
@@ -10,8 +10,20 @@ const createGrantSchema = z.object({
   description: z.string().min(1),
   summary: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z.string().url().optional(),
-  bannerUrl: z.string().url().optional(),
+  logoUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+      "Invalid URL format"
+    )
+    .optional(),
+  bannerUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+      "Invalid URL format"
+    )
+    .optional(),
   skills: z.array(z.string()).default([]),
   minAmount: z.number().positive().optional(),
   maxAmount: z.number().positive().optional(),
@@ -21,7 +33,12 @@ const createGrantSchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z
+          .string()
+          .regex(
+            /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+            "Invalid URL format"
+          ),
         description: z.string().optional(),
       })
     )
@@ -35,7 +52,13 @@ const createGrantSchema = z.object({
       })
     )
     .optional(),
-  applicationUrl: z.string().url().optional(),
+  applicationUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+      "Invalid URL format"
+    )
+    .optional(),
   visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   source: z.enum(["NATIVE", "EXTERNAL"]).default("NATIVE"),
   organizationId: z.string(),

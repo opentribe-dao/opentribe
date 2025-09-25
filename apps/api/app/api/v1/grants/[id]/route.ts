@@ -1,7 +1,7 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for grant update
@@ -10,8 +10,22 @@ const updateGrantSchema = z.object({
   description: z.string().min(1).optional(),
   summary: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z.string().url().optional().nullable(),
-  bannerUrl: z.string().url().optional().nullable(),
+  logoUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+      "Invalid URL format"
+    )
+    .optional()
+    .nullable(),
+  bannerUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+      "Invalid URL format"
+    )
+    .optional()
+    .nullable(),
   skills: z.array(z.string()).optional(),
   minAmount: z.number().positive().optional().nullable(),
   maxAmount: z.number().positive().optional().nullable(),
@@ -21,7 +35,12 @@ const updateGrantSchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z
+          .string()
+          .regex(
+            /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+            "Invalid URL format"
+          ),
         description: z.string().optional(),
       })
     )
@@ -35,7 +54,14 @@ const updateGrantSchema = z.object({
       })
     )
     .optional(),
-  applicationUrl: z.string().url().optional().nullable(),
+  applicationUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+      "Invalid URL format"
+    )
+    .optional()
+    .nullable(),
   visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   status: z.enum(["OPEN", "PAUSED", "CLOSED"]).optional(),
   source: z.enum(["NATIVE", "EXTERNAL"]).optional(),

@@ -18,7 +18,12 @@ const updateBountySchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z
+          .string()
+          .regex(
+            /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+            "Invalid URL format"
+          ),
         description: z.string().optional(),
       })
     )

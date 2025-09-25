@@ -104,12 +104,26 @@ export async function PATCH(
       name: z.string().min(1).max(100).optional(),
       slug: z.string().min(3).max(50).optional(),
       email: z.string().email().optional().nullable(),
-      website: z.string().url().optional().nullable(),
+      website: z
+        .string()
+        .regex(
+          /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+          "Invalid URL format"
+        )
+        .optional()
+        .nullable(),
       twitter: z.string().optional().nullable(),
       instagram: z.string().optional().nullable(),
       shortDescription: z.string().max(200).optional().nullable(),
       longDescription: z.string().optional().nullable(),
-      logo: z.string().url().optional().nullable(),
+      logo: z
+        .string()
+        .regex(
+          /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}$/i,
+          "Invalid URL format"
+        )
+        .optional()
+        .nullable(),
     });
 
     const body = await request.json();

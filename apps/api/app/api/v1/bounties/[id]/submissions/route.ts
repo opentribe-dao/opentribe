@@ -4,11 +4,11 @@ import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
-import { URL_REGEX } from "@packages/base/lib/utils";
+import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
-  submissionUrl: z.string().regex(URL_REGEX).optional(),
+  submissionUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
   responses: z.record(z.string(), z.any()).optional(), // For screening question responses

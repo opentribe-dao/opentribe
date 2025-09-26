@@ -21,7 +21,18 @@ import {
 import { useBountyContext } from '../../../components/bounty-provider';
 import { toast } from 'sonner';
 import { env } from '@/env';
-import { Save, Loader2, Eye, Trash2, Award, Clock, Plus } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  Eye,
+  Trash2,
+  Award,
+  Clock,
+  Plus,
+  FileWarning,
+  TriangleAlert,
+  Undo2,
+} from 'lucide-react';
 
 interface BountyFormData {
   title: string;
@@ -61,6 +72,7 @@ export default function SettingsPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -234,6 +246,63 @@ export default function SettingsPage() {
     }
   };
 
+  const resetChanges = () => {
+    if (!bounty) {
+      return;
+    }
+    const getDeadline = (dateStr?: string) => {
+      if (!dateStr) {
+        return '';
+      }
+      const date = new Date(dateStr);
+      return Number.isNaN(date.getTime())
+        ? ''
+        : date.toISOString().slice(0, 16);
+    };
+
+    const getString = (value: unknown, fallback: string) =>
+      typeof value === 'string' && value.length > 0 ? value : fallback;
+
+    const getArray = <T,>(value: unknown, fallback: T[]) =>
+      Array.isArray(value) ? value : fallback;
+
+    const getObject = <T,>(value: unknown, fallback: T) =>
+      value && typeof value === 'object' ? (value as T) : fallback;
+    setFormData({
+      title: getString(bounty.title, ''),
+      description: getString(bounty.description, ''),
+      skills: getArray<string>(bounty.skills, []),
+      amount: bounty.amount || 0,
+      token: getString(bounty.token, 'DOT'),
+      split: getString(bounty.split, 'FIXED') as
+        | 'FIXED'
+        | 'EQUAL_SPLIT'
+        | 'VARIABLE',
+      winnings: getObject<Record<string, number>>(bounty.winnings, {}),
+      deadline: getDeadline(bounty.deadline),
+      resources: getArray<{ title: string; url: string; description?: string }>(
+        bounty.resources,
+        []
+      ),
+      screening: getArray<{
+        question: string;
+        type: 'text' | 'url' | 'file';
+        optional: boolean;
+      }>(bounty.screening, []),
+      visibility: getString(bounty.visibility, 'DRAFT') as
+        | 'DRAFT'
+        | 'PUBLISHED',
+      status: getString(bounty.status, 'OPEN') as
+        | 'OPEN'
+        | 'REVIEWING'
+        | 'COMPLETED'
+        | 'CLOSED'
+        | 'CANCELLED',
+    });
+    
+    setHasChanges(false);
+  };
+
   const deleteBounty = async () => {
     if (!bounty) {
       return;
@@ -265,11 +334,7 @@ export default function SettingsPage() {
   };
 
   if (!bounty) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
-      </div>
-    );
+    return <div className="text-white">Bounty not found</div>;
   }
 
   return (
@@ -283,11 +348,21 @@ export default function SettingsPage() {
             className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
           >
             {isSaving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className=" h-4 w-4 animate-spin" />
             ) : (
-              <Save className="mr-2 h-4 w-4" />
+              <Save className="h-4 w-4" />
             )}
             Save Changes
+          </Button>
+        )}
+        {hasChanges && (
+          <Button
+          variant="ghost"
+            onClick={resetChanges}
+            className="text-white hover:bg-[#E6007A]/90"
+          >
+            {<Undo2 className="size-4" />}
+            Reset
           </Button>
         )}
       </div>
@@ -319,7 +394,7 @@ export default function SettingsPage() {
                     onChange={(e) =>
                       handleInputChange('amount', Number(e.target.value))
                     }
-                    className='border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                    className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
                     placeholder="0"
                   />
                 </div>
@@ -331,10 +406,10 @@ export default function SettingsPage() {
                     value={formData.token}
                     onValueChange={(value) => handleInputChange('token', value)}
                   >
-                    <SelectTrigger className='border-white/10 bg-white/5 text-white'>
+                    <SelectTrigger className="border-white/10 bg-white/5 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className='border-white/10 bg-zinc-900'>
+                    <SelectContent className="border-white/10 bg-zinc-900">
                       <SelectItem value="DOT" className="text-white">
                         DOT
                       </SelectItem>
@@ -357,10 +432,10 @@ export default function SettingsPage() {
                     handleInputChange('split', value)
                   }
                 >
-                  <SelectTrigger className='border-white/10 bg-white/5 text-white'>
+                  <SelectTrigger className="border-white/10 bg-white/5 text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className='border-white/10 bg-zinc-900'>
+                  <SelectContent className="border-white/10 bg-zinc-900">
                     <SelectItem value="FIXED" className="text-white">
                       Fixed Amounts
                     </SelectItem>
@@ -380,7 +455,7 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     {Object.keys(formData.winnings)
                       .sort((a, b) => Number(a) - Number(b))
-                      .map((position,) => (
+                      .map((position) => (
                         <div key={position} className="flex items-center gap-2">
                           <span className="w-16 text-sm text-white/60">
                             {position}
@@ -399,7 +474,7 @@ export default function SettingsPage() {
                             onChange={(e) =>
                               updateWinnings(position, Number(e.target.value))
                             }
-                            className='border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                            className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
                             placeholder="0"
                           />
                           <span className="text-sm text-white/60">
@@ -427,7 +502,7 @@ export default function SettingsPage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className='mt-4 border-white/20 bg-white/10 text-white hover:bg-white/20'
+                      className="mt-4 border-white/20 bg-white/10 text-white hover:bg-white/20"
                       onClick={() => {
                         // Find the next available position number
                         const existing = Object.keys(formData.winnings).map(
@@ -497,59 +572,111 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-6">
-                <div className="flex-1 space-y-2">
-                  <Label className="text-white/80">Status</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(value: string) =>
-                      handleInputChange('status', value)
-                    }
-                  >
-                    <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/10 bg-zinc-900">
-                      <SelectItem value="OPEN" className="text-white">
-                        Open
-                      </SelectItem>
-                      <SelectItem value="REVIEWING" className="text-white">
-                        Reviewing
-                      </SelectItem>
-                      <SelectItem value="COMPLETED" className="text-white">
-                        Completed
-                      </SelectItem>
-                      <SelectItem value="CLOSED" className="text-white">
-                        Closed
-                      </SelectItem>
-                      <SelectItem value="CANCELLED" className="text-white">
-                        Cancelled
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <div className="flex gap-6">
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-white/80">Status</Label>
+                    {(() => {
+                      if (formData.status === 'OPEN') {
+                        return (
+                          <Select
+                            value={formData.status}
+                            onValueChange={(value: string) =>
+                              handleInputChange('status', value)
+                            }
+                          >
+                            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="border-white/10 bg-zinc-900">
+                              <SelectItem value="OPEN" className="text-white">
+                                Open
+                              </SelectItem>
+                              <SelectItem value="CLOSED" className="text-white">
+                                Closed
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        );
+                      }
 
-                <div className="flex-1 space-y-2">
-                  <Label className="text-white/80">Visibility</Label>
-                  <Select
-                    value={formData.visibility}
-                    onValueChange={(value: string) =>
-                      handleInputChange('visibility', value)
-                    }
-                  >
-                    <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/10 bg-zinc-900">
-                      <SelectItem value="DRAFT" className="text-white">
-                        Draft (Private)
-                      </SelectItem>
-                      <SelectItem value="PUBLISHED" className="text-white">
-                        Published (Public)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                      if (formData.status === 'REVIEWING') {
+                        return (
+                          <Select
+                            value={formData.status}
+                            onValueChange={(value: string) =>
+                              handleInputChange('status', value)
+                            }
+                          >
+                            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="border-white/10 bg-zinc-900">
+                              <SelectItem
+                                value="REVIEWING"
+                                className="text-white"
+                              >
+                                Reviewing
+                              </SelectItem>
+                              <SelectItem
+                                value="CANCELLED"
+                                className="text-white"
+                              >
+                                Cancelled
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        );
+                      }
+
+                      return (
+                        <Select value={formData.status} disabled>
+                          <SelectTrigger className="w-full cursor-not-allowed border-white/10 bg-white/5 text-white opacity-60">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-white/10 bg-zinc-900">
+                            <SelectItem
+                              value={formData.status}
+                              className="text-white"
+                            >
+                              {formData.status.charAt(0) +
+                                formData.status.slice(1).toLowerCase()}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-white/80">Visibility</Label>
+                    <Select
+                      value={formData.visibility}
+                      onValueChange={(value: string) =>
+                        handleInputChange('visibility', value)
+                      }
+                    >
+                      <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="border-white/10 bg-zinc-900">
+                        <SelectItem value="DRAFT" className="text-white">
+                          Draft (Private)
+                        </SelectItem>
+                        <SelectItem value="PUBLISHED" className="text-white">
+                          Published (Public)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                {(formData.status === 'CLOSED' || formData.status === 'CANCELLED') && (
+                  <div className="flex items-center  ml-2 mt-2 text-xs text-[#E6007A] gap-1">
+                    <TriangleAlert className="size-4" />
+                    Warning: {(formData.status === 'CLOSED' ? 'Closing' : 'Canceling')} the bounty is{' '}
+                    <span className="font-semibold">irreversible</span>.
+                  </div>
+                )}
               </div>
 
               <div className="rounded-lg bg-white/5 p-3">

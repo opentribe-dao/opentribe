@@ -2,9 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { env } from '@/env';
 import { useBountyContext } from '@/app/(authenticated)/components/bounty-provider';
 import { useState, useEffect, useCallback } from 'react';
-import { useMutation, } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { z } from 'zod';
 
 export interface BountyDetails {
   id: string;
@@ -18,7 +17,11 @@ export interface BountyDetails {
   winnings: Record<string, number>;
   deadline: string;
   resources?: Array<{ title: string; url: string; description?: string }>;
-  screening?: Array<{ question: string; type: 'text' | 'url' | 'file'; optional: boolean }>;
+  screening?: Array<{
+    question: string;
+    type: 'text' | 'url' | 'file';
+    optional: boolean;
+  }>;
   status: string;
   visibility: string;
   submissionCount: number;
@@ -66,6 +69,55 @@ export interface Submission {
   }>;
 }
 
+const getDeadline = (dateStr?: string) => {
+  if (!dateStr) {
+    return '';
+  }
+  const date = new Date(dateStr);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 16);
+};
+
+const getString = (value: unknown, fallback: string) =>
+  typeof value === 'string' && value.length > 0 ? value : fallback;
+
+const getArray = <T>(value: unknown, fallback: T[]) =>
+  Array.isArray(value) ? value : fallback;
+
+const getObject = <T>(value: unknown, fallback: T) =>
+  value && typeof value === 'object' ? (value as T) : fallback;
+
+const createInitialFormData = (
+  bounty: BountyDetails
+): Partial<BountyDetails> => ({
+  title: getString(bounty.title, ''),
+  description: getString(bounty.description, ''),
+  skills: getArray<string>(bounty.skills, []),
+  amount: bounty.amount || 0,
+  token: getString(bounty.token, 'DOT'),
+  split: getString(bounty.split, 'FIXED') as
+    | 'FIXED'
+    | 'EQUAL_SPLIT'
+    | 'VARIABLE',
+  winnings: getObject<Record<string, number>>(bounty.winnings, {}),
+  deadline: getDeadline(bounty.deadline),
+  resources: getArray<{ title: string; url: string; description?: string }>(
+    bounty.resources,
+    []
+  ),
+  screening: getArray<{
+    question: string;
+    type: 'text' | 'url' | 'file';
+    optional: boolean;
+  }>(bounty.screening, []),
+  visibility: getString(bounty.visibility, 'DRAFT') as 'DRAFT' | 'PUBLISHED',
+  status: getString(bounty.status, 'OPEN') as
+    | 'OPEN'
+    | 'REVIEWING'
+    | 'COMPLETED'
+    | 'CLOSED'
+    | 'CANCELLED',
+});
+
 export function useBounty(bountyId?: string) {
   return useQuery<BountyDetails, Error>({
     queryKey: ['bounty', bountyId],
@@ -84,7 +136,7 @@ export function useBounty(bountyId?: string) {
           `Failed to fetch bounty ${bountyId}: ${res.statusText}`
         );
       }
-      
+
       const data = await res.json();
       return data.bounty;
     },
@@ -113,14 +165,13 @@ export function useBountySubmissions(bountyId?: string) {
         );
       }
       const data = await res.json();
-      return data.submissions ||[];
+      return data.submissions || [];
     },
     enabled: !!bountyId,
     refetchInterval: 30_000, // 30 seconds
     retry: 2, // retry twice on error
   });
 }
-
 
 export function useBountySettings(bounty: BountyDetails | undefined) {
   const { refreshBounty } = useBountyContext();
@@ -146,112 +197,54 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
 
   // Initialize form data when bounty loads
   useEffect(() => {
-    if (!bounty) return;
+    if (!bounty) {
+      return;
+    }
 
-    const getDeadline = (dateStr?: string) => {
-      if (!dateStr) return '';
-      const date = new Date(dateStr);
-      return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 16);
-    };
-
-    const getString = (value: unknown, fallback: string) =>
-      typeof value === 'string' && value.length > 0 ? value : fallback;
-
-    const getArray = <T,>(value: unknown, fallback: T[]) =>
-      Array.isArray(value) ? value : fallback;
-
-    const getObject = <T,>(value: unknown, fallback: T) =>
-      value && typeof value === 'object' ? (value as T) : fallback;
-
-    const initialData: Partial<BountyDetails> = {
-      title: getString(bounty.title, ''),
-      description: getString(bounty.description, ''),
-      skills: getArray<string>(bounty.skills, []),
-      amount: bounty.amount || 0,
-      token: getString(bounty.token, 'DOT'),
-      split: getString(bounty.split, 'FIXED') as 'FIXED' | 'EQUAL_SPLIT' | 'VARIABLE',
-      winnings: getObject<Record<string, number>>(bounty.winnings, {}),
-      deadline: getDeadline(bounty.deadline),
-      resources: getArray<{ title: string; url: string; description?: string }>(
-        bounty.resources,
-        []
-      ),
-      screening: getArray<{
-        question: string;
-        type: 'text' | 'url' | 'file';
-        optional: boolean;
-      }>(bounty.screening, []),
-      visibility: getString(bounty.visibility, 'DRAFT') as 'DRAFT' | 'PUBLISHED',
-      status: getString(bounty.status, 'OPEN') as 'OPEN' | 'REVIEWING' | 'COMPLETED' | 'CLOSED' | 'CANCELLED',
-    };
+    const initialData = createInitialFormData(bounty);
 
     setFormData(initialData);
   }, [bounty]);
 
   // Track changes
   useEffect(() => {
-    if (!bounty) {return;}
+    if (!bounty) {
+      return;
+    }
 
-    const getDeadline = (dateStr?: string) => {
-      if (!dateStr) {return '';}
-      const date = new Date(dateStr);
-      return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 16);
-    };
-
-    const getString = (value: unknown, fallback: string) =>
-      typeof value === 'string' && value.length > 0 ? value : fallback;
-
-    const getArray = <T,>(value: unknown, fallback: T[]) =>
-      Array.isArray(value) ? value : fallback;
-
-    const getObject = <T,>(value: unknown, fallback: T) =>
-      value && typeof value === 'object' ? (value as T) : fallback;
-
-    const initialData: Partial<BountyDetails> = {
-      title: getString(bounty.title, ''),
-      description: getString(bounty.description, ''),
-      skills: getArray<string>(bounty.skills, []),
-      amount: bounty.amount || 0,
-      token: getString(bounty.token, 'DOT'),
-      split: getString(bounty.split, 'FIXED') as 'FIXED' | 'EQUAL_SPLIT' | 'VARIABLE',
-      winnings: getObject<Record<string, number>>(bounty.winnings, {}),
-      deadline: getDeadline(bounty.deadline),
-      resources: getArray<{ title: string; url: string; description?: string }>(
-        bounty.resources,
-        []
-      ),
-      screening: getArray<{
-        question: string;
-        type: 'text' | 'url' | 'file';
-        optional: boolean;
-      }>(bounty.screening, []),
-      visibility: getString(bounty.visibility, 'DRAFT') as 'DRAFT' | 'PUBLISHED',
-      status: getString(bounty.status, 'OPEN') as 'OPEN' | 'REVIEWING' | 'COMPLETED' | 'CLOSED' | 'CANCELLED',
-    };
+    const initialData = createInitialFormData(bounty);
 
     setHasChanges(JSON.stringify(formData) !== JSON.stringify(initialData));
   }, [formData, bounty]);
 
   // Update form data
-  const updateFormData = useCallback((field: keyof BountyDetails, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  }, []);
+  const updateFormData = useCallback(
+    <K extends keyof BountyDetails>(field: K, value: BountyDetails[K]) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
 
   // Update winnings
-  const updateWinnings = useCallback((position: string, amount: number) => {
-    const newWinnings = { ...formData.winnings };
-    if (amount > 0) {
-      newWinnings[position] = amount;
-    } else {
-      delete newWinnings[position];
-    }
-    updateFormData('winnings', newWinnings);
-  }, [formData.winnings, updateFormData]);
+  const updateWinnings = useCallback(
+    (position: string, amount: number) => {
+      const newWinnings = { ...formData.winnings };
+      if (amount > 0) {
+        newWinnings[position] = amount;
+      } else {
+        delete newWinnings[position];
+      }
+      updateFormData('winnings', newWinnings);
+    },
+    [formData.winnings, updateFormData]
+  );
 
   // Save mutation
   const saveMutation = useMutation({
     mutationFn: async (data: Partial<BountyDetails>) => {
-      if (!bounty) {throw new Error('No bounty found');}
+      if (!bounty) {
+        throw new Error('No bounty found');
+      }
 
       // Validate data
       const validatedData = data;
@@ -285,14 +278,18 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
       setHasChanges(false);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to update bounty');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update bounty'
+      );
     },
   });
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (!bounty) throw new Error('No bounty found');
+      if (!bounty) {
+        throw new Error('No bounty found');
+      }
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
@@ -323,44 +320,13 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   }, [formData, saveMutation]);
 
   const handleReset = useCallback(() => {
-    if (!bounty) return;
+    if (!bounty) {
+      return;
+    }
 
-    const getDeadline = (dateStr?: string) => {
-      if (!dateStr) return '';
-      const date = new Date(dateStr);
-      return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 16);
-    };
+    const initialData = createInitialFormData(bounty);
 
-    const getString = (value: unknown, fallback: string) =>
-      typeof value === 'string' && value.length > 0 ? value : fallback;
-
-    const getArray = <T,>(value: unknown, fallback: T[]) =>
-      Array.isArray(value) ? value : fallback;
-
-    const getObject = <T,>(value: unknown, fallback: T) =>
-      value && typeof value === 'object' ? (value as T) : fallback;
-
-    setFormData({
-      title: getString(bounty.title, ''),
-      description: getString(bounty.description, ''),
-      skills: getArray<string>(bounty.skills, []),
-      amount: bounty.amount || 0,
-      token: getString(bounty.token, 'DOT'),
-      split: getString(bounty.split, 'FIXED') as 'FIXED' | 'EQUAL_SPLIT' | 'VARIABLE',
-      winnings: getObject<Record<string, number>>(bounty.winnings, {}),
-      deadline: getDeadline(bounty.deadline),
-      resources: getArray<{ title: string; url: string; description?: string }>(
-        bounty.resources,
-        []
-      ),
-      screening: getArray<{
-        question: string;
-        type: 'text' | 'url' | 'file';
-        optional: boolean;
-      }>(bounty.screening, []),
-      visibility: getString(bounty.visibility, 'DRAFT') as 'DRAFT' | 'PUBLISHED',
-      status: getString(bounty.status, 'OPEN') as 'OPEN' | 'REVIEWING' | 'COMPLETED' | 'CLOSED' | 'CANCELLED',
-    });
+    setFormData(initialData);
     setHasChanges(false);
   }, [bounty]);
 

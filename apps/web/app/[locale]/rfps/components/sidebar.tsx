@@ -110,11 +110,11 @@ function RfpsSidebarComponent({
       <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-80 overflow-y-auto bg-[#111111] p-6 lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : "hidden lg:block"}`}>
         {/* Mobile Close Button */}
         {showMobileFilters && (
-          <div className="flex justify-end mb-4 lg:hidden">
+          <div className='mb-4 flex justify-end lg:hidden'>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onFilterChange.onMobileFiltersToggle(false)}
+              onClick={() => onMobileFiltersToggle(false)}
               className="h-8 w-8 text-white/60 hover:bg-white/10 hover:text-white"
               aria-label="Close filters"
             >

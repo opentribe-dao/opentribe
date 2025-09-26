@@ -21,7 +21,10 @@ import type { BountyDetails } from '@/hooks/use-bounty';
 interface StatusVisibilityCardProps {
   formData: Partial<BountyDetails>;
   bounty: BountyDetails;
-  updateFormData: <K extends keyof BountyDetails>(field: K, value: BountyDetails[K]) => void;
+  updateFormData: <K extends keyof BountyDetails>(
+    field: K,
+    value: BountyDetails[K]
+  ) => void;
 }
 
 export function StatusVisibilityCard({
@@ -78,13 +81,52 @@ export function StatusVisibilityCard({
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="border-white/10 bg-zinc-900">
-          <SelectItem
-            value={formData.status ?? ''}
-            className="text-white"
-          >
+          <SelectItem value={formData.status ?? ''} className="text-white">
             {formData.status
-              ? formData.status.charAt(0) + formData.status.slice(1).toLowerCase()
-              : 'Unknown'}
+              ? formData.status.charAt(0) +
+                formData.status.slice(1).toLowerCase()
+              : ''}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    );
+  };
+
+  const renderVisibilitySelect = () => {
+    if (bounty.status !== 'OPEN') {
+      return (
+        <Select value={formData.visibility} disabled>
+          <SelectTrigger className="w-full cursor-not-allowed border-white/10 bg-white/5 text-white opacity-60">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="border-white/10 bg-zinc-900">
+            <SelectItem
+              value={formData.visibility ?? ''}
+              className="text-white"
+            >
+              {formData.visibility
+                ? formData.visibility.charAt(0) +
+                  formData.visibility.slice(1).toLowerCase()
+                : ''}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+    return (
+      <Select
+        value={formData.visibility}
+        onValueChange={(value: string) => updateFormData('visibility', value)}
+      >
+        <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="border-white/10 bg-zinc-900">
+          <SelectItem value="DRAFT" className="text-white">
+            Draft (Private)
+          </SelectItem>
+          <SelectItem value="PUBLISHED" className="text-white">
+            Published (Public)
           </SelectItem>
         </SelectContent>
       </Select>
@@ -94,7 +136,7 @@ export function StatusVisibilityCard({
   return (
     <Card className="border-white/10 bg-white/10 backdrop-blur-[10px]">
       <CardHeader>
-        <CardTitle className='flex items-center gap-2 font-heading text-white'>
+        <CardTitle className="flex items-center gap-2 font-heading text-white">
           <Eye className="size-4" />
           Status & Visibility
         </CardTitle>
@@ -111,29 +153,12 @@ export function StatusVisibilityCard({
 
           <div className="flex-1 space-y-2">
             <Label className="text-white/80">Visibility</Label>
-            <Select
-              value={formData.visibility}
-              onValueChange={(value: string) =>
-                updateFormData('visibility', value)
-              }
-            >
-              <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="border-white/10 bg-zinc-900">
-                <SelectItem value="DRAFT" className="text-white">
-                  Draft (Private)
-                </SelectItem>
-                <SelectItem value="PUBLISHED" className="text-white">
-                  Published (Public)
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            {renderVisibilitySelect()}
           </div>
         </div>
 
-        {formData.status === 'CLOSED' && (
-          <div className='mt-2 ml-2 flex items-center gap-1 text-[#E6007A] text-xs'>
+        {formData.status === 'CLOSED' && bounty.status !== 'CLOSED' && (
+          <div className="mt-2 ml-2 flex items-center gap-1 text-[#E6007A] text-xs">
             <TriangleAlert className="size-4" />
             Warning: Closing the bounty is{' '}
             <span className="font-semibold">irreversible</span>.

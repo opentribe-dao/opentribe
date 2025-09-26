@@ -294,6 +294,7 @@ export const Header = ({ dictionary }: HeaderProps) => {
                     {item.href ? (
                       <Link
                         href={item.href}
+                        onClick={() => setOpen(!isOpen)}
                         className={`flex items-center justify-between px-4 ${
                           isActive(item.href) ? "text-white" : ""
                         }`}

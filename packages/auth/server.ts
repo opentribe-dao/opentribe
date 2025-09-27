@@ -100,7 +100,7 @@ const authOptions = {
   ],
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Temporarily disabled for testing
+    requireEmailVerification: true, // Should not be committed as false, to be disabled only for local development
     sendResetPassword: async ({ user, url, token }) => {
       console.log("Sending password reset email to:", user.email);
       try {

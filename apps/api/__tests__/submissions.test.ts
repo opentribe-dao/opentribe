@@ -20,6 +20,11 @@ describe("Submission System Tests", () => {
         },
       };
 
+      const mockUser = {
+        id: "user-123",
+        profileCompleted: true,
+      };
+
       const mockBounty = {
         id: "bounty-1",
         title: "Test Bounty",
@@ -45,6 +50,7 @@ describe("Submission System Tests", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
       (database.submission.findFirst as any).mockResolvedValue(null);
       (database.submission.create as any).mockResolvedValue(mockSubmission);

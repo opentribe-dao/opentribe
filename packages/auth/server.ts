@@ -217,7 +217,7 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   plugins: [
     ...authOptions.plugins,
     customSession(async ({ user, session }, ctx) => {
-      console.log("Custom session:", user);
+      // console.debug("Custom session:", user);
       return {
         user: {
           ...user,

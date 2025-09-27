@@ -183,11 +183,17 @@ function GrantDetailLayoutBody({ children }: { children: React.ReactNode }) {
                 className=" px-4 py-2 text-white/80 transition hover:bg-white/10 data-[state=active]:bg-zinc-950 data-[state=active]:text-white"
               >
                 {tab.name}
+                {tab.name === 'Applications' && (
+                  <> ({grant._count.applications})</>
+                )}
               </Link>
             </TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent value={tabs[0].name} className="flex-1 ">
+        <TabsContent value={tabs.find(tab =>
+            pathname === tab.href ||
+            (tab.name === 'Overview' && (pathname === `/grants/${grant.id}` || pathname === `/grants/${grant.id}/`))
+          )?.name || tabs[0].name} className="flex-1 ">
           {children}
         </TabsContent>
       </Tabs>

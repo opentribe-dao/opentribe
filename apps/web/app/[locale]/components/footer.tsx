@@ -37,24 +37,24 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-black border-t border-white/10">
+    <footer className='border-white/10 border-t bg-black'>
       <div className="container mx-auto px-4 py-12">
         {/* Newsletter Section */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-8 mb-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className='mb-12 rounded-lg border border-white/10 bg-white/5 p-8 backdrop-blur-sm'>
+          <div className='flex flex-col items-center justify-between gap-6 md:flex-row'>
             <div>
-              <h3 className="text-2xl font-bold mb-2">Join our newsletter</h3>
+              <h3 className='mb-2 font-bold text-2xl'>Join our newsletter</h3>
               <p className="text-white/60">
                 Get exclusive access to new opportunities and ecosystem news.
               </p>
             </div>
-            <div className="flex gap-2 w-full md:w-auto">
+            <div className='flex w-full gap-2 md:w-auto'>
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className='w-64 border-white/20 bg-white/10 text-white placeholder:text-white/50'
               />
-              <Button className="bg-pink-600 hover:bg-pink-700 whitespace-nowrap">
+              <Button className='-ml-8 whitespace-nowrap bg-pink-600 hover:bg-pink-700'>
                 Subscribe →
               </Button>
             </div>
@@ -62,15 +62,15 @@ export const Footer = () => {
         </div>
 
         {/* Main Footer Content */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+        <div className='mb-12 grid grid-cols-2 gap-8 md:grid-cols-6'>
           {/* Logo and Description */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <span className="text-xl font-heading font-bold tracking-[0.25em] bg-gradient-to-r from-white/35 to-white bg-clip-text text-transparent leading-[1.75]">
+            <Link href="/" className='mb-4 flex items-center gap-2'>
+              <span className='bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-transparent text-xl leading-[1.75] tracking-[0.25em]'>
                 OPENTRIBE
               </span>
             </Link>
-            <p className="text-white/60 text-sm mb-4">
+            <p className='mb-4 text-sm text-white/60'>
               Opentribe is a talent marketplace connecting builders with
               opportunities in the Polkadot ecosystem. Find grants, bounties,
               and RFPs from leading projects.
@@ -82,7 +82,7 @@ export const Footer = () => {
 
           {/* Community */}
           <div>
-            <h4 className="font-semibold mb-4">Community</h4>
+            <h4 className='mb-4 font-semibold'>Community</h4>
             <ul className="space-y-2">
               {communityLinks.map((link) => (
                 <li key={link.title}>
@@ -90,7 +90,7 @@ export const Footer = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white text-sm transition-colors"
+                    className='text-sm text-white/60 transition-colors hover:text-white'
                   >
                     {link.title}
                   </Link>
@@ -101,13 +101,13 @@ export const Footer = () => {
 
           {/* Categories */}
           <div>
-            <h4 className="font-semibold mb-4">Categories</h4>
+            <h4 className='mb-4 font-semibold'>Categories</h4>
             <ul className="space-y-2">
               {categoriesLinks.map((link) => (
                 <li key={link.title}>
                   <Link
                     href={link.href}
-                    className="text-white/60 hover:text-white text-sm transition-colors"
+                    className='text-sm text-white/60 transition-colors hover:text-white'
                   >
                     {link.title}
                   </Link>
@@ -118,13 +118,13 @@ export const Footer = () => {
 
           {/* About */}
           <div>
-            <h4 className="font-semibold mb-4">About</h4>
+            <h4 className='mb-4 font-semibold'>About</h4>
             <ul className="space-y-2">
               {aboutLinks.map((link) => (
                 <li key={link.title}>
                   <Link
                     href={link.href}
-                    className="text-white/60 hover:text-white text-sm transition-colors"
+                    className='text-sm text-white/60 transition-colors hover:text-white'
                   >
                     {link.title}
                   </Link>
@@ -135,13 +135,13 @@ export const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h4 className="font-semibold mb-4">Legal</h4>
+            <h4 className='mb-4 font-semibold'>Legal</h4>
             <ul className="space-y-2">
               {legalLinks.map((link) => (
                 <li key={link.title}>
                   <Link
                     href={link.href}
-                    className="text-white/60 hover:text-white text-sm transition-colors"
+                    className='text-sm text-white/60 transition-colors hover:text-white'
                   >
                     {link.title}
                   </Link>
@@ -152,8 +152,8 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-white/40 text-sm">
+        <div className='flex flex-col items-center justify-between gap-4 border-white/10 border-t pt-8 md:flex-row'>
+          <p className='text-sm text-white/40'>
             © {currentYear} Opentribe. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
@@ -161,29 +161,29 @@ export const Footer = () => {
               href="https://x.com/opentribe_io"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/40 hover:text-white transition-colors"
+              className='text-white/40 transition-colors hover:text-white'
             >
-              <Twitter className="w-5 h-5" />
+              <Twitter className='h-5 w-5' />
             </Link>
             <Link
               href="https://github.com/opentribe-dao/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/40 hover:text-white transition-colors"
+              className='text-white/40 transition-colors hover:text-white'
             >
-              <Github className="w-5 h-5" />
+              <Github className='h-5 w-5' />
             </Link>
             <Link
               href="#"
-              className="text-white/40 hover:text-white transition-colors"
+              className='text-white/40 transition-colors hover:text-white'
             >
-              <Linkedin className="w-5 h-5" />
+              <Linkedin className='h-5 w-5' />
             </Link>
             <Link
               href="#"
-              className="text-white/40 hover:text-white transition-colors"
+              className='text-white/40 transition-colors hover:text-white'
             >
-              <Facebook className="w-5 h-5" />
+              <Facebook className='h-5 w-5' />
             </Link>
           </div>
         </div>

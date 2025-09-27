@@ -5,7 +5,7 @@ declare module "better-auth" {
     banned: boolean;
     banReason?: string | null;
     banExpires?: Date | null;
-    
+
     // Opentribe profile fields
     firstName?: string | null;
     lastName?: string | null;
@@ -17,7 +17,7 @@ declare module "better-auth" {
     location?: string | null;
     skills?: Record<string, any> | null;
     walletAddress?: string | null;
-    
+
     // Social profiles
     twitter?: string | null;
     discord?: string | null;
@@ -25,13 +25,13 @@ declare module "better-auth" {
     linkedin?: string | null;
     website?: string | null;
     telegram?: string | null;
-    
+
     // Work profile
     employer?: string | null;
     workExperience?: string | null;
     cryptoExperience?: string | null;
     workPreference?: string | null;
-    
+
     // User metadata
     profileCompleted: boolean;
     private: boolean;
@@ -39,7 +39,7 @@ declare module "better-auth" {
     preferences?: Record<string, any> | null;
     lastSeen?: Date | null;
   }
-  
+
   interface Session {
     activeOrganizationId?: string | null;
   }

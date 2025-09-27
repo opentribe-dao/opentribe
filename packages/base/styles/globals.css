@@ -285,9 +285,10 @@
   backdrop-filter: blur(4px);
 }
 
-.bounty-value-container{
+.total-value-container{
   background: #A4A4E533;
-  border: 1px solid;
+  border: 1px solid #ffffff4d;
   padding: 18px 10px;
   border-radius: 20px;
+  /* border-image-source: linear-gradient(160deg, rgba(255, 255, 255, 0.6) -5.94%, rgba(255, 255, 255, 0) 111.23%); */
 }

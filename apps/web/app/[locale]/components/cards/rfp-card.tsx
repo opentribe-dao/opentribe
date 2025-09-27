@@ -36,7 +36,7 @@ export function RFPCard({
   if (variant === "list") {
     return (
       <Link href={`/en/rfps/${id}`}>
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+        <div className='cursor-pointer rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-all hover:bg-white/10'>
           <div className="flex items-center gap-4">
             {/* Grant Logo */}
             {grant.organization.logo ? (
@@ -45,7 +45,7 @@ export function RFPCard({
                 alt={grant.organization.name}
                 width={48}
                 height={48}
-                className="rounded-full bg-white p-2"
+                className="rounded-full bg-black"
                 onError={(e) => {
                   console.log(
                     "RFP Card image failed to load:",
@@ -55,8 +55,8 @@ export function RFPCard({
                 }}
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-600/20 border border-white/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-bold text-white/80">
+              <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-purple-500/20 to-blue-600/20'>
+                <span className='font-bold text-sm text-white/80'>
                   {grant.organization.name[0]}
                 </span>
               </div>
@@ -64,10 +64,10 @@ export function RFPCard({
 
             {/* Content */}
             <div className="flex-1">
-              <h3 className="font-semibold text-white text-base line-clamp-1">
+              <h3 className='line-clamp-1 font-semibold text-base text-white'>
                 {title}
               </h3>
-              <div className="flex items-center gap-3 mt-1 text-sm text-white/60">
+              <div className='mt-1 flex items-center gap-3 text-sm text-white/60'>
                 <span>{grant.organization.name}</span>
                 <span className="text-white/40">•</span>
                 <span>1 week</span>
@@ -75,9 +75,9 @@ export function RFPCard({
             </div>
 
             {/* Vote Count */}
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
-              <ThumbsUp className="w-4 h-4 text-green-400" />
-              <span className="text-sm font-medium text-white">
+            <div className='flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1.5'>
+              <ThumbsUp className='h-4 w-4 text-green-400' />
+              <span className='font-medium text-sm text-white'>
                 {voteCount}
               </span>
             </div>
@@ -89,30 +89,30 @@ export function RFPCard({
 
   return (
     <Link href={`/en/rfps/${id}`}>
-      <Card className="bg-white/5 backdrop-blur-sm border-white/10 p-6 hover:bg-white/10 transition-all cursor-pointer mb-4">
-        <div className="flex items-start gap-4 mb-4">
+      <Card className='mb-4 cursor-pointer border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10'>
+        <div className='mb-4 flex items-start gap-4'>
           {grant.organization.logo ? (
             <Image
               src={grant.organization.logo}
               alt={grant.organization.name}
               width={56}
               height={56}
-              className="rounded-full bg-white p-2"
+              className="rounded-full bg-black"
             />
           ) : (
-            <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center flex-shrink-0">
-              <span className="text-lg font-bold text-white">
+            <div className='flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-600'>
+              <span className='font-bold text-lg text-white'>
                 {grant.organization.name[0]}
               </span>
             </div>
           )}
           <div className="flex-1">
-            <h3 className="font-semibold text-white text-lg mb-1">{title}</h3>
-            <p className="text-sm text-white/60 mb-2">
+            <h3 className='mb-1 font-semibold text-lg text-white'>{title}</h3>
+            <p className='mb-2 text-sm text-white/60'>
               {grant.title} • {grant.organization.name}
             </p>
             {description && (
-              <p className="text-sm text-white/70 line-clamp-2">
+              <p className='line-clamp-2 text-sm text-white/70 '>
                 {description}
               </p>
             )}
@@ -120,7 +120,7 @@ export function RFPCard({
           <Badge
             variant={isOpen ? "default" : "secondary"}
             className={
-              isOpen ? "bg-green-500/20 text-green-400 border-green-500/30" : ""
+              isOpen ? 'border-green-500/30 bg-green-500/20 text-green-400' : ""
             }
           >
             {status}
@@ -129,11 +129,11 @@ export function RFPCard({
 
         <div className="flex items-center gap-4 text-sm text-white/60">
           <span className="flex items-center gap-1">
-            <ThumbsUp className="w-4 h-4" />
+            <ThumbsUp className='h-4 w-4' />
             {voteCount} upvotes
           </span>
           <span className="flex items-center gap-1">
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className='h-4 w-4' />
             {commentCount} comments
           </span>
         </div>

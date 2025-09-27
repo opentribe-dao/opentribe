@@ -8,19 +8,21 @@ interface GrantCardProps {
   id: string;
   title: string;
   organization: {
+    id: string;
     name: string;
-    logo?: string;
+    slug: string;
+    logo: string | null;
   };
-  bannerUrl?: string;
-  minAmount?: number;
-  maxAmount?: number;
+  bannerUrl: string | null;
+  minAmount: string | null;
+  maxAmount: string | null;
   token: string;
   rfpCount: number;
   applicationCount: number;
-  status: "OPEN" | "CLOSED";
-  summary?: string;
-  skills?: string[];
-  createdAt?: string;
+  status: string;
+  summary: string;
+  skills: string[];
+  createdAt: string;
 }
 
 export function GrantCard({
@@ -39,8 +41,8 @@ export function GrantCard({
 
   return (
     <Link href={`/grants/${id}`}>
-      <Card className="bg-white/5 backdrop-blur-sm border-white/10 p-6 hover:bg-white/10 transition-all cursor-pointer">
-        <div className="flex items-start justify-between mb-4">
+      <Card className='cursor-pointer border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10'>
+        <div className='mb-4 flex items-start justify-between'>
           <div className="flex items-center gap-3">
             {organization.logo ? (
               <Image
@@ -55,24 +57,24 @@ export function GrantCard({
                   );
                   e.currentTarget.style.display = "none";
                 }}
-                className="rounded-full bg-white w-[48px] h-[48px]"
+                className='h-[48px] w-[48px] rounded-full bg-white'
               />
             ) : (
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
-                <span className="text-lg font-bold text-white">
+              <div className='flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-purple-600'>
+                <span className='font-bold text-lg text-white'>
                   {organization.name[0]}
                 </span>
               </div>
             )}
             <div>
-              <h3 className="font-semibold text-white text-lg">{title}</h3>
+              <h3 className='font-semibold text-lg text-white'>{title}</h3>
               <p className="text-sm text-white/60">{organization.name}</p>
             </div>
           </div>
           <Badge
             variant={isOpen ? "default" : "secondary"}
             className={
-              isOpen ? "bg-green-500/20 text-green-400 border-green-500/30" : ""
+              isOpen ? 'border-green-500/30 bg-green-500/20 text-green-400' : ""
             }
           >
             {status}
@@ -80,14 +82,14 @@ export function GrantCard({
         </div>
 
         {summary && (
-          <p className="text-sm text-white/70 mb-4 line-clamp-2">{summary}</p>
+          <p className='text-sm text-white/70'>{summary}</p>
         )}
 
-        <div className="flex items-center justify-between text-sm text-white/60">
+        <div className='flex flex-col justify-between gap-3 text-sm text-white/60 md:flex-row lg:flex-row lg:items-center'>
           <div className="flex items-center gap-4">
             {(minAmount || maxAmount) && (
-              <span className="flex items-center gap-1">
-                <DollarSign className="w-4 h-4" />
+              <span className='flex items-center gap-1'>
+                <DollarSign className='h-4 w-4' />
                 {minAmount && maxAmount ? (
                   <>
                     {minAmount.toLocaleString()} - {maxAmount.toLocaleString()}{" "}
@@ -101,7 +103,7 @@ export function GrantCard({
               </span>
             )}
             <span className="flex items-center gap-1">
-              <FileText className="w-4 h-4" />
+              <FileText className='h-4 w-4' />
               {rfpCount} RFPs
             </span>
           </div>

@@ -2,6 +2,7 @@ import { env } from "@/env";
 import { auth } from "@packages/auth/server";
 import { Button } from "@packages/base/components/ui/button";
 import {
+  Briefcase,
   Building2,
   Calendar,
   Clock,
@@ -18,9 +19,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BountyContent } from "./bounty-content";
 import { CommentSection } from "./comment-section";
+import { ShareButton } from "./share-button";
 
 async function getBounty(id: string) {
-  const apiUrl = env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+  const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/api/v1/bounties/${id}`, {
     cache: "no-store",
   });
@@ -98,8 +100,8 @@ export default async function BountyDetailPage({
       <div className="relative overflow-hidden">
         <div className="container relative mx-auto px-6 py-8">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-6">
+            <div className='items-start justify-between md:flex'>
+              <div className='items-start gap-6 md:flex'>
                 {/* Organization Logo */}
                 <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
                   {bounty.organization.logo ? (
@@ -107,7 +109,7 @@ export default async function BountyDetailPage({
                       src={bounty.organization.logo}
                       alt={bounty.organization.name}
                       fill
-                      className="bg-white object-cover p-2"
+                      className='h-20 w-20 bg-black object-cover'
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -120,10 +122,10 @@ export default async function BountyDetailPage({
 
                 {/* Bounty Info */}
                 <div>
-                  <h1 className="mb-2 font-bold font-heading text-3xl">
+                  <h1 className='mt-2 mb-2 font-bold font-heading text-2xl sm:text-2xl md:mt-0'>
                     {bounty.title}
                   </h1>
-                  <div className="flex items-center gap-4 text-white/60">
+                  <div className='flex flex-col gap-4 text-white/60 md:flex-row md:items-center'>
                     <span className="flex items-center gap-1">
                       <Building2 className="h-4 w-4" />
                       {bounty.organization.industry?.[0] || "Technology"}
@@ -133,7 +135,7 @@ export default async function BountyDetailPage({
                       {bounty.organization.location || "Remote"}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
+                      <Clock className="h-4 w-4" />
                       Deadline: {formatDeadline(bounty.deadline)}
                     </span>
                   </div>
@@ -141,7 +143,7 @@ export default async function BountyDetailPage({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-4">
+              <div className='mt-4 flex items-center gap-4 md:mt-0'>
                 {/* Prize Badge */}
                 {/* <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/20 px-4 py-2 backdrop-blur-sm">
                   <Trophy className="h-4 w-4 text-green-400" />
@@ -149,36 +151,57 @@ export default async function BountyDetailPage({
                     {formatAmount(totalPrize)} {bounty.token}
                   </span>
                 </div> */}
-              <div className="mb-4">
-              <Link href={`/bounties/${id}/submit`}>
-                  <Button
-                    className="bg-pink-600 text-white hover:bg-pink-700 w-48 h-12 font-bold text-lg"
-                    disabled={bounty.status !== "OPEN"}
-                  >
-                    Submit Now
-                  </Button>
-                </Link>
 
+                <div className="flex flex-col items-center justify-end gap-2 sm:items-end">
+                  <Link href={`/bounties/${id}/submit`}>
+                    <Button
+                      className='h-12 w-48 bg-pink-600 font-bold text-lg text-white hover:bg-pink-700 md:w-auto lg:w-48'
+                      disabled={bounty.status !== "OPEN"}
+                    >
+                      Submit Now
+                    </Button>
+                  </Link>
 
-
+                  <div className='mt-4 flex items-center gap-2'>
+                    <span className="flex items-center">
+                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
+                      <img
+                        src="https://picsum.photos/200/300"
+                        alt=""
+                        className="h-8 w-8 rounded-full border border-white "
+                      />
+                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
+                      <img
+                        src="https://picsum.photos/seed/picsum/200/300"
+                        alt=""
+                        className="-ml-4 h-8 w-8 rounded-full border border-white "
+                      />
+                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
+                      <img
+                        src="https://picsum.photos/seed/picsum/200/300"
+                        alt=""
+                        className="-ml-4 h-8 w-8 rounded-full border border-white "
+                      />
+                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
+                      <img
+                        src="https://picsum.photos/200/300"
+                        alt=""
+                        className="-ml-4 h-8 w-8 rounded-full border border-white"
+                      />
+                    </span>
+                    <ShareButton url={`/bounties/${id}`} />
+                  </div>
                 </div>
-                <div className="flex justify-end">
-                <Button
-                  variant="outline"
-                  // size="icon"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  <Share2 className="h-4 w-4" /> Share
-                </Button>
-                  {/* <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/20 px-4 py-2 backdrop-blur-sm">
+              </div>
+
+              {/* <div className="flex justify-end"> */}
+              {/* <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/20 px-4 py-2 backdrop-blur-sm">
                     <Trophy className="h-4 w-4 text-green-400" />
                     <span className="font-bold text-green-400 text-sm">
                       {formatAmount(totalPrize)} {bounty.token}
                     </span>
                   </div> */}
-
-                </div>
-              </div>
+              {/* </div> */}
             </div>
           </div>
         </div>
@@ -214,8 +237,8 @@ export default async function BountyDetailPage({
           <div className="space-y-6">
             {/* Grant Price Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <h3 className="mb-2 flex items-center gap-2 font-medium text-sm text-white/60">
-                <DollarSign className="h-4 w-4" /> Total Prize
+              <h3 className='mb-2 flex items-center gap-2 font-medium text-xl text-white/60' >
+                <DollarSign className='h-7 w-7 rounded-full border text-black border-white/20 bg-[#DBE7FF] p-1' />Total Prize
               </h3>
               <div className="mb-4 font-bold font-heading text-2xl">
                 {formatAmount(totalPrize)} {bounty.token}
@@ -232,7 +255,7 @@ export default async function BountyDetailPage({
                       key={position}
                       className="flex items-center justify-between"
                     >
-                      <span className="text-sm text-white/70">
+                      <span className="text-lg text-white/70">
                         {position === "1"
                           ? "🥇 1st Place"
                           : position === "2"
@@ -241,7 +264,7 @@ export default async function BountyDetailPage({
                           ? "🥉 3rd Place"
                           : `Position ${position}`}
                       </span>
-                      <span className="font-medium text-sm">
+                      <span className="font-medium text-lg">
                         {formatAmount(Number(amount))}
                       </span>
                     </div>
@@ -251,23 +274,34 @@ export default async function BountyDetailPage({
             </div>
 
             {/* Submissions Info */}
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <h3 className="mb-3 font-medium text-sm text-white/60">
-                Submissions
-              </h3>
-              <div className="mb-4 flex items-center gap-3">
-                <Users className="h-5 w-5 text-pink-400" />
-                <span className="font-semibold text-lg">
-                  {bounty._count.submissions} Total
-                </span>
+            <div className="flex justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6 align-center backdrop-blur-sm">
+              <div className=" items-center gap-4">
+                <h3 className="mb-3 font-medium text-sm text-white/60">
+                  Submissions
+                </h3>
+                <div className="mb-4 flex items-center gap-2">
+                  {/* <Users className="h-5 w-5 text-pink-400" /> */}
+                  <Briefcase className="h-5 w-5 text-pink-400" />
+                  <span className="font-semibold text-lg">
+                    {bounty._count.submissions} Total
+                  </span>
+                </div>
               </div>
 
-              {bounty.deadline && (
-                <div className="text-sm text-white/60">
-                  <Clock className="mr-1 inline h-4 w-4" />
-                  Deadline: {formatDeadline(bounty.deadline)}
+              <div className=" items-center gap-4">
+                <h3 className="mb-3 font-medium text-sm text-white/60">
+                  Deadline
+                </h3>
+                <div className="mb-4 flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-pink-400" />
+                  {bounty.deadline && (
+                    <div className="">
+                      {/* {formatDeadline(bounty.deadline)} */}
+                      <span className="font-semibold text-lg">5d:19h:15m</span>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Skills Required */}

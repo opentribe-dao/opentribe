@@ -265,7 +265,7 @@ $RECYCLE.BIN/
 .content-collections
 
 # AI Rules
-.cursorrules
+.cursor/rules
 .github/copilot-instructions.md
 
 # Claude Code files
@@ -300,6 +300,8 @@ HOMEPAGE_UI_IMPLEMENTATION.md
 NEWSLETTER_BROADCAST_SYSTEM.md
 SEARCH_IMPLEMENTATION.md
 BOUNTYPAGE_UI_IMPLEMENTATION.md
+GRANTSPAGE_UI_IMPLEMENTATION.md
+RFPSPAGE_UI_IMPLEMENTATION.md
 
 # AI
 GEMINI.md

@@ -2,27 +2,41 @@ import {
   adminClient,
   organizationClient,
   customSessionClient,
+  inferAdditionalFields,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
-import type { auth } from "./server";
 
 // Create the auth client with proper configuration
 const authClient = createAuthClient({
   baseURL:
     typeof window !== "undefined"
-      ? `${
-          process.env.NEXT_PUBLIC_AUTH_API_URL || "http://localhost:3002"
-        }/api/auth`
-      : `${process.env.AUTH_API_URL || "http://localhost:3002"}/api/auth`,
+      ? `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/auth`
+      : `${process.env.BETTER_AUTH_URL}/api/auth`,
   plugins: [
     adminClient(),
     organizationClient(),
-    customSessionClient<typeof auth>(),
+    customSessionClient(),
+    inferAdditionalFields({
+      user: {
+        // Only include fields that are in the custom session
+        profileCompleted: {
+          type: "boolean",
+          input: false, // Don't require during signup
+        },
+        username: {
+          type: "string",
+          input: false, // Don't require during signup
+        },
+        role: {
+          type: "string",
+          input: false, // Don't require during signup
+        },
+      },
+    }),
   ],
 });
 
-// Export the client itself for direct usage
-export { authClient };
+export type Session = typeof authClient.$Infer.Session;
 
 // Export all the methods from the client
 export const {
@@ -32,6 +46,7 @@ export const {
   signUp,
   useSession,
   getSession,
+  verifyEmail,
 
   // Admin methods
   admin,
@@ -40,5 +55,6 @@ export const {
   organization,
   useListOrganizations,
   useActiveOrganization,
-  verifyEmail,
 } = authClient;
+
+export { authClient };

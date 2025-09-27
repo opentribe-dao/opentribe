@@ -1,63 +1,79 @@
 // API client functions for community features
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+import { env } from "@/env";
+
+const API_URL = env.NEXT_PUBLIC_API_URL;
 
 // Like API functions
-export async function createLike(data: { applicationId?: string; submissionId?: string }) {
+export async function createLike(data: {
+  applicationId?: string;
+  submissionId?: string;
+}) {
   const response = await fetch(`${API_URL}/api/v1/likes`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to create like');
+    throw new Error(error.error || "Failed to create like");
   }
 
   return response.json();
 }
 
-export async function removeLike(params: { applicationId?: string; submissionId?: string }) {
+export async function removeLike(params: {
+  applicationId?: string;
+  submissionId?: string;
+}) {
   const searchParams = new URLSearchParams();
-  if (params.applicationId) searchParams.append('applicationId', params.applicationId);
-  if (params.submissionId) searchParams.append('submissionId', params.submissionId);
+  if (params.applicationId)
+    searchParams.append("applicationId", params.applicationId);
+  if (params.submissionId)
+    searchParams.append("submissionId", params.submissionId);
 
   const response = await fetch(`${API_URL}/api/v1/likes?${searchParams}`, {
-    method: 'DELETE',
-    credentials: 'include',
+    method: "DELETE",
+    credentials: "include",
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to remove like');
+    throw new Error(error.error || "Failed to remove like");
   }
 
   return response.json();
 }
 
-export async function checkLikes(params: { applicationIds?: string[]; submissionIds?: string[] }) {
+export async function checkLikes(params: {
+  applicationIds?: string[];
+  submissionIds?: string[];
+}) {
   const searchParams = new URLSearchParams();
   if (params.applicationIds?.length) {
-    searchParams.append('applicationIds', params.applicationIds.join(','));
+    searchParams.append("applicationIds", params.applicationIds.join(","));
   }
   if (params.submissionIds?.length) {
-    searchParams.append('submissionIds', params.submissionIds.join(','));
+    searchParams.append("submissionIds", params.submissionIds.join(","));
   }
 
-  const response = await fetch(`${API_URL}/api/v1/likes/check?${searchParams}`, {
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${API_URL}/api/v1/likes/check?${searchParams}`,
+    {
+      credentials: "include",
+    }
+  );
 
   if (!response.ok) {
     if (response.status === 401) {
       // User not authenticated, return empty likes
       return { applications: {}, submissions: {} };
     }
-    throw new Error('Failed to check likes');
+    throw new Error("Failed to check likes");
   }
 
   return response.json();
@@ -99,7 +115,7 @@ export async function getComments(params: {
   const response = await fetch(`${API_URL}/api/v1/comments?${searchParams}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch comments');
+    throw new Error("Failed to fetch comments");
   }
 
   return response.json() as Promise<{
@@ -120,17 +136,17 @@ export async function createComment(data: {
   type?: string;
 }) {
   const response = await fetch(`${API_URL}/api/v1/comments`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to create comment');
+    throw new Error(error.error || "Failed to create comment");
   }
 
   return response.json();
@@ -138,17 +154,17 @@ export async function createComment(data: {
 
 export async function updateComment(id: string, body: string) {
   const response = await fetch(`${API_URL}/api/v1/comments/${id}`, {
-    method: 'PATCH',
+    method: "PATCH",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
     body: JSON.stringify({ body }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to update comment');
+    throw new Error(error.error || "Failed to update comment");
   }
 
   return response.json();
@@ -156,13 +172,13 @@ export async function updateComment(id: string, body: string) {
 
 export async function deleteComment(id: string) {
   const response = await fetch(`${API_URL}/api/v1/comments/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
+    method: "DELETE",
+    credentials: "include",
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to delete comment');
+    throw new Error(error.error || "Failed to delete comment");
   }
 
   return response.json();
@@ -171,10 +187,10 @@ export async function deleteComment(id: string) {
 // Vote API functions
 export async function getUserVotes(rfpIds: string[]) {
   const searchParams = new URLSearchParams();
-  searchParams.append('rfpIds', rfpIds.join(','));
+  searchParams.append("rfpIds", rfpIds.join(","));
 
   const response = await fetch(`${API_URL}/api/v1/votes?${searchParams}`, {
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -182,25 +198,28 @@ export async function getUserVotes(rfpIds: string[]) {
       // User not authenticated, return empty votes
       return { votes: {} };
     }
-    throw new Error('Failed to fetch votes');
+    throw new Error("Failed to fetch votes");
   }
 
-  return response.json() as Promise<{ votes: Record<string, 'UP' | 'DOWN'> }>;
+  return response.json() as Promise<{ votes: Record<string, "UP" | "DOWN"> }>;
 }
 
-export async function createOrUpdateVote(rfpId: string, direction: 'UP' | 'DOWN') {
+export async function createOrUpdateVote(
+  rfpId: string,
+  direction: "UP" | "DOWN"
+) {
   const response = await fetch(`${API_URL}/api/v1/votes`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
     body: JSON.stringify({ rfpId, direction }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to vote');
+    throw new Error(error.error || "Failed to vote");
   }
 
   return response.json();
@@ -208,13 +227,13 @@ export async function createOrUpdateVote(rfpId: string, direction: 'UP' | 'DOWN'
 
 export async function removeVote(rfpId: string) {
   const response = await fetch(`${API_URL}/api/v1/votes?rfpId=${rfpId}`, {
-    method: 'DELETE',
-    credentials: 'include',
+    method: "DELETE",
+    credentials: "include",
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Failed to remove vote');
+    throw new Error(error.error || "Failed to remove vote");
   }
 
   return response.json();

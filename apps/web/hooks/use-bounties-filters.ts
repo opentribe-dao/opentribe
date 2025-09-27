@@ -26,10 +26,10 @@ export function useBountiesFilters() {
     return {
       status: params.get('status')?.split(',').filter(Boolean) || ['open'],
       skills: params.get('skills')?.split(',').filter(Boolean) || [],
-      sortBy: params.get('sortBy') || 'newest',
+      sortBy: params.get('sort') || 'newest',
       priceRange: [
-        Number.parseInt(params.get('minPrice') || '0'),
-        Number.parseInt(params.get('maxPrice') || '50000')
+        Number.parseInt(params.get('minAmount') || '0'),
+        Number.parseInt(params.get('maxAmount') || '50000')
       ] as [number, number],
       hasSubmissions: params.get('hasSubmissions') === 'true',
       hasDeadline: params.get('hasDeadline') === 'true',
@@ -43,13 +43,13 @@ export function useBountiesFilters() {
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     
-    // Status filter
-    if (filters.status?.length) {
+    // Status filter (if not empty)
+    if (filters.status && filters.status.length > 0) {
       count++;
     }
     
-    // Skills filter
-    if (filters.skills?.length) {
+    // Skills filter (if not empty)
+    if (filters.skills && filters.skills.length > 0) {
       count++;
     }
     
@@ -67,8 +67,10 @@ export function useBountiesFilters() {
     if (filters.hasSubmissions) count++;
     if (filters.hasDeadline) count++;
     
-    // // Search query
-    // if (filters.search) count++;
+    // Search query (if not empty)
+    if (filters.search && filters.search.trim()) {
+      count++;
+    }
     
     return count;
   }, [filters]);
@@ -81,30 +83,30 @@ export function useBountiesFilters() {
     const updatedFilters = { ...filters, ...newFilters };
     
     // Update URL parameters
-    if (updatedFilters.status?.length && updatedFilters.status[0] !== '') {
+    if (updatedFilters.status && updatedFilters.status.length > 0) {
       params.set('status', updatedFilters.status.join(','));
     } else {
       params.delete('status');
     }
     
-    if (updatedFilters.skills?.length && updatedFilters.skills[0] !== '') {
+    if (updatedFilters.skills && updatedFilters.skills.length > 0) {
       params.set('skills', updatedFilters.skills.join(','));
     } else {
       params.delete('skills');
     }
     
-    if (updatedFilters.sortBy && updatedFilters.sortBy !== '') {
-      params.set('sortBy', updatedFilters.sortBy);
+    if (updatedFilters.sortBy && updatedFilters.sortBy !== 'newest') {
+      params.set('sort', updatedFilters.sortBy);
     } else {
-      params.delete('sortBy');
+      params.delete('sort');
     }
     
     if (updatedFilters.priceRange && (updatedFilters.priceRange[0] > 0 || updatedFilters.priceRange[1] < 50000)) {
-      params.set('minPrice', updatedFilters.priceRange[0].toString());
-      params.set('maxPrice', updatedFilters.priceRange[1].toString());
+      params.set('minAmount', updatedFilters.priceRange[0].toString());
+      params.set('maxAmount', updatedFilters.priceRange[1].toString());
     } else {
-      params.delete('minPrice');
-      params.delete('maxPrice');
+      params.delete('minAmount');
+      params.delete('maxAmount');
     }
     
     if (updatedFilters.hasSubmissions && updatedFilters.hasSubmissions === true) {
@@ -119,7 +121,7 @@ export function useBountiesFilters() {
       params.delete('hasDeadline');
     }
     
-    if (updatedFilters.search) {
+    if (updatedFilters.search && updatedFilters.search.trim()) {
       params.set('search', updatedFilters.search);
     } else {
       params.delete('search');
@@ -189,9 +191,9 @@ export function useBountiesFilters() {
 
   const clearAllFilters = useCallback(() => {
     const defaultFilters: BountiesFilters = {
-      status: [''],
+      status: [],
       skills: [],
-      sortBy: '',
+      sortBy: 'newest',
       priceRange: [0, 50000],
       hasSubmissions: false,
       hasDeadline: false,

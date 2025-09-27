@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Input } from "@packages/base/components/ui/input"
-import { Search, Filter, X } from "lucide-react"
+import { Search, Filter, X, Briefcase, DollarSign } from "lucide-react"
 
 interface GrantsHeroSectionProps {
   searchQuery: string
@@ -64,10 +64,36 @@ function GrantsHeroSectionComponent({
           </Button>
         </form>
 
-        <div className="flex items-center gap-6">
-          <div className="text-sm">
+        <div className='items-center gap-4 sm:flex md:flex '>
+          {/* <div className="text-sm">
             <span className="text-white/60">Total grants: </span>
             <span className="font-semibold text-white">{totalCount}</span>
+          </div> */}
+           <div className='total-value-container flex gap-4 text-sm '>
+            <div className='flex items-center gap-2 '>
+              <div className='icon'>
+                <DollarSign className='h-8 w-8 rounded-full bg-white/10 p-2' />
+              </div>
+              <div className='flex flex-col '>
+                <span className="font-semibold text-white">{totalCount}</span>
+                <span className="text-white/60">Grants: </span>
+              </div>
+            </div>
+
+            <div className='flex items-center gap-2 border-white/10 border-l pl-4'>
+              <div className='icon'>
+              <Briefcase className='h-8 w-8 rounded-full bg-white/10 p-2' />
+              </div>
+              <div className='flex flex-col'>
+                <span className='font-semibold text-white'>150 </span>
+                <span className="text-white/60">Opportunities</span>
+              </div>
+            </div>
+
+            <div>
+
+            </div>
+
           </div>
           
           {/* Spacer/Divider */}

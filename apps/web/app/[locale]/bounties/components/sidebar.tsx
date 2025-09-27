@@ -61,9 +61,10 @@ function BountiesSidebarComponent({
       )}
       
       {/* Sidebar Content */}
-      <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-80 overflow-y-auto bg-[#111111] p-6 lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : "hidden lg:block"}`}>
+      
+      <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-90 translate-x-0 transform-gpu overflow-y-auto bg-[#111111] p-6 opacity-100 transition-opacity transition-transform duration-300 ease-out lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : 'pointer-events-none fixed top-0 right-0 z-40 h-full w-90 translate-x-full transform-gpu overflow-y-auto bg-[#111111] p-6 opacity-0 transition-opacity transition-transform duration-300 ease-out lg:pointer-events-auto lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:translate-x-0 lg:bg-transparent lg:p-0 lg:opacity-100'}`}>
       {/* Filters */}
-      <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+      <div className='rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm'>
         <div className='mb-4 flex items-center justify-between'>
           <h3 className='font-heading font-semibold text-lg'>Filters</h3>
           {activeFiltersCount > 0 && (
@@ -81,7 +82,7 @@ function BountiesSidebarComponent({
         {/* Status */}
         <div className="mb-6">
           <h4 className='mb-3 font-medium text-sm text-white/80'>Status</h4>
-          <div className="space-y-2">
+          <div className='flex items-center justify-between align-center'>
             {["Open", "In Review", "Completed"].map((status) => (
               <label
                 key={status}
@@ -148,7 +149,7 @@ function BountiesSidebarComponent({
         {/* Additional Filters */}
         <div>
           <h4 className='mb-3 font-medium text-sm text-white/80'>Additional</h4>
-          <div className="space-y-2">
+          <div className='flex justify-between gap-1 space-y-2 align-center'>
             <label htmlFor="has-submissions" className='flex cursor-pointer items-center gap-2'>
               <Checkbox
                 id="has-submissions"

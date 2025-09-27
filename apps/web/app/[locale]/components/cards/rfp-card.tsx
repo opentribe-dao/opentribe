@@ -45,7 +45,7 @@ export function RFPCard({
                 alt={grant.organization.name}
                 width={48}
                 height={48}
-                className="rounded-full bg-white p-2"
+                className="rounded-full bg-black"
                 onError={(e) => {
                   console.log(
                     "RFP Card image failed to load:",
@@ -97,7 +97,7 @@ export function RFPCard({
               alt={grant.organization.name}
               width={56}
               height={56}
-              className="rounded-full bg-white p-2"
+              className="rounded-full bg-black"
             />
           ) : (
             <div className='flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-600'>
@@ -112,7 +112,7 @@ export function RFPCard({
               {grant.title} • {grant.organization.name}
             </p>
             {description && (
-              <p className='line-clamp-2 text-sm text-white/70'>
+              <p className='line-clamp-2 text-sm text-white/70 '>
                 {description}
               </p>
             )}

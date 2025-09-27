@@ -1,17 +1,13 @@
 "use client";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GrantsHeroSection } from "./components/hero-section";
 import { GrantsContentSection } from "./components/content-section";
 import { GrantsSidebar } from "./components/sidebar";
 import { useGrantsFilters } from "@/hooks/use-grants-filters";
 import { useGrantsData, useGrantsSkills, useTopRFPs } from "@/hooks/use-grants-data";
-import { queryClientConfig } from "@/hooks/react-query";
 import { useState } from "react";
 
-const queryClient = new QueryClient(queryClientConfig);
 
-function GrantsPageContent() {
+export default function GrantsPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const filtersHook = useGrantsFilters();
@@ -51,6 +47,9 @@ function GrantsPageContent() {
             onClearAllFilters={filtersHook.clearAllFilters}
             onLoadMore={grantsData.loadMore}
             onRetry={() => grantsData.refetch()}
+            topRFPs={topRFPsQuery.data || []}
+            topRFPsLoading={topRFPsQuery.isLoading}
+            topRFPsError={topRFPsQuery.error}
           />
 
           <GrantsSidebar
@@ -64,25 +63,11 @@ function GrantsPageContent() {
             topRFPs={topRFPsQuery.data || []}
             topRFPsLoading={topRFPsQuery.isLoading}
             topRFPsError={topRFPsQuery.error}
-            onFilterChange={(key, value) => {
-              if (key === 'showMobileFilters') {
-                setShowMobileFilters(value as boolean);
-              } else {
-                // Type-safe filter updates
-                switch (key) {
-                  case 'status':
-                    filtersHook.updateFilter('status', value as string);
-                    break;
-                  case 'sortBy':
-                    filtersHook.updateFilter('sortBy', value as string);
-                    break;
-                  case 'priceRange':
-                    filtersHook.updateFilter('priceRange', value as [number, number]);
-                    break;
-                  default:
-                    console.warn(`Unknown filter key: ${key}`);
-                }
-              }
+            onFilterChange={{
+              onSortChange: (value) => filtersHook.updateFilter('sortBy', value),
+              onStatusChange: (value) => filtersHook.updateFilter('status', value),
+              onPriceRangeChange: (value) => filtersHook.updateFilter('priceRange', value),
+              onMobileFiltersToggle: (show) => setShowMobileFilters(show),
             }}
             onStatusToggle={filtersHook.toggleStatus}
             onClearAllFilters={filtersHook.clearAllFilters}
@@ -90,13 +75,5 @@ function GrantsPageContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function GrantsPage() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <GrantsPageContent />
-    </QueryClientProvider>
   );
 }

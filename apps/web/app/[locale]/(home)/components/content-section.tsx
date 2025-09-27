@@ -1,31 +1,10 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
-import { Button as BaseButton } from "@packages/base/components/ui/button";
-import { Badge } from "@packages/base/components/ui/badge";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { BountyCard } from "../../components/cards/bounty-card";
 import { GrantCard } from "../../components/cards/grant-card";
 import { RFPCard } from "../../components/cards/rfp-card";
-
-// Safe Button wrapper for React 19 compatibility
-const Button = (props: any) => {
-  const { children, onClick, variant, size, className } = props;
-  return (
-    <button
-      onClick={onClick}
-      className={`inline-flex items-center justify-center rounded-md px-4 py-2 font-medium text-sm transition-colors ${
-        variant === "ghost"
-          ? "hover:bg-white/10 hover:text-white"
-          : variant === "outline"
-            ? "border border-white/20 text-white hover:bg-white/10"
-            : "bg-primary text-primary-foreground hover:bg-primary/90"
-      } ${size === "sm" ? "px-2 py-1 text-xs" : ""} ${className || ""}`}
-    >
-      {children}
-    </button>
-  );
-};
 
 interface ContentSectionProps {
   bounties: any[];
@@ -42,8 +21,6 @@ interface ContentSectionProps {
     rfps: Error | null;
   };
   selectedSkills: string[];
-  hasActiveFilters: boolean;
-  onClearFilters: () => void;
 }
 
 interface ContentBlockProps {
@@ -89,30 +66,30 @@ function ContentBlock({
           {title === "Grants"
             ? // Grants loading skeleton (card grid)
               [1, 2, 3, 4, 5, 6].map((i) => (
-                <div
+                <Skeleton
                   key={i}
-                  className="h-[466px] bg-white/5 rounded-2xl animate-pulse"
+                  className="h-[466px] rounded-2xl"
                 />
               ))
             : title === "RFPs"
               ? // RFPs loading skeleton (list items)
                 [1, 2].map((i) => (
-                  <div
+                  <Skeleton
                     key={i}
-                    className="h-32 bg-white/5 rounded-lg animate-pulse"
+                    className="h-32 rounded-lg"
                   />
                 ))
               : // Bounties loading skeleton (list items)
                 [1, 2, 3].map((i) => (
-                  <div
+                  <Skeleton
                     key={i}
-                    className="h-48 bg-white/5 rounded-lg animate-pulse"
+                    className="h-48 rounded-lg"
                   />
                 ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="p-6 bg-white/5 border border-white/10 rounded-lg">
-          <p className="text-white/60 text-center">{emptyMessage}</p>
+        <div className='rounded-lg border border-white/10 bg-white/5 p-6'>
+          <p className='text-center text-white/60'>{emptyMessage}</p>
         </div>
       ) : (
         <div className={gridClassName}>{items.map(renderItem)}</div>
@@ -127,40 +104,9 @@ export function ContentSection({
   rfps,
   loading,
   error,
-  selectedSkills,
-  hasActiveFilters,
-  onClearFilters,
 }: ContentSectionProps) {
   return (
     <div className="space-y-12">
-      {/* Active Filters Display */}
-      {hasActiveFilters && (
-        <div className='flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4'>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white/60">Filtering by:</span>
-            <div className='flex flex-wrap gap-1'>
-              {selectedSkills.map((skill) => (
-                <Badge
-                  key={skill}
-                  variant="secondary"
-                  className='border-[#E6007A]/30 bg-[#E6007A]/20 text-white'
-                >
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClearFilters}
-            className='text-white/60 hover:bg-white/10 hover:text-white'
-          >
-            Clear filters
-          </Button>
-        </div>
-      )}
-
       {/* Bounties Section */}
       {bounties.length > 0 || loading.bounties || error.bounties ? (
         <ContentBlock
@@ -191,11 +137,7 @@ export function ContentSection({
               winnersAnnouncedAt={bounty.winnersAnnouncedAt}
             />
           )}
-          emptyMessage={
-            hasActiveFilters
-              ? `No bounties found for selected skills: ${selectedSkills.join(", ")}`
-              : "No bounties available"
-          }
+          emptyMessage="No bounties available"
         />
       ) : null}
 
@@ -226,11 +168,7 @@ export function ContentSection({
               createdAt={grant.createdAt}
             />
           )}
-          emptyMessage={
-            hasActiveFilters
-              ? `No grants found for selected skills: ${selectedSkills.join(", ")}`
-              : "No grants available"
-          }
+          emptyMessage="No grants available"
         />
       ) : null}
 

@@ -126,7 +126,7 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
             <Link
               key={tab.name}
               href={tab.href}
-              className={`rounded-t bg-white/5 px-4 py-2 text-white/80 transition hover:bg-white/10 data-[active=true]:bg-zinc-950 data-[active=true]:text-white `}
+              className={'rounded-t bg-white/5 px-4 py-2 text-white/80 transition hover:bg-white/10 data-[active=true]:bg-zinc-950 data-[active=true]:text-white '}
               data-active={
                 typeof window !== 'undefined' &&
                 (pathname === tab.href ||

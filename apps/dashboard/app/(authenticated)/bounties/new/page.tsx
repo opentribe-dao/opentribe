@@ -268,9 +268,8 @@ const CreateBountyPage = () => {
 
       const result = await response.json();
       toast.success('Bounty created successfully!');
-      router.push(`/bounties/${result.bounty.id}`);
+      router.push(`/bounties/${result.bounty.id}/`);
     } catch (error) {
-      console.error('Bounty creation failed:', error);
       toast.error('Failed to create bounty. Please try again.');
     } finally {
       setSubmitting(false);

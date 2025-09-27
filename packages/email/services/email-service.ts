@@ -64,7 +64,7 @@ export async function sendWelcomeEmail(user: EmailUser) {
     subject: "Welcome to Opentribe!",
     react: WelcomeEmail({
       firstName: getUserName(user),
-      dashboardUrl: `${BASE_URL}/onboarding`,
+      url: `${BASE_URL}/onboarding`,
     }),
   });
 }

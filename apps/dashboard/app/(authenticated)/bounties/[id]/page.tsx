@@ -55,7 +55,7 @@ export default function BountyOverviewPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-zinc-900/50 border-white/10">
+          <Card className="bg-zinc-900/badge50 border-white/10">
             <CardHeader>
               <CardDescription className="text-white/60">
                 Deadline

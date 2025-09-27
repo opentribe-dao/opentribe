@@ -14,6 +14,14 @@ export const config = {
   matcher: ["/((?!_next/static|_next/image|ingest|favicon.ico).*)"],
 };
 
+const authRequiredRouteRegex = [
+  /^\/dashboard/,
+  /^\/bounties\/create/,
+  /^\/grants\/apply/,
+  /^\/onboarding/,
+  /^\/bounties\/[^\/]+\/submit/,
+];
+
 const securityHeaders = env.FLAGS_SECRET
   ? noseconeMiddleware(noseconeOptionsWithToolbar)
   : noseconeMiddleware(noseconeOptions);
@@ -21,13 +29,6 @@ const securityHeaders = env.FLAGS_SECRET
 export default async function middleware(request: NextRequest) {
   try {
     securityHeaders();
-
-    const i18nResponse = internationalizationMiddleware(
-      request as unknown as NextRequest
-    );
-    if (i18nResponse) {
-      return i18nResponse;
-    }
 
     const auth = await authMiddleware(request);
 
@@ -41,15 +42,8 @@ export default async function middleware(request: NextRequest) {
     );
 
     // Protected routes that require authentication
-    const authRequiredRoutes = [
-      "/dashboard",
-      "/bounties/create",
-      "/grants/apply",
-      "/onboarding",
-    ];
-    const requiresAuth = authRequiredRoutes.some(
-      (route) =>
-        pathnameWithoutLocale.startsWith(route) || pathname.startsWith(route)
+    const requiresAuth = authRequiredRouteRegex.some(
+      (regex) => regex.test(pathnameWithoutLocale) || regex.test(pathname)
     );
 
     // If route requires auth but user is not authenticated, redirect to home
@@ -77,6 +71,13 @@ export default async function middleware(request: NextRequest) {
       );
     }
 
+    const i18nResponse = internationalizationMiddleware(
+      request as unknown as NextRequest
+    );
+    if (i18nResponse) {
+      return i18nResponse;
+    }
+
     // If user is on onboarding but has already completed profile, redirect to home
     // (The actual dashboard redirect for org users happens after they create/join an org)
     if (
@@ -87,7 +88,7 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
   } catch (error) {
-    console.error("Error in dashboard middleware", error);
+    console.error("Error in web middleware", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

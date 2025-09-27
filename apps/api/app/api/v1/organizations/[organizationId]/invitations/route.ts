@@ -96,6 +96,21 @@ export async function POST(
       });
     }
 
+    // Check if invitation already sent
+    const existingInvitation = await database.invitation.findFirst({
+      where: {
+        organizationId,
+        email,
+      },
+    });
+
+    if (existingInvitation) {
+      return NextResponse.json(
+        { error: "Invitation already sent" },
+        { status: 400 }
+      );
+    }
+
     // Create invitation for non-existing user
     const invitation = await database.invitation.create({
       data: {
@@ -106,8 +121,6 @@ export async function POST(
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       },
     });
-
-    // TODO: Send invitation email
 
     return NextResponse.json({
       message: "Invitation sent successfully",

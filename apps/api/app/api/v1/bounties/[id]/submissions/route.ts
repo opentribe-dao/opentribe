@@ -163,6 +163,21 @@ export async function POST(
       );
     }
 
+    // Check if user has completed profile
+    const user = await database.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        profileCompleted: true,
+      },
+    });
+
+    if (!user?.profileCompleted) {
+      return NextResponse.json(
+        { error: "You must complete your profile to submit a submission" },
+        { status: 400 }
+      );
+    }
+
     const bountyId = (await params).id;
 
     // Check if bounty exists and is open

@@ -9,7 +9,12 @@ import {
   CardTitle,
 } from "@packages/base/components/ui/card";
 import { Badge } from "@packages/base/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@packages/base/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@packages/base/components/ui/tabs";
 import {
   Award,
   Briefcase,
@@ -167,7 +172,11 @@ const ProfilePage = () => {
 
         if (!profileResponse.ok) {
           const errorData = await profileResponse.json().catch(() => ({}));
-          console.error("Profile fetch error:", profileResponse.status, errorData);
+          console.error(
+            "Profile fetch error:",
+            profileResponse.status,
+            errorData
+          );
           throw new Error(errorData.error || "Failed to fetch profile");
         }
 
@@ -269,7 +278,9 @@ const ProfilePage = () => {
                     {profile.username ? (
                       <p className="text-white/60 mb-3">@{profile.username}</p>
                     ) : (
-                      <p className="text-white/40 mb-3 text-sm">No username set</p>
+                      <p className="text-white/40 mb-3 text-sm">
+                        No username set
+                      </p>
                     )}
                     {profile.headline && (
                       <p className="text-lg text-white/80 mb-4">
@@ -379,19 +390,27 @@ const ProfilePage = () => {
             {stats && !isPrivateProfile && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
                 <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">{stats.totalApplications}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {stats.totalApplications}
+                  </p>
                   <p className="text-sm text-white/60">Applications</p>
                 </div>
                 <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">{stats.totalSubmissions}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {stats.totalSubmissions}
+                  </p>
                   <p className="text-sm text-white/60">Submissions</p>
                 </div>
                 <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">{stats.totalWins}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {stats.totalWins}
+                  </p>
                   <p className="text-sm text-white/60">Wins</p>
                 </div>
                 <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">{stats.organizations}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {stats.organizations}
+                  </p>
                   <p className="text-sm text-white/60">Organizations</p>
                 </div>
               </div>
@@ -536,46 +555,60 @@ const ProfilePage = () => {
                             key={`${item.type}-${item.id}`}
                             className="bg-white/5 rounded-lg p-4"
                           >
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-3">
-                                <div className="p-2 bg-white/10 rounded-lg">
-                                  {item.type === "application" ? (
-                                    <FileText className="h-4 w-4 text-white" />
-                                  ) : (
-                                    <Award className="h-4 w-4 text-white" />
-                                  )}
+                            <Link
+                              key={`${item.type}-${item.id}`}
+                              className="block"
+                              href={
+                                item.type === "application"
+                                  ? `/grants/${item.grant.id}/`
+                                  : `/bounties/${item.bounty.id}/submissions/${item.id}`
+                              }
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3">
+                                  <div className="p-2 bg-white/10 rounded-lg">
+                                    {item.type === "application" ? (
+                                      <FileText className="h-4 w-4 text-white" />
+                                    ) : (
+                                      <Award className="h-4 w-4 text-white" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <p className="text-white font-medium">
+                                      {item.title ||
+                                        (item.type === "application"
+                                          ? item.grant.title
+                                          : item.bounty.title)}
+                                    </p>
+                                    <p className="text-sm text-white/60">
+                                      {item.type === "application"
+                                        ? `Applied to ${item.grant.organization.name}`
+                                        : `Submitted to ${item.bounty.organization.name}`}
+                                    </p>
+                                    <p className="text-xs text-white/40 mt-1">
+                                      {formatDate(item.createdAt)}
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="text-white font-medium">
-                                    {item.title ||
-                                      (item.type === "application"
-                                        ? item.grant.title
-                                        : item.bounty.title)}
-                                  </p>
-                                  <p className="text-sm text-white/60">
-                                    {item.type === "application"
-                                      ? `Applied to ${item.grant.organization.name}`
-                                      : `Submitted to ${item.bounty.organization.name}`}
-                                  </p>
-                                  <p className="text-xs text-white/40 mt-1">
-                                    {formatDate(item.createdAt)}
-                                  </p>
-                                </div>
+                                <Badge className={getStatusColor(item.status)}>
+                                  {item.status}
+                                </Badge>
                               </div>
-                              <Badge className={getStatusColor(item.status)}>
-                                {item.status}
-                              </Badge>
-                            </div>
+                            </Link>
                           </div>
                         ))}
                     </TabsContent>
 
-                    <TabsContent value="applications" className="mt-6 space-y-4">
-                      {profile.applications && profile.applications.length > 0 ? (
+                    <TabsContent
+                      value="applications"
+                      className="mt-6 space-y-4"
+                    >
+                      {profile.applications &&
+                      profile.applications.length > 0 ? (
                         profile.applications.map((app) => (
                           <Link
                             key={app.id}
-                            href={`/grants/${app.grant.id}`}
+                            href={`/grants/${app.grant.id}/`}
                             className="block"
                           >
                             <div className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-colors">
@@ -585,7 +618,8 @@ const ProfilePage = () => {
                                     {app.title}
                                   </p>
                                   <p className="text-sm text-white/60">
-                                    {app.grant.title} • {app.grant.organization.name}
+                                    {app.grant.title} •{" "}
+                                    {app.grant.organization.name}
                                   </p>
                                   <p className="text-xs text-white/40 mt-1">
                                     {formatDate(app.createdAt)}
@@ -610,7 +644,7 @@ const ProfilePage = () => {
                         profile.submissions.map((sub) => (
                           <Link
                             key={sub.id}
-                            href={`/bounties/${sub.bounty.id}`}
+                            href={`/bounties/${sub.bounty.id}/submissions/${sub.id}`}
                             className="block"
                           >
                             <div className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-colors">
@@ -648,11 +682,12 @@ const ProfilePage = () => {
                     </TabsContent>
 
                     <TabsContent value="wins" className="mt-6 space-y-4">
-                      {profile.wonSubmissions && profile.wonSubmissions.length > 0 ? (
+                      {profile.wonSubmissions &&
+                      profile.wonSubmissions.length > 0 ? (
                         profile.wonSubmissions.map((win) => (
                           <Link
                             key={win.id}
-                            href={`/bounties/${win.bounty.id}`}
+                            href={`/bounties/${win.bounty.id}/submissions/${win.id}`}
                             className="block"
                           >
                             <div className="bg-gradient-to-r from-yellow-500/10 to-green-500/10 rounded-lg p-4 border border-yellow-500/20">

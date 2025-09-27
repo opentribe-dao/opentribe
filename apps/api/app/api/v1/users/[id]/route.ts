@@ -179,26 +179,26 @@ export async function PATCH(
     }
 
     const updateProfileSchema = z.object({
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-      username: z.string().min(3).max(30).optional(),
+      firstName: z.string().trim().optional(),
+      lastName: z.string().trim().optional(),
+      username: z.string().trim().min(3).max(30).optional(),
       avatarUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
-      headline: z.string().max(100).optional(),
-      bio: z.string().max(500).optional(),
+      headline: z.string().trim().max(100).optional(),
+      bio: z.string().trim().max(500).optional(),
       interests: z.array(z.string()).optional(),
-      location: z.string().optional(),
+      location: z.string().trim().optional(),
       skills: z.any().optional(),
       walletAddress: z.string().optional(),
-      twitter: z.string().optional(),
-      discord: z.string().optional(),
-      github: z.string().optional(),
-      linkedin: z.string().optional(),
+      twitter: z.string().trim().optional(),
+      discord: z.string().trim().optional(),
+      github: z.string().trim().optional(),
+      linkedin: z.string().trim().optional(),
       website: z.string().regex(OPTIONAL_URL_REGEX).optional(),
-      telegram: z.string().optional(),
-      employer: z.string().optional(),
-      workExperience: z.string().optional(),
-      cryptoExperience: z.string().optional(),
-      workPreference: z.string().optional(),
+      telegram: z.string().trim().optional(),
+      employer: z.string().trim().optional(),
+      workExperience: z.string().trim().optional(),
+      cryptoExperience: z.string().trim().optional(),
+      workPreference: z.string().trim().optional(),
       private: z.boolean().optional(),
     });
 
@@ -209,7 +209,10 @@ export async function PATCH(
     if (validatedData.username) {
       const existingUser = await database.user.findFirst({
         where: {
-          username: validatedData.username,
+          username: {
+            equals: validatedData.username,
+            mode: "insensitive",
+          },
           id: { not: userId },
         },
       });

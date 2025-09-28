@@ -4,6 +4,8 @@ import { useBountyContext } from '@/app/(authenticated)/components/bounty-provid
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useActiveOrganization, useSession } from '@packages/auth/client';
+import { useRouter } from 'next/router';
 
 export interface BountyDetails {
   id: string;
@@ -348,3 +350,178 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
     setShowDeleteConfirm,
   };
 }
+
+
+export function useBountyForm() {
+  const { data: session, isPending: sessionLoading } = useSession();
+  const { data: activeOrg, isPending: orgLoading } = useActiveOrganization();
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<Partial<BountyDetails>>({
+    title: "",
+    description: "",
+    skills: [],
+    amount: 0,
+    token: "DOT",
+    split: "FIXED",
+    winnings: {},
+    deadline: "",
+    resources: [],
+    screening: [],
+    visibility: "DRAFT",
+  });
+
+  useEffect(() => {
+    if (!sessionLoading && !session?.user) {
+      router.push("/sign-in");
+    }
+  }, [session, sessionLoading, router]);
+
+  // Update form data
+  const updateFormData = useCallback(
+    <K extends keyof BountyDetails>(field: K, value: BountyDetails[K]) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+  // Split validation logic into smaller helpers to reduce complexity
+  function validateStep1(formData: Partial<BountyDetails>): boolean {
+    if (
+      !formData.title ||
+      !formData.description ||
+      !Array.isArray(formData.skills) ||
+      formData.skills.length === 0
+    ) {
+      toast.error("Please fill in all required fields");
+      return false;
+    }
+    return true;
+  }
+
+  function validateStep2(formData: Partial<BountyDetails>): boolean {
+    const winners = (formData as any).winners as { amount?: string }[] | undefined;
+    const totalAmount = (formData as any).totalAmount as string | undefined;
+
+    if (
+      !totalAmount ||
+      !Array.isArray(winners) ||
+      winners.some((w) => !w.amount)
+    ) {
+      toast.error("Please specify all reward amounts");
+      return false;
+    }
+    const total = Number.parseFloat(totalAmount);
+    const winnersTotal = winners.reduce(
+      (sum, w) => sum + Number.parseFloat(w.amount || "0"),
+      0
+    );
+    if (Math.abs(total - winnersTotal) > 0.01) {
+      toast.error("Winner rewards must add up to the total amount");
+      return false;
+    }
+    return true;
+  }
+
+  function validateStep3(formData: Partial<BountyDetails>): boolean {
+    if (!formData.deadline) {
+      toast.error("Please set a deadline");
+      return false;
+    }
+    return true;
+  }
+
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        return validateStep1(formData);
+      case 2:
+        return validateStep2(formData);
+      case 3:
+        return validateStep3(formData);
+      case 4:
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep((prev) => Math.min(prev + 1, 4));
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep(4) ){return;}
+
+
+    setError(null);
+    try {
+      setSubmitting(true);
+      const bountyData = {
+        title: formData.title,
+        description: formData.description,
+        skills: formData.skills,
+        amount: formData.amount,
+        token: formData.token,
+        split: formData.split,
+        winnings: formData.winnings? formData.winnings.reduce(
+          (acc, w) => ({
+            ...acc,
+            [w.position]: Number.parseFloat(w.amount),
+          }),
+          {}
+        ):{},
+        deadline: new Date(formData.deadline).toISOString(),
+        resources: formData.resources.filter((r) => r.title && r.url),
+        screening: formData.screening.filter((q) => q.question),
+        visibility: formData.visibility,
+        organizationId: activeOrg?.id,
+      };
+
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({bountyData}),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to create bounty");
+      const result = await response.json();
+      toast.success("Bounty created successfully!");
+      router.push(`/bounties/${result.bounty.id}/`);
+    } catch (err: any) {
+      setError(err.message || "Failed to create bounty. Please try again.");
+      toast.error("Failed to create bounty. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return {
+    session,
+    sessionLoading,
+    activeOrg,
+    orgLoading,
+    currentStep,
+    setCurrentStep,
+    submitting,
+    formData,
+    setFormData,
+    updateFormData,
+    handleNext,
+    handleBack,
+    handleSubmit,
+    error,
+  };
+};

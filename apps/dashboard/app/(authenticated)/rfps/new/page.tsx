@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
-import { MarkdownEditor } from '@packages/base';
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
+import { MarkdownEditor } from "@packages/base";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@packages/base/components/ui/select';
-import { Badge } from '@packages/base/components/ui/badge';
-import { ArrowLeft, Loader2, Plus, X, Globe, FileText } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { Header } from '../../components/header';
-import { env } from '@/env';
+} from "@packages/base/components/ui/select";
+import { Badge } from "@packages/base/components/ui/badge";
+import { ArrowLeft, Loader2, Plus, X, Globe, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Header } from "../../components/header";
+import { env } from "@/env";
 
 interface Grant {
   id: string;
@@ -45,8 +45,8 @@ interface RfpFormData {
   title: string;
   description: string;
   resources: Resource[];
-  status: 'OPEN' | 'CLOSED' | 'COMPLETED';
-  visibility: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  status: "OPEN" | "CLOSED" | "COMPLETED";
+  visibility: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 }
 
 export default function CreateRFPPage() {
@@ -57,12 +57,12 @@ export default function CreateRFPPage() {
   const [loading, setLoading] = useState(false);
   const [loadingGrants, setLoadingGrants] = useState(true);
   const [formData, setFormData] = useState<RfpFormData>({
-    grantId: '',
-    title: '',
-    description: '',
+    grantId: "",
+    title: "",
+    description: "",
     resources: [],
-    status: 'OPEN',
-    visibility: 'DRAFT',
+    status: "OPEN",
+    visibility: "DRAFT",
   });
 
   useEffect(() => {
@@ -77,52 +77,59 @@ export default function CreateRFPPage() {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/grants`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch grants');
+        throw new Error("Failed to fetch grants");
       }
 
       const data = await response.json();
       // Only show active grants that can have RFPs
-      const activeGrants = data.grants.filter((grant: Grant) => 
-        grant.status === 'OPEN' || grant.status === 'ACTIVE'
+      const activeGrants = data.grants.filter(
+        (grant: Grant) => grant.status === "OPEN" || grant.status === "ACTIVE"
       );
       setGrants(activeGrants);
-      
+
       // Auto-select first grant if available
       if (activeGrants.length > 0 && !formData.grantId) {
-        setFormData(prev => ({ ...prev, grantId: activeGrants[0].id }));
+        setFormData((prev) => ({ ...prev, grantId: activeGrants[0].id }));
       }
     } catch (error) {
-      console.error('Error fetching grants:', error);
-      toast.error('Failed to load grants');
+      console.error("Error fetching grants:", error);
+      toast.error("Failed to load grants");
     } finally {
       setLoadingGrants(false);
     }
   };
 
   const updateFormData = (field: keyof RfpFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addResource = () => {
-    updateFormData('resources', [
+    updateFormData("resources", [
       ...formData.resources,
-      { title: '', url: '', description: '' }
+      { title: "", url: "", description: "" },
     ]);
   };
 
-  const updateResource = (index: number, field: keyof Resource, value: string) => {
+  const updateResource = (
+    index: number,
+    field: keyof Resource,
+    value: string
+  ) => {
     const updatedResources = [...formData.resources];
     updatedResources[index] = { ...updatedResources[index], [field]: value };
-    updateFormData('resources', updatedResources);
+    updateFormData("resources", updatedResources);
   };
 
   const removeResource = (index: number) => {
-    updateFormData('resources', formData.resources.filter((_, i) => i !== index));
+    updateFormData(
+      "resources",
+      formData.resources.filter((_, i) => i !== index)
+    );
   };
 
   const handleSubmit = async (publish = false) => {
@@ -131,23 +138,23 @@ export default function CreateRFPPage() {
 
       // Validate required fields
       if (!formData.grantId || !formData.title || !formData.description) {
-        toast.error('Please fill in all required fields');
+        toast.error("Please fill in all required fields");
         return;
       }
 
       const submitData = {
         ...formData,
-        visibility: publish ? 'PUBLISHED' : formData.visibility,
-        resources: formData.resources.filter(r => r.title && r.url),
+        visibility: publish ? "PUBLISHED" : formData.visibility,
+        resources: formData.resources.filter((r) => r.title && r.url),
       };
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/rfps`,
         {
-          method: 'POST',
-          credentials: 'include',
+          method: "POST",
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(submitData),
         }
@@ -155,15 +162,19 @@ export default function CreateRFPPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create RFP');
+        throw new Error(error.error || "Failed to create RFP");
       }
 
       const data = await response.json();
-      toast.success(publish ? 'RFP published successfully!' : 'RFP saved as draft!');
+      toast.success(
+        publish ? "RFP published successfully!" : "RFP saved as draft!"
+      );
       router.push(`/rfps/${data.rfp.id}`);
     } catch (error) {
-      console.error('Error creating RFP:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create RFP');
+      console.error("Error creating RFP:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create RFP"
+      );
     } finally {
       setLoading(false);
     }
@@ -175,7 +186,9 @@ export default function CreateRFPPage() {
         <div className="text-center">
           <p className="text-white/60 mb-4">No organization selected</p>
           <Button
-            onClick={() => router.push('/organization/new')}
+            onClick={() =>
+              router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`)
+            }
             className="bg-[#E6007A] hover:bg-[#E6007A]/90"
           >
             Create Organization
@@ -187,12 +200,12 @@ export default function CreateRFPPage() {
 
   return (
     <>
-      <Header pages={['RFPs', 'Create']} page="Create RFP" />
+      <Header pages={["RFPs", "Create"]} page="Create RFP" />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center gap-4 mb-4">
           <Button
             variant="ghost"
-            onClick={() => router.push('/rfps')}
+            onClick={() => router.push("/rfps")}
             className="text-white/60 hover:text-white"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -213,7 +226,7 @@ export default function CreateRFPPage() {
               <Label htmlFor="grant">Parent Grant *</Label>
               <Select
                 value={formData.grantId}
-                onValueChange={(value) => updateFormData('grantId', value)}
+                onValueChange={(value) => updateFormData("grantId", value)}
                 disabled={loadingGrants}
               >
                 <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
@@ -240,7 +253,7 @@ export default function CreateRFPPage() {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => updateFormData('title', e.target.value)}
+                onChange={(e) => updateFormData("title", e.target.value)}
                 placeholder="Enter a clear, descriptive title for your RFP"
                 className="bg-white/5 border-white/10 text-white mt-2"
               />
@@ -252,13 +265,14 @@ export default function CreateRFPPage() {
               <div className="mt-2">
                 <MarkdownEditor
                   value={formData.description}
-                  onChange={(value) => updateFormData('description', value)}
+                  onChange={(value) => updateFormData("description", value)}
                   placeholder="Provide a detailed description of what you're looking for..."
                   height={400}
                 />
               </div>
               <p className="text-sm text-white/60 mt-2">
-                Be specific about requirements, deliverables, and evaluation criteria
+                Be specific about requirements, deliverables, and evaluation
+                criteria
               </p>
             </div>
 
@@ -279,26 +293,35 @@ export default function CreateRFPPage() {
               </div>
               <div className="space-y-3">
                 {formData.resources.map((resource, index) => (
-                  <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
+                  <div
+                    key={index}
+                    className="bg-white/5 rounded-lg p-4 space-y-3"
+                  >
                     <div className="flex items-start gap-3">
                       <Globe className="h-5 w-5 text-white/40 mt-2" />
                       <div className="flex-1 space-y-3">
                         <Input
                           placeholder="Resource title"
                           value={resource.title}
-                          onChange={(e) => updateResource(index, 'title', e.target.value)}
+                          onChange={(e) =>
+                            updateResource(index, "title", e.target.value)
+                          }
                           className="bg-white/10 border-white/10 text-white"
                         />
                         <Input
                           placeholder="https://example.com"
                           value={resource.url}
-                          onChange={(e) => updateResource(index, 'url', e.target.value)}
+                          onChange={(e) =>
+                            updateResource(index, "url", e.target.value)
+                          }
                           className="bg-white/10 border-white/10 text-white"
                         />
                         <Input
                           placeholder="Description (optional)"
-                          value={resource.description || ''}
-                          onChange={(e) => updateResource(index, 'description', e.target.value)}
+                          value={resource.description || ""}
+                          onChange={(e) =>
+                            updateResource(index, "description", e.target.value)
+                          }
                           className="bg-white/10 border-white/10 text-white"
                         />
                       </div>
@@ -327,8 +350,8 @@ export default function CreateRFPPage() {
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value: 'OPEN' | 'CLOSED' | 'COMPLETED') => 
-                  updateFormData('status', value)
+                onValueChange={(value: "OPEN" | "CLOSED" | "COMPLETED") =>
+                  updateFormData("status", value)
                 }
               >
                 <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
@@ -346,7 +369,7 @@ export default function CreateRFPPage() {
             <div className="flex items-center justify-between pt-4 border-t border-white/10">
               <Button
                 variant="outline"
-                onClick={() => router.push('/rfps')}
+                onClick={() => router.push("/rfps")}
                 disabled={loading}
                 className="border-white/20 text-white hover:bg-white/10"
               >
@@ -365,12 +388,17 @@ export default function CreateRFPPage() {
                       Saving...
                     </>
                   ) : (
-                    'Save as Draft'
+                    "Save as Draft"
                   )}
                 </Button>
                 <Button
                   onClick={() => handleSubmit(true)}
-                  disabled={loading || !formData.grantId || !formData.title || !formData.description}
+                  disabled={
+                    loading ||
+                    !formData.grantId ||
+                    !formData.title ||
+                    !formData.description
+                  }
                   className="bg-[#E6007A] hover:bg-[#E6007A]/90"
                 >
                   {loading ? (
@@ -379,7 +407,7 @@ export default function CreateRFPPage() {
                       Publishing...
                     </>
                   ) : (
-                    'Publish RFP'
+                    "Publish RFP"
                   )}
                 </Button>
               </div>

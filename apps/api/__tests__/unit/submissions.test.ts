@@ -54,7 +54,7 @@ describe("Submission System Tests", () => {
           username: "submitter",
           firstName: "John",
           lastName: "Doe",
-          avatarUrl: null,
+          image: null,
         },
       };
 
@@ -249,7 +249,7 @@ describe("Submission System Tests", () => {
             firstName: "User",
             lastName: `${i + 1}`,
             email: `user${i + 1}@test.com`,
-            avatarUrl: null,
+            image: null,
           },
         })),
       };

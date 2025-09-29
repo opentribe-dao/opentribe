@@ -60,7 +60,7 @@ export default function BuilderOnboardingPage() {
     firstName: "",
     lastName: "",
     username: "",
-    avatarUrl: "",
+    image: "",
     location: "",
     skills: [] as string[],
     walletAddress: "",
@@ -325,10 +325,8 @@ export default function BuilderOnboardingPage() {
                   Profile Picture
                 </Label>
                 <ImageUpload
-                  currentImageUrl={formData.avatarUrl}
-                  onImageChange={(url) =>
-                    handleInputChange("avatarUrl", url || "")
-                  }
+                  currentImageUrl={formData.image}
+                  onImageChange={(url) => handleInputChange("image", url || "")}
                   uploadType="profile-avatar"
                   entityId={session?.user?.id}
                   variant="avatar"

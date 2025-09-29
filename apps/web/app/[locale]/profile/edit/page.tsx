@@ -74,12 +74,7 @@ const WORK_PREFERENCES = [
   "Internship",
 ];
 
-const CRYPTO_EXPERIENCE = [
-  "Beginner",
-  "Intermediate",
-  "Advanced",
-  "Expert",
-];
+const CRYPTO_EXPERIENCE = ["Beginner", "Intermediate", "Advanced", "Expert"];
 
 const EditProfilePage = () => {
   const { data: session, isPending: sessionLoading } = useSession();
@@ -90,7 +85,7 @@ const EditProfilePage = () => {
     firstName: "",
     lastName: "",
     username: "",
-    avatarUrl: "",
+    image: "",
     headline: "",
     bio: "",
     location: "",
@@ -130,7 +125,7 @@ const EditProfilePage = () => {
             firstName: user.firstName || "",
             lastName: user.lastName || "",
             username: user.username || "",
-            avatarUrl: user.avatarUrl || user.image || "",
+            image: user.image || "",
             headline: user.headline || "",
             bio: user.bio || "",
             location: user.location || "",
@@ -178,7 +173,7 @@ const EditProfilePage = () => {
     if (formData.walletAddress) {
       const walletValidation = validateWalletAddress(formData.walletAddress);
       if (!walletValidation.isValid) {
-        toast.error(walletValidation.error || 'Invalid wallet address');
+        toast.error(walletValidation.error || "Invalid wallet address");
         return;
       }
     }
@@ -272,11 +267,11 @@ const EditProfilePage = () => {
               <div>
                 <Label className="text-white mb-4 block">Profile Picture</Label>
                 <ImageUpload
-                  currentImageUrl={formData.avatarUrl}
+                  currentImageUrl={formData.image}
                   onImageChange={(url) =>
                     setFormData((prev) => ({
                       ...prev,
-                      avatarUrl: url || "",
+                      image: url || "",
                     }))
                   }
                   uploadType="profile-avatar"
@@ -538,7 +533,11 @@ const EditProfilePage = () => {
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-white/10">
                     {CRYPTO_EXPERIENCE.map((level) => (
-                      <SelectItem key={level} value={level} className="text-white">
+                      <SelectItem
+                        key={level}
+                        value={level}
+                        className="text-white"
+                      >
                         {level}
                       </SelectItem>
                     ))}
@@ -564,7 +563,11 @@ const EditProfilePage = () => {
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-white/10">
                     {WORK_PREFERENCES.map((pref) => (
-                      <SelectItem key={pref} value={pref} className="text-white">
+                      <SelectItem
+                        key={pref}
+                        value={pref}
+                        className="text-white"
+                      >
                         {pref}
                       </SelectItem>
                     ))}
@@ -717,15 +720,18 @@ const EditProfilePage = () => {
                   className="bg-white/5 border-white/10 text-white mt-2 font-mono"
                 />
                 {formData.walletAddress ? (
-                  <p className={`text-xs mt-1 ${
-                    validateWalletAddress(formData.walletAddress).isValid 
-                      ? 'text-green-500' 
-                      : 'text-amber-500'
-                  }`}>
-                    {validateWalletAddress(formData.walletAddress).isValid 
-                      ? `✓ Valid ${validateWalletAddress(formData.walletAddress).network} address`
-                      : validateWalletAddress(formData.walletAddress).error
-                    }
+                  <p
+                    className={`text-xs mt-1 ${
+                      validateWalletAddress(formData.walletAddress).isValid
+                        ? "text-green-500"
+                        : "text-amber-500"
+                    }`}
+                  >
+                    {validateWalletAddress(formData.walletAddress).isValid
+                      ? `✓ Valid ${
+                          validateWalletAddress(formData.walletAddress).network
+                        } address`
+                      : validateWalletAddress(formData.walletAddress).error}
                   </p>
                 ) : (
                   <p className="text-xs text-white/40 mt-1">
@@ -738,9 +744,7 @@ const EditProfilePage = () => {
 
           {/* Actions */}
           <div className="flex justify-end gap-4">
-            <Link
-              href={`/profile/${formData.username || session?.user?.id}`}
-            >
+            <Link href={`/profile/${formData.username || session?.user?.id}`}>
               <Button
                 type="button"
                 variant="outline"

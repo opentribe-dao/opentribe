@@ -41,7 +41,6 @@ interface UserProfile {
   id: string;
   name: string;
   username?: string;
-  avatarUrl?: string;
   image?: string;
   headline?: string;
   bio?: string;
@@ -250,9 +249,9 @@ const ProfilePage = () => {
             <div className="flex flex-col md:flex-row items-start gap-6">
               {/* Avatar */}
               <div className="flex-shrink-0">
-                {profile.avatarUrl || profile.image ? (
+                {profile.image ? (
                   <Image
-                    src={profile.avatarUrl || profile.image || ""}
+                    src={profile.image || ""}
                     alt={profile.name}
                     width={120}
                     height={120}

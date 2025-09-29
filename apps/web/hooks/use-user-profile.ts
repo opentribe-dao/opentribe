@@ -98,7 +98,7 @@ export type ProfileUpdateData = Partial<
     | "profileCompleted"
     | "bio"
     | "headline"
-    | "avatarUrl"
+    | "image"
     | "discord"
     | "telegram"
     | "interests"

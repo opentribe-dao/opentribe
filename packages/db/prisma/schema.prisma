@@ -24,7 +24,6 @@ model User {
   firstName            String?
   lastName             String?
   username             String?               @unique
-  avatarUrl            String?
   headline             String?
   bio                  String?
   interests            String[]              @default([])

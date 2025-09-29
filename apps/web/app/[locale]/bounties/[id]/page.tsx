@@ -332,9 +332,9 @@ export default async function BountyDetailPage({
                       >
                         <div className="flex items-center gap-3">
                           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600">
-                            {submission.submitter.avatarUrl ? (
+                            {submission.submitter.image ? (
                               <Image
-                                src={submission.submitter.avatarUrl}
+                                src={submission.submitter.image}
                                 alt="Submitter"
                                 width={32}
                                 height={32}

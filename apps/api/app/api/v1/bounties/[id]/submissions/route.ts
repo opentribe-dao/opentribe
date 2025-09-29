@@ -85,7 +85,7 @@ export async function GET(
             firstName: true,
             lastName: true,
             email: isOrgMember, // Only show email to org members
-            avatarUrl: true,
+            image: true,
             headline: true,
             skills: true,
             walletAddress: isOrgMember, // Only show wallet address to org members
@@ -242,7 +242,7 @@ export async function POST(
             username: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
       },

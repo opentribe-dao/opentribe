@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
+import { env } from "@/env";
 import {
   organization,
   useActiveOrganization,
   useListOrganizations,
   useSession,
-} from '@packages/auth/client';
+} from "@packages/auth/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,17 +15,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from '@packages/base/components/ui/dropdown-menu';
+} from "@packages/base/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@packages/base/components/ui/sidebar';
-import { Building2, Check, ChevronsUpDown, Plus } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+} from "@packages/base/components/ui/sidebar";
+import { Building2, Check, ChevronsUpDown, Plus } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface OrganizationSwitcherProps {
   hidePersonal?: boolean;
@@ -33,7 +34,7 @@ interface OrganizationSwitcherProps {
 
 export function OrganizationSwitcher({
   hidePersonal = false,
-  afterSelectOrganizationUrl = '/',
+  afterSelectOrganizationUrl = "/",
 }: OrganizationSwitcherProps) {
   const { data: session } = useSession();
   const { isMobile } = useSidebar();
@@ -49,36 +50,40 @@ export function OrganizationSwitcher({
       router.push(afterSelectOrganizationUrl);
       router.refresh();
     } catch (error) {
-      console.error('Failed to switch organization:', error);
+      console.error("Failed to switch organization:", error);
     }
   };
-
   const handleAddOrganization = () => {
-    router.push('/organization/new');
+    router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`);
   };
 
   // Auto-select first organization if none is selected
   useEffect(() => {
     const selectFirstOrg = async () => {
-      if (!isPending && organizations && organizations.length > 0 && !activeOrg) {
+      if (
+        !isPending &&
+        organizations &&
+        organizations.length > 0 &&
+        !activeOrg
+      ) {
         try {
           await organization.setActive({
             organizationId: organizations[0].id,
           });
           router.refresh();
         } catch (error) {
-          console.error('Failed to auto-select organization:', error);
+          console.error("Failed to auto-select organization:", error);
         }
       }
     };
-    
+
     selectFirstOrg();
   }, [isPending, organizations, activeOrg, router]);
 
   // Redirect to organization creation if no organizations exist
   useEffect(() => {
     if (!isPending && (!organizations || organizations.length === 0)) {
-      router.push('/organization/new');
+      router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`);
     }
   }, [isPending, organizations, router]);
 
@@ -144,10 +149,10 @@ export function OrganizationSwitcher({
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="font-medium">
-                  {displayOrg?.name || 'No Organization'}
+                  {displayOrg?.name || "No Organization"}
                 </span>
                 <span className="text-sidebar-foreground/70 text-xs">
-                  {displayOrg ? 'Organization' : 'Create or join one'}
+                  {displayOrg ? "Organization" : "Create or join one"}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -156,7 +161,7 @@ export function OrganizationSwitcher({
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             align="start"
-            side={isMobile ? 'bottom' : 'right'}
+            side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">

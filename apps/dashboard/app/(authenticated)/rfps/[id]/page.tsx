@@ -69,7 +69,7 @@ interface RFPDetails {
     author: {
       id: string;
       name: string;
-      avatarUrl?: string;
+      image?: string;
     };
   }>;
   applications: Array<{
@@ -80,7 +80,7 @@ interface RFPDetails {
     applicant: {
       id: string;
       name: string;
-      avatarUrl?: string;
+      image?: string;
     };
   }>;
   _count: {

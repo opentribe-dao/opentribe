@@ -79,7 +79,7 @@ export async function GET(
             username: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         rfp: {
@@ -240,7 +240,7 @@ export async function POST(
             username: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
       },

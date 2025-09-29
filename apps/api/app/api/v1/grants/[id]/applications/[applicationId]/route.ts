@@ -47,7 +47,7 @@ export async function GET(
             firstName: true,
             lastName: true,
             email: true,
-            avatarUrl: true,
+            image: true,
             location: true,
             bio: true,
             skills: true,

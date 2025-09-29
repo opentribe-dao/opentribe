@@ -201,10 +201,7 @@ export default function SubmissionsPage() {
     <div className="space-y-6 ">
       {/* Header with filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-white">
-          <h2 className="text-2xl font-semibold">Submissions</h2>
-          <p className="text-sm text-white/60">{submissions.length} total</p>
-        </div>
+    
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <div className="relative sm:w-64">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40 z-10" />

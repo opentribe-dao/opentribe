@@ -1,44 +1,61 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@packages/base/components/ui/card";
-import { useBountyContext } from "../../../components/bounty-provider";
+import { useBountySettings } from '@/hooks/use-bounty';
+import { useBountyContext } from '../../../components/bounty-provider';
+import { BountySettingsHeader } from '@/app/(authenticated)/components/bounty/settings/settings-header';
+import { BountySettingsForm } from '@/app/(authenticated)/components/bounty/settings/settings-form';
 
 export default function SettingsPage() {
-
+  const { bounty, bountyLoading, bountyError } = useBountyContext();
   const {
-    bounty,
-  } = useBountyContext();
+    formData,
+    hasChanges,
+    isSaving,
+    isResetting,
+    updateFormData,
+    updateWinnings,
+    handleSave,
+    handleReset,
+    handleDelete,
+    showDeleteConfirm,
+    setShowDeleteConfirm,
+  } = useBountySettings(bounty);
 
-  if (!bounty) {
-    return <div className="text-white">Bounty not found</div>;
+  if (bountyLoading) {
+    return (
+      <div className='flex min-h-[400px] items-center justify-center'>
+        <div className="text-white/60">Loading bounty settings...</div>
+      </div>
+    );
+  }
+
+  if (bountyError || !bounty) {
+    return (
+      <div className='flex min-h-[400px] items-center justify-center'>
+        <div className="text-red-400">Failed to load bounty settings</div>
+      </div>
+    );
   }
 
   return (
-    <Card className="bg-zinc-900/50 border-white/10">
-    <CardHeader>
-      <CardTitle>Bounty Settings</CardTitle>
-      <CardDescription>Manage your bounty settings and visibility</CardDescription>
-    </CardHeader>
-    <CardContent className="space-y-4">
-      <div>
-        <p className="text-sm text-white/60">Status</p>
-        <p className="text-white">{bounty.status}</p>
-      </div>
-      <div>
-        <p className="text-sm text-white/60">Visibility</p>
-        <p className="text-white">{bounty.visibility}</p>
-      </div>
-      <div>
-        <p className="text-sm text-white/60">Created</p>
-        <p className="text-white">{new Date(bounty.createdAt).toLocaleString()}</p>
-      </div>
-      {bounty.publishedAt && (
-        <div>
-          <p className="text-sm text-white/60">Published</p>
-          <p className="text-white">{new Date(bounty.publishedAt).toLocaleString()}</p>
-        </div>
-      )}
-    </CardContent>
-  </Card>
+    <div className="space-y-6">
+      <BountySettingsHeader
+        hasChanges={hasChanges}
+        isSaving={isSaving}
+        isResetting={isResetting}
+        onSave={handleSave}
+        onReset={handleReset}
+      />
+      
+      <BountySettingsForm
+        formData={formData}
+        bounty={bounty}
+        updateFormData={updateFormData}
+        updateWinnings={updateWinnings}
+        onDelete={handleDelete}
+        showDeleteConfirm={showDeleteConfirm}
+        onToggleDeleteConfirm={() => setShowDeleteConfirm(!showDeleteConfirm)}
+      />
+    </div>
   );
 }

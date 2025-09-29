@@ -1,5 +1,5 @@
 import { auth } from "@packages/auth/server";
-import { URL_REGEX } from "@packages/base/lib/utils";
+import { URL_REGEX, OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -11,8 +11,8 @@ const updateGrantSchema = z.object({
   description: z.string().min(1).optional(),
   summary: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z.string().regex(URL_REGEX).optional().nullable(),
-  bannerUrl: z.string().regex(URL_REGEX).optional().nullable(),
+  logoUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
+  bannerUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
   skills: z.array(z.string()).optional(),
   minAmount: z.number().positive().optional().nullable(),
   maxAmount: z.number().positive().optional().nullable(),
@@ -36,7 +36,7 @@ const updateGrantSchema = z.object({
       })
     )
     .optional(),
-  applicationUrl: z.string().regex(URL_REGEX).optional().nullable(),
+  applicationUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
   visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   status: z.enum(["OPEN", "PAUSED", "CLOSED"]).optional(),
   source: z.enum(["NATIVE", "EXTERNAL"]).optional(),

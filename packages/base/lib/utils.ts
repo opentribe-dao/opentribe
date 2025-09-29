@@ -7,6 +7,9 @@ import { twMerge } from "tailwind-merge";
 export const URL_REGEX =
   /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?$/i;
 
+export const OPTIONAL_URL_REGEX =
+  /^((https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)?$/i;
+
 export const cn = (...inputs: ClassValue[]): string => twMerge(clsx(inputs));
 
 export const capitalize = (str: string) =>

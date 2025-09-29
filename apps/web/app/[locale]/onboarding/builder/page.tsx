@@ -57,10 +57,10 @@ export default function BuilderOnboardingPage() {
   // Form data
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
-    firstName: "",
-    lastName: "",
-    username: "",
-    image: "",
+    firstName: session?.user?.name?.split(" ")[0] || "",
+    lastName: session?.user?.name?.split(" ")[1] || "",
+    username: session?.user?.username || "",
+    image: session?.user?.image || "",
     location: "",
     skills: [] as string[],
     walletAddress: "",

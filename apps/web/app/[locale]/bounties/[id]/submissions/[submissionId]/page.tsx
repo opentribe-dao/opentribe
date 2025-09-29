@@ -25,7 +25,7 @@ interface Submission {
     username: string;
     firstName: string;
     lastName: string;
-    avatarUrl: string;
+    image: string;
   };
   answers: {
     question: string;
@@ -240,9 +240,9 @@ export default function SubmissionDetailPage({
               </h3>
               <div className="flex items-start gap-3">
                 <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-600">
-                  {submission.submitter.avatarUrl ? (
+                  {submission.submitter.image ? (
                     <Image
-                      src={submission.submitter.avatarUrl}
+                      src={submission.submitter.image}
                       alt={submission.submitter.username}
                       width={48}
                       height={48}

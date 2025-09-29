@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@packages/base/components/ui/button';
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Input } from '@packages/base/components/ui/input';
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@packages/base/components/ui/select';
+} from "@packages/base/components/ui/select";
 import {
   CheckCircle,
   ExternalLink,
@@ -29,12 +29,12 @@ import {
   MessageCircle,
   Heart,
   Award,
-} from 'lucide-react';
-import { useBountyContext } from '../../../components/bounty-provider';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { set } from 'zod/v4-mini';
-import { Badge } from '@packages/base/components/ui/badge';
+} from "lucide-react";
+import { useBountyContext } from "../../../components/bounty-provider";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { set } from "zod/v4-mini";
+import { Badge } from "@packages/base/components/ui/badge";
 
 export default function SubmissionsPage() {
   const {
@@ -52,20 +52,20 @@ export default function SubmissionsPage() {
     isResetingWinners,
   } = useBountyContext();
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
-    'all' | 'SUBMITTED' | 'UNDER_REVIEW' | 'SELECTED' | 'REJECTED'
-  >('all');
+    "all" | "SUBMITTED" | "UNDER_REVIEW" | "SELECTED" | "REJECTED"
+  >("all");
   const [sortBy, setSortBy] = useState<
-    'newest' | 'oldest' | 'likes' | 'comments'
-  >('newest');
+    "newest" | "oldest" | "likes" | "comments"
+  >("newest");
 
   // Compute sorted winners and also save them in selectedWinners
   useMemo(() => {
     const winners = submissions
       .filter(
         (s) =>
-          s.status === 'APPROVED' &&
+          s.status === "APPROVED" &&
           s.position != null &&
           s.winningAmount != null
       )
@@ -117,7 +117,7 @@ export default function SubmissionsPage() {
   const filtered = useMemo(() => {
     return submissions.filter((s) => {
       const matchesSearch =
-        searchQuery.trim() === '' ||
+        searchQuery.trim() === "" ||
         (s.title &&
           s.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (s.submitter?.username &&
@@ -128,7 +128,7 @@ export default function SubmissionsPage() {
           s.submitter.firstName
             .toLowerCase()
             .includes(searchQuery.toLowerCase()));
-      const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || s.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [submissions, searchQuery, statusFilter]);
@@ -137,25 +137,25 @@ export default function SubmissionsPage() {
   const sorted = useMemo(() => {
     const list = [...filtered];
     switch (sortBy) {
-      case 'oldest':
+      case "oldest":
         list.sort(
           (a, b) =>
             new Date(a.submittedAt || 0).getTime() -
             new Date(b.submittedAt || 0).getTime()
         );
         break;
-      case 'likes':
+      case "likes":
         list.sort(
           (a, b) => (b.stats?.likesCount || 0) - (a.stats?.likesCount || 0)
         );
         break;
-      case 'comments':
+      case "comments":
         list.sort(
           (a, b) =>
             (b.stats?.commentsCount || 0) - (a.stats?.commentsCount || 0)
         );
         break;
-      case 'newest':
+      case "newest":
       default:
         list.sort(
           (a, b) =>
@@ -184,16 +184,16 @@ export default function SubmissionsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'SUBMITTED':
-        return 'bg-blue-500/20 text-blue-400';
-      case 'UNDER_REVIEW':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'SELECTED':
-        return 'bg-green-500/20 text-green-400';
-      case 'REJECTED':
-        return 'bg-red-500/20 text-red-400';
+      case "SUBMITTED":
+        return "bg-blue-500/20 text-blue-400";
+      case "UNDER_REVIEW":
+        return "bg-yellow-500/20 text-yellow-400";
+      case "SELECTED":
+        return "bg-green-500/20 text-green-400";
+      case "REJECTED":
+        return "bg-red-500/20 text-red-400";
       default:
-        return 'bg-white/10 text-white/60';
+        return "bg-white/10 text-white/60";
     }
   };
 
@@ -201,7 +201,6 @@ export default function SubmissionsPage() {
     <div className="space-y-6 ">
       {/* Header with filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <div className="relative sm:w-64">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40 z-10" />
@@ -275,28 +274,30 @@ export default function SubmissionsPage() {
               {sorted.map((submission) => (
                 <Card
                   key={submission.id}
-                  className={`border-white/10 bg-zinc-900/50 transition-all hover:bg-zinc-800/50 ${submission.isWinner ? 'border-green-500/50' : ''}`}
+                  className={`border-white/10 bg-zinc-900/50 transition-all hover:bg-zinc-800/50 ${
+                    submission.isWinner ? "border-green-500/50" : ""
+                  }`}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        {submission.submitter.avatarUrl ? (
+                        {submission.submitter.image ? (
                           <img
-                            src={submission.submitter.avatarUrl}
+                            src={submission.submitter.image}
                             alt={submission.submitter.username}
                             className="h-10 w-10 rounded-full"
                           />
                         ) : (
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
                             {submission.submitter.username?.[0]?.toUpperCase() ||
-                              'A'}
+                              "A"}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <CardTitle className="truncate text-sm font-semibold text-white">
                             {submission.submitter.firstName ||
                               submission.submitter.username ||
-                              'Anonymous'}
+                              "Anonymous"}
                           </CardTitle>
                           {submission.submitter.headline && (
                             <p className="truncate text-xs text-white/60">
@@ -307,7 +308,9 @@ export default function SubmissionsPage() {
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <Badge
-                          className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(submission.status)}`}
+                          className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(
+                            submission.status
+                          )}`}
                         >
                           {submission.status}
                         </Badge>
@@ -316,22 +319,22 @@ export default function SubmissionsPage() {
                             <Trophy
                               className={`h-3 w-3 ${
                                 submission.position === 1
-                                  ? 'text-yellow-500'
+                                  ? "text-yellow-500"
                                   : submission.position === 2
-                                    ? 'text-gray-400'
-                                    : submission.position === 3
-                                      ? 'text-orange-600'
-                                      : 'text-white/60'
+                                  ? "text-gray-400"
+                                  : submission.position === 3
+                                  ? "text-orange-600"
+                                  : "text-white/60"
                               }`}
                             />
                             <span className="text-xs font-medium text-white">
                               {submission.position === 1
-                                ? '1st'
+                                ? "1st"
                                 : submission.position === 2
-                                  ? '2nd'
-                                  : submission.position === 3
-                                    ? '3rd'
-                                    : `${submission.position}th`}
+                                ? "2nd"
+                                : submission.position === 3
+                                ? "3rd"
+                                : `${submission.position}th`}
                             </span>
                           </div>
                         )}
@@ -370,7 +373,7 @@ export default function SubmissionsPage() {
                             ? new Date(
                                 submission.submittedAt
                               ).toLocaleDateString()
-                            : 'N/A'}
+                            : "N/A"}
                         </span>
                       </div>
                     </div>
@@ -443,23 +446,23 @@ export default function SubmissionsPage() {
                               <div
                                 className={`flex h-10 w-10 items-center justify-center rounded-full ${
                                   winner.position === 1
-                                    ? 'bg-yellow-500/20'
+                                    ? "bg-yellow-500/20"
                                     : winner.position === 2
-                                      ? 'bg-gray-400/20'
-                                      : winner.position === 3
-                                        ? 'bg-orange-600/20'
-                                        : 'bg-white/10'
+                                    ? "bg-gray-400/20"
+                                    : winner.position === 3
+                                    ? "bg-orange-600/20"
+                                    : "bg-white/10"
                                 }`}
                               >
                                 <Trophy
                                   className={`h-4 w-4 ${
                                     winner.position === 1
-                                      ? 'text-yellow-500'
+                                      ? "text-yellow-500"
                                       : winner.position === 2
-                                        ? 'text-gray-400'
-                                        : winner.position === 3
-                                          ? 'text-orange-600'
-                                          : 'text-white/60'
+                                      ? "text-gray-400"
+                                      : winner.position === 3
+                                      ? "text-orange-600"
+                                      : "text-white/60"
                                   }`}
                                 />
                               </div>
@@ -467,22 +470,22 @@ export default function SubmissionsPage() {
                                 <p className="truncate text-sm font-bold text-white">
                                   {winner.submitter.firstName ||
                                     winner.submitter.username ||
-                                    'Anonymous'}
+                                    "Anonymous"}
                                 </p>
                                 <div className="flex items-center gap-2">
                                   <Badge className="h-5 rounded px-2 text-[10px] bg-white/10 text-white/70 border-0">
                                     {(() => {
                                       if (winner.position === 1) {
-                                        return '1st';
+                                        return "1st";
                                       }
                                       if (winner.position === 2) {
-                                        return '2nd';
+                                        return "2nd";
                                       }
                                       if (winner.position === 3) {
-                                        return '3rd';
+                                        return "3rd";
                                       }
                                       if (
-                                        typeof winner.position === 'number' &&
+                                        typeof winner.position === "number" &&
                                         winner.position > 0
                                       ) {
                                         const j = winner.position % 10,
@@ -498,8 +501,9 @@ export default function SubmissionsPage() {
                                         }
                                         return `${winner.position}th`;
                                       }
-                                      return '';
-                                    })()} Place
+                                      return "";
+                                    })()}{" "}
+                                    Place
                                   </Badge>
                                 </div>
                               </div>
@@ -561,7 +565,7 @@ export default function SubmissionsPage() {
                     <Button
                       className="text-sm"
                       onClick={resetWinners}
-                      variant={'ghost'}
+                      variant={"ghost"}
                       disabled={isResetingWinners}
                     >
                       {isResetingWinners ? (
@@ -586,39 +590,39 @@ export default function SubmissionsPage() {
                                 <div
                                   className={`flex h-8 w-8 items-center justify-center rounded-full ${
                                     winnerData.position === 1
-                                      ? 'bg-yellow-500/20'
+                                      ? "bg-yellow-500/20"
                                       : winnerData.position === 2
-                                        ? 'bg-gray-400/20'
-                                        : winnerData.position === 3
-                                          ? 'bg-orange-600/20'
-                                          : 'bg-white/10'
+                                      ? "bg-gray-400/20"
+                                      : winnerData.position === 3
+                                      ? "bg-orange-600/20"
+                                      : "bg-white/10"
                                   }`}
                                 >
                                   <Trophy
                                     className={`h-4 w-4 ${
                                       winnerData.position === 1
-                                        ? 'text-yellow-500'
+                                        ? "text-yellow-500"
                                         : winnerData.position === 2
-                                          ? 'text-gray-400'
-                                          : winnerData.position === 3
-                                            ? 'text-orange-600'
-                                            : 'text-white/60'
+                                        ? "text-gray-400"
+                                        : winnerData.position === 3
+                                        ? "text-orange-600"
+                                        : "text-white/60"
                                     }`}
                                   />
                                 </div>
                                 <span className="font-medium text-white">
                                   {(() => {
                                     if (winnerData.position === 1) {
-                                      return '1st';
+                                      return "1st";
                                     }
                                     if (winnerData.position === 2) {
-                                      return '2nd';
+                                      return "2nd";
                                     }
                                     if (winnerData.position === 3) {
-                                      return '3rd';
+                                      return "3rd";
                                     }
                                     if (
-                                      typeof winnerData.position === 'number' &&
+                                      typeof winnerData.position === "number" &&
                                       winnerData.position > 0
                                     ) {
                                       const j = winnerData.position % 10,
@@ -634,8 +638,9 @@ export default function SubmissionsPage() {
                                       }
                                       return `${winnerData.position}th`;
                                     }
-                                    return '';
-                                  })()} Place
+                                    return "";
+                                  })()}{" "}
+                                  Place
                                 </span>
                               </div>
                               <span className="font-semibold text-white">
@@ -647,12 +652,12 @@ export default function SubmissionsPage() {
                       )
                     ) : (
                       <div className=" flex items-center justify-center py-4 text-sm text-white/60">
-                        No Winners Selected{' '}
+                        No Winners Selected{" "}
                       </div>
                     )}
                   </div>
                 </CardContent>
-                {bounty.status === 'OPEN' &&
+                {bounty.status === "OPEN" &&
                   submissions.length > 0 &&
                   !bounty.winnersAnnouncedAt && (
                     <Button

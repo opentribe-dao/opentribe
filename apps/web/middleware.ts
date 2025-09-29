@@ -17,9 +17,14 @@ export const config = {
 const authRequiredRouteRegex = [
   /^\/dashboard/,
   /^\/bounties\/create/,
-  /^\/grants\/apply/,
+  /^\/grants\/[^\/]+\/apply/,
   /^\/onboarding/,
   /^\/bounties\/[^\/]+\/submit/,
+];
+
+const profileRequiredRouteRegex = [
+  /^\/bounties\/[^\/]+\/submit/,
+  /^\/grants\/[^\/]+\/apply/,
 ];
 
 const securityHeaders = env.FLAGS_SECRET
@@ -54,14 +59,8 @@ export default async function middleware(request: NextRequest) {
     }
 
     // Protected routes that require profile completion
-    const profileRequiredRoutes = [
-      "/dashboard",
-      "/bounties/create",
-      "/grants/apply",
-    ];
-    const requiresProfile = profileRequiredRoutes.some(
-      (route) =>
-        pathnameWithoutLocale.startsWith(route) || pathname.startsWith(route)
+    const requiresProfile = profileRequiredRouteRegex.some(
+      (regex) => regex.test(pathnameWithoutLocale) || regex.test(pathname)
     );
 
     // Check if user is on a protected route that needs profile completion

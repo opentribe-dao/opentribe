@@ -107,7 +107,10 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
       // We'll check profile completion in middleware
       await authClient.signIn.social({
         provider,
-        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/onboarding`,
+        callbackURL:
+          redirectTo === undefined
+            ? `${env.NEXT_PUBLIC_WEB_URL}/onboarding`
+            : redirectTo,
       });
     } catch (error) {
       const errorMessage =

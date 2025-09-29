@@ -1,23 +1,25 @@
-import { database } from '@packages/db';
-import { NextRequest, NextResponse } from 'next/server';
+import { database } from "@packages/db";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('Fetching RFP with ID or slug:', (await params).id);
-    
+    console.log("Fetching RFP with ID or slug:", (await params).id);
+
     // Try to find by ID first, then by slug (case-insensitive)
     const rfp = await database.rFP.findFirst({
       where: {
         OR: [
           { id: (await params).id },
-          { slug: {
-            equals: (await params).id,
-            mode: 'insensitive'
-          }}
-        ]
+          {
+            slug: {
+              equals: (await params).id,
+              mode: "insensitive",
+            },
+          },
+        ],
       },
       include: {
         grant: {
@@ -45,7 +47,7 @@ export async function GET(
             parentId: null,
           },
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
           take: 10,
           include: {
@@ -91,7 +93,7 @@ export async function GET(
             },
             votes: {
               where: {
-                direction: 'UP',
+                direction: "UP",
               },
             },
             applications: true,
@@ -101,16 +103,11 @@ export async function GET(
     });
 
     if (!rfp) {
-      console.log('RFP not found for ID/slug:', (await params).id);
+      console.log("RFP not found for ID/slug:", (await params).id);
       return NextResponse.json(
-        { error: 'RFP not found' },
-        { 
+        { error: "RFP not found" },
+        {
           status: 404,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET',
-            'Access-Control-Allow-Headers': 'Content-Type',
-          },
         }
       );
     }
@@ -122,12 +119,12 @@ export async function GET(
         id: {
           not: rfp.id,
         },
-        visibility: 'PUBLISHED',
-        status: 'OPEN',
+        visibility: "PUBLISHED",
+        status: "OPEN",
       },
       take: 3,
       orderBy: {
-        viewCount: 'desc',
+        viewCount: "desc",
       },
       select: {
         id: true,
@@ -145,30 +142,16 @@ export async function GET(
       data: { viewCount: { increment: 1 } },
     });
 
-    return NextResponse.json(
-      { 
-        rfp,
-        relatedRfps,
-      },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      }
-    );
+    return NextResponse.json({
+      rfp,
+      relatedRfps,
+    });
   } catch (error) {
-    console.error('Error fetching RFP:', error);
+    console.error("Error fetching RFP:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch RFP' },
-      { 
+      { error: "Failed to fetch RFP" },
+      {
         status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
       }
     );
   }
@@ -177,10 +160,5 @@ export async function GET(
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
   });
 }

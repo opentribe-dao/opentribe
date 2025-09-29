@@ -4,14 +4,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "DELETE, PATCH, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // DELETE /api/v1/organizations/[organizationId]/members/[memberId] - Remove member
@@ -27,10 +21,7 @@ export async function DELETE(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user has permission to remove members
@@ -45,10 +36,7 @@ export async function DELETE(
     });
 
     if (!userMember) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Get the member to be removed
@@ -57,17 +45,14 @@ export async function DELETE(
     });
 
     if (!memberToRemove || memberToRemove.organizationId !== organizationId) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     // Prevent removing the owner
     if (memberToRemove.role === "owner") {
       return NextResponse.json(
         { error: "Cannot remove the organization owner" },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
 
@@ -75,7 +60,7 @@ export async function DELETE(
     if (memberToRemove.userId === sessionData.user.id) {
       return NextResponse.json(
         { error: "Cannot remove yourself from the organization" },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
 
@@ -83,7 +68,7 @@ export async function DELETE(
     if (memberToRemove.role === "admin" && userMember.role !== "owner") {
       return NextResponse.json(
         { error: "Only owners can remove admins" },
-        { status: 403, headers: corsHeaders }
+        { status: 403 }
       );
     }
 
@@ -92,15 +77,12 @@ export async function DELETE(
       where: { id: memberId },
     });
 
-    return NextResponse.json(
-      { message: "Member removed successfully" },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ message: "Member removed successfully" });
   } catch (error) {
     console.error("Error removing member:", error);
     return NextResponse.json(
       { error: "Failed to remove member" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -118,10 +100,7 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Only owners can update member roles
@@ -136,7 +115,7 @@ export async function PATCH(
     if (!userMember) {
       return NextResponse.json(
         { error: "Only owners can update member roles" },
-        { status: 403, headers: corsHeaders }
+        { status: 403 }
       );
     }
 
@@ -144,10 +123,7 @@ export async function PATCH(
     const { role } = body;
 
     if (!["member", "admin"].includes(role)) {
-      return NextResponse.json(
-        { error: "Invalid role" },
-        { status: 400, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 
     // Get the member to be updated
@@ -156,17 +132,14 @@ export async function PATCH(
     });
 
     if (!memberToUpdate || memberToUpdate.organizationId !== organizationId) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     // Cannot change owner role
     if (memberToUpdate.role === "owner") {
       return NextResponse.json(
         { error: "Cannot change owner role" },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
 
@@ -186,15 +159,12 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(
-      { member: updatedMember },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ member: updatedMember });
   } catch (error) {
     console.error("Error updating member role:", error);
     return NextResponse.json(
       { error: "Failed to update member role" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

@@ -1,23 +1,17 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // Schema for vote creation/update
 const voteSchema = z.object({
   rfpId: z.string().cuid(),
-  direction: z.enum(['UP', 'DOWN']),
+  direction: z.enum(["UP", "DOWN"]),
 });
 
 // GET /api/v1/votes - Get user's votes
@@ -29,19 +23,16 @@ export async function GET(request: NextRequest) {
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const rfpIds = searchParams.get('rfpIds')?.split(',').filter(Boolean) || [];
+    const rfpIds = searchParams.get("rfpIds")?.split(",").filter(Boolean) || [];
 
     if (rfpIds.length === 0) {
       return NextResponse.json(
-        { error: 'No RFP IDs provided' },
-        { status: 400, headers: corsHeaders }
+        { error: "No RFP IDs provided" },
+        { status: 400 }
       );
     }
 
@@ -59,18 +50,15 @@ export async function GET(request: NextRequest) {
 
     // Create a map of votes
     const voteMap = Object.fromEntries(
-      votes.map(vote => [vote.rfpId, vote.direction])
+      votes.map((vote) => [vote.rfpId, vote.direction])
     );
 
-    return NextResponse.json(
-      { votes: voteMap },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ votes: voteMap });
   } catch (error) {
-    console.error('Error fetching votes:', error);
+    console.error("Error fetching votes:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch votes' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to fetch votes" },
+      { status: 500 }
     );
   }
 }
@@ -84,10 +72,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -99,10 +84,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!rfp) {
-      return NextResponse.json(
-        { error: 'RFP not found' },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "RFP not found" }, { status: 404 });
     }
 
     // Check if vote already exists
@@ -117,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     // Handle vote in a transaction
     const result = await database.$transaction(async (tx) => {
-      let vote;
+      let vote: any;
       let voteCountChange = 0;
 
       if (existingVote) {
@@ -133,7 +115,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Vote changed from UP to DOWN or vice versa
-        voteCountChange = validatedData.direction === 'UP' ? 2 : -2;
+        voteCountChange = validatedData.direction === "UP" ? 2 : -2;
       } else {
         // Create new vote
         vote = await tx.vote.create({
@@ -145,7 +127,7 @@ export async function POST(request: NextRequest) {
         });
 
         // New vote
-        voteCountChange = validatedData.direction === 'UP' ? 1 : -1;
+        voteCountChange = validatedData.direction === "UP" ? 1 : -1;
       }
 
       // Update RFP vote count
@@ -169,20 +151,20 @@ export async function POST(request: NextRequest) {
           createdAt: result.createdAt,
         },
       },
-      { status: existingVote ? 200 : 201, headers: corsHeaders }
+      { status: existingVote ? 200 : 201 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: z.treeifyError(error) },
+        { status: 400 }
       );
     }
 
-    console.error('Error creating/updating vote:', error);
+    console.error("Error creating/updating vote:", error);
     return NextResponse.json(
-      { error: 'Failed to process vote' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to process vote" },
+      { status: 500 }
     );
   }
 }
@@ -196,19 +178,16 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const rfpId = searchParams.get('rfpId');
+    const rfpId = searchParams.get("rfpId");
 
     if (!rfpId) {
       return NextResponse.json(
-        { error: 'RFP ID is required' },
-        { status: 400, headers: corsHeaders }
+        { error: "RFP ID is required" },
+        { status: 400 }
       );
     }
 
@@ -223,10 +202,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!vote) {
-      return NextResponse.json(
-        { error: 'Vote not found' },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Vote not found" }, { status: 404 });
     }
 
     // Delete vote and update count in a transaction
@@ -237,22 +213,19 @@ export async function DELETE(request: NextRequest) {
       });
 
       // Update RFP vote count
-      const voteCountChange = vote.direction === 'UP' ? -1 : 1;
+      const voteCountChange = vote.direction === "UP" ? -1 : 1;
       await tx.rFP.update({
         where: { id: rfpId },
         data: { voteCount: { increment: voteCountChange } },
       });
     });
 
-    return NextResponse.json(
-      { success: true },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error removing vote:', error);
+    console.error("Error removing vote:", error);
     return NextResponse.json(
-      { error: 'Failed to remove vote' },
-      { status: 500, headers: corsHeaders }
+      { error: "Failed to remove vote" },
+      { status: 500 }
     );
   }
 }

@@ -1,24 +1,32 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { sendGrantFirstApplicationEmail } from '@packages/email';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { sendGrantFirstApplicationEmail } from "@packages/email";
 
 // Schema for grant application creation
 const createApplicationSchema = z.object({
   title: z.string().min(1).max(200),
   summary: z.string().optional(),
   description: z.string().min(1),
-  timeline: z.array(z.object({
-    milestone: z.string(),
-    date: z.string(),
-  })).optional(),
-  milestones: z.array(z.object({
-    title: z.string(),
-    description: z.string(),
-    deliverables: z.array(z.string()).optional(),
-  })).optional(),
+  timeline: z
+    .array(
+      z.object({
+        milestone: z.string(),
+        date: z.string(),
+      })
+    )
+    .optional(),
+  milestones: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string(),
+        deliverables: z.array(z.string()).optional(),
+      })
+    )
+    .optional(),
   budget: z.number().positive().optional(),
   responses: z.record(z.string(), z.any()).optional(), // For screening question responses
   rfpId: z.string().optional(), // If applying through an RFP
@@ -44,30 +52,16 @@ export async function GET(
 
     if (!grant) {
       return NextResponse.json(
-        { error: 'Grant not found' },
-        { 
+        { error: "Grant not found" },
+        {
           status: 404,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
         }
       );
     }
 
     // Only show applications for published grants
-    if (grant.visibility !== 'PUBLISHED') {
-      return NextResponse.json(
-        { applications: [] },
-        {
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-        }
-      );
+    if (grant.visibility !== "PUBLISHED") {
+      return NextResponse.json({ applications: [] });
     }
 
     // Fetch applications (only submitted ones for public view)
@@ -75,7 +69,7 @@ export async function GET(
       where: {
         grantId: grantId,
         status: {
-          not: 'DRAFT',
+          not: "DRAFT",
         },
       },
       include: {
@@ -103,31 +97,17 @@ export async function GET(
         },
       },
       orderBy: {
-        submittedAt: 'desc',
+        submittedAt: "desc",
       },
     });
 
-    return NextResponse.json(
-      { applications },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      }
-    );
+    return NextResponse.json({ applications });
   } catch (error) {
-    console.error('Error fetching applications:', error);
+    console.error("Error fetching applications:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch applications' },
+      { error: "Failed to fetch applications" },
       {
         status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
       }
     );
   }
@@ -146,7 +126,7 @@ export async function POST(
 
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'You must be logged in to apply' },
+        { error: "You must be logged in to apply" },
         { status: 401 }
       );
     }
@@ -170,23 +150,20 @@ export async function POST(
     });
 
     if (!grant) {
-      return NextResponse.json(
-        { error: 'Grant not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Grant not found" }, { status: 404 });
     }
 
-    if (grant.visibility !== 'PUBLISHED' || grant.status !== 'OPEN') {
+    if (grant.visibility !== "PUBLISHED" || grant.status !== "OPEN") {
       return NextResponse.json(
-        { error: 'This grant is not accepting applications' },
+        { error: "This grant is not accepting applications" },
         { status: 400 }
       );
     }
 
     // Native grants only - External grants should use applicationUrl
-    if (grant.source === 'EXTERNAL') {
+    if (grant.source === "EXTERNAL") {
       return NextResponse.json(
-        { error: 'This grant uses external applications' },
+        { error: "This grant uses external applications" },
         { status: 400 }
       );
     }
@@ -201,7 +178,7 @@ export async function POST(
 
     if (existingApplication) {
       return NextResponse.json(
-        { error: 'You have already applied to this grant' },
+        { error: "You have already applied to this grant" },
         { status: 400 }
       );
     }
@@ -229,17 +206,14 @@ export async function POST(
     // If applying through an RFP, verify it exists and belongs to this grant
     if (validatedData.rfpId) {
       const rfp = await database.rFP.findUnique({
-        where: { 
+        where: {
           id: validatedData.rfpId,
           grantId: grantId,
         },
       });
 
       if (!rfp) {
-        return NextResponse.json(
-          { error: 'Invalid RFP' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Invalid RFP" }, { status: 400 });
       }
     }
 
@@ -256,7 +230,7 @@ export async function POST(
         milestones: validatedData.milestones || undefined,
         budget: validatedData.budget || undefined,
         responses: validatedData.responses || undefined,
-        status: 'SUBMITTED',
+        status: "SUBMITTED",
         submittedAt: new Date(),
       },
       include: {
@@ -296,7 +270,7 @@ export async function POST(
 
     // Check if this is the first application and send email notification
     const applicationCount = await database.grantApplication.count({
-      where: { grantId: grantId }
+      where: { grantId: grantId },
     });
 
     if (applicationCount === 1) {
@@ -308,7 +282,7 @@ export async function POST(
             include: {
               members: {
                 where: {
-                  role: { in: ['owner', 'admin'] },
+                  role: { in: ["owner", "admin"] },
                 },
                 include: {
                   user: {
@@ -343,16 +317,20 @@ export async function POST(
                 {
                   id: application.id,
                   title: application.title,
-                  summary: application.summary || application.description.substring(0, 200),
-                  requestedAmount: application.budget ? `$${application.budget.toLocaleString()}` : 'Not specified',
+                  summary:
+                    application.summary ||
+                    application.description.substring(0, 200),
+                  requestedAmount: application.budget
+                    ? `$${application.budget.toLocaleString()}`
+                    : "Not specified",
                   applicant: {
                     firstName: application.applicant.firstName || undefined,
-                    username: application.applicant.username || 'Anonymous',
+                    username: application.applicant.username || "Anonymous",
                   },
                 }
               );
             } catch (error) {
-              console.error('Failed to send first application email:', error);
+              console.error("Failed to send first application email:", error);
               // Don't fail the request if email fails
             }
           }
@@ -360,31 +338,22 @@ export async function POST(
       }
     }
 
-    return NextResponse.json(
-      { 
-        success: true,
-        application,
-      },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      application,
+    });
   } catch (error) {
-    console.error('Application creation error:', error);
-    
+    console.error("Application creation error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create application' },
+      { error: "Failed to create application" },
       { status: 500 }
     );
   }
@@ -394,10 +363,5 @@ export async function POST(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
   });
 }

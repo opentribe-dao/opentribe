@@ -1,4 +1,5 @@
 import { auth } from "@packages/auth/server";
+import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -18,7 +19,7 @@ const createBountySchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z.string().regex(URL_REGEX),
         description: z.string().optional(),
       })
     )
@@ -240,9 +241,6 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
           "Cache-Control": "max-age=120",
         },
       }
@@ -256,11 +254,6 @@ export async function GET(request: NextRequest) {
       },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
       }
     );
   }
@@ -349,25 +342,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        bounty,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      bounty,
+    });
   } catch (error) {
     console.error("Bounty creation error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }
@@ -383,10 +367,5 @@ export async function POST(request: NextRequest) {
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

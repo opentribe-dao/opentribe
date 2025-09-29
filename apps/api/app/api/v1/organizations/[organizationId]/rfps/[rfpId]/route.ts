@@ -1,18 +1,13 @@
 import { auth } from "@packages/auth/server";
+import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // PATCH /api/v1/organizations/[organizationId]/rfps/[rfpId] - Update RFP
@@ -27,10 +22,7 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user has permission to update RFPs
@@ -45,10 +37,7 @@ export async function PATCH(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Check if the RFP belongs to this organization
@@ -67,7 +56,7 @@ export async function PATCH(
     if (!existingRfp) {
       return NextResponse.json(
         { error: "RFP not found or doesn't belong to this organization" },
-        { status: 404, headers: corsHeaders }
+        { status: 404 }
       );
     }
 
@@ -75,20 +64,27 @@ export async function PATCH(
       grantId: z.string().optional(),
       title: z.string().min(1).max(200).optional(),
       description: z.string().min(1).optional(),
-      resources: z.array(z.object({
-        title: z.string(),
-        url: z.string().url(),
-        description: z.string().optional(),
-      })).optional(),
-      status: z.enum(['OPEN', 'CLOSED', 'COMPLETED']).optional(),
-      visibility: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+      resources: z
+        .array(
+          z.object({
+            title: z.string(),
+            url: z.string().regex(URL_REGEX),
+            description: z.string().optional(),
+          })
+        )
+        .optional(),
+      status: z.enum(["OPEN", "CLOSED", "COMPLETED"]).optional(),
+      visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
     });
 
     const body = await request.json();
     const validatedData = updateRfpSchema.parse(body);
 
     // If changing grant, verify the new grant belongs to this organization
-    if (validatedData.grantId && validatedData.grantId !== existingRfp.grantId) {
+    if (
+      validatedData.grantId &&
+      validatedData.grantId !== existingRfp.grantId
+    ) {
       const grant = await database.grant.findFirst({
         where: {
           id: validatedData.grantId,
@@ -99,41 +95,49 @@ export async function PATCH(
       if (!grant) {
         return NextResponse.json(
           { error: "Grant not found or doesn't belong to this organization" },
-          { status: 404, headers: corsHeaders }
+          { status: 404 }
         );
       }
     }
 
     // Generate new slug if title changes
     let updateData: any = { ...validatedData };
-    
+
     if (validatedData.title && validatedData.title !== existingRfp.title) {
       let baseSlug = validatedData.title
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
       let slug = baseSlug;
       let counter = 1;
-      
+
       // Check if slug exists and append number if needed
-      while (await database.rFP.findFirst({ 
-        where: { 
-          slug,
-          NOT: { id: (await params).rfpId } 
-        } 
-      })) {
+      while (
+        await database.rFP.findFirst({
+          where: {
+            slug,
+            NOT: { id: (await params).rfpId },
+          },
+        })
+      ) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
-      
+
       updateData.slug = slug;
     }
 
     // Handle publishedAt date
-    if (validatedData.visibility === 'PUBLISHED' && existingRfp.visibility !== 'PUBLISHED') {
+    if (
+      validatedData.visibility === "PUBLISHED" &&
+      existingRfp.visibility !== "PUBLISHED"
+    ) {
       updateData.publishedAt = new Date();
-    } else if (validatedData.visibility !== 'PUBLISHED' && existingRfp.visibility === 'PUBLISHED') {
+    } else if (
+      validatedData.visibility !== "PUBLISHED" &&
+      existingRfp.visibility === "PUBLISHED"
+    ) {
       updateData.publishedAt = null;
     }
 
@@ -168,22 +172,19 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(
-      { rfp: updatedRfp },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ rfp: updatedRfp });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: z.treeifyError(error) },
+        { status: 400 }
       );
     }
 
     console.error("Error updating RFP:", error);
     return NextResponse.json(
       { error: "Failed to update RFP" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -200,10 +201,7 @@ export async function DELETE(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user has permission to delete RFPs
@@ -218,10 +216,7 @@ export async function DELETE(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Check if the RFP belongs to this organization
@@ -237,7 +232,7 @@ export async function DELETE(
     if (!existingRfp) {
       return NextResponse.json(
         { error: "RFP not found or doesn't belong to this organization" },
-        { status: 404, headers: corsHeaders }
+        { status: 404 }
       );
     }
 
@@ -248,15 +243,12 @@ export async function DELETE(
       },
     });
 
-    return NextResponse.json(
-      { message: "RFP deleted successfully" },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ message: "RFP deleted successfully" });
   } catch (error) {
     console.error("Error deleting RFP:", error);
     return NextResponse.json(
       { error: "Failed to delete RFP" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

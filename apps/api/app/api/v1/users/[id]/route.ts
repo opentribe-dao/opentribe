@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import type {
-  Session,
   User,
   Member,
   Organization,
@@ -13,15 +12,10 @@ import type {
   Submission,
 } from "@packages/db";
 import { sendOnboardingCompleteEmail } from "@packages/email";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 interface UserWithRelations extends User {
@@ -105,10 +99,7 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check if the requesting user can view this profile
@@ -117,20 +108,17 @@ export async function GET(
 
     if (!isOwnProfile && !isPublicProfile) {
       // Return limited data for private profiles
-      return NextResponse.json(
-        {
-          user: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            avatarUrl: user.avatarUrl,
-            image: user.image,
-            headline: user.headline,
-            private: true,
-          },
+      return NextResponse.json({
+        user: {
+          id: user.id,
+          name: user.name,
+          username: user.username,
+          avatarUrl: user.avatarUrl,
+          image: user.image,
+          headline: user.headline,
+          private: true,
         },
-        { headers: corsHeaders }
-      );
+      });
     }
 
     // Remove sensitive fields
@@ -151,22 +139,19 @@ export async function GET(
       organizations: user.members.length,
     };
 
-    return NextResponse.json(
-      {
-        user: {
-          ...publicUser,
-          email: isOwnProfile ? email : undefined, // Only show email to profile owner
-          isOwnProfile,
-        },
-        stats,
+    return NextResponse.json({
+      user: {
+        ...publicUser,
+        email: isOwnProfile ? email : undefined, // Only show email to profile owner
+        isOwnProfile,
       },
-      { headers: corsHeaders }
-    );
+      stats,
+    });
   } catch (error) {
     console.error("Error fetching user profile:", error);
     return NextResponse.json(
       { error: "Failed to fetch user profile" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -183,43 +168,37 @@ export async function PATCH(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id: userId } = await params;
 
     // Only allow users to update their own profile
     if (sessionData.user.id !== userId) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const updateProfileSchema = z.object({
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-      username: z.string().min(3).max(30).optional(),
-      avatarUrl: z.string().url().optional(),
-      headline: z.string().max(100).optional(),
-      bio: z.string().max(500).optional(),
+      firstName: z.string().trim().optional(),
+      lastName: z.string().trim().optional(),
+      username: z.string().trim().min(3).max(30).optional(),
+      avatarUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
+      headline: z.string().trim().max(100).optional(),
+      bio: z.string().trim().max(500).optional(),
       interests: z.array(z.string()).optional(),
-      location: z.string().optional(),
+      location: z.string().trim().optional(),
       skills: z.any().optional(),
       walletAddress: z.string().optional(),
-      twitter: z.string().optional(),
-      discord: z.string().optional(),
-      github: z.string().optional(),
-      linkedin: z.string().optional(),
-      website: z.string().url().optional(),
-      telegram: z.string().optional(),
-      employer: z.string().optional(),
-      workExperience: z.string().optional(),
-      cryptoExperience: z.string().optional(),
-      workPreference: z.string().optional(),
+      twitter: z.string().trim().optional(),
+      discord: z.string().trim().optional(),
+      github: z.string().trim().optional(),
+      linkedin: z.string().trim().optional(),
+      website: z.string().regex(OPTIONAL_URL_REGEX).optional(),
+      telegram: z.string().trim().optional(),
+      employer: z.string().trim().optional(),
+      workExperience: z.string().trim().optional(),
+      cryptoExperience: z.string().trim().optional(),
+      workPreference: z.string().trim().optional(),
       private: z.boolean().optional(),
     });
 
@@ -230,7 +209,10 @@ export async function PATCH(
     if (validatedData.username) {
       const existingUser = await database.user.findFirst({
         where: {
-          username: validatedData.username,
+          username: {
+            equals: validatedData.username,
+            mode: "insensitive",
+          },
           id: { not: userId },
         },
       });
@@ -238,7 +220,7 @@ export async function PATCH(
       if (existingUser) {
         return NextResponse.json(
           { error: "Username already taken" },
-          { status: 400, headers: corsHeaders }
+          { status: 400 }
         );
       }
     }
@@ -255,7 +237,7 @@ export async function PATCH(
       if (existingUser) {
         return NextResponse.json(
           { error: "Wallet address already associated with another account" },
-          { status: 400, headers: corsHeaders }
+          { status: 400 }
         );
       }
     }
@@ -304,27 +286,24 @@ export async function PATCH(
       ...publicUser
     } = updatedUser;
 
-    return NextResponse.json(
-      {
-        user: {
-          ...publicUser,
-          email, // Include email for own profile
-        },
+    return NextResponse.json({
+      user: {
+        ...publicUser,
+        email, // Include email for own profile
       },
-      { headers: corsHeaders }
-    );
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: z.treeifyError(error) },
+        { status: 400 }
       );
     }
 
     console.error("Error updating user profile:", error);
     return NextResponse.json(
       { error: "Failed to update user profile" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

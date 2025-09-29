@@ -4,7 +4,7 @@
   "crons": [
     {
       "path": "/cron/bounty-deadline-passed",
-      "schedule": "0,30 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }

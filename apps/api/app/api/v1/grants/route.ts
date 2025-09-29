@@ -1,7 +1,8 @@
 import { auth } from "@packages/auth/server";
+import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for grant creation
@@ -10,8 +11,8 @@ const createGrantSchema = z.object({
   description: z.string().min(1),
   summary: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z.string().url().optional(),
-  bannerUrl: z.string().url().optional(),
+  logoUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
+  bannerUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
   skills: z.array(z.string()).default([]),
   minAmount: z.number().positive().optional(),
   maxAmount: z.number().positive().optional(),
@@ -21,7 +22,7 @@ const createGrantSchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z.string().regex(URL_REGEX),
         description: z.string().optional(),
       })
     )
@@ -35,7 +36,7 @@ const createGrantSchema = z.object({
       })
     )
     .optional(),
-  applicationUrl: z.string().url().optional(),
+  applicationUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
   visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
   source: z.enum(["NATIVE", "EXTERNAL"]).default("NATIVE"),
   organizationId: z.string(),
@@ -268,9 +269,6 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
           "Cache-Control": "max-age=120",
         },
       }
@@ -284,11 +282,6 @@ export async function GET(request: NextRequest) {
       },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
       }
     );
   }
@@ -400,25 +393,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        grant,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      grant,
+    });
   } catch (error) {
     console.error("Grant creation error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }
@@ -434,10 +418,5 @@ export async function POST(request: NextRequest) {
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

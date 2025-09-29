@@ -1,44 +1,51 @@
-'use client';
+"use client";
 
-import { useSession } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@packages/base/components/ui/select';
-import { Textarea } from '@packages/base/components/ui/textarea';
-import { ImageUpload } from '@packages/base';
-import { ChevronLeft, Globe, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { validateWalletAddress } from '../../lib/validations/wallet';
+import { useSession } from "@packages/auth/client";
+import { Button } from "@packages/base/components/ui/button";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@packages/base/components/ui/select";
+import { Textarea } from "@packages/base/components/ui/textarea";
+import { ImageUpload } from "@packages/base";
+import { ChevronLeft, Globe, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { validateWalletAddress } from "../../lib/validations/wallet";
+import { env } from "@/env";
 
 const SKILLS_OPTIONS = [
-  'Smart Contracts',
-  'Frontend Development',
-  'Backend Development',
-  'Mobile Development',
-  'UI/UX Design',
-  'DevOps',
-  'Security',
-  'Data Analysis',
-  'Product Management',
-  'Community Management',
-  'Content Creation',
-  'Marketing',
+  "Smart Contracts",
+  "Frontend Development",
+  "Backend Development",
+  "Mobile Development",
+  "UI/UX Design",
+  "DevOps",
+  "Security",
+  "Data Analysis",
+  "Product Management",
+  "Community Management",
+  "Content Creation",
+  "Marketing",
 ];
 
 const CRYPTO_EXPERIENCE_OPTIONS = [
-  { value: 'new', label: 'New to crypto' },
-  { value: 'occasional', label: 'Contribute occasionally' },
-  { value: 'regular', label: 'Contribute regularly' },
+  { value: "new", label: "New to crypto" },
+  { value: "occasional", label: "Contribute occasionally" },
+  { value: "regular", label: "Contribute regularly" },
 ];
 
 const WORK_PREFERENCE_OPTIONS = [
-  { value: 'full-time', label: 'Full-time' },
-  { value: 'part-time', label: 'Part-time' },
-  { value: 'contract', label: 'Contract' },
-  { value: 'bounties', label: 'Bounties only' },
+  { value: "full-time", label: "Full-time" },
+  { value: "part-time", label: "Part-time" },
+  { value: "contract", label: "Contract" },
+  { value: "bounties", label: "Bounties only" },
 ];
 
 export default function BuilderOnboardingPage() {
@@ -46,42 +53,42 @@ export default function BuilderOnboardingPage() {
   const { data: session, isPending } = useSession();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  
+
   // Form data
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
-    firstName: '',
-    lastName: '',
-    username: '',
-    avatarUrl: '',
-    location: '',
+    firstName: "",
+    lastName: "",
+    username: "",
+    avatarUrl: "",
+    location: "",
     skills: [] as string[],
-    walletAddress: '',
-    website: '',
-    twitter: '',
-    github: '',
-    linkedin: '',
-    
+    walletAddress: "",
+    website: "",
+    twitter: "",
+    github: "",
+    linkedin: "",
+
     // Step 2 - Work Info
-    employer: '',
-    workExperience: '',
-    cryptoExperience: '',
-    workPreference: '',
+    employer: "",
+    workExperience: "",
+    cryptoExperience: "",
+    workPreference: "",
   });
 
   useEffect(() => {
     if (!isPending) {
       if (!session?.user) {
         // User is not authenticated, redirect to home
-        router.push('/');
+        router.push("/");
       } else {
         // Pre-fill form with existing user data
         if (session.user.name) {
-          const [firstName, ...lastNameParts] = session.user.name.split(' ');
-          setFormData(prev => ({
+          const [firstName, ...lastNameParts] = session.user.name.split(" ");
+          setFormData((prev) => ({
             ...prev,
-            firstName: firstName || '',
-            lastName: lastNameParts.join(' ') || '',
+            firstName: firstName || "",
+            lastName: lastNameParts.join(" ") || "",
           }));
         }
       }
@@ -89,41 +96,51 @@ export default function BuilderOnboardingPage() {
   }, [session, isPending, router]);
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSkillToggle = (skill: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       skills: prev.skills.includes(skill)
-        ? prev.skills.filter(s => s !== skill)
+        ? prev.skills.filter((s) => s !== skill)
         : [...prev.skills, skill],
     }));
   };
 
   const validateStep1 = () => {
-    if (!formData.firstName || !formData.lastName || !formData.username || !formData.location) {
-      toast.error('Please fill in all required fields');
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.username ||
+      !formData.location
+    ) {
+      toast.error("Please fill in all required fields");
       return false;
     }
     if (formData.skills.length === 0) {
-      toast.error('Please select at least one skill');
+      toast.error("Please select at least one skill");
       return false;
     }
     if (!formData.walletAddress) {
-      toast.error('Please enter your wallet address');
+      toast.error("Please enter your wallet address");
       return false;
     }
-    
+
     // Validate wallet address format
     const walletValidation = validateWalletAddress(formData.walletAddress);
     if (!walletValidation.isValid) {
-      toast.error(walletValidation.error || 'Invalid wallet address');
+      toast.error(walletValidation.error || "Invalid wallet address");
       return false;
     }
-    
-    if (!formData.website && !formData.twitter && !formData.github && !formData.linkedin) {
-      toast.error('Please add at least one social media link');
+
+    if (
+      !formData.website &&
+      !formData.twitter &&
+      !formData.github &&
+      !formData.linkedin
+    ) {
+      toast.error("Please add at least one social media link");
       return false;
     }
     return true;
@@ -131,7 +148,7 @@ export default function BuilderOnboardingPage() {
 
   const validateStep2 = () => {
     if (!formData.cryptoExperience || !formData.workPreference) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return false;
     }
     return true;
@@ -149,37 +166,40 @@ export default function BuilderOnboardingPage() {
     if (currentStep === 2) {
       setCurrentStep(1);
     } else {
-      router.push('/onboarding');
+      router.push("/onboarding");
     }
   };
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      
+
       // Update user profile
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/profile`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          ...formData,
-          skills: JSON.stringify(formData.skills),
-          profileCompleted: true,
-        }),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/users/profile`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ...formData,
+            skills: JSON.stringify(formData.skills),
+            profileCompleted: true,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        throw new Error("Failed to update profile");
       }
 
-      toast.success('Profile created successfully!');
-      router.push('/');
+      toast.success("Profile created successfully!");
+      router.push("/");
     } catch (error) {
-      console.error('Profile update failed:', error);
-      toast.error('Failed to create profile. Please try again.');
+      console.error("Profile update failed:", error);
+      toast.error("Failed to create profile. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -244,13 +264,23 @@ export default function BuilderOnboardingPage() {
           {/* Progress Indicator */}
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${currentStep >= 1 ? 'bg-white' : 'bg-white/20'}`} />
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  currentStep >= 1 ? "bg-white" : "bg-white/20"
+                }`}
+              />
               <span className="text-xs text-white/60">Personal Details</span>
             </div>
             <div className="flex-1 h-px bg-white/20" />
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${currentStep >= 2 ? 'bg-white' : 'bg-white/20'}`} />
-              <span className="text-xs text-white/60">Professional Details</span>
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  currentStep >= 2 ? "bg-white" : "bg-white/20"
+                }`}
+              />
+              <span className="text-xs text-white/60">
+                Professional Details
+              </span>
             </div>
           </div>
 
@@ -266,7 +296,9 @@ export default function BuilderOnboardingPage() {
                   <Input
                     id="firstName"
                     value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("firstName", e.target.value)
+                    }
                     placeholder="Enter your first name"
                     className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                   />
@@ -278,7 +310,9 @@ export default function BuilderOnboardingPage() {
                   <Input
                     id="lastName"
                     value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("lastName", e.target.value)
+                    }
                     placeholder="Enter your last name"
                     className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                   />
@@ -292,7 +326,9 @@ export default function BuilderOnboardingPage() {
                 </Label>
                 <ImageUpload
                   currentImageUrl={formData.avatarUrl}
-                  onImageChange={(url) => handleInputChange('avatarUrl', url || '')}
+                  onImageChange={(url) =>
+                    handleInputChange("avatarUrl", url || "")
+                  }
                   uploadType="profile-avatar"
                   entityId={session?.user?.id}
                   variant="avatar"
@@ -307,7 +343,9 @@ export default function BuilderOnboardingPage() {
                 <Input
                   id="username"
                   value={formData.username}
-                  onChange={(e) => handleInputChange('username', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("username", e.target.value)
+                  }
                   placeholder="Choose a unique username"
                   className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                 />
@@ -321,7 +359,9 @@ export default function BuilderOnboardingPage() {
                 <Input
                   id="location"
                   value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("location", e.target.value)
+                  }
                   placeholder="City, Country"
                   className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                 />
@@ -330,7 +370,10 @@ export default function BuilderOnboardingPage() {
               {/* Skills */}
               <div>
                 <Label className="text-white/80 mb-2">
-                  Skills * <span className="text-xs text-white/40">(We will use this to match you to new opportunities)</span>
+                  Skills *{" "}
+                  <span className="text-xs text-white/40">
+                    (We will use this to match you to new opportunities)
+                  </span>
                 </Label>
                 <div className="flex flex-wrap gap-2">
                   {SKILLS_OPTIONS.map((skill) => (
@@ -342,8 +385,8 @@ export default function BuilderOnboardingPage() {
                       onClick={() => handleSkillToggle(skill)}
                       className={`border-white/20 ${
                         formData.skills.includes(skill)
-                          ? 'bg-[#E6007A] border-[#E6007A] text-white'
-                          : 'bg-white/5 text-white/80 hover:bg-white/10'
+                          ? "bg-[#E6007A] border-[#E6007A] text-white"
+                          : "bg-white/5 text-white/80 hover:bg-white/10"
                       }`}
                     >
                       {skill}
@@ -360,20 +403,25 @@ export default function BuilderOnboardingPage() {
                 <Input
                   id="walletAddress"
                   value={formData.walletAddress}
-                  onChange={(e) => handleInputChange('walletAddress', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("walletAddress", e.target.value)
+                  }
                   placeholder="Enter your Polkadot or Kusama address"
                   className="bg-white/5 border-white/20 text-white placeholder:text-white/40 font-mono"
                 />
                 {formData.walletAddress && (
-                  <p className={`text-xs mt-1 ${
-                    validateWalletAddress(formData.walletAddress).isValid 
-                      ? 'text-green-500' 
-                      : 'text-red-500'
-                  }`}>
-                    {validateWalletAddress(formData.walletAddress).isValid 
-                      ? `✓ Valid ${validateWalletAddress(formData.walletAddress).network} address`
-                      : validateWalletAddress(formData.walletAddress).error
-                    }
+                  <p
+                    className={`text-xs mt-1 ${
+                      validateWalletAddress(formData.walletAddress).isValid
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {validateWalletAddress(formData.walletAddress).isValid
+                      ? `✓ Valid ${
+                          validateWalletAddress(formData.walletAddress).network
+                        } address`
+                      : validateWalletAddress(formData.walletAddress).error}
                   </p>
                 )}
               </div>
@@ -381,30 +429,41 @@ export default function BuilderOnboardingPage() {
               {/* Social Links */}
               <div>
                 <Label className="text-white/80 mb-2">
-                  Social Media Links <span className="text-xs text-white/40">(Add at least one)</span>
+                  Social Media Links{" "}
+                  <span className="text-xs text-white/40">
+                    (Add at least one)
+                  </span>
                 </Label>
                 <div className="space-y-3">
                   <Input
                     value={formData.website}
-                    onChange={(e) => handleInputChange('website', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("website", e.target.value)
+                    }
                     placeholder="Personal website"
                     className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                   />
                   <Input
                     value={formData.twitter}
-                    onChange={(e) => handleInputChange('twitter', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("twitter", e.target.value)
+                    }
                     placeholder="Twitter handle"
                     className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                   />
                   <Input
                     value={formData.github}
-                    onChange={(e) => handleInputChange('github', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("github", e.target.value)
+                    }
                     placeholder="GitHub username"
                     className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                   />
                   <Input
                     value={formData.linkedin}
-                    onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("linkedin", e.target.value)
+                    }
                     placeholder="LinkedIn profile"
                     className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                   />
@@ -418,12 +477,15 @@ export default function BuilderOnboardingPage() {
               {/* Current Employer */}
               <div>
                 <Label htmlFor="employer" className="text-white/80 mb-2">
-                  Current Employer <span className="text-xs text-white/40">(Optional)</span>
+                  Current Employer{" "}
+                  <span className="text-xs text-white/40">(Optional)</span>
                 </Label>
                 <Input
                   id="employer"
                   value={formData.employer}
-                  onChange={(e) => handleInputChange('employer', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("employer", e.target.value)
+                  }
                   placeholder="Company name"
                   className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                 />
@@ -432,12 +494,15 @@ export default function BuilderOnboardingPage() {
               {/* Work Experience */}
               <div>
                 <Label htmlFor="workExperience" className="text-white/80 mb-2">
-                  Work Experience <span className="text-xs text-white/40">(Optional)</span>
+                  Work Experience{" "}
+                  <span className="text-xs text-white/40">(Optional)</span>
                 </Label>
                 <Textarea
                   id="workExperience"
                   value={formData.workExperience}
-                  onChange={(e) => handleInputChange('workExperience', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("workExperience", e.target.value)
+                  }
                   placeholder="Tell us about your professional experience"
                   rows={4}
                   className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
@@ -451,14 +516,20 @@ export default function BuilderOnboardingPage() {
                 </Label>
                 <Select
                   value={formData.cryptoExperience}
-                  onValueChange={(value) => handleInputChange('cryptoExperience', value)}
+                  onValueChange={(value) =>
+                    handleInputChange("cryptoExperience", value)
+                  }
                 >
                   <SelectTrigger className="bg-white/5 border-white/20 text-white">
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-white/20">
                     {CRYPTO_EXPERIENCE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="text-white">
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="text-white"
+                      >
                         {option.label}
                       </SelectItem>
                     ))}
@@ -468,19 +539,23 @@ export default function BuilderOnboardingPage() {
 
               {/* Work Preference */}
               <div>
-                <Label className="text-white/80 mb-2">
-                  Work Preference *
-                </Label>
+                <Label className="text-white/80 mb-2">Work Preference *</Label>
                 <Select
                   value={formData.workPreference}
-                  onValueChange={(value) => handleInputChange('workPreference', value)}
+                  onValueChange={(value) =>
+                    handleInputChange("workPreference", value)
+                  }
                 >
                   <SelectTrigger className="bg-white/5 border-white/20 text-white">
                     <SelectValue placeholder="Select your preferred work type" />
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-900 border-white/20">
                     {WORK_PREFERENCE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="text-white">
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="text-white"
+                      >
                         {option.label}
                       </SelectItem>
                     ))}
@@ -494,7 +569,9 @@ export default function BuilderOnboardingPage() {
           <div className="flex justify-between items-center mt-8">
             <Button
               variant="ghost"
-              onClick={() => router.push(process.env.NEXT_PUBLIC_DASHBOARD_URL || '/dashboard')}
+              onClick={() =>
+                router.push(env.NEXT_PUBLIC_DASHBOARD_URL || "/dashboard")
+              }
               className="text-white/60 hover:text-white"
             >
               Save as Draft
@@ -511,9 +588,9 @@ export default function BuilderOnboardingPage() {
                   Saving...
                 </>
               ) : currentStep === 1 ? (
-                'Next Step'
+                "Next Step"
               ) : (
-                'Complete Profile'
+                "Complete Profile"
               )}
             </Button>
           </div>

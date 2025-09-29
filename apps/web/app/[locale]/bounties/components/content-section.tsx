@@ -13,7 +13,6 @@ interface BountyFilters {
   hasDeadline: boolean
 }
 
-
 interface BountiesContentSectionProps {
   bounties: Bounty[]
   loading: boolean
@@ -22,6 +21,7 @@ interface BountiesContentSectionProps {
   skillsOptions: string[]
   filters: BountyFilters
   hasMore: boolean
+  isLoadingMore: boolean
   activeFiltersCount: number
   onSkillToggle: (skill: string) => void
   onClearAllFilters: () => void
@@ -37,6 +37,7 @@ function BountiesContentSectionComponent({
   skillsOptions,
   filters,
   hasMore,
+  isLoadingMore,
   activeFiltersCount,
   onSkillToggle,
   onClearAllFilters,
@@ -155,11 +156,18 @@ function BountiesContentSectionComponent({
             <div className="mt-8 text-center">
               <Button
                 onClick={onLoadMore}
-                disabled={loading}
+                disabled={isLoadingMore}
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
               >
-                {loading ? "Loading..." : "View More →"}
+                {isLoadingMore ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Loading more...
+                  </div>
+                ) : (
+                  "View More →"
+                )}
               </Button>
             </div>
           )}

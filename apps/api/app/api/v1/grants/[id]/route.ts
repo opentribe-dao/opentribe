@@ -1,7 +1,8 @@
 import { auth } from "@packages/auth/server";
+import { URL_REGEX, OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for grant update
@@ -10,8 +11,8 @@ const updateGrantSchema = z.object({
   description: z.string().min(1).optional(),
   summary: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z.string().url().optional().nullable(),
-  bannerUrl: z.string().url().optional().nullable(),
+  logoUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
+  bannerUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
   skills: z.array(z.string()).optional(),
   minAmount: z.number().positive().optional().nullable(),
   maxAmount: z.number().positive().optional().nullable(),
@@ -21,7 +22,7 @@ const updateGrantSchema = z.object({
     .array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z.string().regex(URL_REGEX),
         description: z.string().optional(),
       })
     )
@@ -35,7 +36,7 @@ const updateGrantSchema = z.object({
       })
     )
     .optional(),
-  applicationUrl: z.string().url().optional().nullable(),
+  applicationUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
   visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   status: z.enum(["OPEN", "PAUSED", "CLOSED"]).optional(),
   source: z.enum(["NATIVE", "EXTERNAL"]).optional(),
@@ -143,11 +144,6 @@ export async function GET(
         { error: "Grant not found" },
         {
           status: 404,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
@@ -158,27 +154,13 @@ export async function GET(
       data: { viewCount: { increment: 1 } },
     });
 
-    return NextResponse.json(
-      { grant },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({ grant });
   } catch (error) {
     console.error("Error fetching grant:", error);
     return NextResponse.json(
       { error: "Failed to fetch grant" },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   }
@@ -319,25 +301,16 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        grant: updatedGrant,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      grant: updatedGrant,
+    });
   } catch (error) {
     console.error("Grant update error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data", details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }
@@ -417,19 +390,10 @@ export async function DELETE(
       where: { id: grantId },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Grant deleted successfully",
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "Grant deleted successfully",
+    });
   } catch (error) {
     console.error("Grant deletion error:", error);
 
@@ -444,10 +408,5 @@ export async function DELETE(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

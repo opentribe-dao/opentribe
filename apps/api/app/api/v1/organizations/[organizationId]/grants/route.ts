@@ -1,13 +1,13 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Query params schema
 const queryParamsSchema = z.object({
-  limit: z.string().transform(Number).default("10"),
-  offset: z.string().transform(Number).default("0"),
+  limit: z.string().transform(Number).default(10),
+  offset: z.string().transform(Number).default(0),
   status: z.enum(["OPEN", "PAUSED", "CLOSED", "ALL"]).default("ALL"),
   visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED", "ALL"]).default("ALL"),
   source: z.enum(["NATIVE", "EXTERNAL", "ALL"]).default("ALL"),
@@ -29,11 +29,6 @@ export async function GET(
         { error: "Unauthorized" },
         {
           status: 401,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
@@ -53,19 +48,14 @@ export async function GET(
         { error: "You are not a member of this organization" },
         {
           status: 403,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
         }
       );
     }
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const offset = Number.parseInt(searchParams.get("offset") || "0");
     const status = searchParams.get("status") || "ALL";
     const visibility = searchParams.get("visibility") || "ALL";
     const source = searchParams.get("source") || "ALL";
@@ -179,35 +169,21 @@ export async function GET(
       };
     });
 
-    return NextResponse.json(
-      {
-        grants: grantsWithStats,
-        pagination: {
-          total,
-          limit,
-          offset,
-          hasMore: offset + limit < total,
-        },
+    return NextResponse.json({
+      grants: grantsWithStats,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
       },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+    });
   } catch (error) {
     console.error("Error fetching organization grants:", error);
     return NextResponse.json(
       { error: "Failed to fetch grants" },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
       }
     );
   }
@@ -217,10 +193,5 @@ export async function GET(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
   });
 }

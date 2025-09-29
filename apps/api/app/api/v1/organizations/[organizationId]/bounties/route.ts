@@ -1,15 +1,17 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Query params schema
 const queryParamsSchema = z.object({
-  limit: z.string().transform(Number).default('10'),
-  offset: z.string().transform(Number).default('0'),
-  status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ALL']).default('ALL'),
-  visibility: z.enum(['DRAFT', 'PUBLISHED', 'ALL']).default('ALL'),
+  limit: z.string().transform(Number).default(10),
+  offset: z.string().transform(Number).default(0),
+  status: z
+    .enum(["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED", "ALL"])
+    .default("ALL"),
+  visibility: z.enum(["DRAFT", "PUBLISHED", "ALL"]).default("ALL"),
   search: z.string().optional(),
 });
 
@@ -24,17 +26,7 @@ export async function GET(
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { 
-          status: 401,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-        }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { organizationId } = await params;
@@ -49,43 +41,38 @@ export async function GET(
 
     if (!membership) {
       return NextResponse.json(
-        { error: 'You are not a member of this organization' },
-        { 
+        { error: "You are not a member of this organization" },
+        {
           status: 403,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
         }
       );
     }
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const status = searchParams.get('status') || 'ALL';
-    const visibility = searchParams.get('visibility') || 'ALL';
-    const search = searchParams.get('search') || '';
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const offset = Number.parseInt(searchParams.get("offset") || "0");
+    const status = searchParams.get("status") || "ALL";
+    const visibility = searchParams.get("visibility") || "ALL";
+    const search = searchParams.get("search") || "";
 
     // Build where clause
     const whereClause: any = {
       organizationId: organizationId,
     };
 
-    if (status !== 'ALL') {
+    if (status !== "ALL") {
       whereClause.status = status;
     }
 
-    if (visibility !== 'ALL') {
+    if (visibility !== "ALL") {
       whereClause.visibility = visibility;
     }
 
     if (search) {
       whereClause.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -134,18 +121,18 @@ export async function GET(
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       take: limit,
       skip: offset,
     });
 
     // Add statistics to each bounty
-    const bountiesWithStats = bounties.map(bounty => {
-      const winnersCount = bounty.submissions.filter(s => s.isWinner).length;
+    const bountiesWithStats = bounties.map((bounty) => {
+      const winnersCount = bounty.submissions.filter((s) => s.isWinner).length;
       const maxWinners = Object.keys(bounty.winnings || {}).length;
       const totalDistributed = bounty.submissions
-        .filter(s => s.isWinner && s.winningAmount)
+        .filter((s) => s.isWinner && s.winningAmount)
         .reduce((sum, s) => sum + Number(s.winningAmount), 0);
 
       return {
@@ -161,35 +148,21 @@ export async function GET(
       };
     });
 
-    return NextResponse.json(
-      { 
-        bounties: bountiesWithStats,
-        pagination: {
-          total,
-          limit,
-          offset,
-          hasMore: offset + limit < total,
-        },
+    return NextResponse.json({
+      bounties: bountiesWithStats,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
       },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      }
-    );
+    });
   } catch (error) {
-    console.error('Error fetching organization bounties:', error);
+    console.error("Error fetching organization bounties:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch bounties' },
+      { error: "Failed to fetch bounties" },
       {
         status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
       }
     );
   }
@@ -199,10 +172,5 @@ export async function GET(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
   });
 }

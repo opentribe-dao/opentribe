@@ -5,14 +5,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
 export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return NextResponse.json({});
 }
 
 // POST /api/v1/organizations/[organizationId]/invitations - Send invitation
@@ -28,10 +22,7 @@ export async function POST(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user has permission to invite members
@@ -46,10 +37,7 @@ export async function POST(
     });
 
     if (!userMember) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const inviteSchema = z.object({
@@ -77,7 +65,7 @@ export async function POST(
       if (existingMember) {
         return NextResponse.json(
           { error: "User is already a member of this organization" },
-          { status: 400, headers: corsHeaders }
+          { status: 400 }
         );
       }
 
@@ -102,12 +90,24 @@ export async function POST(
 
       // TODO: Send email notification to the user
 
+      return NextResponse.json({
+        message: "User added to organization",
+        member: newMember,
+      });
+    }
+
+    // Check if invitation already sent
+    const existingInvitation = await database.invitation.findFirst({
+      where: {
+        organizationId,
+        email,
+      },
+    });
+
+    if (existingInvitation) {
       return NextResponse.json(
-        {
-          message: "User added to organization",
-          member: newMember,
-        },
-        { headers: corsHeaders }
+        { error: "Invitation already sent" },
+        { status: 400 }
       );
     }
 
@@ -122,27 +122,22 @@ export async function POST(
       },
     });
 
-    // TODO: Send invitation email
-
-    return NextResponse.json(
-      {
-        message: "Invitation sent successfully",
-        invitation,
-      },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({
+      message: "Invitation sent successfully",
+      invitation,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
-        { status: 400, headers: corsHeaders }
+        { error: "Invalid request data", details: z.treeifyError(error) },
+        { status: 400 }
       );
     }
 
     console.error("Error sending invitation:", error);
     return NextResponse.json(
       { error: "Failed to send invitation" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
@@ -160,10 +155,7 @@ export async function GET(
     });
 
     if (!sessionData?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user has permission to view invitations
@@ -178,10 +170,7 @@ export async function GET(
     });
 
     if (!userMember) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const invitations = await database.invitation.findMany({
@@ -206,12 +195,12 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ invitations }, { headers: corsHeaders });
+    return NextResponse.json({ invitations });
   } catch (error) {
     console.error("Error fetching invitations:", error);
     return NextResponse.json(
       { error: "Failed to fetch invitations" },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }

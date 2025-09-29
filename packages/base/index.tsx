@@ -10,12 +10,12 @@ export const BaseProvider = ({
   ...properties
 }: ThemeProviderProps) => (
   <ThemeProvider {...properties}>
-    <AuthProvider>
-      <AnalyticsProvider>
+    <AnalyticsProvider>
+      <AuthProvider>
         <TooltipProvider>{children}</TooltipProvider>
         <Toaster />
-      </AnalyticsProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </AnalyticsProvider>
   </ThemeProvider>
 );
 
@@ -25,4 +25,3 @@ export { MarkdownEditor } from './components/ui/markdown-editor';
 export type { MarkdownEditorProps } from './components/ui/markdown-editor';
 export { ImageUpload } from './components/ui/image-upload';
 export { FileUpload } from './components/ui/file-upload';
-

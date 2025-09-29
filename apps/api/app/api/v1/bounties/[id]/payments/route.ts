@@ -1,9 +1,9 @@
-import { auth } from '@packages/auth/server';
-import { database } from '@packages/db';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { sendPaymentConfirmationEmail } from '@packages/email';
+import { auth } from "@packages/auth/server";
+import { database } from "@packages/db";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { sendPaymentConfirmationEmail } from "@packages/email";
 
 // Schema for payment creation
 const createPaymentSchema = z.object({
@@ -25,10 +25,7 @@ export async function GET(
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id: bountyId } = await params;
@@ -50,15 +47,14 @@ export async function GET(
     });
 
     if (!bounty) {
-      return NextResponse.json(
-        { error: 'Bounty not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
     if (bounty.organization.members.length === 0) {
       return NextResponse.json(
-        { error: 'You do not have permission to view payments for this bounty' },
+        {
+          error: "You do not have permission to view payments for this bounty",
+        },
         { status: 403 }
       );
     }
@@ -86,27 +82,18 @@ export async function GET(
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
-    return NextResponse.json(
-      { 
-        payments,
-        total: payments.length,
-      },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      }
-    );
+    return NextResponse.json({
+      payments,
+      total: payments.length,
+    });
   } catch (error) {
-    console.error('Error fetching payments:', error);
+    console.error("Error fetching payments:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch payments' },
+      { error: "Failed to fetch payments" },
       { status: 500 }
     );
   }
@@ -124,10 +111,7 @@ export async function POST(
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id: bountyId } = await params;
@@ -148,7 +132,7 @@ export async function POST(
                   where: {
                     userId: session.user.id,
                     role: {
-                      in: ['owner', 'admin'],
+                      in: ["owner", "admin"],
                     },
                   },
                 },
@@ -162,28 +146,31 @@ export async function POST(
 
     if (!submission) {
       return NextResponse.json(
-        { error: 'Submission not found' },
+        { error: "Submission not found" },
         { status: 404 }
       );
     }
 
     if (submission.bountyId !== bountyId) {
       return NextResponse.json(
-        { error: 'Submission does not belong to this bounty' },
+        { error: "Submission does not belong to this bounty" },
         { status: 400 }
       );
     }
 
     if (submission.bounty.organization.members.length === 0) {
       return NextResponse.json(
-        { error: 'You do not have permission to record payments for this bounty' },
+        {
+          error:
+            "You do not have permission to record payments for this bounty",
+        },
         { status: 403 }
       );
     }
 
     if (!submission.isWinner) {
       return NextResponse.json(
-        { error: 'Cannot record payment for non-winning submission' },
+        { error: "Cannot record payment for non-winning submission" },
         { status: 400 }
       );
     }
@@ -193,14 +180,14 @@ export async function POST(
       where: {
         submissionId: validatedData.submissionId,
         status: {
-          in: ['CONFIRMED', 'PROCESSING'],
+          in: ["CONFIRMED", "PROCESSING"],
         },
       },
     });
 
     if (existingPayment) {
       return NextResponse.json(
-        { error: 'Payment already recorded for this submission' },
+        { error: "Payment already recorded for this submission" },
         { status: 400 }
       );
     }
@@ -210,11 +197,11 @@ export async function POST(
       data: {
         submissionId: validatedData.submissionId,
         organizationId: submission.bounty.organizationId,
-        recipientAddress: submission.submitter.walletAddress || '',
+        recipientAddress: submission.submitter.walletAddress || "",
         amount: validatedData.amount,
         token: validatedData.token,
         extrinsicHash: validatedData.extrinsicHash,
-        status: 'CONFIRMED', // Since they're providing the tx hash, we assume it's confirmed
+        status: "CONFIRMED", // Since they're providing the tx hash, we assume it's confirmed
         paidBy: session.user.id, // Add the user who is recording the payment
         paidAt: new Date(), // Set the payment date
         createdAt: new Date(),
@@ -253,36 +240,27 @@ export async function POST(
         );
       }
     } catch (emailError) {
-      console.error('Failed to send payment confirmation email:', emailError);
+      console.error("Failed to send payment confirmation email:", emailError);
       // Don't fail the request if email fails
     }
 
-    return NextResponse.json(
-      { 
-        success: true,
-        payment,
-        message: 'Payment recorded successfully',
-      },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      payment,
+      message: "Payment recorded successfully",
+    });
   } catch (error) {
-    console.error('Payment recording error:', error);
-    
+    console.error("Payment recording error:", error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid data', details: error.errors },
+        { error: "Invalid request data", details: z.treeifyError(error) },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to record payment' },
+      { error: "Failed to record payment" },
       { status: 500 }
     );
   }
@@ -292,10 +270,5 @@ export async function POST(
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
   });
 }

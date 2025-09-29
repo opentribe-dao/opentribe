@@ -8,8 +8,19 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
   sendWelcomeEmail,
-  type BaseEmailUser,
 } from "@packages/email";
+
+const trustedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+  "https://opentribe.io",
+  "https://admin.opentribe.io",
+  "https://api.opentribe.io",
+  "https://dev.opentribe.io",
+  "https://api.dev.opentribe.io",
+  "https://dashboard.dev.opentribe.io",
+];
 
 /**
  * Role Architecture (Better Auth based):
@@ -74,26 +85,13 @@ const authOptions = {
         process.env.NODE_ENV === "production" ? ".opentribe.io" : "localhost",
     },
     defaultCookieAttributes: {
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       httpOnly: true,
       sameSite: "none",
     },
   },
   trustedOrigins: [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-    ...(process.env.NODE_ENV === "production"
-      ? [
-          "https://opentribe.io",
-          "https://admin.opentribe.io",
-          "https://api.opentribe.io",
-          "https://dev.opentribe.io",
-          "https://api.dev.opentribe.io",
-          "https://dashboard.dev.opentribe.io",
-        ]
-      : []),
-
+    ...trustedOrigins,
     ...(process.env.ADDITIONAL_TRUSTED_ORIGINS
       ? process.env.ADDITIONAL_TRUSTED_ORIGINS.split(",").map((origin) =>
           origin.trim()
@@ -102,7 +100,7 @@ const authOptions = {
   ],
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Temporarily disabled for testing
+    requireEmailVerification: true, // Should not be committed as false, to be disabled only for local development
     sendResetPassword: async ({ user, url, token }) => {
       console.log("Sending password reset email to:", user.email);
       try {
@@ -219,7 +217,7 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   plugins: [
     ...authOptions.plugins,
     customSession(async ({ user, session }, ctx) => {
-      console.log("Custom session:", user);
+      // console.debug("Custom session:", user);
       return {
         user: {
           ...user,

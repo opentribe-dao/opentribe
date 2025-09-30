@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
-import { env } from '@/env';
+import { useState, useCallback } from "react";
+import { toast } from "sonner";
+import { env } from "@/env";
 
 export interface SubmissionDetails {
   id: string;
@@ -45,7 +45,7 @@ export interface SubmissionDetails {
     firstName?: string;
     lastName?: string;
     email?: string;
-    avatarUrl?: string;
+    image?: string;
     location?: string;
     bio?: string;
     skills?: string[];
@@ -60,79 +60,85 @@ export function useSubmission() {
   const [submission, setSubmission] = useState<SubmissionDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
 
-  const fetchSubmissionDetails = useCallback(async (bountyId: string, submissionId: string) => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}`,
-        {
-          credentials: 'include',
+  const fetchSubmissionDetails = useCallback(
+    async (bountyId: string, submissionId: string) => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch submission details");
         }
-      );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch submission details');
+        const data = await response.json();
+        setSubmission(data.submission);
+        setFeedback(data.submission.feedback || "");
+        return data.submission;
+      } catch (error) {
+        console.error("Error fetching submission:", error);
+        toast.error("Failed to load submission details");
+        throw error;
+      } finally {
+        setLoading(false);
       }
+    },
+    []
+  );
 
-      const data = await response.json();
-      setSubmission(data.submission);
-      setFeedback(data.submission.feedback || '');
-      return data.submission;
-    } catch (error) {
-      console.error('Error fetching submission:', error);
-      toast.error('Failed to load submission details');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const updateSubmissionStatus = useCallback(
+    async (
+      bountyId: string,
+      submissionId: string,
+      newStatus: "APPROVED" | "REJECTED",
+      feedback?: string,
+      position?: number
+    ) => {
+      try {
+        setActionLoading(true);
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}/review`,
+          {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              status: newStatus,
+              feedback: feedback || undefined,
+              position: newStatus === "APPROVED" ? position : undefined,
+            }),
+          }
+        );
 
-  const updateSubmissionStatus = useCallback(async (
-    bountyId: string,
-    submissionId: string,
-    newStatus: 'APPROVED' | 'REJECTED',
-    feedback?: string,
-    position?: number
-  ) => {
-    try {
-      setActionLoading(true);
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}/review`,
-        {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            status: newStatus,
-            feedback: feedback || undefined,
-            position: newStatus === 'APPROVED' ? position : undefined,
-          }),
+        if (!response.ok) {
+          throw new Error("Failed to update submission status");
         }
-      );
 
-      if (!response.ok) {
-        throw new Error('Failed to update submission status');
+        toast.success(`Submission ${newStatus.toLowerCase()} successfully`);
+        return true;
+      } catch (error) {
+        console.error("Error updating submission:", error);
+        toast.error("Failed to update submission status");
+        throw error;
+      } finally {
+        setActionLoading(false);
       }
-
-      toast.success(`Submission ${newStatus.toLowerCase()} successfully`);
-      return true;
-    } catch (error) {
-      console.error('Error updating submission:', error);
-      toast.error('Failed to update submission status');
-      throw error;
-    } finally {
-      setActionLoading(false);
-    }
-  }, []); 
+    },
+    []
+  );
 
   const resetSubmissionState = useCallback(() => {
     setSubmission(null);
-    setFeedback('');
+    setFeedback("");
     setSelectedPosition(null);
     setLoading(false);
     setActionLoading(false);
@@ -148,6 +154,6 @@ export function useSubmission() {
     setSelectedPosition,
     fetchSubmissionDetails,
     updateSubmissionStatus,
-    resetSubmissionState,    
+    resetSubmissionState,
   };
 }

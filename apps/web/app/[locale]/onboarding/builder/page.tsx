@@ -57,10 +57,10 @@ export default function BuilderOnboardingPage() {
   // Form data
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
-    firstName: "",
-    lastName: "",
-    username: "",
-    avatarUrl: "",
+    firstName: session?.user?.name?.split(" ")[0] || "",
+    lastName: session?.user?.name?.split(" ")[1] || "",
+    username: session?.user?.username || "",
+    image: session?.user?.image || "",
     location: "",
     skills: [] as string[],
     walletAddress: "",
@@ -325,10 +325,8 @@ export default function BuilderOnboardingPage() {
                   Profile Picture
                 </Label>
                 <ImageUpload
-                  currentImageUrl={formData.avatarUrl}
-                  onImageChange={(url) =>
-                    handleInputChange("avatarUrl", url || "")
-                  }
+                  currentImageUrl={formData.image}
+                  onImageChange={(url) => handleInputChange("image", url || "")}
                   uploadType="profile-avatar"
                   entityId={session?.user?.id}
                   variant="avatar"

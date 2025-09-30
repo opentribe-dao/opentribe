@@ -14,17 +14,17 @@ import { relativeTime } from "@packages/base/lib/utils";
 interface RecentActivityProps {
   activities?: Array<{
     id: string;
-    type: 'submission' | 'application';
+    type: "submission" | "application";
     user: {
       firstName?: string | null;
       lastName?: string | null;
       username: string;
-      avatarUrl?: string | null;
+      image?: string | null;
     };
     target: {
       id: string;
       title: string;
-      type: 'bounty' | 'grant';
+      type: "bounty" | "grant";
       organizationName: string;
     };
     createdAt: string;
@@ -103,11 +103,13 @@ export function RecentActivity({
               )}
               <div className="flex-1">
                 <p className="text-sm text-white">
-                  <span className="font-semibold">{activity.user.username}</span>{" "}
-                  {activity.type === 'submission' ? 'submitted to' : 'applied to'} <span className="font-semibold">{activity.target.title}</span>
-                </p>
-                <p className='text-white/50 text-xs'>
-                  {relativeTime(new Date(activity.createdAt))}
+                  <span className="font-semibold">
+                    {activity.user.username}
+                  </span>{" "}
+                  {activity.type === "submission"
+                    ? "submitted to"
+                    : "applied to"}{" "}
+                  {activity.target.title}
                 </p>
               </div>
             </div>

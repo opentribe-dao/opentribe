@@ -219,6 +219,24 @@ export async function POST(
       );
     }
 
+    // Check if user is a member of the org
+    const membership = await database.member.findMany({
+      where: {
+        organizationId: bounty.organizationId,
+        userId: session.user.id,
+      },
+    });
+
+    if (membership.length !== 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Members of the same organization cannot submit to the same bounty",
+        },
+        { status: 400 }
+      );
+    }
+
     // Parse and validate request body
     const body = await request.json();
     const validatedData = createSubmissionSchema.parse(body);

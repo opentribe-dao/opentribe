@@ -4,6 +4,84 @@ import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@packages/db";
+
+// Type for GET API response
+type GrantWithRelations = Prisma.GrantGetPayload<{
+  include: {
+    organization: {
+      select: {
+        id: true;
+        name: true;
+        slug: true;
+        logo: true;
+        location: true;
+        industry: true;
+      };
+    };
+    _count: {
+      select: {
+        applications: true;
+        rfps: true;
+        curators: true;
+      };
+    };
+    curators: {
+      include: {
+        user: {
+          select: {
+            id: true;
+            username: true;
+            firstName: true;
+            lastName: true;
+            email: true;
+            image: true;
+          };
+        };
+      };
+    };
+    rfps: {
+      select: {
+        id: true;
+        title: true;
+        slug: true;
+        status: true;
+        _count: {
+          select: {
+            votes: true;
+            comments: true;
+            applications: true;
+          };
+        };
+      };
+    };
+    applications: {
+      select: {
+        id: true;
+        title: true;
+        status: true;
+        budget: true;
+        submittedAt: true;
+        applicant: {
+          select: {
+            id: true;
+            username: true;
+            firstName: true;
+            lastName: true;
+            image: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+interface GetGrantResponse {
+  grant: GrantWithRelations & {
+    userApplicationId: string | null;
+    canApply: boolean;
+  };
+}
 
 // Schema for grant update
 const updateGrantSchema = z.object({
@@ -157,23 +235,45 @@ export async function GET(
       data: { viewCount: { increment: 1 } },
     });
 
-    // check if user already applied
-    const userApplication = session?.user
-      ? await database.grantApplication.findFirst({
-          where: {
-            grantId: grant.id,
-            userId: session.user.id,
-          },
-        })
-      : null;
-
-    // Add userApplicationId to the grant object
-    const grantWithApplication = {
-      ...grant,
-      userApplicationId: userApplication?.id || null,
+    const response: GetGrantResponse = {
+      grant: {
+        ...grant,
+        userApplicationId: null,
+        canApply: true,
+      },
     };
 
-    return NextResponse.json({ grant: grantWithApplication });
+    if (session) {
+      // check if user is a member of the bounty org
+      const userMembership = await database.member.count({
+        where: {
+          organizationId: grant.organizationId,
+          userId: session?.user?.id,
+        },
+      });
+      // check if user already applied
+      const userApplication = session?.user
+        ? await database.grantApplication.findFirst({
+            where: {
+              grantId: grant.id,
+              userId: session.user.id,
+            },
+          })
+        : null;
+
+      if (userApplication) {
+        response.grant.userApplicationId = userApplication.id;
+        response.grant.canApply = false;
+      } else if (userMembership !== undefined) {
+        if (userMembership === 0) {
+          response.grant.canApply = true;
+        } else {
+          response.grant.canApply = false;
+        }
+      }
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error fetching grant:", error);
     return NextResponse.json(
@@ -252,7 +352,7 @@ export async function PATCH(
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: Prisma.GrantUpdateInput = {};
 
     if (validatedData.title !== undefined)
       updateData.title = validatedData.title;

@@ -349,9 +349,9 @@ export default async function GrantDetailPage({
                         "Anonymous"
                       }`}
                     >
-                      {app.applicant.avatarUrl ? (
+                      {app.applicant.image ? (
                         <Image
-                          src={app.applicant.avatarUrl}
+                          src={app.applicant.image}
                           alt="Applicant"
                           width={40}
                           height={40}

@@ -47,7 +47,6 @@ const authOptions = {
       firstName: { type: "string", required: false },
       lastName: { type: "string", required: false },
       username: { type: "string", required: false },
-      avatarUrl: { type: "string", required: false },
       headline: { type: "string", required: false },
       bio: { type: "string", required: false },
       interests: { type: "string", required: false }, // JSON array stored as string

@@ -1,32 +1,40 @@
-'use client';
+"use client";
 
-import { use } from 'react';
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
+import { use } from "react";
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
-import { MarkdownEditor } from '@packages/base';
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
+import { MarkdownEditor } from "@packages/base";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@packages/base/components/ui/select';
-import { Badge } from '@packages/base/components/ui/badge';
-import { ArrowLeft, Loader2, Plus, X, Globe, FileText, Save } from 'lucide-react';
-import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { Header } from '../../../components/header';
-import { env } from '@/env';
+} from "@packages/base/components/ui/select";
+import { Badge } from "@packages/base/components/ui/badge";
+import {
+  ArrowLeft,
+  Loader2,
+  Plus,
+  X,
+  Globe,
+  FileText,
+  Save,
+} from "lucide-react";
+import { useRouter, useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Header } from "../../../components/header";
+import { env } from "@/env";
 
 interface Grant {
   id: string;
@@ -46,11 +54,15 @@ interface RfpFormData {
   title: string;
   description: string;
   resources: Resource[];
-  status: 'OPEN' | 'CLOSED' | 'COMPLETED';
-  visibility: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  status: "OPEN" | "CLOSED" | "COMPLETED";
+  visibility: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 }
 
-export default function EditRFPPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditRFPPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
   const { id } = use(params);
   const { data: session } = useSession();
@@ -60,12 +72,12 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
   const [loadingData, setLoadingData] = useState(true);
   const [loadingGrants, setLoadingGrants] = useState(true);
   const [formData, setFormData] = useState<RfpFormData>({
-    grantId: '',
-    title: '',
-    description: '',
+    grantId: "",
+    title: "",
+    description: "",
     resources: [],
-    status: 'OPEN',
-    visibility: 'DRAFT',
+    status: "OPEN",
+    visibility: "DRAFT",
   });
 
   useEffect(() => {
@@ -81,12 +93,12 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch RFP details');
+        throw new Error("Failed to fetch RFP details");
       }
 
       const data = await response.json();
@@ -94,8 +106,8 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
 
       // Check if user has access to edit this RFP
       if (rfp.grant.organization.id !== activeOrg?.id) {
-        toast.error('You do not have access to edit this RFP');
-        router.push('/rfps');
+        toast.error("You do not have access to edit this RFP");
+        router.push("/rfps");
         return;
       }
 
@@ -108,9 +120,9 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
         visibility: rfp.visibility,
       });
     } catch (error) {
-      console.error('Error fetching RFP:', error);
-      toast.error('Failed to load RFP details');
-      router.push('/rfps');
+      console.error("Error fetching RFP:", error);
+      toast.error("Failed to load RFP details");
+      router.push("/rfps");
     } finally {
       setLoadingData(false);
     }
@@ -122,47 +134,54 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/grants`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch grants');
+        throw new Error("Failed to fetch grants");
       }
 
       const data = await response.json();
       // Only show active grants that can have RFPs
-      const activeGrants = data.grants.filter((grant: Grant) => 
-        grant.status === 'OPEN' || grant.status === 'ACTIVE'
+      const activeGrants = data.grants.filter(
+        (grant: Grant) => grant.status === "OPEN" || grant.status === "ACTIVE"
       );
       setGrants(activeGrants);
     } catch (error) {
-      console.error('Error fetching grants:', error);
-      toast.error('Failed to load grants');
+      console.error("Error fetching grants:", error);
+      toast.error("Failed to load grants");
     } finally {
       setLoadingGrants(false);
     }
   };
 
   const updateFormData = (field: keyof RfpFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addResource = () => {
-    updateFormData('resources', [
+    updateFormData("resources", [
       ...formData.resources,
-      { title: '', url: '', description: '' }
+      { title: "", url: "", description: "" },
     ]);
   };
 
-  const updateResource = (index: number, field: keyof Resource, value: string) => {
+  const updateResource = (
+    index: number,
+    field: keyof Resource,
+    value: string
+  ) => {
     const updatedResources = [...formData.resources];
     updatedResources[index] = { ...updatedResources[index], [field]: value };
-    updateFormData('resources', updatedResources);
+    updateFormData("resources", updatedResources);
   };
 
   const removeResource = (index: number) => {
-    updateFormData('resources', formData.resources.filter((_, i) => i !== index));
+    updateFormData(
+      "resources",
+      formData.resources.filter((_, i) => i !== index)
+    );
   };
 
   const handleSubmit = async () => {
@@ -171,22 +190,22 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
 
       // Validate required fields
       if (!formData.grantId || !formData.title || !formData.description) {
-        toast.error('Please fill in all required fields');
+        toast.error("Please fill in all required fields");
         return;
       }
 
       const submitData = {
         ...formData,
-        resources: formData.resources.filter(r => r.title && r.url),
+        resources: formData.resources.filter((r) => r.title && r.url),
       };
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/rfps/${id}`,
         {
-          method: 'PATCH',
-          credentials: 'include',
+          method: "PATCH",
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(submitData),
         }
@@ -194,14 +213,16 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update RFP');
+        throw new Error(error.error || "Failed to update RFP");
       }
 
-      toast.success('RFP updated successfully!');
+      toast.success("RFP updated successfully!");
       router.push(`/rfps/${id}`);
     } catch (error) {
-      console.error('Error updating RFP:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to update RFP');
+      console.error("Error updating RFP:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update RFP"
+      );
     } finally {
       setLoading(false);
     }
@@ -213,7 +234,9 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
         <div className="text-center">
           <p className="text-white/60 mb-4">No organization selected</p>
           <Button
-            onClick={() => router.push('/organization/new')}
+            onClick={() =>
+              router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`)
+            }
             className="bg-[#E6007A] hover:bg-[#E6007A]/90"
           >
             Create Organization
@@ -233,7 +256,7 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
 
   return (
     <>
-      <Header pages={['RFPs', 'Edit']} page="Edit RFP" />
+      <Header pages={["RFPs", "Edit"]} page="Edit RFP" />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center gap-4 mb-4">
           <Button
@@ -259,7 +282,7 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
               <Label htmlFor="grant">Parent Grant *</Label>
               <Select
                 value={formData.grantId}
-                onValueChange={(value) => updateFormData('grantId', value)}
+                onValueChange={(value) => updateFormData("grantId", value)}
                 disabled={loadingGrants}
               >
                 <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
@@ -281,7 +304,7 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => updateFormData('title', e.target.value)}
+                onChange={(e) => updateFormData("title", e.target.value)}
                 placeholder="Enter a clear, descriptive title for your RFP"
                 className="bg-white/5 border-white/10 text-white mt-2"
               />
@@ -293,13 +316,14 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
               <div className="mt-2">
                 <MarkdownEditor
                   value={formData.description}
-                  onChange={(value) => updateFormData('description', value)}
+                  onChange={(value) => updateFormData("description", value)}
                   placeholder="Provide a detailed description of what you're looking for..."
                   height={400}
                 />
               </div>
               <p className="text-sm text-white/60 mt-2">
-                Be specific about requirements, deliverables, and evaluation criteria
+                Be specific about requirements, deliverables, and evaluation
+                criteria
               </p>
             </div>
 
@@ -320,26 +344,35 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
               </div>
               <div className="space-y-3">
                 {formData.resources.map((resource, index) => (
-                  <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
+                  <div
+                    key={index}
+                    className="bg-white/5 rounded-lg p-4 space-y-3"
+                  >
                     <div className="flex items-start gap-3">
                       <Globe className="h-5 w-5 text-white/40 mt-2" />
                       <div className="flex-1 space-y-3">
                         <Input
                           placeholder="Resource title"
                           value={resource.title}
-                          onChange={(e) => updateResource(index, 'title', e.target.value)}
+                          onChange={(e) =>
+                            updateResource(index, "title", e.target.value)
+                          }
                           className="bg-white/10 border-white/10 text-white"
                         />
                         <Input
                           placeholder="https://example.com"
                           value={resource.url}
-                          onChange={(e) => updateResource(index, 'url', e.target.value)}
+                          onChange={(e) =>
+                            updateResource(index, "url", e.target.value)
+                          }
                           className="bg-white/10 border-white/10 text-white"
                         />
                         <Input
                           placeholder="Description (optional)"
-                          value={resource.description || ''}
-                          onChange={(e) => updateResource(index, 'description', e.target.value)}
+                          value={resource.description || ""}
+                          onChange={(e) =>
+                            updateResource(index, "description", e.target.value)
+                          }
                           className="bg-white/10 border-white/10 text-white"
                         />
                       </div>
@@ -368,8 +401,8 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value: 'OPEN' | 'CLOSED' | 'COMPLETED') => 
-                  updateFormData('status', value)
+                onValueChange={(value: "OPEN" | "CLOSED" | "COMPLETED") =>
+                  updateFormData("status", value)
                 }
               >
                 <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
@@ -388,8 +421,8 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
               <Label htmlFor="visibility">Visibility</Label>
               <Select
                 value={formData.visibility}
-                onValueChange={(value: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED') => 
-                  updateFormData('visibility', value)
+                onValueChange={(value: "DRAFT" | "PUBLISHED" | "ARCHIVED") =>
+                  updateFormData("visibility", value)
                 }
               >
                 <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
@@ -402,9 +435,12 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
                 </SelectContent>
               </Select>
               <p className="text-sm text-white/60 mt-2">
-                {formData.visibility === 'DRAFT' && 'This RFP is only visible to your organization'}
-                {formData.visibility === 'PUBLISHED' && 'This RFP is publicly visible'}
-                {formData.visibility === 'ARCHIVED' && 'This RFP is hidden from public view'}
+                {formData.visibility === "DRAFT" &&
+                  "This RFP is only visible to your organization"}
+                {formData.visibility === "PUBLISHED" &&
+                  "This RFP is publicly visible"}
+                {formData.visibility === "ARCHIVED" &&
+                  "This RFP is hidden from public view"}
               </p>
             </div>
 
@@ -420,7 +456,12 @@ export default function EditRFPPage({ params }: { params: Promise<{ id: string }
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={loading || !formData.grantId || !formData.title || !formData.description}
+                disabled={
+                  loading ||
+                  !formData.grantId ||
+                  !formData.title ||
+                  !formData.description
+                }
                 className="bg-[#E6007A] hover:bg-[#E6007A]/90"
               >
                 {loading ? (

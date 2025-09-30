@@ -159,7 +159,7 @@ describe("Bounty API Tests", () => {
               username: "user1",
               firstName: "John",
               lastName: "Doe",
-              avatarUrl: null,
+              image: null,
             },
           },
         ],

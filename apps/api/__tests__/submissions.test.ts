@@ -54,6 +54,7 @@ describe("Submission System Tests", () => {
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
       (database.submission.findFirst as any).mockResolvedValue(null);
       (database.submission.create as any).mockResolvedValue(mockSubmission);
+      (database.member.findMany as any).mockResolvedValue([]);
 
       // Act
       const body = JSON.stringify({
@@ -166,6 +167,81 @@ describe("Submission System Tests", () => {
 
       // Assert
       expect(response.status).toBe(400);
+      expect(database.submission.create).not.toHaveBeenCalled();
+    });
+
+    test("should reject submission from organization members", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "member-123",
+          email: "member@org.com",
+        },
+      };
+
+      const mockUser = {
+        id: "member-123",
+        profileCompleted: true,
+      };
+
+      const mockBounty = {
+        id: "bounty-1",
+        title: "Test Bounty",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        organizationId: "org-1",
+        deadline: new Date("2025-12-31"),
+      };
+
+      const mockMembership = [
+        {
+          id: "membership-1",
+          userId: "member-123",
+          organizationId: "org-1",
+          role: "member",
+        },
+      ];
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
+      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(null);
+      (database.member.findMany as any).mockResolvedValue(mockMembership);
+
+      // Act
+      const body = JSON.stringify({
+        submissionUrl: "https://github.com/user/repo",
+        title: "My Submission",
+        description: "Submission description",
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-1/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe(
+        "Members of the same organization cannot submit to the same bounty"
+      );
+      expect(database.member.findMany).toHaveBeenCalledWith({
+        where: {
+          organizationId: "org-1",
+          userId: "member-123",
+        },
+      });
       expect(database.submission.create).not.toHaveBeenCalled();
     });
   });

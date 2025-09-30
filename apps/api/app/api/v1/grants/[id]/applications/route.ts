@@ -79,7 +79,7 @@ export async function GET(
             username: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         rfp: {
@@ -183,6 +183,24 @@ export async function POST(
       );
     }
 
+    // Check if user is a member of the org
+    const membership = await database.member.findMany({
+      where: {
+        organizationId: grant.organizationId,
+        userId: session.user.id,
+      },
+    });
+
+    if (membership.length !== 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Members of the same organization cannot apply to the same grant",
+        },
+        { status: 400 }
+      );
+    }
+
     // Parse and validate request body
     const body = await request.json();
     const validatedData = createApplicationSchema.parse(body);
@@ -240,7 +258,7 @@ export async function POST(
             username: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
       },
@@ -338,10 +356,15 @@ export async function POST(
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      application,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        application,
+      },
+      {
+        status: 201,
+      }
+    );
   } catch (error) {
     console.error("Application creation error:", error);
 

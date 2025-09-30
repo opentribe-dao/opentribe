@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,15 +10,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Input } from '@packages/base/components/ui/input';
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@packages/base/components/ui/select';
+} from "@packages/base/components/ui/select";
 import {
   Table,
   TableBody,
@@ -26,7 +26,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@packages/base/components/ui/table';
+} from "@packages/base/components/ui/table";
 import {
   Edit,
   Eye,
@@ -38,13 +38,13 @@ import {
   Search,
   ThumbsUp,
   Trash2,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Header } from '../components/header';
-import { env } from '@/env';
-import { toast } from 'sonner';
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Header } from "../components/header";
+import { env } from "@/env";
+import { toast } from "sonner";
 
 interface RFP {
   id: string;
@@ -66,17 +66,17 @@ interface RFP {
 }
 
 const STATUSES = [
-  { value: 'all', label: 'All Status' },
-  { value: 'OPEN', label: 'Open' },
-  { value: 'CLOSED', label: 'Closed' },
-  { value: 'COMPLETED', label: 'Completed' },
+  { value: "all", label: "All Status" },
+  { value: "OPEN", label: "Open" },
+  { value: "CLOSED", label: "Closed" },
+  { value: "COMPLETED", label: "Completed" },
 ];
 
 const VISIBILITIES = [
-  { value: 'all', label: 'All Visibility' },
-  { value: 'DRAFT', label: 'Draft' },
-  { value: 'PUBLISHED', label: 'Published' },
-  { value: 'ARCHIVED', label: 'Archived' },
+  { value: "all", label: "All Visibility" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "PUBLISHED", label: "Published" },
+  { value: "ARCHIVED", label: "Archived" },
 ];
 
 export default function RFPsPage() {
@@ -85,9 +85,9 @@ export default function RFPsPage() {
   const { data: activeOrg } = useActiveOrganization();
   const [rfps, setRfps] = useState<RFP[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [visibilityFilter, setVisibilityFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [visibilityFilter, setVisibilityFilter] = useState("all");
 
   useEffect(() => {
     if (activeOrg) {
@@ -101,88 +101,90 @@ export default function RFPsPage() {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/rfps`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch RFPs');
+        throw new Error("Failed to fetch RFPs");
       }
 
       const data = await response.json();
       setRfps(data.rfps || []);
     } catch (error) {
-      console.error('Error fetching RFPs:', error);
-      toast.error('Failed to load RFPs');
+      console.error("Error fetching RFPs:", error);
+      toast.error("Failed to load RFPs");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteRFP = async (rfpId: string) => {
-    if (!confirm('Are you sure you want to delete this RFP?')) return;
+    if (!confirm("Are you sure you want to delete this RFP?")) return;
 
     try {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/rfps/${rfpId}`,
         {
-          method: 'DELETE',
-          credentials: 'include',
+          method: "DELETE",
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to delete RFP');
+        throw new Error("Failed to delete RFP");
       }
 
-      toast.success('RFP deleted successfully');
+      toast.success("RFP deleted successfully");
       fetchRFPs();
     } catch (error) {
-      console.error('Error deleting RFP:', error);
-      toast.error('Failed to delete RFP');
+      console.error("Error deleting RFP:", error);
+      toast.error("Failed to delete RFP");
     }
   };
 
   const filteredRfps = rfps.filter((rfp) => {
-    const matchesSearch = rfp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      rfp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rfp.grant.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || rfp.status === statusFilter;
-    const matchesVisibility = visibilityFilter === 'all' || rfp.visibility === visibilityFilter;
-    
+    const matchesStatus = statusFilter === "all" || rfp.status === statusFilter;
+    const matchesVisibility =
+      visibilityFilter === "all" || rfp.visibility === visibilityFilter;
+
     return matchesSearch && matchesStatus && matchesVisibility;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'OPEN':
-        return 'bg-green-500/20 text-green-400';
-      case 'CLOSED':
-        return 'bg-red-500/20 text-red-400';
-      case 'COMPLETED':
-        return 'bg-blue-500/20 text-blue-400';
+      case "OPEN":
+        return "bg-green-500/20 text-green-400";
+      case "CLOSED":
+        return "bg-red-500/20 text-red-400";
+      case "COMPLETED":
+        return "bg-blue-500/20 text-blue-400";
       default:
-        return 'bg-white/10 text-white/60';
+        return "bg-white/10 text-white/60";
     }
   };
 
   const getVisibilityColor = (visibility: string) => {
     switch (visibility) {
-      case 'PUBLISHED':
-        return 'bg-green-500/20 text-green-400';
-      case 'DRAFT':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'ARCHIVED':
-        return 'bg-gray-500/20 text-gray-400';
+      case "PUBLISHED":
+        return "bg-green-500/20 text-green-400";
+      case "DRAFT":
+        return "bg-yellow-500/20 text-yellow-400";
+      case "ARCHIVED":
+        return "bg-gray-500/20 text-gray-400";
       default:
-        return 'bg-white/10 text-white/60';
+        return "bg-white/10 text-white/60";
     }
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -192,7 +194,9 @@ export default function RFPsPage() {
         <div className="text-center">
           <p className="text-white/60 mb-4">No organization selected</p>
           <Button
-            onClick={() => router.push('/organization/new')}
+            onClick={() =>
+              router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`)
+            }
             className="bg-[#E6007A] hover:bg-[#E6007A]/90"
           >
             Create Organization
@@ -204,7 +208,7 @@ export default function RFPsPage() {
 
   return (
     <>
-      <Header pages={['RFPs']} page="RFPs" />
+      <Header pages={["RFPs"]} page="RFPs" />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center justify-between">
           <div>
@@ -214,7 +218,7 @@ export default function RFPsPage() {
             </p>
           </div>
           <Button
-            onClick={() => router.push('/rfps/new')}
+            onClick={() => router.push("/rfps/new")}
             className="bg-[#E6007A] hover:bg-[#E6007A]/90"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -250,13 +254,19 @@ export default function RFPsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+                <Select
+                  value={visibilityFilter}
+                  onValueChange={setVisibilityFilter}
+                >
                   <SelectTrigger className="w-[150px] bg-white/5 border-white/10 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {VISIBILITIES.map((visibility) => (
-                      <SelectItem key={visibility.value} value={visibility.value}>
+                      <SelectItem
+                        key={visibility.value}
+                        value={visibility.value}
+                      >
                         {visibility.label}
                       </SelectItem>
                     ))}
@@ -278,19 +288,23 @@ export default function RFPsPage() {
               <div className="text-center p-8">
                 <FileText className="h-12 w-12 text-white/20 mx-auto mb-4" />
                 <p className="text-white/60 mb-4">
-                  {searchTerm || statusFilter !== 'all' || visibilityFilter !== 'all'
-                    ? 'No RFPs found matching your filters'
-                    : 'No RFPs created yet'}
+                  {searchTerm ||
+                  statusFilter !== "all" ||
+                  visibilityFilter !== "all"
+                    ? "No RFPs found matching your filters"
+                    : "No RFPs created yet"}
                 </p>
-                {!searchTerm && statusFilter === 'all' && visibilityFilter === 'all' && (
-                  <Button
-                    onClick={() => router.push('/rfps/new')}
-                    className="bg-[#E6007A] hover:bg-[#E6007A]/90"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Your First RFP
-                  </Button>
-                )}
+                {!searchTerm &&
+                  statusFilter === "all" &&
+                  visibilityFilter === "all" && (
+                    <Button
+                      onClick={() => router.push("/rfps/new")}
+                      className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Your First RFP
+                    </Button>
+                  )}
               </div>
             ) : (
               <Table>
@@ -300,9 +314,13 @@ export default function RFPsPage() {
                     <TableHead className="text-white">Grant</TableHead>
                     <TableHead className="text-white">Status</TableHead>
                     <TableHead className="text-white">Visibility</TableHead>
-                    <TableHead className="text-white text-center">Stats</TableHead>
+                    <TableHead className="text-white text-center">
+                      Stats
+                    </TableHead>
                     <TableHead className="text-white">Created</TableHead>
-                    <TableHead className="text-white text-right">Actions</TableHead>
+                    <TableHead className="text-white text-right">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -323,12 +341,18 @@ export default function RFPsPage() {
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${getStatusColor(rfp.status)} border-0`}>
+                        <Badge
+                          className={`${getStatusColor(rfp.status)} border-0`}
+                        >
                           {rfp.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${getVisibilityColor(rfp.visibility)} border-0`}>
+                        <Badge
+                          className={`${getVisibilityColor(
+                            rfp.visibility
+                          )} border-0`}
+                        >
                           {rfp.visibility}
                         </Badge>
                       </TableCell>

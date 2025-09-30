@@ -50,7 +50,6 @@ export async function GET(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
-        avatarUrl: user.avatarUrl,
         headline: user.headline,
         bio: user.bio,
         interests: user.interests,

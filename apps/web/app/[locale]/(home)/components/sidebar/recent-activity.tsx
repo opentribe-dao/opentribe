@@ -11,17 +11,17 @@ import {
 interface RecentActivityProps {
   activities?: Array<{
     id: string;
-    type: 'submission' | 'application';
+    type: "submission" | "application";
     user: {
       firstName?: string | null;
       lastName?: string | null;
       username: string;
-      avatarUrl?: string | null;
+      image?: string | null;
     };
     target: {
       id: string;
       title: string;
-      type: 'bounty' | 'grant';
+      type: "bounty" | "grant";
       organizationName: string;
     };
     createdAt: string;
@@ -90,8 +90,13 @@ export function RecentActivity({
               </div>
               <div className="flex-1">
                 <p className="text-sm text-white">
-                  <span className="font-semibold">{activity.user.username}</span>{" "}
-                  {activity.type === 'submission' ? 'submitted to' : 'applied to'} {activity.target.title}
+                  <span className="font-semibold">
+                    {activity.user.username}
+                  </span>{" "}
+                  {activity.type === "submission"
+                    ? "submitted to"
+                    : "applied to"}{" "}
+                  {activity.target.title}
                 </p>
                 <p className="text-xs text-white/50">{activity.createdAt}</p>
               </div>

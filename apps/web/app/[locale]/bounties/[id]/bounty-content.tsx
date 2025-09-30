@@ -1,19 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@packages/base/components/ui/tabs';
-import { FileText, Users } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader } from '@packages/base/components/ui/dialog';
-import { X } from 'lucide-react';
-import { SubmissionModal } from './submission-modal';
-import Image from 'next/image';
-import { Button } from '@packages/base/components/ui/button';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { formatDistanceToNow } from 'date-fns';
+import { useState } from "react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@packages/base/components/ui/tabs";
+import { FileText, Users } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+} from "@packages/base/components/ui/dialog";
+import { X } from "lucide-react";
+import { SubmissionModal } from "./submission-modal";
+import Image from "next/image";
+import { Button } from "@packages/base/components/ui/button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { formatDistanceToNow } from "date-fns";
 
 interface BountyContentProps {
   bounty: any;
@@ -21,16 +30,18 @@ interface BountyContentProps {
 }
 
 export function BountyContent({ bounty, children }: BountyContentProps) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedSubmissionId = searchParams.get('submission');
-  
+  const selectedSubmissionId = searchParams.get("submission");
+
   // Only show tabs if winners have been announced and there are submissions
   const showTabs = bounty.winnersAnnouncedAt && bounty.submissions.length > 0;
 
   const handleSubmissionClick = (submissionId: string) => {
-    router.push(`/bounties/${bounty.id}?submission=${submissionId}`, { scroll: false });
+    router.push(`/bounties/${bounty.id}?submission=${submissionId}`, {
+      scroll: false,
+    });
   };
 
   const handleCloseModal = () => {
@@ -38,9 +49,9 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
   };
 
   const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -52,11 +63,11 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
       className='block cursor-pointer rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-colors hover:bg-white/10'
     >
       <div className="flex items-start justify-between gap-4">
-        <div className='flex min-w-0 flex-1 items-start gap-3'>
-          <div className='h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-600'>
-            {submission.submitter.avatarUrl ? (
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex-shrink-0">
+            {submission.submitter.image ? (
               <Image
-                src={submission.submitter.avatarUrl}
+                src={submission.submitter.image}
                 alt={submission.submitter.username}
                 width={40}
                 height={40}
@@ -73,7 +84,10 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
           <div className='min-w-0 flex-1'>
             <h4 className="font-semibold text-white">{submission.title}</h4>
             <p className="text-sm text-white/60">
-              by @{submission.submitter.username} • {formatDistanceToNow(new Date(submission.createdAt), { addSuffix: true })}
+              by @{submission.submitter.username} •{" "}
+              {formatDistanceToNow(new Date(submission.createdAt), {
+                addSuffix: true,
+              })}
             </p>
             {submission.description && (
               <p className='mt-1 line-clamp-2 text-sm text-white/70'>
@@ -158,7 +172,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
           All Submissions ({bounty.submissions.length})
         </h2>
       </div>
-      
+
       {/* Winners Section */}
       {bounty.submissions.filter((s: any) => s.isWinner).length > 0 && (
         <div className="mb-8">

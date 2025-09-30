@@ -41,7 +41,6 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         username: true,
-        avatarUrl: true,
         image: true,
         headline: true,
         private: true,

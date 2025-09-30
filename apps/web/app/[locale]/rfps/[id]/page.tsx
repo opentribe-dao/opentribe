@@ -249,9 +249,9 @@ export default async function RFPDetailPage({
                     className="flex items-start gap-3 p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10"
                   >
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex-shrink-0">
-                      {comment.author.avatarUrl ? (
+                      {comment.author.image ? (
                         <Image
-                          src={comment.author.avatarUrl}
+                          src={comment.author.image}
                           alt="Avatar"
                           width={40}
                           height={40}

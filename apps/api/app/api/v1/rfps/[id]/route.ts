@@ -1,4 +1,6 @@
 import { database } from "@packages/db";
+import { auth } from "@packages/auth/server";
+import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -7,6 +9,9 @@ export async function GET(
 ) {
   try {
     console.log("Fetching RFP with ID or slug:", (await params).id);
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
     // Try to find by ID first, then by slug (case-insensitive)
     const rfp = await database.rFP.findFirst({
@@ -142,8 +147,24 @@ export async function GET(
       data: { viewCount: { increment: 1 } },
     });
 
+    // check if already applied
+    const userApplication = session?.user
+      ? await database.grantApplication.findFirst({
+          where: {
+            rfpId: rfp.id,
+            userId: session.user.id,
+          },
+        })
+      : null;
+
+    // Add userApplicationId to the rfp object
+    const rfpWithApplication = {
+      ...rfp,
+      userApplicationId: userApplication?.id || null,
+    };
+
     return NextResponse.json({
-      rfp,
+      rfp: rfpWithApplication,
       relatedRfps,
     });
   } catch (error) {

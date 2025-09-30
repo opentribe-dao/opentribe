@@ -46,6 +46,9 @@ export async function GET(
 ) {
   try {
     const bountyId = (await params).id;
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
     // Try to find by ID first, then by slug
     const bounty = await database.bounty.findFirst({
@@ -162,7 +165,23 @@ export async function GET(
     }
     // If winners have been announced, all submissions are already included from the query
 
-    return NextResponse.json({ bounty });
+    // Check if user already submitted
+    const userSubmission = session?.user
+      ? await database.submission.findFirst({
+          where: {
+            bountyId: bounty.id,
+            userId: session.user.id,
+          },
+        })
+      : null;
+
+    // Add userSubmissionId to the bounty object
+    const bountyWithSubmission = {
+      ...bounty,
+      userSubmissionId: userSubmission?.id || null,
+    };
+
+    return NextResponse.json({ bounty: bountyWithSubmission });
   } catch (error) {
     console.error("Error fetching bounty:", error);
     return NextResponse.json(

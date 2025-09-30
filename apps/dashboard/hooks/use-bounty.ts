@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
-import { env } from '@/env';
-import { useBountyContext } from '@/app/(authenticated)/components/bounty-provider';
-import { useState, useEffect, useCallback } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { useRouter } from 'next/router';
+import { useQuery } from "@tanstack/react-query";
+import { env } from "@/env";
+import { useBountyContext } from "@/app/(authenticated)/components/bounty-provider";
+import { useState, useEffect, useCallback } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { useRouter } from "next/router";
 
 export interface BountyDetails {
   id: string;
@@ -21,7 +21,7 @@ export interface BountyDetails {
   resources?: Array<{ title: string; url: string; description?: string }>;
   screening?: Array<{
     question: string;
-    type: 'text' | 'url' | 'file';
+    type: "text" | "url" | "file";
     optional: boolean;
   }>;
   status: string;
@@ -54,7 +54,7 @@ export interface Submission {
     firstName?: string;
     lastName?: string;
     email?: string;
-    avatarUrl?: string;
+    image?: string;
     headline?: string;
     walletAddress?: string;
   };
@@ -73,33 +73,33 @@ export interface Submission {
 
 const getDeadline = (dateStr?: string) => {
   if (!dateStr) {
-    return '';
+    return "";
   }
   const date = new Date(dateStr);
-  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 16);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 16);
 };
 
 const getString = (value: unknown, fallback: string) =>
-  typeof value === 'string' && value.length > 0 ? value : fallback;
+  typeof value === "string" && value.length > 0 ? value : fallback;
 
 const getArray = <T>(value: unknown, fallback: T[]) =>
   Array.isArray(value) ? value : fallback;
 
 const getObject = <T>(value: unknown, fallback: T) =>
-  value && typeof value === 'object' ? (value as T) : fallback;
+  value && typeof value === "object" ? (value as T) : fallback;
 
 const createInitialFormData = (
   bounty: BountyDetails
 ): Partial<BountyDetails> => ({
-  title: getString(bounty.title, ''),
-  description: getString(bounty.description, ''),
+  title: getString(bounty.title, ""),
+  description: getString(bounty.description, ""),
   skills: getArray<string>(bounty.skills, []),
   amount: bounty.amount || 0,
-  token: getString(bounty.token, 'DOT'),
-  split: getString(bounty.split, 'FIXED') as
-    | 'FIXED'
-    | 'EQUAL_SPLIT'
-    | 'VARIABLE',
+  token: getString(bounty.token, "DOT"),
+  split: getString(bounty.split, "FIXED") as
+    | "FIXED"
+    | "EQUAL_SPLIT"
+    | "VARIABLE",
   winnings: getObject<Record<string, number>>(bounty.winnings, {}),
   deadline: getDeadline(bounty.deadline),
   resources: getArray<{ title: string; url: string; description?: string }>(
@@ -108,29 +108,29 @@ const createInitialFormData = (
   ),
   screening: getArray<{
     question: string;
-    type: 'text' | 'url' | 'file';
+    type: "text" | "url" | "file";
     optional: boolean;
   }>(bounty.screening, []),
-  visibility: getString(bounty.visibility, 'DRAFT') as 'DRAFT' | 'PUBLISHED',
-  status: getString(bounty.status, 'OPEN') as
-    | 'OPEN'
-    | 'REVIEWING'
-    | 'COMPLETED'
-    | 'CLOSED'
-    | 'CANCELLED',
+  visibility: getString(bounty.visibility, "DRAFT") as "DRAFT" | "PUBLISHED",
+  status: getString(bounty.status, "OPEN") as
+    | "OPEN"
+    | "REVIEWING"
+    | "COMPLETED"
+    | "CLOSED"
+    | "CANCELLED",
 });
 
 export function useBounty(bountyId?: string) {
   return useQuery<BountyDetails, Error>({
-    queryKey: ['bounty', bountyId],
+    queryKey: ["bounty", bountyId],
     queryFn: async () => {
       if (!bountyId) {
-        return Promise.reject(new Error('No organization ID'));
+        return Promise.reject(new Error("No organization ID"));
       }
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
       if (!res.ok) {
@@ -150,15 +150,15 @@ export function useBounty(bountyId?: string) {
 
 export function useBountySubmissions(bountyId?: string) {
   return useQuery<Submission, Error>({
-    queryKey: ['bounty-submissions', bountyId],
+    queryKey: ["bounty-submissions", bountyId],
     queryFn: async () => {
       if (!bountyId) {
-        return Promise.reject(new Error('No Bounty ID'));
+        return Promise.reject(new Error("No Bounty ID"));
       }
       const res = await await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
       if (!res.ok) {
@@ -181,18 +181,18 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
 
   // Initialize form data from bounty
   const [formData, setFormData] = useState<Partial<BountyDetails>>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     skills: [],
     amount: 0,
-    token: 'DOT',
-    split: 'FIXED',
+    token: "DOT",
+    split: "FIXED",
     winnings: {},
-    deadline: '',
+    deadline: "",
     resources: [],
     screening: [],
-    visibility: 'DRAFT',
-    status: 'OPEN',
+    visibility: "DRAFT",
+    status: "OPEN",
   });
 
   const [hasChanges, setHasChanges] = useState(false);
@@ -236,7 +236,7 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
       } else {
         delete newWinnings[position];
       }
-      updateFormData('winnings', newWinnings);
+      updateFormData("winnings", newWinnings);
     },
     [formData.winnings, updateFormData]
   );
@@ -245,7 +245,7 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   const saveMutation = useMutation({
     mutationFn: async (data: Partial<BountyDetails>) => {
       if (!bounty) {
-        throw new Error('No bounty found');
+        throw new Error("No bounty found");
       }
 
       // Validate data
@@ -254,9 +254,9 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
         {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             ...validatedData,
             amount: Number(validatedData.amount),
@@ -269,19 +269,19 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update bounty');
+        throw new Error(error.error || "Failed to update bounty");
       }
 
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Bounty updated successfully!');
+      toast.success("Bounty updated successfully!");
       refreshBounty();
       setHasChanges(false);
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to update bounty'
+        error instanceof Error ? error.message : "Failed to update bounty"
       );
     },
   });
@@ -290,29 +290,29 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!bounty) {
-        throw new Error('No bounty found');
+        throw new Error("No bounty found");
       }
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
         {
-          method: 'DELETE',
-          credentials: 'include',
+          method: "DELETE",
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to delete bounty');
+        throw new Error("Failed to delete bounty");
       }
 
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Bounty deleted successfully!');
-      window.location.href = '/bounties';
+      toast.success("Bounty deleted successfully!");
+      window.location.href = "/bounties";
     },
     onError: () => {
-      toast.error('Failed to delete bounty');
+      toast.error("Failed to delete bounty");
     },
   });
 

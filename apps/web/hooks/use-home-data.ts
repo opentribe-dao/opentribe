@@ -30,7 +30,7 @@ export interface HomepageStatsResponse {
       firstName?: string | null;
       lastName?: string | null;
       username: string;
-      avatarUrl?: string | null;
+      image?: string | null;
     };
     target: {
       id: string;

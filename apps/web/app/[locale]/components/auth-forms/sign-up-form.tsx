@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { env } from "@/env";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -74,7 +75,10 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
       }
 
       // New users always go to onboarding
-      const redirectUrl = redirectTo || "/onboarding";
+      const redirectUrl =
+        redirectTo === undefined
+          ? `${env.NEXT_PUBLIC_WEB_URL}/onboarding`
+          : redirectTo;
       router.push(redirectUrl);
     } catch (error) {
       const errorMessage =
@@ -93,7 +97,10 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
 
       await authClient.signIn.social({
         provider,
-        callbackURL: redirectTo || "/onboarding",
+        callbackURL:
+          redirectTo === undefined
+            ? `${env.NEXT_PUBLIC_WEB_URL}/onboarding`
+            : redirectTo,
       });
     } catch (error) {
       const errorMessage =

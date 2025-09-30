@@ -1,6 +1,6 @@
 import { Card } from "@packages/base/components/ui/card";
 import { Badge } from "@packages/base/components/ui/badge";
-import { DollarSign, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -89,7 +89,7 @@ export function GrantCard({
           <div className="flex items-center gap-4">
             {(minAmount || maxAmount) && (
               <span className='flex items-center gap-1'>
-                <DollarSign className='h-4 w-4' />
+                {/* <DollarSign className='h-4 w-4' /> */}
                 {minAmount && maxAmount ? (
                   <>
                     {minAmount.toLocaleString()} - {maxAmount.toLocaleString()}{" "}

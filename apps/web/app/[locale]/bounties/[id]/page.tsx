@@ -4,14 +4,10 @@ import { Button } from "@packages/base/components/ui/button";
 import {
   Briefcase,
   Building2,
-  Calendar,
   Clock,
   DollarSign,
   MapPin,
-  Share2,
   Tag,
-  Trophy,
-  Users,
 } from "lucide-react";
 import { headers } from "next/headers";
 import Image from "next/image";
@@ -163,26 +159,23 @@ export default async function BountyDetailPage({
                   </Link>
 
                   <div className='mt-4 flex items-center gap-2'>
+                    {/* TODO: @tarun Make this dynamic here, I have used lorem pixel images here */}
                     <span className="flex items-center">
-                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
                       <img
                         src="https://picsum.photos/200/300"
                         alt=""
                         className="h-8 w-8 rounded-full border border-white "
-                      />
-                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
+                      /> 
                       <img
                         src="https://picsum.photos/seed/picsum/200/300"
                         alt=""
                         className="-ml-4 h-8 w-8 rounded-full border border-white "
                       />
-                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
                       <img
                         src="https://picsum.photos/seed/picsum/200/300"
                         alt=""
                         className="-ml-4 h-8 w-8 rounded-full border border-white "
                       />
-                      {/* biome-ignore lint/nursery/noImgElement: <explanation> */}
                       <img
                         src="https://picsum.photos/200/300"
                         alt=""

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, Users, DollarSign, Clock } from "lucide-react";
+import { Calendar, Users, Clock } from "lucide-react";
 import Image from "next/image";
 
 interface BountyCardProps {
@@ -196,7 +196,7 @@ export function BountyCard({
           {/* Amount */}
           {safeAmount && (
             <div className="ml-4 flex items-center">
-              <DollarSign className="h-6 w-6 text-green-400" />
+              {/* <DollarSign className="h-6 w-6 text-green-400" /> */}
               <div className="text-right">
                 {safeAmount && (
                   <div className='font-semibold text-green-400 text-xl'>

@@ -34,7 +34,8 @@ function BountiesHeroSectionComponent({
       </p>
 
       {/* Search and Stats */}
-      <div className='mt-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-end'>
+      <div className='mt-6 grid grid-cols-1 gap-8 lg:grid-cols-4'>
+        <div className='row-start-2 flex max-w-xl items-center gap-2 lg:col-span-3 lg:row-start-auto'>{/* Search form → push to 2nd row on mobile */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -65,16 +66,29 @@ function BountiesHeroSectionComponent({
             Search
           </Button>
         </form>
-
-        <div className='items-center gap-4 sm:flex md:flex '>
-          <div className='total-value-container flex gap-4 text-sm '>
+            {/* Mobile filter toggle moved here to appear first in mobile view */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onToggleMobileFilters}
+            className='h-9 border-white/20 text-white hover:bg-white/10 lg:hidden'
+          >
+            <Filter className="h-4 w-4" />
+            
+            {activeFiltersCount > 0 && (
+              <span className=' rounded-full bg-pink-500 px-1.5 py-0.5 text-white text-xs'>
+                {activeFiltersCount}
+              </span>
+            )}
+          </Button>
+        </div>
+        <div className='row-start-1 items-center gap-4 sm:flex md:flex lg:row-start-auto '> {/* Stats + Filters → stay in 1st row on mobile */}
+          <div className='stats-card flex justify-around gap-4 text-sm lg:w-full '> {/* Stats → stay in 1st row on mobile */}
             <div className='flex items-center gap-2 '>
-              <div className='icon'>
                 <DollarSign className='h-8 w-8 rounded-full bg-white/10 p-2' />
-              </div>
               <div className='flex flex-col '>
                 <span className="font-semibold text-white">{totalCount}</span>
-                <span className="text-white/60">bounties: </span>
+                <span className="text-white/60">bounties </span>
               </div>
             </div>
 
@@ -83,7 +97,7 @@ function BountiesHeroSectionComponent({
               <Briefcase className='h-8 w-8 rounded-full bg-white/10 p-2' />
               </div>
               <div className='flex flex-col'>
-                <span className='font-semibold text-white'>150 </span>
+                <span className='font-semibold text-white'>150 </span> {/* TODO: @tarun Make this dynamic */}
                 <span className="text-white/60">Opportunities</span>
               </div>
             </div>
@@ -96,23 +110,9 @@ function BountiesHeroSectionComponent({
           
           {/* Spacer/Divider */}
           {/* biome-ignore lint/style/useSelfClosingElements: <explanation> */}
-          <div className="h-4 w-px bg-white/20 lg:hidden"></div>
+          {/* <div className="h-4 w-px bg-white/20 lg:hidden"></div> */}
           
-          {/* Mobile Filter Toggle */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onToggleMobileFilters}
-            className="border-white/20 text-white hover:bg-white/10 lg:hidden"
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-            {activeFiltersCount > 0 && (
-              <span className='ml-2 rounded-full bg-pink-500 px-1.5 py-0.5 text-white text-xs'>
-                {activeFiltersCount}
-              </span>
-            )}
-          </Button>
+      
         </div>
       </div>
     </div>

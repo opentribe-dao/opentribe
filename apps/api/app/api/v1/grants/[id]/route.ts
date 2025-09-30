@@ -49,6 +49,9 @@ export async function GET(
 ) {
   try {
     const grantId = (await params).id;
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
     // Try to find by ID first, then by slug
     const grant = await database.grant.findFirst({
@@ -154,7 +157,23 @@ export async function GET(
       data: { viewCount: { increment: 1 } },
     });
 
-    return NextResponse.json({ grant });
+    // check if user already applied
+    const userApplication = session?.user
+      ? await database.grantApplication.findFirst({
+          where: {
+            grantId: grant.id,
+            userId: session.user.id,
+          },
+        })
+      : null;
+
+    // Add userApplicationId to the grant object
+    const grantWithApplication = {
+      ...grant,
+      userApplicationId: userApplication?.id || null,
+    };
+
+    return NextResponse.json({ grant: grantWithApplication });
   } catch (error) {
     console.error("Error fetching grant:", error);
     return NextResponse.json(

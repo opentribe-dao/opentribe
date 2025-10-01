@@ -105,7 +105,7 @@ export default async function BountyDetailPage({
                       src={bounty.organization.logo}
                       alt={bounty.organization.name}
                       fill
-                      className='h-20 w-20 bg-black object-cover'
+                      className='h-20 w-20 object-cover'
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">

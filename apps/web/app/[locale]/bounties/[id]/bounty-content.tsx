@@ -61,10 +61,10 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
     <div
       onClick={() => handleSubmissionClick(submission.id)}
       className='block cursor-pointer rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-colors hover:bg-white/10'
-    >
+  >
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex-shrink-0">
+        <div className='flex min-w-0 flex-1 items-start gap-3'>
+          <div className='h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-600'>
             {submission.submitter.image ? (
               <Image
                 src={submission.submitter.image}

@@ -23,7 +23,7 @@ import { Header } from "../../../../components/header";
 export default function ProfilePage() {
   const { data: session } = useSession();
   const [name, setName] = useState(session?.user?.name || "");
-  const [email, setEmail] = useState<string | undefined>(session?.user?.email || undefined);
+  const [email, setEmail] = useState(session?.user?.email || "");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");

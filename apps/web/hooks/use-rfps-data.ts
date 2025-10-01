@@ -8,23 +8,26 @@ import type { Prisma } from "@packages/db";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
-// Use Prisma types for RFP with grant and organization relations
-type RFP = Prisma.RFPGetPayload<{
-  include: {
-    grant: {
-      include: {
-        organization: {
-          select: {
-            id: true;
-            name: true;
-            slug: true;
-            logo: true;
-          };
-        };
-      };
+interface RFP {
+  id: string;
+  title: string;
+  description: string;
+  grant: {
+    id: string;
+    title: string;
+    organization: {
+      id: string;
+      name: string;
+      slug: string;
+      logo: string | null;
     };
   };
-}>;
+  voteCount: number;
+  commentCount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface RFPsResponse {
   rfps: RFP[];

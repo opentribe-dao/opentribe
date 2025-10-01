@@ -45,7 +45,7 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: undefined,
+      email: "",
       password: "",
     },
   });

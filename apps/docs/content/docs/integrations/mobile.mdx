@@ -359,7 +359,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 
 export const SignInScreen: React.FC = () => {
-  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();

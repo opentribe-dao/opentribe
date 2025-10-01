@@ -125,11 +125,6 @@ export default function BountyDetailPage({
     });
   };
 
-  console.log(bounty);
-  console.log(bounty.canSubmit);
-  console.log(bounty.status);
-  console.log(bounty.userSubmissionId);
-
   return (
     <div className="min-h-screen">
       {/* Glass Header Card */}

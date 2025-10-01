@@ -4,7 +4,6 @@ import React from "react";
 import { useQuery } from '@tanstack/react-query';
 import { grantQueryKeys } from './react-query';
 import { env } from "@/env";
-import type { Prisma } from "@packages/db";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 

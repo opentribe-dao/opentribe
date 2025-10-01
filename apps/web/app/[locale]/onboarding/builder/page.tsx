@@ -97,7 +97,9 @@ export default function BuilderOnboardingPage() {
   }, [session, isPending, router]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Convert username to lowercase for consistency
+    const processedValue = field === 'username' ? value.toLowerCase() : value;
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const handleSkillToggle = (skill: string) => {
@@ -162,6 +164,8 @@ export default function BuilderOnboardingPage() {
   const handleNext = () => {
     if (currentStep === 1 && validateStep1()) {
       setCurrentStep(2);
+      // Scroll to top when moving to next step, especially important for mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 2 && validateStep2()) {
       handleSubmit();
     }
@@ -170,6 +174,8 @@ export default function BuilderOnboardingPage() {
   const handleBack = () => {
     if (currentStep === 2) {
       setCurrentStep(1);
+      // Scroll to top when going back to previous step, especially important for mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       router.push("/onboarding");
     }
@@ -182,6 +188,7 @@ export default function BuilderOnboardingPage() {
       // Prepare the payload with detailed logging
       const payload = {
         ...formData,
+        username: formData.username.toLowerCase(), // Ensure username is lowercase in API
         skills: stringifySkillsArray(formData.skills),
         profileCompleted: true,
       };

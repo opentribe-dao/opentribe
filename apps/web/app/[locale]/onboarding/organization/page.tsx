@@ -125,8 +125,10 @@ function OrganizationOnboardingPageContent() {
     }
   }, [userProfile]);
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: string, value: string) => {
+    // Convert username to lowercase for consistency
+    const processedValue = field === 'username' ? value.toLowerCase() : value;
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const addTeamMember = () => {
@@ -222,9 +224,13 @@ function OrganizationOnboardingPageContent() {
       // Skip validation if user has already completed profile
       if (session?.user?.profileCompleted || validateStep1()) {
         setCurrentStep(2);
+        // Scroll to top when moving to next step, especially important for mobile
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } else if (currentStep === 2 && validateStep2()) {
-      setCurrentStep(3);
+        setCurrentStep(3);
+        // Scroll to top when moving to next step, especially important for mobile
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 3 && validateStep3()) {
       handleSubmit();
     }
@@ -233,6 +239,8 @@ function OrganizationOnboardingPageContent() {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top when going back to previous step, especially important for mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       router.back();
     }
@@ -255,7 +263,7 @@ function OrganizationOnboardingPageContent() {
             userProfile: {
               firstName: formData.firstName,
               lastName: formData.lastName,
-              username: formData.username,
+              username: formData.username.toLowerCase(), // Ensure username is lowercase in API
               location: formData.location,
               walletAddress: formData.walletAddress,
               website: formData.website,

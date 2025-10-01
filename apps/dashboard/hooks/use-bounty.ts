@@ -399,35 +399,32 @@ export function useBountyForm() {
       updateFormData('winnings', newWinnings);
     },
     [formData.winnings, updateFormData]
-  ); 
-
-
+  );
 
   const addSkill = (skill: string) => {
     if (formData.skills && !formData.skills.includes(skill)) {
-      updateFormData("skills", [...formData.skills, skill]);
+      updateFormData('skills', [...formData.skills, skill]);
     }
   };
 
   const removeSkill = (skill: string) => {
     updateFormData(
-      "skills",
-      formData.skills.filter((s) => s !== skill)
+      'skills',
+      (formData.skills ?? []).filter((s) => s !== skill)
     );
   };
 
-
   const addResource = () => {
-    updateFormData("resources", [
-      ...formData.resources,
-      { title: "", url: "", description: "" },
+    updateFormData('resources', [
+      ...(formData.resources ?? []),
+      { title: '', url: '', description: '' },
     ]);
   };
 
   const removeResource = (index: number) => {
     updateFormData(
-      "resources",
-    (formData.resources??[]).filter((_, i) => i !== index)
+      'resources',
+      (formData.resources ?? []).filter((_, i) => i !== index)
     );
   };
 
@@ -437,7 +434,7 @@ export function useBountyForm() {
     value: string
   ) => {
     updateFormData(
-      "resources",
+      'resources',
       (formData.resources ?? []).map((r, i) =>
         i === index ? { ...r, [field]: value } : r
       )
@@ -445,32 +442,31 @@ export function useBountyForm() {
   };
 
   const addScreeningQuestion = () => {
-    updateFormData("screening", [
-      ...formData.screening,
-      { question: "", type: "text", optional: false },
+    updateFormData('screening', [
+      ...(formData.screening ?? []),
+      { question: '', type: 'text', optional: false },
     ]);
   };
 
   const removeScreeningQuestion = (index: number) => {
     updateFormData(
-      "screening",
+      'screening',
       (formData.screening ?? []).filter((_, i) => i !== index)
     );
   };
 
   const updateScreeningQuestion = (
     index: number,
-    field: keyof (typeof formData.screening)[0],
-    value: any
+    field: keyof NonNullable<typeof formData.screening>[number],
+    value: string | boolean
   ) => {
     updateFormData(
-      "screening",
+      'screening',
       (formData.screening ?? []).map((q, i) =>
         i === index ? { ...q, [field]: value } : q
       )
     );
-
-
+  };
 
   // Split validation logic into smaller helpers to reduce complexity
   function validateStep1(formData: Partial<BountyDetails>): boolean {
@@ -495,7 +491,9 @@ export function useBountyForm() {
       !totalAmount ||
       !winnings ||
       Object.keys(winnings).length === 0 ||
-      Object.values(winnings).some((amount) => !amount || isNaN(Number(amount)))
+      Object.values(winnings).some(
+        (amount) => !amount || Number.isNaN(Number(amount))
+      )
     ) {
       toast.error('Please specify all reward amounts');
       return false;
@@ -577,8 +575,12 @@ export function useBountyForm() {
       const result = await response.json();
       toast.success('Bounty created successfully!');
       router.push(`/bounties/${result.bounty.id}/`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to create bounty. Please try again.');
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'Failed to create bounty. Please try again.';
+      setError(errorMessage);
       toast.error('Failed to create bounty. Please try again.');
     } finally {
       setSubmitting(false);

@@ -97,7 +97,7 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
-    email: "",
+    email: undefined as string | undefined,
     website: "",
     twitter: "",
     instagram: "",
@@ -128,7 +128,7 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
         setFormData({
           name: data.organization.name || "",
           slug: data.organization.slug || "",
-          email: data.organization.email || "",
+          email: data.organization.email || undefined,
           website: data.organization.website || "",
           twitter: data.organization.twitter || "",
           instagram: data.organization.instagram || "",

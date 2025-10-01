@@ -45,7 +45,7 @@ const INDUSTRIES = [
 interface TeamMember {
   id: string;
   name: string;
-  email: string;
+  email: string | undefined;
   role: "admin" | "member";
 }
 
@@ -133,7 +133,7 @@ function OrganizationOnboardingPageContent() {
     const newMember: TeamMember = {
       id: Date.now().toString(),
       name: "",
-      email: "",
+      email: undefined,
       role: "member",
     };
     setFormData((prev) => ({

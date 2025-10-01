@@ -50,15 +50,16 @@ export function PopularSkills({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white">Popular Skills</CardTitle>
-          {hasActiveFilters && ( <Button
+          <Button
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
+            disabled={!hasActiveFilters}
+            style={{ opacity: hasActiveFilters ? 1 : 0 }}
             className='text-white/60 hover:bg-white/10 hover:text-white'
           >
             Clear filters
           </Button>
-          )}
         </div>
       </CardHeader>
       <CardContent>

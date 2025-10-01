@@ -86,11 +86,11 @@ export function RecentActivity({
         <div className="space-y-3">
           {displayActivities.map((activity) => (
             <div key={activity.id} className="flex items-start gap-3">
-              {activity.user.avatarUrl ? (
+              {activity.user.image ? (
                 <Image
                   height={32}
                   width={32}
-                  src={activity.user.avatarUrl}
+                  src={activity.user.image}
                   alt={activity.user.username}
                   className='rounded-full bg-black object-cover'
                 />

@@ -4,31 +4,23 @@ import React from "react";
 import { useQuery } from '@tanstack/react-query';
 import { grantQueryKeys } from './react-query';
 import { env } from "@/env";
-
+import type { Prisma } from "@packages/db";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
-interface Grant {
-  id: string;
-  title: string;
-  organization: {
-    id: string;
-    name: string;
-    slug: string;
-    logo: string | null;
+// Use Prisma types for Grant with organization relation
+type Grant = Prisma.GrantGetPayload<{
+  include: {
+    organization: {
+      select: {
+        id: true;
+        name: true;
+        slug: true;
+        logo: true;
+      };
+    };
   };
-  bannerUrl: string | null;
-  minAmount: string | null;
-  maxAmount: string | null;
-  token: string;
-  rfpCount: number;
-  applicationCount: number;
-  status: string;
-  summary: string;
-  skills: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+}>;
 
 interface GrantsResponse {
   grants: Grant[];

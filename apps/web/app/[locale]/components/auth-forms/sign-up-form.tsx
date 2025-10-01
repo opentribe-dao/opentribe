@@ -46,7 +46,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: undefined,
       password: "",
     },
   });

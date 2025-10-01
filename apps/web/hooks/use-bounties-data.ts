@@ -4,51 +4,23 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { bountyQueryKeys } from "./react-query";
 import { env } from "@/env";
+import type { Prisma } from "@packages/db";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
-interface Bounty {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  resources: Array<{
-    url: string;
-    title: string;
-    description?: string;
-  }> | null;
-  screening: Array<{
-    question: string;
-    type: string;
-    optional: boolean;
-  }> | null;
-  applicationUrl: string | null;
-  skills: string[];
-  organizationId: string;
-  amount: string; 
-  amountUSD: number | null;
-  token: string;
-  winnings: Record<string, number> | null;
-  split: "FIXED" | "EQUAL_SPLIT" | "VARIABLE";
-  status: string;
-  visibility: string;
-  deadline: string | null;
-  publishedAt: string;
-  winnersAnnouncedAt: string | null;
-  viewCount: number;
-  submissionCount: number;
-  commentCount: number;
-  createdAt: string;
-  updatedAt: string;
-  lastReminderSentAt: string | null;
-  lastWinnerReminderSentAt: string | null;
-  organization: {
-    id: string;
-    name: string;
-    slug: string;
-    logo: string | null;
+// Use Prisma types for Bounty with organization relation and all JSON fields
+type Bounty = Prisma.BountyGetPayload<{
+  include: {
+    organization: {
+      select: {
+        id: true;
+        name: true;
+        slug: true;
+        logo: true;
+      };
+    };
   };
-}
+}>;
 
 interface BountiesResponse {
   bounties: Bounty[];

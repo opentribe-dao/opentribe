@@ -175,9 +175,7 @@ function BountiesContentSectionComponent({
           )}
 
           {/* How it works - Mobile Only */}
-          <div className="mt-6 lg:hidden">
-            <HowItWorksCard />
-          </div>
+          <HowItWorksCard className='mt-6 lg:hidden'/>
         </>
       ) : !loading ? (
         <div className="py-12 text-center">

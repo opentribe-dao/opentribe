@@ -3,8 +3,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { Skeleton } from "@packages/base/components/ui/skeleton"
+import { cn } from '@packages/base/lib/utils'
 
-interface TopBounty {
+export interface TopBounty {
   id: string
   title: string
   voteCount: number
@@ -36,7 +37,7 @@ export function TopBountiesCard({
   className = ''
 }: TopBountiesProps) {
   return (
-    <div className={`rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm ${className}`}>
+    <div className={cn('rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm', className)}>
       <h3 className='mb-4 font-heading font-semibold text-lg'>Top Bounties</h3>
       
       {topBountiesLoading && (

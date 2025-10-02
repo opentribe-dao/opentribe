@@ -232,27 +232,12 @@ function RfpsSidebarComponent({
         </div>
 
         {/* Top Bounties - Hidden on mobile, shown on desktop */}
-        <div className="hidden lg:block">
           <TopBountiesCard
             topBounties={topBounties}
             topBountiesLoading={topBountiesLoading}
             topBountiesError={topBountiesError}
+            className='hidden lg:block'
           />
-        </div>
-
-        {/* Mobile Close Button */}
-        {showMobileFilters && (
-          <div className="lg:hidden">
-            <Button
-              variant="outline"
-              onClick={() => onMobileFiltersToggle(false)}
-              className="w-full border-white/20 text-white hover:bg-white/10"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Close Filters
-            </Button>
-          </div>
-        )}
       </div>
     </>
   )

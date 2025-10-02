@@ -4,7 +4,7 @@ import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Skeleton } from "@packages/base/components/ui/skeleton"
 import { RFPCard } from "../../components/cards/rfp-card"
-import { TopBountiesCard } from "./top-bounties"
+import {  type TopBounty, TopBountiesCard } from "./top-bounties"
 
 interface RFP {
   id: string;
@@ -33,15 +33,6 @@ interface RfpsFilters {
   sort: string
   grant: string
   submission: string
-}
-
-interface TopBounty {
-  id: string
-  title: string
-  voteCount: number
-  organization: {
-    name: string
-  }
 }
 
 interface RfpsContentSectionProps {
@@ -194,13 +185,12 @@ function RfpsContentSectionComponent({
           )}
 
       {/* Top Bounties - Mobile Only */}
-      <div className="mt-6 lg:hidden">
         <TopBountiesCard
           topBounties={topBounties}
           topBountiesLoading={topBountiesLoading}
           topBountiesError={topBountiesError}
+          className='mt-6 lg:hidden'
         />
-      </div>
         </>
       )}
 

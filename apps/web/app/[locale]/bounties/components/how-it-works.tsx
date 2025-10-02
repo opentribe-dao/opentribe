@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@packages/base/lib/utils'
 import React from 'react'
 
 interface HowItWorksProps {
@@ -8,7 +9,7 @@ interface HowItWorksProps {
 
 export function HowItWorksCard({ className = '' }: HowItWorksProps) {
   return (
-    <div className={`rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm ${className}`}>
+    <div className={cn('rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm', className)}>
       <h3 className='mb-4 font-heading font-semibold text-lg'>How it works</h3>
       <div className="space-y-4">
         {[

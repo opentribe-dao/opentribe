@@ -89,7 +89,7 @@ function GrantsSidebarComponent({
       <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-80 overflow-y-auto bg-[#111111] p-6 lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : "hidden lg:block"}`}>
         {/* Mobile Close Button */}
         {showMobileFilters && (
-          <div className="flex justify-end mb-4 lg:hidden">
+          <div className='mb-4 flex justify-end lg:hidden'>
             <Button
               variant="ghost"
               size="icon"
@@ -184,27 +184,12 @@ function GrantsSidebarComponent({
         </div>
 
         {/* Top RFPs - Hidden on mobile, shown on desktop */}
-        <div className="hidden lg:block">
           <TopRFPsCard
             topRFPs={topRFPs}
             topRFPsLoading={topRFPsLoading}
             topRFPsError={topRFPsError}
+            className='hidden lg:block'
           />
-        </div>
-
-        {/* Mobile Close Button */}
-        {showMobileFilters && (
-          <div className="lg:hidden">
-            <Button
-              variant="outline"
-              onClick={() => onFilterChange.onMobileFiltersToggle(false)}
-              className="w-full border-white/20 text-white hover:bg-white/10"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Close Filters
-            </Button>
-          </div>
-        )}
       </div>
     </>
   )

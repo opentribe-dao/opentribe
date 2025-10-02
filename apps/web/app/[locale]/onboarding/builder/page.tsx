@@ -190,6 +190,7 @@ export default function BuilderOnboardingPage() {
         ...formData,
         username: formData.username.toLowerCase(), // Ensure username is lowercase in API
         skills: stringifySkillsArray(formData.skills),
+        // TODO: @tarun - discuss with team, don't send profileCompleted update it in the backend
         profileCompleted: true,
       };
 

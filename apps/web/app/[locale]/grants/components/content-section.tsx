@@ -4,25 +4,13 @@ import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Skeleton } from "@packages/base/components/ui/skeleton"
 import { GrantCard } from "../../components/cards/grant-card"
-import { TopRFPsCard } from "./top-rfps"
+import { type TopRFP, TopRFPsCard } from "./top-rfps"
 import type { Grant } from '@/hooks/use-grants-data'
 
 interface GrantFilters {
   status: string[]
   sortBy: string
   priceRange: [number, number]
-}
-
-
-interface TopRFP {
-  id: string
-  title: string
-  voteCount: number
-  grant: {
-    organization: {
-      name: string
-    }
-  }
 }
 
 interface GrantsContentSectionProps {
@@ -201,13 +189,12 @@ function GrantsContentSectionComponent({
           )}
 
           {/* Top RFPs - Mobile Only */}
-          <div className="mt-6 lg:hidden">
             <TopRFPsCard
               topRFPs={topRFPs}
               topRFPsLoading={topRFPsLoading}
               topRFPsError={topRFPsError}
+              className='mt-6 lg:hidden'
             />
-          </div>
         </>
       )}
 

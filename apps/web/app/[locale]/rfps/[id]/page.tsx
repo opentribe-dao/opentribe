@@ -439,7 +439,16 @@ export default async function RFPDetailPage({
                 </div>
               </div>
 
-              {rfp.grant.source === "EXTERNAL" && rfp.grant.applicationUrl ? (
+              {rfp.grant.userApplicationId ? (
+                  <Link href={`/grants/${rfp.grant.id}/applications/${rfp.grant.userApplicationId}`}>
+                    <Button
+                      className="bg-pink-600 text-white hover:bg-pink-700"
+                      disabled={rfp.grant.status !== "OPEN"}
+                    >
+                      View Application
+                    </Button>
+                  </Link>
+                ) : rfp.grant.source === "EXTERNAL" && rfp.grant.applicationUrl ? (
                 <a
                   href={rfp.grant.applicationUrl}
                   target="_blank"
@@ -449,6 +458,13 @@ export default async function RFPDetailPage({
                     Apply Externally
                   </Button>
                 </a>
+              ) : rfp.grant.canApply === false ? (
+                <Button
+                  className="bg-pink-600 text-white hover:bg-pink-700"
+                  disabled={true}
+                >
+                  Apply with this RFP
+                </Button>
               ) : (
                 <Link href={`/grants/${rfp.grant.id}/apply?rfp=${rfp.id}`}>
                   <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">

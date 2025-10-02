@@ -1,5 +1,5 @@
+"use client";
 import { env } from "@/env";
-import { auth } from "@packages/auth/server";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Building2,
@@ -7,23 +7,24 @@ import {
   Clock,
   DollarSign,
   MapPin,
-  Share2,
   Tag,
   Trophy,
   Users,
 } from "lucide-react";
-import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BountyContent } from "./bounty-content";
 import { CommentSection } from "./comment-section";
 import { ShareButton } from "./share-button";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
 
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/api/v1/bounties/${id}`, {
     cache: "no-store",
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -34,22 +35,53 @@ async function getBounty(id: string) {
   return data.bounty;
 }
 
-export default async function BountyDetailPage({
+export default function BountyDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const bounty = await getBounty(id);
+  const [bounty, setBounty] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [bountyId, setBountyId] = useState<string | null>(null);
 
+  // Resolve params once
+  useEffect(() => {
+    const resolveParams = async () => {
+      const { id } = await params;
+      setBountyId(id);
+    };
+    resolveParams();
+  }, [params]);
+
+  // Fetch bounty when we have the ID
+  useEffect(() => {
+    if (!bountyId) return;
+
+    const fetchBounty = async () => {
+      try {
+        const bountyData = await getBounty(bountyId);
+        setBounty(bountyData);
+      } catch (error) {
+        console.error("Error fetching bounty:", error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBounty();
+  }, [bountyId]);
+
+  if (loading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <Skeleton className="h-full w-full" />
+      </div>
+    );
+  }
   if (!bounty) {
     notFound();
   }
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
   // Format currency
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -151,16 +183,33 @@ export default async function BountyDetailPage({
                   </span>
                 </div>
 
-                <ShareButton url={`/bounties/${id}`} />
+                <ShareButton url={`/bounties/${bountyId}`} />
 
-                <Link href={`/bounties/${id}/submit`}>
+                {bounty.userSubmissionId ? (
+                  <Link href={`/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`}>
+                    <Button
+                      className="bg-pink-600 text-white hover:bg-pink-700"
+                      disabled={bounty.status !== "OPEN"}
+                    >
+                      View Submission
+                    </Button>
+                  </Link>
+                ) : bounty.canSubmit === false ? (
                   <Button
                     className="bg-pink-600 text-white hover:bg-pink-700"
-                    disabled={bounty.status !== "OPEN"}
+                    disabled={true}
                   >
                     Submit Now
                   </Button>
-                </Link>
+                ) : (
+                  <Link href={`/bounties/${bountyId}/submit`}>
+                    <Button
+                      className="bg-pink-600 text-white hover:bg-pink-700"
+                    >
+                      Submit Now
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>

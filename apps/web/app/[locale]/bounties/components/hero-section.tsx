@@ -3,6 +3,7 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Input } from "@packages/base/components/ui/input"
+import { Separator } from "@packages/base/components/ui/separator"
 import { Search, Filter, X } from "lucide-react"
 
 interface BountiesHeroSectionProps {
@@ -70,8 +71,7 @@ function BountiesHeroSectionComponent({
             <span className="font-semibold text-white">{totalCount}</span>
           </div>
           
-          {/* Spacer/Divider */}
-          <div className="h-4 w-px bg-white/20 lg:hidden"></div>
+          <Separator orientation="vertical" className="h-4 bg-white/20 lg:hidden" />
           
           {/* Mobile Filter Toggle */}
           <Button

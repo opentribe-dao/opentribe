@@ -20,11 +20,13 @@ vi.mock("@packages/db", () => ({
     submission: {
       create: vi.fn(),
       findMany: vi.fn(),
+      findFirst: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
     },
     member: {
       findFirst: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -269,6 +271,203 @@ describe("Bounty Management", () => {
       });
 
       expect(response.status).toBe(404);
+    });
+
+    test("should set canSubmit=false for organization members", async () => {
+      const mockBounty = {
+        id: "bounty-1",
+        title: "Test Bounty",
+        slug: "test-bounty",
+        description: "Test",
+        organizationId: "org-1",
+        amount: 1000,
+        token: "USD",
+        status: "OPEN",
+        visibility: "PUBLIC",
+        winnersAnnouncedAt: new Date(),
+        submissions: [],
+        _count: { submissions: 0, comments: 0 },
+        organization: {
+          id: "org-1",
+          name: "Test Org",
+          slug: "test-org",
+          logo: null,
+        },
+      };
+
+      const mockSession = {
+        user: { id: "user-1", email: "user@example.com" },
+      };
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
+      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.member.count).mockResolvedValue(1); // User is a member
+      vi.mocked(database.submission.findFirst).mockResolvedValue(null);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/bounties/bounty-1"
+      );
+      const response = await getBounty(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.bounty.canSubmit).toBe(false);
+      expect(data.bounty.userSubmissionId).toBe(null);
+      expect(database.member.count).toHaveBeenCalledWith({
+        where: {
+          organizationId: "org-1",
+          userId: "user-1",
+        },
+      });
+    });
+
+    test("should set canSubmit=true for non-members without existing submission", async () => {
+      const mockBounty = {
+        id: "bounty-1",
+        title: "Test Bounty",
+        slug: "test-bounty",
+        description: "Test",
+        organizationId: "org-1",
+        amount: 1000,
+        token: "USD",
+        status: "OPEN",
+        visibility: "PUBLIC",
+        winnersAnnouncedAt: new Date(),
+        submissions: [],
+        _count: { submissions: 0, comments: 0 },
+        organization: {
+          id: "org-1",
+          name: "Test Org",
+          slug: "test-org",
+          logo: null,
+        },
+      };
+
+      const mockSession = {
+        user: { id: "user-1", email: "user@example.com" },
+      };
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
+      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.member.count).mockResolvedValue(0); // User is NOT a member
+      vi.mocked(database.submission.findFirst).mockResolvedValue(null);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/bounties/bounty-1"
+      );
+      const response = await getBounty(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.bounty.canSubmit).toBe(true);
+      expect(data.bounty.userSubmissionId).toBe(null);
+    });
+
+    test("should set canSubmit=false when user already submitted", async () => {
+      const mockBounty = {
+        id: "bounty-1",
+        title: "Test Bounty",
+        slug: "test-bounty",
+        description: "Test",
+        organizationId: "org-1",
+        amount: 1000,
+        token: "USD",
+        status: "OPEN",
+        visibility: "PUBLIC",
+        winnersAnnouncedAt: new Date(),
+        submissions: [],
+        _count: { submissions: 0, comments: 0 },
+        organization: {
+          id: "org-1",
+          name: "Test Org",
+          slug: "test-org",
+          logo: null,
+        },
+      };
+
+      const mockSession = {
+        user: { id: "user-1", email: "user@example.com" },
+      };
+
+      const mockSubmission = {
+        id: "submission-1",
+        bountyId: "bounty-1",
+        userId: "user-1",
+        title: "My Submission",
+      };
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
+      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.member.count).mockResolvedValue(0);
+      vi.mocked(database.submission.findFirst).mockResolvedValue(
+        mockSubmission as any
+      );
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/bounties/bounty-1"
+      );
+      const response = await getBounty(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.bounty.canSubmit).toBe(false);
+      expect(data.bounty.userSubmissionId).toBe("submission-1");
+      expect(database.submission.findFirst).toHaveBeenCalledWith({
+        where: {
+          bountyId: "bounty-1",
+          userId: "user-1",
+        },
+      });
+    });
+
+    test("should set canSubmit=true for unauthenticated users", async () => {
+      const mockBounty = {
+        id: "bounty-1",
+        title: "Test Bounty",
+        slug: "test-bounty",
+        description: "Test",
+        organizationId: "org-1",
+        amount: 1000,
+        token: "USD",
+        status: "OPEN",
+        visibility: "PUBLIC",
+        winnersAnnouncedAt: new Date(),
+        submissions: [],
+        _count: { submissions: 0, comments: 0 },
+        organization: {
+          id: "org-1",
+          name: "Test Org",
+          slug: "test-org",
+          logo: null,
+        },
+      };
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(null); // No session
+      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
+      vi.mocked(database.member.count).mockResolvedValue(0);
+      vi.mocked(database.submission.findFirst).mockResolvedValue(null);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/bounties/bounty-1"
+      );
+      const response = await getBounty(request, {
+        params: Promise.resolve({ id: "bounty-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.bounty.canSubmit).toBe(true);
+      expect(data.bounty.userSubmissionId).toBe(null);
     });
   });
 

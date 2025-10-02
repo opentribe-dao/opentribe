@@ -18,6 +18,10 @@ vi.mock("@packages/db", () => ({
     },
     member: {
       findFirst: vi.fn(),
+      count: vi.fn(),
+    },
+    grantApplication: {
+      findFirst: vi.fn(),
     },
     grant: {
       findFirst: vi.fn(),
@@ -289,6 +293,219 @@ describe("RFP Flow", () => {
       expect(data.rfp.id).toBe("rfp-1");
       expect(data.rfp.votes).toHaveLength(1);
       expect(data.rfp.comments).toHaveLength(1);
+    });
+
+    test("should set canApply=false for organization members", async () => {
+      const mockRFP = {
+        id: "rfp-1",
+        title: "Test RFP",
+        slug: "test-rfp",
+        description: "Test",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        grantId: "grant-1",
+        grant: {
+          id: "grant-1",
+          title: "Test Grant",
+          organization: {
+            id: "org-1",
+            name: "Test Org",
+            slug: "test-org",
+          },
+        },
+        votes: [],
+        comments: [],
+        _count: { votes: 0, comments: 0, applications: 0 },
+      };
+
+      const mockRelatedRfps: any[] = [];
+
+      const mockSession = {
+        user: { id: "user-1", email: "user@example.com" },
+      };
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
+      vi.mocked(database.rFP.findFirst).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRelatedRfps);
+      vi.mocked(database.rFP.update).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.member.count).mockResolvedValue(1); // User is a member
+      vi.mocked(database.grantApplication.findFirst).mockResolvedValue(null);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps/rfp-1"
+      );
+      const response = await getRFP(request, {
+        params: Promise.resolve({ id: "rfp-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.rfp.canApply).toBe(false);
+      expect(data.rfp.userApplicationId).toBe(null);
+      expect(database.member.count).toHaveBeenCalledWith({
+        where: {
+          organizationId: "org-1",
+          userId: "user-1",
+        },
+      });
+    });
+
+    test("should set canApply=true for non-members without existing application", async () => {
+      const mockRFP = {
+        id: "rfp-1",
+        title: "Test RFP",
+        slug: "test-rfp",
+        description: "Test",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        grantId: "grant-1",
+        grant: {
+          id: "grant-1",
+          title: "Test Grant",
+          organization: {
+            id: "org-1",
+            name: "Test Org",
+            slug: "test-org",
+          },
+        },
+        votes: [],
+        comments: [],
+        _count: { votes: 0, comments: 0, applications: 0 },
+      };
+
+      const mockRelatedRfps: any[] = [];
+
+      const mockSession = {
+        user: { id: "user-1", email: "user@example.com" },
+      };
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
+      vi.mocked(database.rFP.findFirst).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRelatedRfps);
+      vi.mocked(database.rFP.update).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.member.count).mockResolvedValue(0); // User is NOT a member
+      vi.mocked(database.grantApplication.findFirst).mockResolvedValue(null);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps/rfp-1"
+      );
+      const response = await getRFP(request, {
+        params: Promise.resolve({ id: "rfp-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.rfp.canApply).toBe(true);
+      expect(data.rfp.userApplicationId).toBe(null);
+    });
+
+    test("should set canApply=false when user already applied", async () => {
+      const mockRFP = {
+        id: "rfp-1",
+        title: "Test RFP",
+        slug: "test-rfp",
+        description: "Test",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        grantId: "grant-1",
+        grant: {
+          id: "grant-1",
+          title: "Test Grant",
+          organization: {
+            id: "org-1",
+            name: "Test Org",
+            slug: "test-org",
+          },
+        },
+        votes: [],
+        comments: [],
+        _count: { votes: 0, comments: 0, applications: 0 },
+      };
+
+      const mockRelatedRfps: any[] = [];
+
+      const mockSession = {
+        user: { id: "user-1", email: "user@example.com" },
+      };
+
+      const mockApplication = {
+        id: "application-1",
+        rfpId: "rfp-1",
+        userId: "user-1",
+        title: "My Application",
+      };
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
+      vi.mocked(database.rFP.findFirst).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRelatedRfps);
+      vi.mocked(database.rFP.update).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.member.count).mockResolvedValue(0);
+      vi.mocked(database.grantApplication.findFirst).mockResolvedValue(
+        mockApplication as any
+      );
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps/rfp-1"
+      );
+      const response = await getRFP(request, {
+        params: Promise.resolve({ id: "rfp-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.rfp.canApply).toBe(false);
+      expect(data.rfp.userApplicationId).toBe("application-1");
+      expect(database.grantApplication.findFirst).toHaveBeenCalledWith({
+        where: {
+          rfpId: "rfp-1",
+          userId: "user-1",
+        },
+      });
+    });
+
+    test("should set canApply=true for unauthenticated users", async () => {
+      const mockRFP = {
+        id: "rfp-1",
+        title: "Test RFP",
+        slug: "test-rfp",
+        description: "Test",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        grantId: "grant-1",
+        grant: {
+          id: "grant-1",
+          title: "Test Grant",
+          organization: {
+            id: "org-1",
+            name: "Test Org",
+            slug: "test-org",
+          },
+        },
+        votes: [],
+        comments: [],
+        _count: { votes: 0, comments: 0, applications: 0 },
+      };
+
+      const mockRelatedRfps: any[] = [];
+
+      vi.mocked(auth.api.getSession).mockResolvedValue(null); // No session
+      vi.mocked(database.rFP.findFirst).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.rFP.findMany).mockResolvedValue(mockRelatedRfps);
+      vi.mocked(database.rFP.update).mockResolvedValue(mockRFP as any);
+      vi.mocked(database.member.count).mockResolvedValue(0);
+      vi.mocked(database.grantApplication.findFirst).mockResolvedValue(null);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/rfps/rfp-1"
+      );
+      const response = await getRFP(request, {
+        params: Promise.resolve({ id: "rfp-1" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.rfp.canApply).toBe(true);
+      expect(data.rfp.userApplicationId).toBe(null);
     });
   });
 

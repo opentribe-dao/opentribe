@@ -101,6 +101,8 @@ export function HeroSection() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+
+  const profileHref = `/profile/${session?.user?.username || session?.user.id}`;
   return (
     <>
       <section className="container mx-auto px-4 pt-8 pb-6">
@@ -279,7 +281,7 @@ export function HeroSection() {
               <CommandItem
                 value="profile"
                 onSelect={() => {
-                  router.push("/profile");
+                  router.push(profileHref);
                   setOpen(false);
                 }}
               >

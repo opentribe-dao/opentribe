@@ -140,34 +140,8 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        // First try to find user by username (which could be username or ID)
-        const usersResponse = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/users?username=${params.username}`,
-          {
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!usersResponse.ok) {
-          throw new Error("User not found");
-        }
-
-        const usersData = await usersResponse.json();
-        if (!usersData.users || usersData.users.length === 0) {
-          // TODO: @Tarun, discuss this with the team
-          // If user not found, redirect to onboarding
-          router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding`);
-          throw new Error("User not found");
-        }
-
-        const userId = usersData.users[0].id;
-
-        // Then fetch full profile
         const profileResponse = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/users/${userId}`,
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/users/${params.username}`,
           {
             credentials: "include",
           }

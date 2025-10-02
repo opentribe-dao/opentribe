@@ -94,7 +94,7 @@ const SettingsPage = () => {
 
   if (loading || sessionLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className='flex min-h-screen items-center justify-center'>
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -102,52 +102,52 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-12 relative z-10 max-w-4xl">
+      <div className='container relative z-10 mx-auto max-w-4xl px-4 py-12'>
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/profile"
-            className="flex items-center gap-2 text-white/60 hover:text-white mb-4"
+            href={`/profile/${session?.user?.username || session?.user.id}`}
+            className='mb-4 flex items-center gap-2 text-white/60 hover:text-white'
           >
             <ChevronLeft className="h-4 w-4" />
             Back to Profile
           </Link>
-          <h1 className="text-3xl font-bold text-white">Settings</h1>
-          <p className="text-white/60 mt-2">
+          <h1 className='font-bold text-3xl text-white'>Settings</h1>
+          <p className='mt-2 text-white/60'>
             Manage your account settings and preferences
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white/10 border-white/20 mb-6">
+          <TabsList className='mb-6 border-white/20 bg-white/10'>
             <TabsTrigger
               value="notifications"
               className="data-[state=active]:bg-white/20"
             >
-              <Bell className="h-4 w-4 mr-2" />
+              <Bell className='mr-2 h-4 w-4' />
               Notifications
             </TabsTrigger>
             <TabsTrigger
               value="account"
               className="data-[state=active]:bg-white/20"
             >
-              <User className="h-4 w-4 mr-2" />
+              <User className='mr-2 h-4 w-4' />
               Account
             </TabsTrigger>
             <TabsTrigger
               value="privacy"
               className="data-[state=active]:bg-white/20"
             >
-              <Shield className="h-4 w-4 mr-2" />
+              <Shield className='mr-2 h-4 w-4' />
               Privacy
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="notifications" className="space-y-6">
             {/* Email Notifications */}
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className='flex items-center gap-2 text-white'>
                   <Mail className="h-5 w-5" />
                   Email Notifications
                 </CardTitle>
@@ -243,9 +243,9 @@ const SettingsPage = () => {
             </Card>
 
             {/* In-App Notifications */}
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className='flex items-center gap-2 text-white'>
                   <Bell className="h-5 w-5" />
                   In-App Notifications
                 </CardTitle>
@@ -345,16 +345,16 @@ const SettingsPage = () => {
               <Button
                 onClick={handleSaveNotifications}
                 disabled={saving}
-                className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+                className='bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
               >
                 {saving ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className='mr-2 h-4 w-4' />
                     Save Preferences
                   </>
                 )}
@@ -363,7 +363,7 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="account" className="space-y-6">
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
                 <CardTitle className="text-white">Account Information</CardTitle>
                 <CardDescription className="text-white/60">
@@ -373,11 +373,11 @@ const SettingsPage = () => {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-white">Email Address</Label>
-                  <p className="text-white/80 mt-1">{session?.user?.email}</p>
+                  <p className='mt-1 text-white/80'>{session?.user?.email}</p>
                 </div>
                 <div>
                   <Label className="text-white">Account ID</Label>
-                  <p className="text-white/80 mt-1 font-mono text-sm">
+                  <p className='mt-1 font-mono text-sm text-white/80'>
                     {session?.user?.id}
                   </p>
                 </div>
@@ -392,9 +392,9 @@ const SettingsPage = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
-                <CardTitle className="text-white text-red-400">
+                <CardTitle className='text-red-400 text-white'>
                   Danger Zone
                 </CardTitle>
                 <CardDescription className="text-white/60">
@@ -413,7 +413,7 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="privacy" className="space-y-6">
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
                 <CardTitle className="text-white">Privacy Settings</CardTitle>
                 <CardDescription className="text-white/60">
@@ -421,8 +421,8 @@ const SettingsPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <p className="text-sm text-blue-400">
+                <div className='rounded-lg border border-blue-500/20 bg-blue-500/10 p-4'>
+                  <p className='text-blue-400 text-sm'>
                     Privacy settings can be managed from your{" "}
                     <Link href="/profile/edit" className="underline">
                       profile edit page
@@ -431,10 +431,10 @@ const SettingsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-white font-medium mb-2">
+                  <h4 className='mb-2 font-medium text-white'>
                     What others can see:
                   </h4>
-                  <ul className="space-y-2 text-white/60 text-sm">
+                  <ul className='space-y-2 text-sm text-white/60'>
                     <li>• Your name and profile picture</li>
                     <li>• Organizations you're part of</li>
                     <li>• Public activity (applications, submissions)</li>

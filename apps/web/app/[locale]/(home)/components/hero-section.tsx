@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@packages/auth/client";
-import { SafeButton } from "@packages/base/components/ui/button";
+import { Button } from "@packages/base/components/ui/button";
 import { Search, Settings, User } from "lucide-react";
 import {
   CommandDialog,
@@ -130,7 +130,7 @@ export function HeroSection() {
           </div>
 
           <div className='flex flex-col gap-4 md:flex-row'>
-            <SafeButton
+            <Button
               variant="outline"
               className="border-white/20 text-white hover:bg-white/10"
               onClick={() => setOpen(true)}
@@ -140,7 +140,7 @@ export function HeroSection() {
               <kbd className='pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground opacity-100'>
                 <span className="text-xs">⌘</span>K
               </kbd>
-            </SafeButton>
+            </Button>
             {/* <Button
               variant="outline"
               className="border-white/20 text-white hover:bg-white/10"

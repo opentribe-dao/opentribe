@@ -2,6 +2,7 @@
 
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
+import { parseSkillsArray } from "@/lib/utils/skills-parser";
 import {
   Card,
   CardContent,
@@ -45,7 +46,7 @@ interface UserProfile {
   headline?: string;
   bio?: string;
   location?: string;
-  skills?: any;
+  skills?: string[];
   interests?: string[];
   walletAddress?: string;
   twitter?: string;
@@ -139,31 +140,8 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        // First try to find user by username (which could be username or ID)
-        const usersResponse = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/users?username=${params.username}`,
-          {
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!usersResponse.ok) {
-          throw new Error("User not found");
-        }
-
-        const usersData = await usersResponse.json();
-        if (!usersData.users || usersData.users.length === 0) {
-          throw new Error("User not found");
-        }
-
-        const userId = usersData.users[0].id;
-
-        // Then fetch full profile
         const profileResponse = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/users/${userId}`,
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/users/${params.username}`,
           {
             credentials: "include",
           }
@@ -197,7 +175,7 @@ const ProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className='flex min-h-screen items-center justify-center'>
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -218,11 +196,8 @@ const ProfilePage = () => {
   };
 
   const getSkillsArray = (skills: any) => {
-    if (Array.isArray(skills)) return skills;
-    if (typeof skills === "object" && skills !== null) {
-      return Object.keys(skills);
-    }
-    return [];
+    const parsedSkills = parseSkillsArray(skills);
+    return parsedSkills;
   };
 
   const getStatusColor = (status: string) => {
@@ -242,11 +217,11 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-12 relative z-10">
+      <div className='container relative z-10 mx-auto px-4 py-12'>
         {/* Profile Header */}
-        <Card className="bg-white/5 backdrop-blur-md border-white/10 mb-8">
+        <Card className='mb-8 border-white/10 bg-white/5 backdrop-blur-md'>
           <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row items-start gap-6">
+            <div className='flex flex-col items-start gap-6 md:flex-row'>
               {/* Avatar */}
               <div className="flex-shrink-0">
                 {profile.image ? (
@@ -255,10 +230,10 @@ const ProfilePage = () => {
                     alt={profile.name}
                     width={120}
                     height={120}
-                    className="w-30 h-30 rounded-full"
+                    className='h-30 w-30 rounded-full'
                   />
                 ) : (
-                  <div className="w-30 h-30 rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                  <div className='flex h-30 w-30 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-4xl text-white'>
                     {profile.name
                       .split(" ")
                       .map((n) => n[0])
@@ -271,18 +246,18 @@ const ProfilePage = () => {
               <div className="flex-grow">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">
+                    <h1 className='mb-2 font-bold text-3xl text-white'>
                       {profile.name}
                     </h1>
                     {profile.username ? (
-                      <p className="text-white/60 mb-3">@{profile.username}</p>
+                      <p className='mb-3 text-white/60'>@{profile.username}</p>
                     ) : (
-                      <p className="text-white/40 mb-3 text-sm">
+                      <p className='mb-3 text-sm text-white/40'>
                         No username set
                       </p>
                     )}
                     {profile.headline && (
-                      <p className="text-lg text-white/80 mb-4">
+                      <p className='mb-4 text-lg text-white/80'>
                         {profile.headline}
                       </p>
                     )}
@@ -293,7 +268,7 @@ const ProfilePage = () => {
                         variant="outline"
                         className="border-white/20 text-white hover:bg-white/10"
                       >
-                        <Edit className="h-4 w-4 mr-2" />
+                        <Edit className='mr-2 h-4 w-4' />
                         Edit Profile
                       </Button>
                     </Link>
@@ -302,7 +277,7 @@ const ProfilePage = () => {
 
                 {/* Bio */}
                 {profile.bio && !isPrivateProfile && (
-                  <p className="text-white/70 mb-4 max-w-3xl">{profile.bio}</p>
+                  <p className='mb-4 max-w-3xl text-white/70'>{profile.bio}</p>
                 )}
 
                 {/* Location and Links */}
@@ -329,13 +304,13 @@ const ProfilePage = () => {
 
                 {/* Social Links */}
                 {!isPrivateProfile && (
-                  <div className="flex flex-wrap items-center gap-3 mt-4">
+                  <div className='mt-4 flex flex-wrap items-center gap-3'>
                     {profile.twitter && (
                       <a
                         href={`https://twitter.com/${profile.twitter}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                        className='rounded-lg bg-white/10 p-2 transition-colors hover:bg-white/20'
                       >
                         <Twitter className="h-4 w-4 text-white" />
                       </a>
@@ -345,7 +320,7 @@ const ProfilePage = () => {
                         href={`https://github.com/${profile.github}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                        className='rounded-lg bg-white/10 p-2 transition-colors hover:bg-white/20'
                       >
                         <Github className="h-4 w-4 text-white" />
                       </a>
@@ -355,7 +330,7 @@ const ProfilePage = () => {
                         href={`https://linkedin.com/in/${profile.linkedin}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                        className='rounded-lg bg-white/10 p-2 transition-colors hover:bg-white/20'
                       >
                         <Linkedin className="h-4 w-4 text-white" />
                       </a>
@@ -365,7 +340,7 @@ const ProfilePage = () => {
                         href={profile.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                        className='rounded-lg bg-white/10 p-2 transition-colors hover:bg-white/20'
                       >
                         <Globe className="h-4 w-4 text-white" />
                       </a>
@@ -375,7 +350,7 @@ const ProfilePage = () => {
                         href={`https://t.me/${profile.telegram}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                        className='rounded-lg bg-white/10 p-2 transition-colors hover:bg-white/20'
                       >
                         <Send className="h-4 w-4 text-white" />
                       </a>
@@ -387,27 +362,27 @@ const ProfilePage = () => {
 
             {/* Stats */}
             {stats && !isPrivateProfile && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">
+              <div className='mt-8 grid grid-cols-2 gap-4 md:grid-cols-4'>
+                <div className='rounded-lg bg-white/5 p-4 text-center'>
+                  <p className='font-bold text-2xl text-white'>
                     {stats.totalApplications}
                   </p>
                   <p className="text-sm text-white/60">Applications</p>
                 </div>
-                <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">
+                <div className='rounded-lg bg-white/5 p-4 text-center'>
+                  <p className='font-bold text-2xl text-white'>
                     {stats.totalSubmissions}
                   </p>
                   <p className="text-sm text-white/60">Submissions</p>
                 </div>
-                <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">
+                <div className='rounded-lg bg-white/5 p-4 text-center'>
+                  <p className='font-bold text-2xl text-white'>
                     {stats.totalWins}
                   </p>
                   <p className="text-sm text-white/60">Wins</p>
                 </div>
-                <div className="bg-white/5 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-white">
+                <div className='rounded-lg bg-white/5 p-4 text-center'>
+                  <p className='font-bold text-2xl text-white'>
                     {stats.organizations}
                   </p>
                   <p className="text-sm text-white/60">Organizations</p>
@@ -419,10 +394,10 @@ const ProfilePage = () => {
 
         {/* Private Profile Message */}
         {isPrivateProfile ? (
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardContent className="p-12 text-center">
-              <Lock className="h-16 w-16 text-white/40 mx-auto mb-4" />
-              <h2 className="text-2xl font-semibold text-white mb-2">
+              <Lock className='mx-auto mb-4 h-16 w-16 text-white/40' />
+              <h2 className='mb-2 font-semibold text-2xl text-white'>
                 This Profile is Private
               </h2>
               <p className="text-white/60">
@@ -431,14 +406,14 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
             {/* Left Column - Skills & Organizations */}
             <div className="space-y-6">
               {/* Skills */}
               {profile.skills && getSkillsArray(profile.skills).length > 0 && (
-                <Card className="bg-white/5 backdrop-blur-md border-white/10">
+                <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
                   <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className='flex items-center gap-2 text-white'>
                       Skills
                     </CardTitle>
                   </CardHeader>
@@ -448,7 +423,7 @@ const ProfilePage = () => {
                         <Badge
                           key={skill}
                           variant="secondary"
-                          className="bg-[#E6007A]/20 text-[#E6007A] border-0"
+                          className='border-0 bg-[#E6007A]/20 text-[#FFFFFF]'
                         >
                           {skill}
                         </Badge>
@@ -460,7 +435,7 @@ const ProfilePage = () => {
 
               {/* Organizations */}
               {profile.members && profile.members.length > 0 && (
-                <Card className="bg-white/5 backdrop-blur-md border-white/10">
+                <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
                   <CardHeader>
                     <CardTitle className="text-white">Organizations</CardTitle>
                   </CardHeader>
@@ -477,15 +452,15 @@ const ProfilePage = () => {
                             className="w-10 h-10 rounded-full"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                          <div className='flex h-10 w-10 items-center justify-center rounded-full bg-white/10'>
                             <Building2 className="h-5 w-5 text-white/60" />
                           </div>
                         )}
                         <div>
-                          <p className="text-white font-medium">
+                          <p className='font-medium text-white'>
                             {member.organization.name}
                           </p>
-                          <p className="text-xs text-white/60 capitalize">
+                          <p className='text-white/60 text-xs capitalize'>
                             {member.role}
                           </p>
                         </div>
@@ -498,13 +473,13 @@ const ProfilePage = () => {
 
             {/* Right Column - Activity */}
             <div className="lg:col-span-2">
-              <Card className="bg-white/5 backdrop-blur-md border-white/10">
+              <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
                 <CardHeader>
                   <CardTitle className="text-white">Activity</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList className="bg-white/10 border-white/20">
+                    <TabsList className='border-white/20 bg-white/10'>
                       <TabsTrigger
                         value="activity"
                         className="data-[state=active]:bg-white/20"
@@ -552,7 +527,7 @@ const ProfilePage = () => {
                         .map((item: any) => (
                           <div
                             key={`${item.type}-${item.id}`}
-                            className="bg-white/5 rounded-lg p-4"
+                            className='rounded-lg bg-white/5 p-4'
                           >
                             <Link
                               key={`${item.type}-${item.id}`}
@@ -565,7 +540,7 @@ const ProfilePage = () => {
                             >
                               <div className="flex items-start justify-between">
                                 <div className="flex items-start gap-3">
-                                  <div className="p-2 bg-white/10 rounded-lg">
+                                  <div className='rounded-lg bg-white/10 p-2'>
                                     {item.type === "application" ? (
                                       <FileText className="h-4 w-4 text-white" />
                                     ) : (
@@ -573,7 +548,7 @@ const ProfilePage = () => {
                                     )}
                                   </div>
                                   <div>
-                                    <p className="text-white font-medium">
+                                    <p className='font-medium text-white'>
                                       {item.title ||
                                         (item.type === "application"
                                           ? item.grant.title
@@ -584,7 +559,7 @@ const ProfilePage = () => {
                                         ? `Applied to ${item.grant.organization.name}`
                                         : `Submitted to ${item.bounty.organization.name}`}
                                     </p>
-                                    <p className="text-xs text-white/40 mt-1">
+                                    <p className='mt-1 text-white/40 text-xs'>
                                       {formatDate(item.createdAt)}
                                     </p>
                                   </div>
@@ -610,17 +585,17 @@ const ProfilePage = () => {
                             href={`/grants/${app.grant.id}/`}
                             className="block"
                           >
-                            <div className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-colors">
+                            <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>
                               <div className="flex items-start justify-between">
                                 <div>
-                                  <p className="text-white font-medium">
+                                  <p className='font-medium text-white'>
                                     {app.title}
                                   </p>
                                   <p className="text-sm text-white/60">
                                     {app.grant.title} •{" "}
                                     {app.grant.organization.name}
                                   </p>
-                                  <p className="text-xs text-white/40 mt-1">
+                                  <p className='mt-1 text-white/40 text-xs'>
                                     {formatDate(app.createdAt)}
                                   </p>
                                 </div>
@@ -632,7 +607,7 @@ const ProfilePage = () => {
                           </Link>
                         ))
                       ) : (
-                        <p className="text-white/60 text-center py-8">
+                        <p className='py-8 text-center text-white/60'>
                           No applications yet
                         </p>
                       )}
@@ -646,22 +621,22 @@ const ProfilePage = () => {
                             href={`/bounties/${sub.bounty.id}/submissions/${sub.id}`}
                             className="block"
                           >
-                            <div className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-colors">
+                            <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>
                               <div className="flex items-start justify-between">
                                 <div>
-                                  <p className="text-white font-medium">
+                                  <p className='font-medium text-white'>
                                     {sub.title || sub.bounty.title}
                                   </p>
                                   <p className="text-sm text-white/60">
                                     {sub.bounty.organization.name}
                                   </p>
-                                  <p className="text-xs text-white/40 mt-1">
+                                  <p className='mt-1 text-white/40 text-xs'>
                                     {formatDate(sub.createdAt)}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   {sub.isWinner && (
-                                    <Badge className="bg-yellow-500/20 text-yellow-400 border-0">
+                                    <Badge className='border-0 bg-yellow-500/20 text-yellow-400'>
                                       #{sub.position} Winner
                                     </Badge>
                                   )}
@@ -674,7 +649,7 @@ const ProfilePage = () => {
                           </Link>
                         ))
                       ) : (
-                        <p className="text-white/60 text-center py-8">
+                        <p className='py-8 text-center text-white/60'>
                           No submissions yet
                         </p>
                       )}
@@ -689,22 +664,22 @@ const ProfilePage = () => {
                             href={`/bounties/${win.bounty.id}/submissions/${win.id}`}
                             className="block"
                           >
-                            <div className="bg-gradient-to-r from-yellow-500/10 to-green-500/10 rounded-lg p-4 border border-yellow-500/20">
+                            <div className='rounded-lg border border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-green-500/10 p-4'>
                               <div className="flex items-start justify-between">
                                 <div>
-                                  <p className="text-white font-medium">
+                                  <p className='font-medium text-white'>
                                     {win.title || win.bounty.title}
                                   </p>
                                   <p className="text-sm text-white/60">
                                     {win.bounty.organization.name}
                                   </p>
                                   {win.winningAmount && (
-                                    <p className="text-lg font-semibold text-green-400 mt-2">
+                                    <p className='mt-2 font-semibold text-green-400 text-lg'>
                                       {win.winningAmount} {win.bounty.token}
                                     </p>
                                   )}
                                 </div>
-                                <Badge className="bg-yellow-500/20 text-yellow-400 border-0">
+                                <Badge className='border-0 bg-yellow-500/20 text-yellow-400'>
                                   #{win.position} Place
                                 </Badge>
                               </div>
@@ -712,7 +687,7 @@ const ProfilePage = () => {
                           </Link>
                         ))
                       ) : (
-                        <p className="text-white/60 text-center py-8">
+                        <p className='py-8 text-center text-white/60'>
                           No wins yet
                         </p>
                       )}

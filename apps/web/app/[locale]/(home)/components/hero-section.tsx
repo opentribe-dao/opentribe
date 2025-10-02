@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@packages/auth/client";
-import { Button as BaseButton } from "@packages/base/components/ui/button";
-import { Search, Filter, Settings, User } from "lucide-react";
+import { Button } from "@packages/base/components/ui/button";
+import { Search, Settings, User } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -25,23 +25,6 @@ interface SearchResult {
   slug?: string;
   type: SearchType;
 }
-
-// Safe Button wrapper for React 19 compatibility
-const Button = (props: any) => {
-  const { children, onClick, variant, className } = props;
-  return (
-    <button
-      onClick={onClick}
-      className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-        variant === "outline"
-          ? "border border-white/20 text-white hover:bg-white/10"
-          : "bg-primary text-primary-foreground hover:bg-primary/90"
-      } ${className || ""}`}
-    >
-      {children}
-    </button>
-  );
-};
 
 export function HeroSection() {
   const { data: session } = useSession();
@@ -118,14 +101,16 @@ export function HeroSection() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+
+  const profileHref = `/profile/${session?.user?.username || session?.user.id}`;
   return (
     <>
       <section className="container mx-auto px-4 pt-8 pb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+        <div className='mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <div>
             {session?.user ? (
               <>
-                <h1 className="text-4xl font-bold mb-2">
+                <h1 className='mb-2 font-bold text-4xl'>
                   Welcome Back{userName ? `, ${userName}` : ""}!
                 </h1>
                 <p className="text-white/60">
@@ -134,7 +119,7 @@ export function HeroSection() {
               </>
             ) : (
               <>
-                <h1 className="text-4xl font-bold mb-2">
+                <h1 className='mb-2 font-bold text-4xl'>
                   Find your next high paying gig
                 </h1>
                 <p className="text-white/60">
@@ -144,15 +129,15 @@ export function HeroSection() {
             )}
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className='flex flex-col gap-4 md:flex-row'>
             <Button
               variant="outline"
               className="border-white/20 text-white hover:bg-white/10"
               onClick={() => setOpen(true)}
             >
-              <Search className="w-4 h-4 mr-2" />
+              <Search className='mr-2 h-4 w-4' />
               Search
-              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground opacity-100 ml-2">
+              <kbd className='pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground opacity-100'>
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
@@ -189,7 +174,7 @@ export function HeroSection() {
         <CommandList>
           {/* Optional: simple loading hint when typing */}
           {isSearching && searchTerm && (
-            <div className="px-3 py-2 text-sm text-muted-foreground">
+            <div className='px-3 py-2 text-muted-foreground text-sm'>
               Searching…
             </div>
           )}
@@ -296,7 +281,7 @@ export function HeroSection() {
               <CommandItem
                 value="profile"
                 onSelect={() => {
-                  router.push("/profile");
+                  router.push(profileHref);
                   setOpen(false);
                 }}
               >

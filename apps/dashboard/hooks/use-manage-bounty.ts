@@ -1,7 +1,7 @@
 import { useBountyContext } from '@/app/(authenticated)/components/bounty-provider';
 import type { BountyDetails } from './use-bounty';
 import { useCallback, useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { env } from '@/env';
 import { toast } from 'sonner';
 import { useActiveOrganization, useSession } from '@packages/auth/client';
@@ -55,6 +55,28 @@ const createInitialFormData = (
     | 'CLOSED'
     | 'CANCELLED',
 });
+
+export function useBountySkills() {
+  return useQuery({
+    queryKey: ['bounty-skills'],
+    queryFn: async (): Promise<string[]> => {
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/skills`
+      );
+      if (!res.ok) {
+        throw new Error('Failed to fetch skills');
+      }
+      const json = await res.json();
+      // API returns { data: [{ skill: string, count: number }] }
+      if (!json?.data || !Array.isArray(json.data)) {
+        return [];
+      }
+      return json.data.map((item: { skill: string }) => item.skill);
+    },
+    staleTime: 15 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
 
 export function useBountySettings(bounty: BountyDetails | undefined) {
   const { refreshBounty } = useBountyContext();

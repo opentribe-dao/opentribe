@@ -10,7 +10,7 @@ import {
 } from '@packages/base/components/ui/card';
 import { Input } from '@packages/base/components/ui/input';
 import { Label } from '@packages/base/components/ui/label';
-import { MarkdownEditor, FileUpload } from '@packages/base';
+import { MarkdownEditor } from '@packages/base';
 import {
   Select,
   SelectContent,
@@ -32,35 +32,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Header } from '../../components/header';
 import { PrizeDistributionCard } from '../../components/bounty/settings/prize-distribution-card';
-import { useBountyForm } from '@/hooks/use-bounty-crud';
+import { useBountyForm, useBountySkills } from '@/hooks/use-manage-bounty';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
   { id: 2, name: 'Rewards', description: 'Prize distribution' },
   { id: 3, name: 'Requirements', description: 'Submission criteria' },
   { id: 4, name: 'Publish', description: 'Review and publish' },
-];
-
-const SKILLS = [
-  'Rust',
-  'Substrate',
-  'Polkadot SDK',
-  'Smart Contracts',
-  'ink!',
-  'JavaScript',
-  'TypeScript',
-  'React',
-  'Node.js',
-  'Web3.js',
-  'UI/UX Design',
-  'Technical Writing',
-  'Marketing',
-  'Community Management',
-  'DeFi',
-  'NFTs',
-  'Governance',
-  'Research',
-  'Data Analysis',
 ];
 
 const CreateBountyPage = () => {
@@ -89,6 +67,8 @@ const CreateBountyPage = () => {
     updateScreeningQuestion,
   } = useBountyForm();
 
+  const { data: SKILLS = [] } = useBountySkills();
+
   useEffect(() => {
     if (!sessionLoading && !session?.user) {
       router.push('/sign-in');
@@ -98,7 +78,7 @@ const CreateBountyPage = () => {
   // Show loading state while checking authentication
   if (sessionLoading || orgLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -150,7 +130,7 @@ const CreateBountyPage = () => {
                   >
                     {step.name}
                   </p>
-                  <p className='text-white/40 text-xs'>{step.description}</p>
+                  <p className="text-white/40 text-xs">{step.description}</p>
                 </div>
               </div>
               {index < STEPS.length - 1 && (
@@ -256,20 +236,20 @@ const CreateBountyPage = () => {
                   <div className="relative">
                     <Input
                       id="deadline"
-                       type="date"
+                      type="date"
                       value={formData.deadline}
                       onChange={(e) =>
                         updateFormData('deadline', e.target.value)
                       }
                       min={new Date().toISOString().split('T')[0]}
-                      className='border-white/10 bg-white/5 text-white'
+                      className="border-white/10 bg-white/5 text-white"
                     />
-                    <CalendarIcon className='-translate-y-1/2 absolute top-1/2 right-3 h-4 w-4 text-white/40' />
+                    <CalendarIcon className="-translate-y-1/2 absolute top-1/2 right-3 h-4 w-4 text-white/40" />
                   </div>
                 </div>
 
                 <div>
-                  <div className='mb-3 flex items-center justify-between'>
+                  <div className="mb-3 flex items-center justify-between">
                     <Label>Resources</Label>
                     <Button
                       variant="outline"
@@ -277,7 +257,7 @@ const CreateBountyPage = () => {
                       onClick={addResource}
                       className="border-white/20 text-white hover:bg-white/10"
                     >
-                      <Plus className='mr-2 h-4 w-4' />
+                      <Plus className="mr-2 h-4 w-4" />
                       Add Resource
                     </Button>
                   </div>
@@ -286,7 +266,7 @@ const CreateBountyPage = () => {
                       {formData.resources.map((resource, index) => (
                         <div
                           key={index}
-                          className='space-y-3 rounded-lg bg-white/5 p-4'
+                          className="space-y-3 rounded-lg bg-white/5 p-4"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
@@ -296,7 +276,7 @@ const CreateBountyPage = () => {
                                   updateResource(index, 'title', e.target.value)
                                 }
                                 placeholder="Resource title"
-                                className='border-white/10 bg-white/5 text-white'
+                                className="border-white/10 bg-white/5 text-white"
                               />
                               <Input
                                 value={resource.url}
@@ -304,7 +284,7 @@ const CreateBountyPage = () => {
                                   updateResource(index, 'url', e.target.value)
                                 }
                                 placeholder="https://..."
-                                className='border-white/10 bg-white/5 text-white'
+                                className="border-white/10 bg-white/5 text-white"
                               />
                               <Input
                                 value={resource.description}
@@ -316,14 +296,14 @@ const CreateBountyPage = () => {
                                   )
                                 }
                                 placeholder="Brief description (optional)"
-                                className='border-white/10 bg-white/5 text-white'
+                                className="border-white/10 bg-white/5 text-white"
                               />
                             </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => removeResource(index)}
-                              className='ml-2 text-white/60 hover:text-white'
+                              className="ml-2 text-white/60 hover:text-white"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -354,7 +334,7 @@ const CreateBountyPage = () => {
                 </div> */}
 
                 <div>
-                  <div className='mb-3 flex items-center justify-between'>
+                  <div className="mb-3 flex items-center justify-between">
                     <Label>Screening Questions</Label>
                     <Button
                       variant="outline"
@@ -362,7 +342,7 @@ const CreateBountyPage = () => {
                       onClick={addScreeningQuestion}
                       className="border-white/20 text-white hover:bg-white/10"
                     >
-                      <Plus className='mr-2 h-4 w-4' />
+                      <Plus className="mr-2 h-4 w-4" />
                       Add Question
                     </Button>
                   </div>
@@ -371,7 +351,7 @@ const CreateBountyPage = () => {
                       {formData.screening.map((question, index) => (
                         <div
                           key={index}
-                          className='space-y-3 rounded-lg bg-white/5 p-4'
+                          className="space-y-3 rounded-lg bg-white/5 p-4"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
@@ -385,7 +365,7 @@ const CreateBountyPage = () => {
                                   )
                                 }
                                 placeholder="Enter your question"
-                                className='border-white/10 bg-white/5 text-white'
+                                className="border-white/10 bg-white/5 text-white"
                               />
                               <div className="flex items-center gap-3">
                                 <Select
@@ -398,10 +378,10 @@ const CreateBountyPage = () => {
                                     )
                                   }
                                 >
-                                  <SelectTrigger className='w-32 border-white/10 bg-white/5 text-white'>
+                                  <SelectTrigger className="w-32 border-white/10 bg-white/5 text-white">
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className='border-white/10 bg-zinc-900'>
+                                  <SelectContent className="border-white/10 bg-zinc-900">
                                     <SelectItem
                                       value="text"
                                       className="text-white"
@@ -443,7 +423,7 @@ const CreateBountyPage = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => removeScreeningQuestion(index)}
-                              className='ml-2 text-white/60 hover:text-white'
+                              className="ml-2 text-white/60 hover:text-white"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -462,8 +442,8 @@ const CreateBountyPage = () => {
 
             {currentStep === 4 && (
               <div className="space-y-6">
-                <div className='space-y-4 rounded-lg bg-white/5 p-6'>
-                  <h3 className='font-medium text-lg text-white'>
+                <div className="space-y-4 rounded-lg bg-white/5 p-6">
+                  <h3 className="font-medium text-lg text-white">
                     Review Your Bounty
                   </h3>
 
@@ -474,7 +454,7 @@ const CreateBountyPage = () => {
 
                   <div>
                     <p className="text-sm text-white/60">Description</p>
-                    <p className='whitespace-pre-wrap text-white'>
+                    <p className="whitespace-pre-wrap text-white">
                       {formData.description}
                     </p>
                   </div>
@@ -533,7 +513,7 @@ const CreateBountyPage = () => {
 
                 <div>
                   <Label>Visibility</Label>
-                  <div className='mt-2 flex gap-4'>
+                  <div className="mt-2 flex gap-4">
                     <label className="flex items-center gap-2">
                       <input
                         type="radio"

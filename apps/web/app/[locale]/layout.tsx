@@ -3,13 +3,13 @@ import { AuthProvider } from "@packages/auth/provider";
 import { BaseProvider, Background } from "@packages/base";
 import { fonts } from "@packages/base/lib/fonts";
 import { cn } from "@packages/base/lib/utils";
-//import { Toolbar as CMSToolbar } from '@packages/cms/components/toolbar';
 import { Toolbar } from "@packages/feature-flags/components/toolbar";
 import { getDictionary } from "@packages/i18n";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { Footer } from "./components/footer";
 import { Header } from "./components/header";
+import Providers from "./components/providers";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -32,10 +32,12 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
         <Background />
         <BaseProvider>
           <AuthProvider>
+          <Providers>
             <Header dictionary={dictionary} />
             {children}
             <Footer />
             <Toaster />
+          </Providers>
           </AuthProvider>
         </BaseProvider>
         <Toolbar />

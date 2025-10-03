@@ -1,17 +1,12 @@
 "use client";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RfpsHeroSection } from "./components/hero-section";
 import { RfpsContentSection } from "./components/content-section";
 import { RfpsSidebar } from "./components/sidebar";
 import { useRfpsFilters } from "@/hooks/use-rfps-filters";
 import { useRfpsData, useTopBounties } from "@/hooks/use-rfps-data";
-import { queryClientConfig } from "@/hooks/react-query";
 import { useState } from "react";
 
-const queryClient = new QueryClient(queryClientConfig);
-
-function RFPsPageContent() {
+export default function RFPsPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const filtersHook = useRfpsFilters();
@@ -49,6 +44,9 @@ function RFPsPageContent() {
             onClearAllFilters={filtersHook.clearAllFilters}
             onLoadMore={rfpsData.loadMore}
             onRetry={() => rfpsData.refetch()}
+            topBounties={topBountiesQuery.data || []}
+            topBountiesLoading={topBountiesQuery.isLoading}
+            topBountiesError={topBountiesQuery.error}
           />
 
           <RfpsSidebar
@@ -76,13 +74,5 @@ function RFPsPageContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function RFPsPage() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RFPsPageContent />
-    </QueryClientProvider>
   );
 }

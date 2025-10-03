@@ -7,6 +7,9 @@ import {
   CardTitle,
   CardContent,
 } from "@packages/base/components/ui/card";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
+import Image from "next/image";
+import { relativeTime } from "@packages/base/lib/utils";
 
 interface RecentActivityProps {
   activities?: Array<{
@@ -35,21 +38,21 @@ export function RecentActivity({
 }: RecentActivityProps) {
   if (loading) {
     return (
-      <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className='border-white/10 bg-white/5 backdrop-blur-sm'>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-white">Recent Activity</CardTitle>
-            <div className="h-8 w-16 bg-white/10 rounded animate-pulse" />
+            <Skeleton className="h-8 w-16" />
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse flex-shrink-0" />
+                <Skeleton className="h-8 w-8 flex-shrink-0 rounded-full" />
                 <div className="flex-1 space-y-1">
-                  <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
-                  <div className="h-3 w-16 bg-white/10 rounded animate-pulse" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-3 w-16" />
                 </div>
               </div>
             ))}
@@ -70,7 +73,7 @@ export function RecentActivity({
   };
 
   return (
-    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+    <Card className='border-white/10 bg-white/5 backdrop-blur-sm'>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white">Recent Activity</CardTitle>
@@ -83,11 +86,21 @@ export function RecentActivity({
         <div className="space-y-3">
           {displayActivities.map((activity) => (
             <div key={activity.id} className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-bold text-white font-heading">
-                  {getUserInitials(activity.user.username)}
-                </span>
-              </div>
+              {activity.user.image ? (
+                <Image
+                  height={32}
+                  width={32}
+                  src={activity.user.image}
+                  alt={activity.user.username}
+                  className='rounded-full bg-black object-cover'
+                />
+              ) :  (
+                <div className='flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-600'>
+                  <span className='font-bold font-heading text-white text-xs'>
+                    {getUserInitials(activity.user.username)}
+                  </span>
+                </div>
+              )}
               <div className="flex-1">
                 <p className="text-sm text-white">
                   <span className="font-semibold">
@@ -98,7 +111,6 @@ export function RecentActivity({
                     : "applied to"}{" "}
                   {activity.target.title}
                 </p>
-                <p className="text-xs text-white/50">{activity.createdAt}</p>
               </div>
             </div>
           ))}

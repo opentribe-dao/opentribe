@@ -36,11 +36,21 @@ export async function GET(
       headers: authHeaders,
     });
 
-    const { id: userId } = await params;
+    const { id: idOrUsername } = await params;
 
-    // Get user with all relevant relations
-    const user = await database.user.findUnique({
-      where: { id: userId },
+    // Get user with all relevant relations (by id OR username)
+    const user = await database.user.findFirst({
+      where: {
+        OR: [
+          { id: idOrUsername },
+          {
+            username: {
+              equals: idOrUsername,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
       include: {
         members: {
           include: {
@@ -103,7 +113,7 @@ export async function GET(
     }
 
     // Check if the requesting user can view this profile
-    const isOwnProfile = sessionData?.user?.id === userId;
+    const isOwnProfile = sessionData?.user?.id === user.id;
     const isPublicProfile = !user.private;
 
     if (!isOwnProfile && !isPublicProfile) {

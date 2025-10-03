@@ -1,16 +1,11 @@
 "use client";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeroSection } from "./components/hero-section";
 import { ContentSection } from "./components/content-section";
 import { Sidebar } from "./components/sidebar";
 import { useSkillsFilter } from "@/hooks/use-home-skills-filter";
 import { useHomepageStats, useHomepageContent } from "@/hooks/use-home-data";
-import { queryClientConfig } from "@/hooks/react-query";
 
-const queryClient = new QueryClient(queryClientConfig);
-
-function HomePageContent() {
+export default function HomePage() {
   const skillsFilter = useSkillsFilter();
   const homepageStats = useHomepageStats();
   const contentQueries = useHomepageContent(skillsFilter.selectedSkills);
@@ -22,7 +17,7 @@ function HomePageContent() {
       <HeroSection />
 
       <section className="container mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className='grid grid-cols-1 gap-8 lg:grid-cols-4'>
           <div className="lg:col-span-3">
             <ContentSection
               bounties={bountiesQuery.data?.bounties || []}
@@ -39,8 +34,6 @@ function HomePageContent() {
                 rfps: rfpsQuery.error,
               }}
               selectedSkills={skillsFilter.selectedSkills}
-              hasActiveFilters={skillsFilter.hasActiveFilters}
-              onClearFilters={skillsFilter.clearSkills}
             />
           </div>
 
@@ -50,17 +43,11 @@ function HomePageContent() {
             onSkillToggle={skillsFilter.toggleSkill}
             loading={homepageStats.isLoading}
             error={homepageStats.error}
+            hasActiveFilters={skillsFilter.hasActiveFilters}
+            onClearFilters={skillsFilter.clearSkills} 
           />
         </div>
       </section>
     </div>
-  );
-}
-
-export default function HomePage() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <HomePageContent />
-    </QueryClientProvider>
   );
 }

@@ -311,7 +311,7 @@ export function useBountyForm() {
 
   const updateResource = (
     index: number,
-    field: keyof (typeof formData.resources)[0],
+    field: keyof NonNullable<BountyDetails['resources']>[number],
     value: string
   ) => {
     updateFormData(

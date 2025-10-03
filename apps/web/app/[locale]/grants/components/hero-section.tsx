@@ -3,11 +3,14 @@
 import React from "react";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
-import { Search, Filter, X, Briefcase, DollarSign } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
+import { StatsCard } from "@packages/base/components/ui/stats-card";
 
 interface GrantsHeroSectionProps {
   searchQuery: string;
   totalCount: number;
+  totalValue: number;
+  isLoading: boolean;
   showMobileFilters: boolean;
   activeFiltersCount: number;
   onSearchChange: (value: string) => void;
@@ -18,6 +21,8 @@ interface GrantsHeroSectionProps {
 function GrantsHeroSectionComponent({
   searchQuery,
   totalCount,
+  totalValue,
+  isLoading,
   activeFiltersCount,
   onSearchChange,
   onSearchSubmit,
@@ -85,34 +90,7 @@ function GrantsHeroSectionComponent({
             )}
           </Button>
         </div>
-        <div className="row-start-1 items-center gap-4 sm:flex md:flex lg:row-start-auto ">
-          {" "}
-          {/* Stats + Filters → stay in 1st row on mobile */}
-          <div className="stats-card flex justify-around gap-4 text-sm lg:w-full">
-            <div className="flex items-center gap-2 ">
-              <div className="icon">
-                <DollarSign className="h-8 w-8 rounded-full bg-white/10 p-2" />
-              </div>
-              <div className="flex flex-col ">
-                <span className="font-semibold text-white">{totalCount}</span>
-                <span className="text-white/60">Grants </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 border-white/10 border-l pl-4">
-              {/* <div className='icon'> */}
-              <Briefcase className="h-8 w-8 rounded-full bg-white/10 p-2" />
-              {/* </div> */}
-              <div className="flex flex-col">
-                <span className="font-semibold text-white">150 </span>{" "}
-                {/* TODO: @tarun Make this dynamic */}
-                <span className="text-white/60">Opportunities</span>
-              </div>
-            </div>
-          </div>
-          {/* Spacer/Divider */}
-          {/* <div className="h-4 w-px bg-white/20 lg:hidden" /> */}
-        </div>
+        <StatsCard type="Grants" totalValue={totalValue} totalCount={totalCount} isLoading={isLoading} />
       </div>
     </div>
   );

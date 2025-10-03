@@ -19,6 +19,8 @@ export default function BountiesPage() {
         <BountiesHeroSection
           searchQuery={filtersHook.filters.search || ''}
           totalCount={bountiesData.bounties.length}
+          totalValue={bountiesData.bounties.reduce((acc, bounty) => acc + (Number(bounty.amount) || 0), 0)}
+          isLoading={bountiesData.isLoading}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}

@@ -18,6 +18,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { ShareButton } from "../../bounties/[id]/share-button";
 
 async function getGrant(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -167,13 +168,7 @@ export default function GrantDetailPage({
                   </span>
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  <Share2 className="h-4 w-4" />
-                  Share
-                </Button>
+                <ShareButton url={`/grants/${grantId}`} />
                 <div className="col-span-2 w-full">
                 {grant.userApplicationId ? (
                   <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>

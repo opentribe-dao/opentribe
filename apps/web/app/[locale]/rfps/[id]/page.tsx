@@ -18,6 +18,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
+import { ShareButton } from "../../bounties/[id]/share-button";
 
 async function getRfp(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -126,13 +127,7 @@ export default async function RFPDetailPage({
                   </span>
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  <Share2 className='h-4 w-4'/>
-                    Share
-                </Button>
+                <ShareButton url={`/rfps/${rfp.id}`} />
 
                 <VoteSection rfpId={rfp.id} initialVoteCount={rfp.voteCount} />
               </div>

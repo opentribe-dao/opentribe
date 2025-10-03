@@ -19,6 +19,8 @@ export default function RFPsPage() {
         <RfpsHeroSection
           searchQuery={filtersHook.filters.search || ''}
           totalCount={rfpsData.rfps.length}
+          totalValue={rfpsData.rfps.reduce((acc, rfp) => acc + (Number(rfp.grant.maxAmount) || 0), 0)}
+          isLoading={rfpsData.isLoading}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}

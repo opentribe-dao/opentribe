@@ -3,6 +3,7 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Input } from "@packages/base/components/ui/input"
+import { Separator } from "@packages/base/components/ui/separator"
 import { Search, Filter, X } from "lucide-react"
 import { DollarSign, Briefcase } from "lucide-react";
 

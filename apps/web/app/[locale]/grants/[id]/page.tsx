@@ -1,3 +1,4 @@
+"use client";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,15 +14,15 @@ import {
   Heart,
 } from "lucide-react";
 import { env } from "@/env";
-import { auth } from "@packages/auth/server";
-import { headers } from "next/headers";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
 
 async function getGrant(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/api/v1/grants/${id}`, {
-    cache: "no-store",
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -32,21 +33,54 @@ async function getGrant(id: string) {
   return data.grant;
 }
 
-export default async function GrantDetailPage({
+export default function GrantDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const grant = await getGrant(id);
+  const [grant, setGrant] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [grantId, setGrantId] = useState<string | null>(null);
+
+  // Resolve params once
+  useEffect(() => {
+    const resolveParams = async () => {
+      const { id } = await params;
+      setGrantId(id);
+    };
+    resolveParams();
+  }, [params]);
+
+  // Fetch grant when we have the ID
+  useEffect(() => {
+    if (!grantId) return;
+
+    const fetchGrant = async () => {
+      try {
+        const grantData = await getGrant(grantId);
+        setGrant(grantData);
+      } catch (error) {
+        console.error("Error fetching grant:", error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGrant();
+  }, [grantId]);
+
+  if (loading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <Skeleton className="h-full w-full" />
+      </div>
+    );
+  }
 
   if (!grant) {
     notFound();
   }
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
 
   // Format currency
   const formatAmount = (amount: number) => {
@@ -85,16 +119,16 @@ export default async function GrantDetailPage({
       <div className="relative overflow-hidden">
         <div className="container relative mx-auto px-6 py-8">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-6">
+            <div className="items-start justify-between md:flex">
+              <div className="items-start gap-6 md:flex">
                 {/* Organization Logo */}
-                <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-green-400 to-blue-500">
+                <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
                   {grant.organization.logo ? (
                     <Image
                       src={grant.organization.logo}
                       alt={grant.organization.name}
                       fill
-                      className="bg-white object-cover p-2"
+                      className="h-20 w-20 object-cover"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -107,10 +141,10 @@ export default async function GrantDetailPage({
 
                 {/* Grant Info */}
                 <div>
-                  <h1 className="mb-2 font-bold font-heading text-3xl">
+                  <h1 className="mt-2 mb-2 font-bold font-heading text-2xl sm:text-2xl md:mt-0">
                     {grant.title}
                   </h1>
-                  <div className="flex items-center gap-4 text-white/60">
+                  <div className="flex flex-col gap-4 text-white/60 md:flex-row md:items-center">
                     <span className="flex items-center gap-1">
                       <Building2 className="h-4 w-4" />
                       {grant.organization.industry?.[0] || "Technology"}
@@ -124,7 +158,7 @@ export default async function GrantDetailPage({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-4">
+              <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
                 {/* Application count badge */}
                 <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
                   <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
@@ -135,13 +169,22 @@ export default async function GrantDetailPage({
 
                 <Button
                   variant="outline"
-                  size="icon"
                   className="border-white/20 text-white hover:bg-white/10"
                 >
                   <Share2 className="h-4 w-4" />
+                  Share
                 </Button>
-
-                {grant.source === "EXTERNAL" && grant.applicationUrl ? (
+                <div className="col-span-2 w-full">
+                {grant.userApplicationId ? (
+                  <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>
+                    <Button
+                      className="bg-pink-600 text-white hover:bg-pink-700"
+                      disabled={grant.status !== "OPEN"}
+                    >
+                      View Application
+                    </Button>
+                  </Link>
+                ) : grant.source === "EXTERNAL" && grant.applicationUrl ? (
                   <a
                     href={grant.applicationUrl}
                     target="_blank"
@@ -154,8 +197,15 @@ export default async function GrantDetailPage({
                       Apply Externally
                     </Button>
                   </a>
+                ) : grant.canApply === false ? (
+                  <Button
+                    className="bg-pink-600 text-white hover:bg-pink-700"
+                    disabled={true}
+                  >
+                    Application Closed
+                  </Button>
                 ) : (
-                  <Link href={`/grants/${id}/apply`}>
+                   <Link href={`/grants/${grantId}/apply`}>
                     <Button
                       className="bg-pink-600 text-white hover:bg-pink-700"
                       disabled={grant.status !== "OPEN"}
@@ -164,6 +214,7 @@ export default async function GrantDetailPage({
                     </Button>
                   </Link>
                 )}
+              </div>
               </div>
             </div>
           </div>
@@ -188,10 +239,15 @@ export default async function GrantDetailPage({
 
               {grant.instructions && (
                 <div className="mt-6 space-y-4">
-                  <h3 className="font-semibold text-lg">
+                  {/* <h3 className="font-semibold text-lg">
                     Application Requirements:
-                  </h3>
-                  <div className="space-y-2 text-white/80">
+                  </h3> */}
+                  <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {grant.instructions}
+                </ReactMarkdown>
+              </div>
+                  {/* <div className="space-y-2 text-white/80">
                     {grant.instructions
                       .split("\n")
                       .map((instruction: any, idx: number) => (
@@ -200,7 +256,7 @@ export default async function GrantDetailPage({
                           <span>{instruction}</span>
                         </div>
                       ))}
-                  </div>
+                  </div> */}
                 </div>
               )}
 

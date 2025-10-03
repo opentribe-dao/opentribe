@@ -1,5 +1,5 @@
+"use client";
 import { env } from "@/env";
-import { auth } from "@packages/auth/server";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Briefcase,
@@ -9,18 +9,20 @@ import {
   MapPin,
   Tag,
 } from "lucide-react";
-import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BountyContent } from "./bounty-content";
 import { CommentSection } from "./comment-section";
 import { ShareButton } from "./share-button";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
 
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/api/v1/bounties/${id}`, {
     cache: "no-store",
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -31,22 +33,53 @@ async function getBounty(id: string) {
   return data.bounty;
 }
 
-export default async function BountyDetailPage({
+export default function BountyDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const bounty = await getBounty(id);
+  const [bounty, setBounty] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [bountyId, setBountyId] = useState<string | null>(null);
 
+  // Resolve params once
+  useEffect(() => {
+    const resolveParams = async () => {
+      const { id } = await params;
+      setBountyId(id);
+    };
+    resolveParams();
+  }, [params]);
+
+  // Fetch bounty when we have the ID
+  useEffect(() => {
+    if (!bountyId) return;
+
+    const fetchBounty = async () => {
+      try {
+        const bountyData = await getBounty(bountyId);
+        setBounty(bountyData);
+      } catch (error) {
+        console.error("Error fetching bounty:", error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBounty();
+  }, [bountyId]);
+
+  if (loading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <Skeleton className="h-full w-full" />
+      </div>
+    );
+  }
   if (!bounty) {
     notFound();
   }
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
   // Format currency
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -139,7 +172,7 @@ export default async function BountyDetailPage({
               </div>
 
               {/* Actions */}
-              <div className='mt-4 flex items-center gap-4 md:mt-0'>
+              <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
                 {/* Prize Badge */}
                 {/* <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/20 px-4 py-2 backdrop-blur-sm">
                   <Trophy className="h-4 w-4 text-green-400" />
@@ -148,43 +181,33 @@ export default async function BountyDetailPage({
                   </span>
                 </div> */}
 
-                <div className="flex flex-col items-center justify-end gap-2 sm:items-end">
-                  <Link href={`/bounties/${id}/submit`}>
+                <ShareButton url={`/bounties/${bountyId}`} />
+
+                {bounty.userSubmissionId ? (
+                  <Link href={`/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`}>
                     <Button
-                      className='h-12 w-48 bg-pink-600 font-bold text-lg text-white hover:bg-pink-700 md:w-auto lg:w-48'
+                      className='w-full bg-pink-600 text-white hover:bg-pink-700'
                       disabled={bounty.status !== "OPEN"}
+                    >
+                      View Submission
+                    </Button>
+                  </Link>
+                ) : bounty.canSubmit === false ? (
+                  <Button
+                    className='w-full bg-pink-600 text-white hover:bg-pink-700'
+                    disabled={true}
+                  >
+                    Submit Now
+                  </Button>
+                ) : (
+                  <Link href={`/bounties/${bountyId}/submit`}>
+                    <Button
+                      className='w-full bg-pink-600 text-white hover:bg-pink-700'
                     >
                       Submit Now
                     </Button>
                   </Link>
-
-                  <div className='mt-4 flex items-center gap-2'>
-                    {/* TODO: @tarun Make this dynamic here, I have used lorem pixel images here */}
-                    <span className="flex items-center">
-                      <img
-                        src="https://picsum.photos/200/300"
-                        alt=""
-                        className="h-8 w-8 rounded-full border border-white "
-                      /> 
-                      <img
-                        src="https://picsum.photos/seed/picsum/200/300"
-                        alt=""
-                        className="-ml-4 h-8 w-8 rounded-full border border-white "
-                      />
-                      <img
-                        src="https://picsum.photos/seed/picsum/200/300"
-                        alt=""
-                        className="-ml-4 h-8 w-8 rounded-full border border-white "
-                      />
-                      <img
-                        src="https://picsum.photos/200/300"
-                        alt=""
-                        className="-ml-4 h-8 w-8 rounded-full border border-white"
-                      />
-                    </span>
-                    <ShareButton url={`/bounties/${id}`} />
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* <div className="flex justify-end"> */}
@@ -230,8 +253,8 @@ export default async function BountyDetailPage({
           <div className="space-y-6">
             {/* Grant Price Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <h3 className='mb-2 flex items-center gap-2 font-medium text-xl text-white/60' >
-                <DollarSign className='h-7 w-7 rounded-full border text-black border-white/20 bg-[#DBE7FF] p-1' />Total Prize
+              <h3 className='mb-2 flex items-center gap-2 font-medium text-white/60 text-xl' >
+                <DollarSign className='h-7 w-7 rounded-full border border-white/20 bg-[#DBE7FF] p-1 text-black' />Total Prize
               </h3>
               <div className="mb-4 font-bold font-heading text-2xl">
                 {formatAmount(totalPrize)} {bounty.token}

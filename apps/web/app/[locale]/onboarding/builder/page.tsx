@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { validateWalletAddress } from "../../lib/validations/wallet";
+import { stringifySkillsArray } from "@/lib/utils/skills-parser";
 import { env } from "@/env";
 
 const SKILLS_OPTIONS = [
@@ -95,17 +96,22 @@ export default function BuilderOnboardingPage() {
     }
   }, [session, isPending, router]);
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: string, value: string) => {
+    // Convert username to lowercase for consistency
+    const processedValue = field === 'username' ? value.toLowerCase() : value;
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const handleSkillToggle = (skill: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      skills: prev.skills.includes(skill)
+    setFormData((prev) => {
+      const newSkills = prev.skills.includes(skill)
         ? prev.skills.filter((s) => s !== skill)
-        : [...prev.skills, skill],
-    }));
+        : [...prev.skills, skill];
+      return {
+        ...prev,
+        skills: newSkills,
+      };
+    });
   };
 
   const validateStep1 = () => {
@@ -143,6 +149,7 @@ export default function BuilderOnboardingPage() {
       toast.error("Please add at least one social media link");
       return false;
     }
+    
     return true;
   };
 
@@ -157,6 +164,8 @@ export default function BuilderOnboardingPage() {
   const handleNext = () => {
     if (currentStep === 1 && validateStep1()) {
       setCurrentStep(2);
+      // Scroll to top when moving to next step, especially important for mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 2 && validateStep2()) {
       handleSubmit();
     }
@@ -165,6 +174,8 @@ export default function BuilderOnboardingPage() {
   const handleBack = () => {
     if (currentStep === 2) {
       setCurrentStep(1);
+      // Scroll to top when going back to previous step, especially important for mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       router.push("/onboarding");
     }
@@ -173,6 +184,15 @@ export default function BuilderOnboardingPage() {
   const handleSubmit = async () => {
     try {
       setLoading(true);
+
+      // Prepare the payload with detailed logging
+      const payload = {
+        ...formData,
+        username: formData.username.toLowerCase(), // Ensure username is lowercase in API
+        skills: stringifySkillsArray(formData.skills),
+        // TODO: @tarun - discuss with team, don't send profileCompleted update it in the backend
+        profileCompleted: true,
+      };
 
       // Update user profile
       const response = await fetch(
@@ -183,11 +203,7 @@ export default function BuilderOnboardingPage() {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({
-            ...formData,
-            skills: JSON.stringify(formData.skills),
-            profileCompleted: true,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -207,8 +223,8 @@ export default function BuilderOnboardingPage() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2'></div>
       </div>
     );
   }
@@ -216,32 +232,32 @@ export default function BuilderOnboardingPage() {
   // If no session, show loading (will redirect)
   if (!session?.user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2'></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
+    <div className='flex min-h-screen items-center justify-center p-4'>
+      <div className='w-full max-w-2xl'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="text-xs font-medium text-white/70 tracking-[0.2em]">
+        <div className='mb-8 flex items-center justify-between'>
+          <div className='font-medium text-white/70 text-xs tracking-[0.2em]'>
             OPENTRIBE
           </div>
           <div className="flex items-center gap-6">
             <span className="text-sm text-white/60">Questions?</span>
             <span className="text-sm text-white/60">Contact</span>
             <Button variant="ghost" size="sm" className="text-white/60">
-              <Globe className="h-4 w-4 mr-1" />
+              <Globe className='mr-1 h-4 w-4' />
               EN
             </Button>
           </div>
         </div>
 
         {/* Form Container */}
-        <div className="bg-zinc-900/95 backdrop-blur-md border border-white/10 rounded-2xl p-8">
+        <div className='rounded-2xl border border-white/10 bg-zinc-900/95 p-8 backdrop-blur-md'>
           {/* Back Button */}
           <Button
             variant="ghost"
@@ -249,36 +265,36 @@ export default function BuilderOnboardingPage() {
             onClick={handleBack}
             className="mb-6 text-white/60 hover:text-white"
           >
-            <ChevronLeft className="h-4 w-4 mr-1" />
+            <ChevronLeft className='mr-1 h-4 w-4' />
             Back
           </Button>
 
           {/* Title */}
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-white mb-2">Profile</h1>
-            <p className="text-white/60 text-sm">
+            <h1 className='mb-2 font-semibold text-2xl text-white'>Profile</h1>
+            <p className='text-sm text-white/60'>
               Help us to know about you so that we can have tailored experience.
             </p>
           </div>
 
           {/* Progress Indicator */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className='mb-8 flex items-center gap-4'>
             <div className="flex items-center gap-2">
               <div
-                className={`w-2 h-2 rounded-full ${
+                className={`h-2 w-2 rounded-full ${
                   currentStep >= 1 ? "bg-white" : "bg-white/20"
                 }`}
               />
-              <span className="text-xs text-white/60">Personal Details</span>
+              <span className='text-white/60 text-xs'>Personal Details</span>
             </div>
-            <div className="flex-1 h-px bg-white/20" />
+            <div className='h-px flex-1 bg-white/20' />
             <div className="flex items-center gap-2">
               <div
-                className={`w-2 h-2 rounded-full ${
+                className={`h-2 w-2 rounded-full ${
                   currentStep >= 2 ? "bg-white" : "bg-white/20"
                 }`}
               />
-              <span className="text-xs text-white/60">
+              <span className='text-white/60 text-xs'>
                 Professional Details
               </span>
             </div>
@@ -290,7 +306,7 @@ export default function BuilderOnboardingPage() {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="text-white/80 mb-2">
+                  <Label htmlFor="firstName" className='mb-2 text-white/80'>
                     First Name *
                   </Label>
                   <Input
@@ -300,11 +316,11 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("firstName", e.target.value)
                     }
                     placeholder="Enter your first name"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="text-white/80 mb-2">
+                  <Label htmlFor="lastName" className='mb-2 text-white/80'>
                     Last Name *
                   </Label>
                   <Input
@@ -314,14 +330,14 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("lastName", e.target.value)
                     }
                     placeholder="Enter your last name"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                 </div>
               </div>
 
               {/* Avatar */}
               <div>
-                <Label className="text-white/80 mb-4 block">
+                <Label className='mb-4 block text-white/80'>
                   Profile Picture
                 </Label>
                 <ImageUpload
@@ -335,7 +351,7 @@ export default function BuilderOnboardingPage() {
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className="text-white/80 mb-2">
+                <Label htmlFor="username" className='mb-2 text-white/80'>
                   Username *
                 </Label>
                 <Input
@@ -345,13 +361,13 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("username", e.target.value)
                   }
                   placeholder="Choose a unique username"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Location */}
               <div>
-                <Label htmlFor="location" className="text-white/80 mb-2">
+                <Label htmlFor="location" className='mb-2 text-white/80'>
                   Location *
                 </Label>
                 <Input
@@ -361,15 +377,15 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("location", e.target.value)
                   }
                   placeholder="City, Country"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Skills */}
               <div>
-                <Label className="text-white/80 mb-2">
+                <Label className='mb-2 text-white/80'>
                   Skills *{" "}
-                  <span className="text-xs text-white/40">
+                  <span className='text-white/40 text-xs'>
                     (We will use this to match you to new opportunities)
                   </span>
                 </Label>
@@ -383,7 +399,7 @@ export default function BuilderOnboardingPage() {
                       onClick={() => handleSkillToggle(skill)}
                       className={`border-white/20 ${
                         formData.skills.includes(skill)
-                          ? "bg-[#E6007A] border-[#E6007A] text-white"
+                          ? 'border-[#E6007A] bg-[#E6007A] text-white'
                           : "bg-white/5 text-white/80 hover:bg-white/10"
                       }`}
                     >
@@ -395,7 +411,7 @@ export default function BuilderOnboardingPage() {
 
               {/* Wallet Address */}
               <div>
-                <Label htmlFor="walletAddress" className="text-white/80 mb-2">
+                <Label htmlFor="walletAddress" className='mb-2 text-white/80'>
                   Wallet Address *
                 </Label>
                 <Input
@@ -405,11 +421,11 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("walletAddress", e.target.value)
                   }
                   placeholder="Enter your Polkadot or Kusama address"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40 font-mono"
+                  className='border-white/20 bg-white/5 font-mono text-white placeholder:text-white/40'
                 />
                 {formData.walletAddress && (
                   <p
-                    className={`text-xs mt-1 ${
+                    className={`mt-1 text-xs ${
                       validateWalletAddress(formData.walletAddress).isValid
                         ? "text-green-500"
                         : "text-red-500"
@@ -426,9 +442,9 @@ export default function BuilderOnboardingPage() {
 
               {/* Social Links */}
               <div>
-                <Label className="text-white/80 mb-2">
+                <Label className='mb-2 text-white/80'>
                   Social Media Links{" "}
-                  <span className="text-xs text-white/40">
+                  <span className='text-white/40 text-xs'>
                     (Add at least one)
                   </span>
                 </Label>
@@ -439,7 +455,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("website", e.target.value)
                     }
                     placeholder="Personal website"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                   <Input
                     value={formData.twitter}
@@ -447,7 +463,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("twitter", e.target.value)
                     }
                     placeholder="Twitter handle"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                   <Input
                     value={formData.github}
@@ -455,7 +471,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("github", e.target.value)
                     }
                     placeholder="GitHub username"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                   <Input
                     value={formData.linkedin}
@@ -463,7 +479,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("linkedin", e.target.value)
                     }
                     placeholder="LinkedIn profile"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                 </div>
               </div>
@@ -474,9 +490,9 @@ export default function BuilderOnboardingPage() {
             <div className="space-y-6">
               {/* Current Employer */}
               <div>
-                <Label htmlFor="employer" className="text-white/80 mb-2">
+                <Label htmlFor="employer" className='mb-2 text-white/80'>
                   Current Employer{" "}
-                  <span className="text-xs text-white/40">(Optional)</span>
+                  <span className='text-white/40 text-xs'>(Optional)</span>
                 </Label>
                 <Input
                   id="employer"
@@ -485,15 +501,15 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("employer", e.target.value)
                   }
                   placeholder="Company name"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Work Experience */}
               <div>
-                <Label htmlFor="workExperience" className="text-white/80 mb-2">
+                <Label htmlFor="workExperience" className='mb-2 text-white/80'>
                   Work Experience{" "}
-                  <span className="text-xs text-white/40">(Optional)</span>
+                  <span className='text-white/40 text-xs'>(Optional)</span>
                 </Label>
                 <Textarea
                   id="workExperience"
@@ -503,13 +519,13 @@ export default function BuilderOnboardingPage() {
                   }
                   placeholder="Tell us about your professional experience"
                   rows={4}
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Crypto Experience */}
               <div>
-                <Label className="text-white/80 mb-2">
+                <Label className='mb-2 text-white/80'>
                   Crypto Experience *
                 </Label>
                 <Select
@@ -518,10 +534,10 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("cryptoExperience", value)
                   }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                  <SelectTrigger className='border-white/20 bg-white/5 text-white'>
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/20">
+                  <SelectContent className='border-white/20 bg-zinc-900'>
                     {CRYPTO_EXPERIENCE_OPTIONS.map((option) => (
                       <SelectItem
                         key={option.value}
@@ -537,17 +553,17 @@ export default function BuilderOnboardingPage() {
 
               {/* Work Preference */}
               <div>
-                <Label className="text-white/80 mb-2">Work Preference *</Label>
+                <Label className='mb-2 text-white/80'>Work Preference *</Label>
                 <Select
                   value={formData.workPreference}
                   onValueChange={(value) =>
                     handleInputChange("workPreference", value)
                   }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                  <SelectTrigger className='border-white/20 bg-white/5 text-white'>
                     <SelectValue placeholder="Select your preferred work type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/20">
+                  <SelectContent className='border-white/20 bg-zinc-900'>
                     {WORK_PREFERENCE_OPTIONS.map((option) => (
                       <SelectItem
                         key={option.value}
@@ -564,8 +580,9 @@ export default function BuilderOnboardingPage() {
           )}
 
           {/* Actions */}
-          <div className="flex justify-between items-center mt-8">
-            <Button
+          <div className='mt-8 flex items-center justify-between'>
+            {/* TODO: @yogesh - Discuss with team about Save as draft */}
+            {/* <Button
               variant="ghost"
               onClick={() =>
                 router.push(env.NEXT_PUBLIC_DASHBOARD_URL || "/dashboard")
@@ -573,12 +590,12 @@ export default function BuilderOnboardingPage() {
               className="text-white/60 hover:text-white"
             >
               Save as Draft
-            </Button>
+            </Button> */}
 
             <Button
               onClick={handleNext}
               disabled={loading}
-              className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white px-8"
+              className='bg-[#E6007A] px-8 text-white hover:bg-[#E6007A]/90'
             >
               {loading ? (
                 <>

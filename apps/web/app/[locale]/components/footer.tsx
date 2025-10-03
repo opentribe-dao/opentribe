@@ -1,8 +1,7 @@
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
-import { Facebook, Twitter, Linkedin, Github } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Github, Youtube } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -174,16 +173,28 @@ export const Footer = () => {
               <Github className='h-5 w-5' />
             </Link>
             <Link
-              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://www.linkedin.com/company/opentribe-dao/"
               className='text-white/40 transition-colors hover:text-white'
             >
               <Linkedin className='h-5 w-5' />
             </Link>
             <Link
-              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://www.facebook.com/opentribe.io"
               className='text-white/40 transition-colors hover:text-white'
             >
               <Facebook className='h-5 w-5' />
+            </Link>
+            <Link
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://www.youtube.com/@Opentribe_io"
+              className='text-white/40 transition-colors hover:text-white'
+            >
+              <Youtube className='h-5 w-5' />
             </Link>
           </div>
         </div>

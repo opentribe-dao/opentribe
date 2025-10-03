@@ -2,7 +2,9 @@
 
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
+import { Skeleton } from "@packages/base/components/ui/skeleton"
 import { BountyCard } from "../../components/cards/bounty-card"
+import { HowItWorksCard } from "./how-it-works"
 import type { Bounty } from '@/hooks/use-bounties-data'
 
 interface BountyFilters {
@@ -105,9 +107,9 @@ function BountiesContentSectionComponent({
       {loading ? (
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-1'>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-            <div
+            <Skeleton
               key={i}
-              className='h-[400px] animate-pulse rounded-2xl bg-white/5'
+              className="h-[400px] rounded-2xl"
             />
           ))}
         </div>
@@ -171,6 +173,9 @@ function BountiesContentSectionComponent({
               </Button>
             </div>
           )}
+
+          {/* How it works - Mobile Only */}
+          <HowItWorksCard className='mt-6 lg:hidden'/>
         </>
       ) : !loading ? (
         <div className="py-12 text-center">

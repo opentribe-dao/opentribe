@@ -2,7 +2,9 @@
 
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
+import { Skeleton } from "@packages/base/components/ui/skeleton"
 import { GrantCard } from "../../components/cards/grant-card"
+import { type TopRFP, TopRFPsCard } from "./top-rfps"
 import type { Grant } from '@/hooks/use-grants-data'
 
 interface GrantFilters {
@@ -10,7 +12,6 @@ interface GrantFilters {
   sortBy: string
   priceRange: [number, number]
 }
-
 
 interface GrantsContentSectionProps {
   grants: Grant[]
@@ -26,6 +27,9 @@ interface GrantsContentSectionProps {
   onClearAllFilters: () => void
   onLoadMore: () => void
   onRetry: () => void
+  topRFPs: TopRFP[]
+  topRFPsLoading: boolean
+  topRFPsError: Error | null
 }
 
 function GrantsContentSectionComponent({
@@ -40,7 +44,10 @@ function GrantsContentSectionComponent({
   onSkillToggle,
   onClearAllFilters,
   onLoadMore,
-  onRetry
+  onRetry,
+  topRFPs,
+  topRFPsLoading,
+  topRFPsError
 }: GrantsContentSectionProps) {
   return (
     <div className="lg:col-span-3">
@@ -105,9 +112,9 @@ function GrantsContentSectionComponent({
       {loading && grants.length === 0 && (
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-1'>
           {Array.from({ length: 9 }).map((_, i) => (
-            <div
+            <Skeleton
               key={i}
-              className='h-[466px] animate-pulse rounded-2xl bg-white/5'
+              className="h-[466px] rounded-2xl"
             />
           ))}
         </div>
@@ -180,6 +187,14 @@ function GrantsContentSectionComponent({
               </Button>
             </div>
           )}
+
+          {/* Top RFPs - Mobile Only */}
+            <TopRFPsCard
+              topRFPs={topRFPs}
+              topRFPsLoading={topRFPsLoading}
+              topRFPsError={topRFPsError}
+              className='mt-6 lg:hidden'
+            />
         </>
       )}
 
@@ -187,9 +202,9 @@ function GrantsContentSectionComponent({
       {loading && grants.length > 0 && (
         <div className='mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div
+            <Skeleton
               key={`loading-${i}`}
-              className='h-[466px] animate-pulse rounded-2xl bg-white/5'
+              className="h-[466px] rounded-2xl"
             />
           ))}
         </div>

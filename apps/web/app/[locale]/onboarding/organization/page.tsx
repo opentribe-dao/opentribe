@@ -125,8 +125,10 @@ function OrganizationOnboardingPageContent() {
     }
   }, [userProfile]);
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: string, value: string) => {
+    // Convert username to lowercase for consistency
+    const processedValue = field === 'username' ? value.toLowerCase() : value;
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const addTeamMember = () => {
@@ -222,9 +224,13 @@ function OrganizationOnboardingPageContent() {
       // Skip validation if user has already completed profile
       if (session?.user?.profileCompleted || validateStep1()) {
         setCurrentStep(2);
+        // Scroll to top when moving to next step, especially important for mobile
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } else if (currentStep === 2 && validateStep2()) {
-      setCurrentStep(3);
+        setCurrentStep(3);
+        // Scroll to top when moving to next step, especially important for mobile
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 3 && validateStep3()) {
       handleSubmit();
     }
@@ -233,6 +239,8 @@ function OrganizationOnboardingPageContent() {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top when going back to previous step, especially important for mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       router.back();
     }
@@ -255,7 +263,7 @@ function OrganizationOnboardingPageContent() {
             userProfile: {
               firstName: formData.firstName,
               lastName: formData.lastName,
-              username: formData.username,
+              username: formData.username.toLowerCase(), // Ensure username is lowercase in API
               location: formData.location,
               walletAddress: formData.walletAddress,
               website: formData.website,
@@ -296,8 +304,8 @@ function OrganizationOnboardingPageContent() {
 
   if (sessionLoading || profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2'></div>
       </div>
     );
   }
@@ -305,35 +313,35 @@ function OrganizationOnboardingPageContent() {
   // If no session, show loading (will redirect)
   if (!session?.user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2'></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
+    <div className='flex min-h-screen items-center justify-center p-4'>
+      <div className='w-full max-w-2xl'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="text-sm font-medium font-heading font-bold text-white/70 tracking-[0.2em]">
+        <div className='mb-8 flex items-center justify-between'>
+          <div className='font-bold font-heading font-medium text-sm text-white/70 tracking-[0.2em]'>
             OPENTRIBE
           </div>
-          <div className="flex items-center mr-4">
+          <div className='mr-4 flex items-center'>
             <Button
               variant="outline"
               size="sm"
               className="text-white/60"
               onClick={() => window.open("mailto:support@opentribe.io", "_self")}
             >
-              <Mail className="h-4 w-4 mr-1" />
+              <Mail className='mr-1 h-4 w-4' />
               Contact
             </Button>
           </div>
         </div>
 
         {/* Form Container */}
-        <div className="bg-zinc-900/95 backdrop-blur-md border border-white/10 rounded-2xl p-8">
+        <div className='rounded-2xl border border-white/10 bg-zinc-900/95 p-8 backdrop-blur-md'>
           {/* Back Button */}
           <Button
             variant="ghost"
@@ -341,54 +349,54 @@ function OrganizationOnboardingPageContent() {
             onClick={handleBack}
             className="mb-6 text-white/60 hover:text-white"
           >
-            <ChevronLeft className="h-4 w-4 mr-1" />
+            <ChevronLeft className='mr-1 h-4 w-4' />
             Back
           </Button>
 
           {/* Title */}
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-white mb-2">
+            <h1 className='mb-2 font-semibold text-2xl text-white'>
               Tell Us About Your Organization
             </h1>
-            <p className="text-white/60 text-sm">
+            <p className='text-sm text-white/60'>
               This information will be displayed on your public profile and help
               us connect you with the right talent.
             </p>
           </div>
 
           {/* Progress Indicator */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className='mb-8 flex items-center gap-3'>
             <div className="flex items-center gap-2">
               <div
-                className={`w-2 h-2 rounded-full ${
+                className={`h-2 w-2 rounded-full ${
                   currentStep >= 1 || session?.user?.profileCompleted
                     ? "bg-[#E6007A]"
                     : "bg-white/20"
                 }`}
               />
               {!session?.user?.profileCompleted && (
-                <span className="text-xs text-white/60">Personal Details</span>
+                <span className='text-white/60 text-xs'>Personal Details</span>
               )}
             </div>
-            <div className="flex-1 h-px bg-white/20" />
+            <div className='h-px flex-1 bg-white/20' />
             <div className="flex items-center gap-2">
               <div
-                className={`w-2 h-2 rounded-full ${
+                className={`h-2 w-2 rounded-full ${
                   currentStep >= 2 ? "bg-white" : "bg-white/20"
                 }`}
               />
-              <span className="text-xs text-white/60">
+              <span className='text-white/60 text-xs'>
                 Organization Details
               </span>
             </div>
-            <div className="flex-1 h-px bg-white/20" />
+            <div className='h-px flex-1 bg-white/20' />
             <div className="flex items-center gap-2">
               <div
-                className={`w-2 h-2 rounded-full ${
+                className={`h-2 w-2 rounded-full ${
                   currentStep >= 3 ? "bg-white" : "bg-white/20"
                 }`}
               />
-              <span className="text-xs text-white/60">Team Members</span>
+              <span className='text-white/60 text-xs'>Team Members</span>
             </div>
           </div>
 
@@ -396,7 +404,7 @@ function OrganizationOnboardingPageContent() {
           {currentStep === 1 && (
             <div className="space-y-6">
               {session?.user?.profileCompleted && (
-                <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6">
+                <div className='mb-6 rounded-lg border border-white/10 bg-white/5 p-4'>
                   <p className="text-sm text-white/80">
                     We've pre-filled your personal details from your existing
                     profile. You can update them if needed.
@@ -406,7 +414,7 @@ function OrganizationOnboardingPageContent() {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="text-white/80 mb-2">
+                  <Label htmlFor="firstName" className='mb-2 text-white/80'>
                     First Name *
                   </Label>
                   <Input
@@ -416,11 +424,11 @@ function OrganizationOnboardingPageContent() {
                       handleInputChange("firstName", e.target.value)
                     }
                     placeholder="Enter your first name"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="text-white/80 mb-2">
+                  <Label htmlFor="lastName" className='mb-2 text-white/80'>
                     Last Name *
                   </Label>
                   <Input
@@ -430,14 +438,14 @@ function OrganizationOnboardingPageContent() {
                       handleInputChange("lastName", e.target.value)
                     }
                     placeholder="Enter your last name"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                 </div>
               </div>
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className="text-white/80 mb-2">
+                <Label htmlFor="username" className='mb-2 text-white/80'>
                   Username *
                 </Label>
                 <Input
@@ -447,13 +455,13 @@ function OrganizationOnboardingPageContent() {
                     handleInputChange("username", e.target.value)
                   }
                   placeholder="Choose a unique username"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Location */}
               <div>
-                <Label htmlFor="location" className="text-white/80 mb-2">
+                <Label htmlFor="location" className='mb-2 text-white/80'>
                   Your Location *
                 </Label>
                 <Input
@@ -463,13 +471,13 @@ function OrganizationOnboardingPageContent() {
                     handleInputChange("location", e.target.value)
                   }
                   placeholder="City, Country"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Wallet Address */}
               <div>
-                <Label htmlFor="walletAddress" className="text-white/80 mb-2">
+                <Label htmlFor="walletAddress" className='mb-2 text-white/80'>
                   Wallet Address *
                 </Label>
                 <Input
@@ -479,15 +487,15 @@ function OrganizationOnboardingPageContent() {
                     handleInputChange("walletAddress", e.target.value)
                   }
                   placeholder="0x..."
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Social Links */}
               <div>
-                <Label className="text-white/80 mb-2">
+                <Label className='mb-2 text-white/80'>
                   Social Media Links{" "}
-                  <span className="text-xs text-white/40">
+                  <span className='text-white/40 text-xs'>
                     (Add at least one)
                   </span>
                 </Label>
@@ -498,7 +506,7 @@ function OrganizationOnboardingPageContent() {
                       handleInputChange("website", e.target.value)
                     }
                     placeholder="Personal website"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                   <Input
                     value={formData.twitter}
@@ -506,7 +514,7 @@ function OrganizationOnboardingPageContent() {
                       handleInputChange("twitter", e.target.value)
                     }
                     placeholder="Twitter handle"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                   <Input
                     value={formData.linkedin}
@@ -514,7 +522,7 @@ function OrganizationOnboardingPageContent() {
                       handleInputChange("linkedin", e.target.value)
                     }
                     placeholder="LinkedIn profile"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                   />
                 </div>
               </div>
@@ -527,7 +535,7 @@ function OrganizationOnboardingPageContent() {
               <div>
                 <Label
                   htmlFor="organizationName"
-                  className="text-white/80 mb-2"
+                  className='mb-2 text-white/80'
                 >
                   Organization Name *
                 </Label>
@@ -538,14 +546,14 @@ function OrganizationOnboardingPageContent() {
                     handleInputChange("organizationName", e.target.value)
                   }
                   placeholder="Enter organization name"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Organization Type */}
                 <div>
-                  <Label className="text-white/80 mb-2">
+                  <Label className='mb-2 text-white/80'>
                     Organization Type *
                   </Label>
                   <Select
@@ -554,10 +562,10 @@ function OrganizationOnboardingPageContent() {
                       handleInputChange("organizationType", value)
                     }
                   >
-                    <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                    <SelectTrigger className='border-white/20 bg-white/5 text-white'>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/20">
+                    <SelectContent className='border-white/20 bg-zinc-900'>
                       {ORGANIZATION_TYPES.map((type) => (
                         <SelectItem
                           key={type.value}
@@ -573,17 +581,17 @@ function OrganizationOnboardingPageContent() {
 
                 {/* Industry */}
                 <div>
-                  <Label className="text-white/80 mb-2">Industry *</Label>
+                  <Label className='mb-2 text-white/80'>Industry *</Label>
                   <Select
                     value={formData.organizationIndustry}
                     onValueChange={(value) =>
                       handleInputChange("organizationIndustry", value)
                     }
                   >
-                    <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                    <SelectTrigger className='border-white/20 bg-white/5 text-white'>
                       <SelectValue placeholder="Select industry" />
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/20">
+                    <SelectContent className='border-white/20 bg-zinc-900'>
                       {INDUSTRIES.map((industry) => (
                         <SelectItem
                           key={industry.value}
@@ -602,7 +610,7 @@ function OrganizationOnboardingPageContent() {
               <div>
                 <Label
                   htmlFor="organizationDescription"
-                  className="text-white/80 mb-2"
+                  className='mb-2 text-white/80'
                 >
                   Organization Description *
                 </Label>
@@ -614,7 +622,7 @@ function OrganizationOnboardingPageContent() {
                   }
                   placeholder="Tell us about your organization"
                   rows={4}
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
@@ -622,7 +630,7 @@ function OrganizationOnboardingPageContent() {
               <div>
                 <Label
                   htmlFor="organizationWebsite"
-                  className="text-white/80 mb-2"
+                  className='mb-2 text-white/80'
                 >
                   Organization Website *
                 </Label>
@@ -633,7 +641,7 @@ function OrganizationOnboardingPageContent() {
                     handleInputChange("organizationWebsite", e.target.value)
                   }
                   placeholder="https://your-organization.com"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
@@ -641,7 +649,7 @@ function OrganizationOnboardingPageContent() {
               <div>
                 <Label
                   htmlFor="organizationLocation"
-                  className="text-white/80 mb-2"
+                  className='mb-2 text-white/80'
                 >
                   Organization Location *
                 </Label>
@@ -652,15 +660,15 @@ function OrganizationOnboardingPageContent() {
                     handleInputChange("organizationLocation", e.target.value)
                   }
                   placeholder="City, Country"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                 />
               </div>
 
               {/* Logo Upload */}
               <div>
-                <Label className="text-white/80 mb-4 block">
+                <Label className='mb-4 block text-white/80'>
                   Organization Logo{" "}
-                  <span className="text-xs text-white/40">(Optional)</span>
+                  <span className='text-white/40 text-xs'>(Optional)</span>
                 </Label>
                 <ImageUpload
                   currentImageUrl={formData.organizationLogo}
@@ -678,10 +686,10 @@ function OrganizationOnboardingPageContent() {
           {currentStep === 3 && (
             <div className="space-y-6">
               <div>
-                <div className="flex items-center justify-between mb-4">
+                <div className='mb-4 flex items-center justify-between'>
                   <Label className="text-white/80">
                     Team Members{" "}
-                    <span className="text-xs text-white/40">(Optional)</span>
+                    <span className='text-white/40 text-xs'>(Optional)</span>
                   </Label>
                   <Button
                     type="button"
@@ -690,14 +698,14 @@ function OrganizationOnboardingPageContent() {
                     onClick={addTeamMember}
                     className="border-white/20 text-white hover:bg-white/10"
                   >
-                    <Plus className="h-4 w-4 mr-1" />
+                    <Plus className='mr-1 h-4 w-4' />
                     Add Member
                   </Button>
                 </div>
 
                 {formData.teamMembers.length === 0 ? (
-                  <div className="text-center py-8 bg-white/5 rounded-lg border border-white/10">
-                    <p className="text-white/60 text-sm mb-3">
+                  <div className='rounded-lg border border-white/10 bg-white/5 py-8 text-center'>
+                    <p className='mb-3 text-sm text-white/60'>
                       No team members added yet
                     </p>
                     <p className="text-white/40 text-xs">
@@ -709,7 +717,7 @@ function OrganizationOnboardingPageContent() {
                     {formData.teamMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="bg-white/5 rounded-lg p-4 border border-white/10"
+                        className='rounded-lg border border-white/10 bg-white/5 p-4'
                       >
                         <div className="flex items-start gap-4">
                           <div className="flex-1 space-y-4">
@@ -724,7 +732,7 @@ function OrganizationOnboardingPageContent() {
                                   )
                                 }
                                 placeholder="Member name"
-                                className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                                className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                               />
                               <Input
                                 value={member.email}
@@ -737,7 +745,7 @@ function OrganizationOnboardingPageContent() {
                                 }
                                 placeholder="Email address"
                                 type="email"
-                                className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                                className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
                               />
                             </div>
                             <Select
@@ -750,10 +758,10 @@ function OrganizationOnboardingPageContent() {
                                 )
                               }
                             >
-                              <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                              <SelectTrigger className='border-white/20 bg-white/5 text-white'>
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="bg-zinc-900 border-white/20">
+                              <SelectContent className='border-white/20 bg-zinc-900'>
                                 <SelectItem
                                   value="admin"
                                   className="text-white"
@@ -788,8 +796,9 @@ function OrganizationOnboardingPageContent() {
           )}
 
           {/* Actions */}
-          <div className="flex justify-between items-center mt-8">
-            <Button
+          <div className='mt-8 flex items-center justify-between'>
+            {/* TODO: @yogesh - Discuss with team about Save as draft */}
+            {/* <Button
               variant="ghost"
               onClick={() =>
                 router.push(
@@ -799,12 +808,12 @@ function OrganizationOnboardingPageContent() {
               className="text-white/60 hover:text-white"
             >
               Save as Draft
-            </Button>
+            </Button> */}
 
             <Button
               onClick={handleNext}
               disabled={loading}
-              className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white px-8"
+              className='bg-[#E6007A] px-8 text-white hover:bg-[#E6007A]/90'
             >
               {loading ? (
                 <>

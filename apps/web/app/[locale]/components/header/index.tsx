@@ -35,14 +35,25 @@ type HeaderProps = {
   dictionary: Dictionary;
 };
 
+type UserSession = {
+  id: string;
+  email?: string;
+  name?: string;
+  image?: string | null;
+  username?: string;
+};
+
+const LOCALE_PREFIX_REGEX = /^\/[a-z]{2}/;
+
 const UserMenu = ({
   user,
   onSignOut,
 }: {
-  user: any;
+  user: UserSession;
   onSignOut: () => void;
 }) => {
   const [userProfile, setUserProfile] = useState<{
+    username?: string;
     organizations: Array<{
       id: string;
       name: string;
@@ -50,7 +61,6 @@ const UserMenu = ({
       role: string;
     }>;
   } | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -65,13 +75,12 @@ const UserMenu = ({
         if (response.ok) {
           const data = await response.json();
           setUserProfile({
+            username: data.user.username,
             organizations: data.user.organizations || [],
           });
         }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setLoading(false);
+      } catch {
+        // ignore
       }
     };
 
@@ -98,6 +107,7 @@ const UserMenu = ({
   const firstName = user.name ? user.name.split(" ")[0] : displayName;
   const hasOrganization =
     userProfile?.organizations && userProfile.organizations.length > 0;
+  const profileHref = `/profile/${userProfile?.username || user.username || user.id}`;
 
   return (
     <DropdownMenu>
@@ -136,7 +146,7 @@ const UserMenu = ({
         <DropdownMenuSeparator className="bg-white/10" />
         <DropdownMenuItem asChild>
           <Link
-            href="/profile"
+            href={profileHref}
             className="cursor-pointer focus:bg-white/10 focus:text-white"
           >
             <User className="mr-2 h-4 w-4" />
@@ -209,7 +219,7 @@ const UserMenu = ({
   );
 };
 
-export const Header = ({ dictionary }: HeaderProps) => {
+export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   const { data: session } = useSession();
   const [isOpen, setOpen] = useState(false);
   const pathname = usePathname();
@@ -239,8 +249,8 @@ export const Header = ({ dictionary }: HeaderProps) => {
 
   const isActive = (href: string) => {
     // Remove locale prefix if present
-    const cleanPathname = pathname.replace(/^\/[a-z]{2}/, "");
-    const cleanHref = href.replace(/^\/[a-z]{2}/, "");
+    const cleanPathname = pathname.replace(LOCALE_PREFIX_REGEX, "");
+    const cleanHref = href.replace(LOCALE_PREFIX_REGEX, "");
     return (
       cleanPathname === cleanHref || cleanPathname.startsWith(`${cleanHref}/`)
     );
@@ -300,6 +310,7 @@ export const Header = ({ dictionary }: HeaderProps) => {
                     {item.href ? (
                       <Link
                         href={item.href}
+                        onClick={() => setOpen(!isOpen)}
                         className={`flex items-center justify-between px-4 ${
                           isActive(item.href) ? "text-white" : ""
                         }`}

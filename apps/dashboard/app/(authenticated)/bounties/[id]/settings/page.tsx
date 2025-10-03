@@ -1,9 +1,9 @@
 'use client';
 
-import { useBountySettings } from '@/hooks/use-bounty';
 import { useBountyContext } from '../../../components/bounty-provider';
 import { BountySettingsHeader } from '@/app/(authenticated)/components/bounty/settings/settings-header';
 import { BountySettingsForm } from '@/app/(authenticated)/components/bounty/settings/settings-form';
+import { useBountySettings } from '@/hooks/use-manage-bounty';
 
 export default function SettingsPage() {
   const { bounty, bountyLoading, bountyError } = useBountyContext();

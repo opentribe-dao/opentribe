@@ -32,7 +32,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Header } from '../../components/header';
 import { PrizeDistributionCard } from '../../components/bounty/settings/prize-distribution-card';
-import { useBountyForm } from '@/hooks/use-bounty';
+import { useBountyForm } from '@/hooks/use-bounty-crud';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
@@ -98,7 +98,7 @@ const CreateBountyPage = () => {
   // Show loading state while checking authentication
   if (sessionLoading || orgLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className='flex min-h-screen items-center justify-center'>
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -256,7 +256,7 @@ const CreateBountyPage = () => {
                   <div className="relative">
                     <Input
                       id="deadline"
-                      type="date"
+                       type="date"
                       value={formData.deadline}
                       onChange={(e) =>
                         updateFormData('deadline', e.target.value)
@@ -338,7 +338,7 @@ const CreateBountyPage = () => {
                   )}
                 </div>
 
-                <div>
+                {/* <div>
                   <Label>Resource Files</Label>
                   <p className='mb-3 text-sm text-white/40'>
                     Upload PDF documents, images, or other files as resources
@@ -351,7 +351,7 @@ const CreateBountyPage = () => {
                     onChange={(urls) => updateFormData('resourceFiles', urls)}
                     className="mt-2"
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <div className='mb-3 flex items-center justify-between'>

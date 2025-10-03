@@ -191,7 +191,7 @@ export async function POST(
                   firstName: true,
                   lastName: true,
                   email: true,
-                  avatarUrl: true,
+                  image: true,
                 },
               },
             },

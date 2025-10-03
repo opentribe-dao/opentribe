@@ -87,7 +87,7 @@ export interface Comment {
   author: {
     id: string;
     username: string;
-    avatarUrl: string | null;
+    image: string | null;
     name: string;
   };
   parentId: string | null;

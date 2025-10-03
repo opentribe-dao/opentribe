@@ -1,26 +1,30 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@packages/base/components/ui/button';
-import { Textarea } from '@packages/base/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@packages/base/components/ui/avatar';
-import { useSession } from '@packages/auth/client';
-import { toast } from 'sonner';
-import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Button } from "@packages/base/components/ui/button";
+import { Textarea } from "@packages/base/components/ui/textarea";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@packages/base/components/ui/avatar";
+import { useSession } from "@packages/auth/client";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { MessageCircle, Edit2, Trash2, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@packages/base/components/ui/dropdown-menu';
+} from "@packages/base/components/ui/dropdown-menu";
 import {
   getComments,
   createComment,
   updateComment,
   deleteComment,
   type Comment,
-} from '../../lib/api/community';
+} from "../../lib/api/community";
 
 interface CommentThreadProps {
   rfpId?: string;
@@ -40,7 +44,7 @@ export function CommentThread({
   const { data: session } = useSession();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load comments
@@ -58,7 +62,7 @@ export function CommentThread({
       });
       setComments(result.comments);
     } catch (error) {
-      toast.error('Failed to load comments');
+      toast.error("Failed to load comments");
     } finally {
       setIsLoading(false);
     }
@@ -85,16 +89,20 @@ export function CommentThread({
 
       if (parentId) {
         // Add reply to parent comment
-        setComments(prev => updateCommentsWithReply(prev, parentId, result.comment));
+        setComments((prev) =>
+          updateCommentsWithReply(prev, parentId, result.comment)
+        );
       } else {
         // Add new top-level comment
-        setComments(prev => [result.comment, ...prev]);
-        setNewComment('');
+        setComments((prev) => [result.comment, ...prev]);
+        setNewComment("");
       }
 
-      toast.success('Comment posted');
+      toast.success("Comment posted");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to post comment');
+      toast.error(
+        error instanceof Error ? error.message : "Failed to post comment"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -105,26 +113,36 @@ export function CommentThread({
 
     try {
       const result = await updateComment(commentId, body);
-      setComments(prev => updateCommentInTree(prev, commentId, result.comment));
-      toast.success('Comment updated');
+      setComments((prev) =>
+        updateCommentInTree(prev, commentId, result.comment)
+      );
+      toast.success("Comment updated");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update comment');
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update comment"
+      );
     }
   };
 
   const handleDeleteComment = async (commentId: string) => {
     try {
       await deleteComment(commentId);
-      setComments(prev => removeCommentFromTree(prev, commentId));
-      toast.success('Comment deleted');
+      setComments((prev) => removeCommentFromTree(prev, commentId));
+      toast.success("Comment deleted");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete comment');
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete comment"
+      );
     }
   };
 
   // Helper functions to update nested comment structure
-  const updateCommentsWithReply = (comments: Comment[], parentId: string, newReply: Comment): Comment[] => {
-    return comments.map(comment => {
+  const updateCommentsWithReply = (
+    comments: Comment[],
+    parentId: string,
+    newReply: Comment
+  ): Comment[] => {
+    return comments.map((comment) => {
       if (comment.id === parentId) {
         return {
           ...comment,
@@ -141,36 +159,55 @@ export function CommentThread({
     });
   };
 
-  const updateCommentInTree = (comments: Comment[], commentId: string, updatedComment: Comment): Comment[] => {
-    return comments.map(comment => {
+  const updateCommentInTree = (
+    comments: Comment[],
+    commentId: string,
+    updatedComment: Comment
+  ): Comment[] => {
+    return comments.map((comment) => {
       if (comment.id === commentId) {
         return updatedComment;
       }
       if (comment.replies) {
         return {
           ...comment,
-          replies: updateCommentInTree(comment.replies, commentId, updatedComment),
+          replies: updateCommentInTree(
+            comment.replies,
+            commentId,
+            updatedComment
+          ),
         };
       }
       return comment;
     });
   };
 
-  const removeCommentFromTree = (comments: Comment[], commentId: string): Comment[] => {
+  const removeCommentFromTree = (
+    comments: Comment[],
+    commentId: string
+  ): Comment[] => {
     return comments
-      .filter(comment => comment.id !== commentId)
-      .map(comment => ({
+      .filter((comment) => comment.id !== commentId)
+      .map((comment) => ({
         ...comment,
-        replies: comment.replies ? removeCommentFromTree(comment.replies, commentId) : undefined,
+        replies: comment.replies
+          ? removeCommentFromTree(comment.replies, commentId)
+          : undefined,
       }));
   };
 
-  const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number }) => {
+  const CommentItem = ({
+    comment,
+    depth = 0,
+  }: {
+    comment: Comment;
+    depth?: number;
+  }) => {
     const isAuthor = session?.user?.id === comment.authorId;
     const [isEditing, setIsEditing] = useState(false);
     const [isReplying, setIsReplying] = useState(false);
     const [editText, setEditText] = useState(comment.body);
-    const [replyText, setReplyText] = useState('');
+    const [replyText, setReplyText] = useState("");
 
     const handleEdit = async () => {
       await handleUpdateComment(comment.id, editText);
@@ -179,18 +216,20 @@ export function CommentThread({
 
     const handleReply = async () => {
       await handleSubmitComment(replyText, comment.id);
-      setReplyText('');
+      setReplyText("");
       setIsReplying(false);
     };
 
     return (
-      <div className={depth > 0 ? 'ml-12' : ''}>
+      <div className={depth > 0 ? "ml-12" : ""}>
         <div className="flex gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={comment.author.avatarUrl || undefined} />
-            <AvatarFallback>{comment.author.username[0].toUpperCase()}</AvatarFallback>
+            <AvatarImage src={comment.author.image || undefined} />
+            <AvatarFallback>
+              {comment.author.username[0].toUpperCase()}
+            </AvatarFallback>
           </Avatar>
-          
+
           <div className="flex-1">
             <div className="bg-white/5 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
@@ -199,7 +238,9 @@ export function CommentThread({
                     @{comment.author.username}
                   </span>
                   <span className="text-xs text-white/40">
-                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(comment.createdAt), {
+                      addSuffix: true,
+                    })}
                   </span>
                   {comment.isEdited && (
                     <span className="text-xs text-white/40">(edited)</span>
@@ -214,10 +255,12 @@ export function CommentThread({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => {
-                        setIsEditing(true);
-                        setEditText(comment.body);
-                      }}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setIsEditing(true);
+                          setEditText(comment.body);
+                        }}
+                      >
                         <Edit2 className="h-3 w-3 mr-2" />
                         Edit
                       </DropdownMenuItem>
@@ -261,7 +304,9 @@ export function CommentThread({
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-white/80 whitespace-pre-wrap">{comment.body}</p>
+                <p className="text-sm text-white/80 whitespace-pre-wrap">
+                  {comment.body}
+                </p>
               )}
             </div>
 
@@ -298,14 +343,14 @@ export function CommentThread({
                     onClick={handleReply}
                     disabled={!replyText.trim() || isSubmitting}
                   >
-                    {isSubmitting ? 'Posting...' : 'Post Reply'}
+                    {isSubmitting ? "Posting..." : "Post Reply"}
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => {
                       setIsReplying(false);
-                      setReplyText('');
+                      setReplyText("");
                     }}
                   >
                     Cancel
@@ -317,7 +362,11 @@ export function CommentThread({
             {comment.replies && comment.replies.length > 0 && (
               <div className="mt-3 space-y-3">
                 {comment.replies.map((reply) => (
-                  <CommentItem key={reply.id} comment={reply} depth={depth + 1} />
+                  <CommentItem
+                    key={reply.id}
+                    comment={reply}
+                    depth={depth + 1}
+                  />
                 ))}
               </div>
             )}
@@ -342,12 +391,12 @@ export function CommentThread({
         <h3 className="text-lg font-semibold text-white mb-4">
           Comments ({comments.length})
         </h3>
-        
+
         {session?.user ? (
           <div className="flex gap-3">
             <Avatar className="h-8 w-8">
               <AvatarImage src={session.user.image || undefined} />
-              <AvatarFallback>{session.user.name?.[0] || 'U'}</AvatarFallback>
+              <AvatarFallback>{session.user.name?.[0] || "U"}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <Textarea
@@ -361,7 +410,7 @@ export function CommentThread({
                 onClick={() => handleSubmitComment(newComment)}
                 disabled={!newComment.trim() || isSubmitting}
               >
-                {isSubmitting ? 'Posting...' : 'Post Comment'}
+                {isSubmitting ? "Posting..." : "Post Comment"}
               </Button>
             </div>
           </div>

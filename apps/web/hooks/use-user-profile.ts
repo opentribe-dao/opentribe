@@ -98,7 +98,7 @@ export type ProfileUpdateData = Partial<
     | "profileCompleted"
     | "bio"
     | "headline"
-    | "avatarUrl"
+    | "image"
     | "discord"
     | "telegram"
     | "interests"
@@ -164,6 +164,8 @@ export function parseJsonField<T = any>(jsonData: any, fallback: T): T {
 
 // Helper to get parsed profile with JSON fields converted
 // Note: interests is already string[] from Prisma, skills and preferences are Json type
+// TODO: This is a hack to get the skills and preferences parsed, we should use the skills-parser.ts 
+// or create a new interface for UserProfile that has the skills and preferences as proper arrays with object types
 export function getParsedProfile(profile: UserProfile) {
   return {
     ...profile,

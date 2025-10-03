@@ -4,6 +4,86 @@ import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@packages/db";
+
+// Type for GET API response
+type BountyWithRelations = Prisma.BountyGetPayload<{
+  include: {
+    organization: {
+      select: {
+        id: true;
+        name: true;
+        slug: true;
+        logo: true;
+        location: true;
+        industry: true;
+      };
+    };
+    _count: {
+      select: {
+        submissions: true;
+        comments: true;
+      };
+    };
+    submissions: {
+      select: {
+        id: true;
+        title: true;
+        description: true;
+        submissionUrl: true;
+        position: true;
+        winningAmount: true;
+        isWinner: true;
+        createdAt: true;
+        responses: true;
+        status: true;
+        likesCount: true;
+        submitter: {
+          select: {
+            id: true;
+            username: true;
+            firstName: true;
+            lastName: true;
+            image: true;
+          };
+        };
+      };
+    };
+    comments: {
+      include: {
+        author: {
+          select: {
+            id: true;
+            username: true;
+            firstName: true;
+            lastName: true;
+            image: true;
+          };
+        };
+        replies: {
+          include: {
+            author: {
+              select: {
+                id: true;
+                username: true;
+                firstName: true;
+                lastName: true;
+                image: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
+
+interface GetBountyResponse {
+  bounty: BountyWithRelations & {
+    userSubmissionId: string | null;
+    canSubmit: boolean;
+  };
+}
 
 // Schema for bounty update
 const updateBountySchema = z.object({
@@ -46,6 +126,9 @@ export async function GET(
 ) {
   try {
     const bountyId = (await params).id;
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
     // Try to find by ID first, then by slug
     const bounty = await database.bounty.findFirst({
@@ -93,7 +176,7 @@ export async function GET(
                 username: true,
                 firstName: true,
                 lastName: true,
-                avatarUrl: true,
+                image: true,
               },
             },
           },
@@ -111,7 +194,7 @@ export async function GET(
                 username: true,
                 firstName: true,
                 lastName: true,
-                avatarUrl: true,
+                image: true,
               },
             },
             replies: {
@@ -122,7 +205,7 @@ export async function GET(
                     username: true,
                     firstName: true,
                     lastName: true,
-                    avatarUrl: true,
+                    image: true,
                   },
                 },
               },
@@ -162,7 +245,46 @@ export async function GET(
     }
     // If winners have been announced, all submissions are already included from the query
 
-    return NextResponse.json({ bounty });
+    const response: GetBountyResponse = {
+      bounty: {
+        ...bounty,
+        userSubmissionId: null,
+        canSubmit: true,
+      },
+    };
+
+    if (session) {
+      // Check if user is a member of the bounty org
+      const userMembership = await database.member.count({
+        where: {
+          organizationId: bounty.organizationId,
+          userId: session?.user?.id,
+        },
+      });
+
+      // Check if user already submitted
+      const userSubmission = session?.user
+        ? await database.submission.findFirst({
+            where: {
+              bountyId: bounty.id,
+              userId: session.user.id,
+            },
+          })
+        : null;
+
+      if (userSubmission) {
+        response.bounty.userSubmissionId = userSubmission.id;
+        response.bounty.canSubmit = false;
+      } else if (userMembership !== undefined) {
+        if (userMembership === 0) {
+          response.bounty.canSubmit = true;
+        } else {
+          response.bounty.canSubmit = false;
+        }
+      }
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error fetching bounty:", error);
     return NextResponse.json(
@@ -229,7 +351,7 @@ export async function PATCH(
     const validatedData = updateBountySchema.parse(body);
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: Prisma.BountyUpdateInput = {};
 
     if (validatedData.title !== undefined)
       updateData.title = validatedData.title;

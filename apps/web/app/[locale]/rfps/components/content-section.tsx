@@ -2,7 +2,9 @@
 
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
+import { Skeleton } from "@packages/base/components/ui/skeleton"
 import { RFPCard } from "../../components/cards/rfp-card"
+import {  type TopBounty, TopBountiesCard } from "./top-bounties"
 
 interface RFP {
   id: string;
@@ -44,6 +46,9 @@ interface RfpsContentSectionProps {
   onClearAllFilters: () => void
   onLoadMore: () => void
   onRetry: () => void
+  topBounties: TopBounty[]
+  topBountiesLoading: boolean
+  topBountiesError: Error | null
 }
 
 function RfpsContentSectionComponent({
@@ -55,7 +60,10 @@ function RfpsContentSectionComponent({
   activeFiltersCount,
   onClearAllFilters,
   onLoadMore,
-  onRetry
+  onRetry,
+  topBounties,
+  topBountiesLoading,
+  topBountiesError
 }: RfpsContentSectionProps) {
   return (
     <div className="lg:col-span-3">
@@ -96,9 +104,9 @@ function RfpsContentSectionComponent({
       {loading && rfps.length === 0 && (
         <div className="space-y-4" aria-label="Loading RFPs">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div
+            <Skeleton
               key={i}
-              className="h-32 animate-pulse rounded-xl bg-white/5"
+              className="h-32 rounded-xl"
               aria-hidden="true"
             />
           ))}
@@ -175,6 +183,14 @@ function RfpsContentSectionComponent({
               </Button>
             </div>
           )}
+
+      {/* Top Bounties - Mobile Only */}
+        <TopBountiesCard
+          topBounties={topBounties}
+          topBountiesLoading={topBountiesLoading}
+          topBountiesError={topBountiesError}
+          className='mt-6 lg:hidden'
+        />
         </>
       )}
 
@@ -182,9 +198,9 @@ function RfpsContentSectionComponent({
       {loading && rfps.length > 0 && (
         <div className="mt-6 space-y-4" aria-label="Loading more RFPs">
           {[1, 2, 3].map((i) => (
-            <div
+            <Skeleton
               key={`loading-${i}`}
-              className="h-32 animate-pulse rounded-xl bg-white/5"
+              className="h-32 rounded-xl"
               aria-hidden="true"
             />
           ))}

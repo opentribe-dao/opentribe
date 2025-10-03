@@ -85,7 +85,7 @@ export async function GET(
             firstName: true,
             lastName: true,
             email: isOrgMember, // Only show email to org members
-            avatarUrl: true,
+            image: true,
             headline: true,
             skills: true,
             walletAddress: isOrgMember, // Only show wallet address to org members
@@ -163,6 +163,21 @@ export async function POST(
       );
     }
 
+    // Check if user has completed profile
+    const user = await database.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        profileCompleted: true,
+      },
+    });
+
+    if (!user?.profileCompleted) {
+      return NextResponse.json(
+        { error: "You must complete your profile to submit a submission" },
+        { status: 400 }
+      );
+    }
+
     const bountyId = (await params).id;
 
     // Check if bounty exists and is open
@@ -204,6 +219,24 @@ export async function POST(
       );
     }
 
+    // Check if user is a member of the org
+    const membership = await database.member.findMany({
+      where: {
+        organizationId: bounty.organizationId,
+        userId: session.user.id,
+      },
+    });
+
+    if (membership.length !== 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Members of the same organization cannot submit to the same bounty",
+        },
+        { status: 400 }
+      );
+    }
+
     // Parse and validate request body
     const body = await request.json();
     const validatedData = createSubmissionSchema.parse(body);
@@ -227,7 +260,7 @@ export async function POST(
             username: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
       },

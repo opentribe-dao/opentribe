@@ -2,6 +2,7 @@
 
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
+import { parseSkillsArray, stringifySkillsArray } from "@/lib/utils/skills-parser";
 import {
   Card,
   CardContent,
@@ -74,12 +75,7 @@ const WORK_PREFERENCES = [
   "Internship",
 ];
 
-const CRYPTO_EXPERIENCE = [
-  "Beginner",
-  "Intermediate",
-  "Advanced",
-  "Expert",
-];
+const CRYPTO_EXPERIENCE = ["Beginner", "Intermediate", "Advanced", "Expert"];
 
 const EditProfilePage = () => {
   const { data: session, isPending: sessionLoading } = useSession();
@@ -90,7 +86,7 @@ const EditProfilePage = () => {
     firstName: "",
     lastName: "",
     username: "",
-    avatarUrl: "",
+    image: "",
     headline: "",
     bio: "",
     location: "",
@@ -130,15 +126,11 @@ const EditProfilePage = () => {
             firstName: user.firstName || "",
             lastName: user.lastName || "",
             username: user.username || "",
-            avatarUrl: user.avatarUrl || user.image || "",
+            image: user.image || "",
             headline: user.headline || "",
             bio: user.bio || "",
             location: user.location || "",
-            skills: Array.isArray(user.skills)
-              ? user.skills
-              : typeof user.skills === "object" && user.skills !== null
-              ? Object.keys(user.skills)
-              : [],
+            skills: parseSkillsArray(user.skill),
             interests: user.interests || [],
             walletAddress: user.walletAddress || "",
             twitter: user.twitter || "",
@@ -178,7 +170,7 @@ const EditProfilePage = () => {
     if (formData.walletAddress) {
       const walletValidation = validateWalletAddress(formData.walletAddress);
       if (!walletValidation.isValid) {
-        toast.error(walletValidation.error || 'Invalid wallet address');
+        toast.error(walletValidation.error || "Invalid wallet address");
         return;
       }
     }
@@ -189,7 +181,7 @@ const EditProfilePage = () => {
       // Prepare the data for submission
       const submitData = {
         ...formData,
-        skills: formData.skills, // Keep as array
+        skills: stringifySkillsArray(formData.skills), // Convert to JSON string for API
       };
 
       const response = await fetch(
@@ -235,7 +227,7 @@ const EditProfilePage = () => {
 
   if (loading || sessionLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className='flex min-h-screen items-center justify-center'>
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -243,24 +235,24 @@ const EditProfilePage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-12 relative z-10 max-w-4xl">
+      <div className='container relative z-10 mx-auto max-w-4xl px-4 py-12'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className='mb-8 flex items-center justify-between'>
           <div>
             <Link
               href={`/profile/${formData.username || session?.user?.id}`}
-              className="flex items-center gap-2 text-white/60 hover:text-white mb-4"
+              className='mb-4 flex items-center gap-2 text-white/60 hover:text-white'
             >
               <ChevronLeft className="h-4 w-4" />
               Back to Profile
             </Link>
-            <h1 className="text-3xl font-bold text-white">Edit Profile</h1>
+            <h1 className='font-bold text-3xl text-white'>Edit Profile</h1>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Basic Information</CardTitle>
               <CardDescription className="text-white/60">
@@ -270,13 +262,13 @@ const EditProfilePage = () => {
             <CardContent className="space-y-6">
               {/* Avatar */}
               <div>
-                <Label className="text-white mb-4 block">Profile Picture</Label>
+                <Label className='mb-4 block text-white'>Profile Picture</Label>
                 <ImageUpload
-                  currentImageUrl={formData.avatarUrl}
+                  currentImageUrl={formData.image}
                   onImageChange={(url) =>
                     setFormData((prev) => ({
                       ...prev,
-                      avatarUrl: url || "",
+                      image: url || "",
                     }))
                   }
                   uploadType="profile-avatar"
@@ -300,7 +292,7 @@ const EditProfilePage = () => {
                         firstName: e.target.value,
                       }))
                     }
-                    className="bg-white/5 border-white/10 text-white mt-2"
+                    className='mt-2 border-white/10 bg-white/5 text-white'
                   />
                 </div>
                 <div>
@@ -316,7 +308,7 @@ const EditProfilePage = () => {
                         lastName: e.target.value,
                       }))
                     }
-                    className="bg-white/5 border-white/10 text-white mt-2"
+                    className='mt-2 border-white/10 bg-white/5 text-white'
                   />
                 </div>
               </div>
@@ -336,9 +328,9 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="johndoe"
-                  className="bg-white/5 border-white/10 text-white mt-2"
+                  className='mt-2 border-white/10 bg-white/5 text-white'
                 />
-                <p className="text-xs text-white/40 mt-1">
+                <p className='mt-1 text-white/40 text-xs'>
                   Your unique username for your profile URL
                 </p>
               </div>
@@ -359,7 +351,7 @@ const EditProfilePage = () => {
                   }
                   placeholder="Full Stack Developer | Substrate Enthusiast"
                   maxLength={100}
-                  className="bg-white/5 border-white/10 text-white mt-2"
+                  className='mt-2 border-white/10 bg-white/5 text-white'
                 />
               </div>
 
@@ -377,9 +369,9 @@ const EditProfilePage = () => {
                   placeholder="Tell us about yourself..."
                   rows={4}
                   maxLength={500}
-                  className="bg-white/5 border-white/10 text-white mt-2"
+                  className='mt-2 border-white/10 bg-white/5 text-white'
                 />
-                <p className="text-xs text-white/40 mt-1">
+                <p className='mt-1 text-white/40 text-xs'>
                   {formData.bio.length}/500 characters
                 </p>
               </div>
@@ -390,7 +382,7 @@ const EditProfilePage = () => {
                   Location
                 </Label>
                 <div className="relative mt-2">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <MapPin className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
                   <Input
                     id="location"
                     value={formData.location}
@@ -401,7 +393,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="San Francisco, CA"
-                    className="bg-white/5 border-white/10 text-white pl-10"
+                    className='border-white/10 bg-white/5 pl-10 text-white'
                   />
                 </div>
               </div>
@@ -428,7 +420,7 @@ const EditProfilePage = () => {
           </Card>
 
           {/* Skills */}
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Skills</CardTitle>
               <CardDescription className="text-white/60">
@@ -442,7 +434,7 @@ const EditProfilePage = () => {
                     <Badge
                       key={skill}
                       variant="secondary"
-                      className="bg-[#E6007A]/20 text-[#E6007A] border-0"
+                      className='border-0 bg-[#E6007A]/20 text-[#FFFFFF]'
                     >
                       {skill}
                       <button
@@ -464,7 +456,7 @@ const EditProfilePage = () => {
                         className="cursor-pointer border-white/20 text-white/60 hover:bg-white/10 hover:text-white"
                         onClick={() => addSkill(skill)}
                       >
-                        <Plus className="h-3 w-3 mr-1" />
+                        <Plus className='mr-1 h-3 w-3' />
                         {skill}
                       </Badge>
                     )
@@ -475,7 +467,7 @@ const EditProfilePage = () => {
           </Card>
 
           {/* Work Information */}
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Work Information</CardTitle>
               <CardDescription className="text-white/60">
@@ -497,7 +489,7 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="Parity Technologies"
-                  className="bg-white/5 border-white/10 text-white mt-2"
+                  className='mt-2 border-white/10 bg-white/5 text-white'
                 />
               </div>
 
@@ -516,7 +508,7 @@ const EditProfilePage = () => {
                   }
                   placeholder="Describe your professional experience..."
                   rows={3}
-                  className="bg-white/5 border-white/10 text-white mt-2"
+                  className='mt-2 border-white/10 bg-white/5 text-white'
                 />
               </div>
 
@@ -533,12 +525,16 @@ const EditProfilePage = () => {
                     }))
                   }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
+                  <SelectTrigger className='mt-2 border-white/10 bg-white/5 text-white'>
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10">
+                  <SelectContent className='border-white/10 bg-zinc-900'>
                     {CRYPTO_EXPERIENCE.map((level) => (
-                      <SelectItem key={level} value={level} className="text-white">
+                      <SelectItem
+                        key={level}
+                        value={level}
+                        className="text-white"
+                      >
                         {level}
                       </SelectItem>
                     ))}
@@ -559,12 +555,16 @@ const EditProfilePage = () => {
                     }))
                   }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
+                  <SelectTrigger className='mt-2 border-white/10 bg-white/5 text-white'>
                     <SelectValue placeholder="Select your work preference" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10">
+                  <SelectContent className='border-white/10 bg-zinc-900'>
                     {WORK_PREFERENCES.map((pref) => (
-                      <SelectItem key={pref} value={pref} className="text-white">
+                      <SelectItem
+                        key={pref}
+                        value={pref}
+                        className="text-white"
+                      >
                         {pref}
                       </SelectItem>
                     ))}
@@ -575,7 +575,7 @@ const EditProfilePage = () => {
           </Card>
 
           {/* Social Links */}
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Social Links</CardTitle>
               <CardDescription className="text-white/60">
@@ -588,7 +588,7 @@ const EditProfilePage = () => {
                   Twitter
                 </Label>
                 <div className="relative mt-2">
-                  <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Twitter className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
                   <Input
                     id="twitter"
                     value={formData.twitter}
@@ -599,7 +599,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className="bg-white/5 border-white/10 text-white pl-10"
+                    className='border-white/10 bg-white/5 pl-10 text-white'
                   />
                 </div>
               </div>
@@ -609,7 +609,7 @@ const EditProfilePage = () => {
                   GitHub
                 </Label>
                 <div className="relative mt-2">
-                  <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Github className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
                   <Input
                     id="github"
                     value={formData.github}
@@ -620,7 +620,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className="bg-white/5 border-white/10 text-white pl-10"
+                    className='border-white/10 bg-white/5 pl-10 text-white'
                   />
                 </div>
               </div>
@@ -630,7 +630,7 @@ const EditProfilePage = () => {
                   LinkedIn
                 </Label>
                 <div className="relative mt-2">
-                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Linkedin className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
                   <Input
                     id="linkedin"
                     value={formData.linkedin}
@@ -641,7 +641,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className="bg-white/5 border-white/10 text-white pl-10"
+                    className='border-white/10 bg-white/5 pl-10 text-white'
                   />
                 </div>
               </div>
@@ -651,7 +651,7 @@ const EditProfilePage = () => {
                   Website
                 </Label>
                 <div className="relative mt-2">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Globe className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
                   <Input
                     id="website"
                     type="url"
@@ -663,7 +663,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="https://example.com"
-                    className="bg-white/5 border-white/10 text-white pl-10"
+                    className='border-white/10 bg-white/5 pl-10 text-white'
                   />
                 </div>
               </div>
@@ -673,7 +673,7 @@ const EditProfilePage = () => {
                   Telegram
                 </Label>
                 <div className="relative mt-2">
-                  <Send className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Send className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
                   <Input
                     id="telegram"
                     value={formData.telegram}
@@ -684,7 +684,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className="bg-white/5 border-white/10 text-white pl-10"
+                    className='border-white/10 bg-white/5 pl-10 text-white'
                   />
                 </div>
               </div>
@@ -692,7 +692,7 @@ const EditProfilePage = () => {
           </Card>
 
           {/* Web3 Information */}
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Web3 Information</CardTitle>
               <CardDescription className="text-white/60">
@@ -714,21 +714,24 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="Enter your Polkadot or Kusama address"
-                  className="bg-white/5 border-white/10 text-white mt-2 font-mono"
+                  className='mt-2 border-white/10 bg-white/5 font-mono text-white'
                 />
                 {formData.walletAddress ? (
-                  <p className={`text-xs mt-1 ${
-                    validateWalletAddress(formData.walletAddress).isValid 
-                      ? 'text-green-500' 
-                      : 'text-amber-500'
-                  }`}>
-                    {validateWalletAddress(formData.walletAddress).isValid 
-                      ? `✓ Valid ${validateWalletAddress(formData.walletAddress).network} address`
-                      : validateWalletAddress(formData.walletAddress).error
-                    }
+                  <p
+                    className={`mt-1 text-xs ${
+                      validateWalletAddress(formData.walletAddress).isValid
+                        ? "text-green-500"
+                        : "text-amber-500"
+                    }`}
+                  >
+                    {validateWalletAddress(formData.walletAddress).isValid
+                      ? `✓ Valid ${
+                          validateWalletAddress(formData.walletAddress).network
+                        } address`
+                      : validateWalletAddress(formData.walletAddress).error}
                   </p>
                 ) : (
-                  <p className="text-xs text-white/40 mt-1">
+                  <p className='mt-1 text-white/40 text-xs'>
                     Your Polkadot, Kusama, or Substrate wallet address
                   </p>
                 )}
@@ -738,9 +741,7 @@ const EditProfilePage = () => {
 
           {/* Actions */}
           <div className="flex justify-end gap-4">
-            <Link
-              href={`/profile/${formData.username || session?.user?.id}`}
-            >
+            <Link href={`/profile/${formData.username || session?.user?.id}`}>
               <Button
                 type="button"
                 variant="outline"
@@ -752,16 +753,16 @@ const EditProfilePage = () => {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+              className='bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
             >
               {saving ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className='mr-2 h-4 w-4' />
                   Save Changes
                 </>
               )}

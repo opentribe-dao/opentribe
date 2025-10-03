@@ -4,7 +4,7 @@ import { PlatformStats } from './platform-stats'
 import { PopularSkills } from './popular-skills'
 import { FeaturedOrganizations } from './featured-organizations'
 import { RecentActivity } from './recent-activity'
-import { HomepageStatsResponse } from '@/hooks/use-home-data'
+import type { HomepageStatsResponse } from '@/hooks/use-home-data'
 
 interface SidebarProps {
   data?: HomepageStatsResponse
@@ -12,6 +12,8 @@ interface SidebarProps {
   onSkillToggle: (skill: string) => void
   loading?: boolean
   error?: Error | null
+  hasActiveFilters: boolean
+  onClearFilters: () => void
 }
 
 export function Sidebar({
@@ -19,7 +21,9 @@ export function Sidebar({
   selectedSkills,
   onSkillToggle,
   loading = false,
-  error
+  error,
+  hasActiveFilters,
+  onClearFilters
 }: SidebarProps) {
 
   const popularSkills = data?.popularSkills || []
@@ -29,9 +33,9 @@ export function Sidebar({
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <div className='rounded-lg border border-red-500/20 bg-red-500/10 p-6'>
           <p className="text-red-400">Failed to load sidebar data</p>
-          <p className="text-sm text-red-300/80 mt-1">{error.message}</p>
+          <p className='mt-1 text-red-300/80 text-sm'>{error.message}</p>
         </div>
       </div>
     )
@@ -48,6 +52,8 @@ export function Sidebar({
         selectedSkills={selectedSkills}
         onSkillToggle={onSkillToggle}
         loading={loading}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={onClearFilters}
       />
 
       <FeaturedOrganizations

@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { use } from 'react';
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
+import { use } from "react";
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Textarea } from '@packages/base/components/ui/textarea';
-import { Label } from '@packages/base/components/ui/label';
+} from "@packages/base/components/ui/card";
+import { Textarea } from "@packages/base/components/ui/textarea";
+import { Label } from "@packages/base/components/ui/label";
 import {
   ArrowLeft,
   Calendar,
@@ -26,15 +26,15 @@ import {
   Mail,
   User,
   X,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { toast } from 'sonner';
-import { Header } from '../../../../components/header';
-import { env } from '@/env';
+} from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
+import { Header } from "../../../../components/header";
+import { env } from "@/env";
 
 interface ApplicationDetails {
   id: string;
@@ -73,7 +73,7 @@ interface ApplicationDetails {
     firstName?: string;
     lastName?: string;
     email?: string;
-    avatarUrl?: string;
+    image?: string;
     location?: string;
     bio?: string;
     skills?: string[];
@@ -86,7 +86,9 @@ interface ApplicationDetails {
 
 export default function ApplicationReviewPage({
   params,
-}: { params: Promise<{ id: string; applicationId: string }> }) {
+}: {
+  params: Promise<{ id: string; applicationId: string }>;
+}) {
   const { id, applicationId } = use(params);
   const router = useRouter();
   const { data: session } = useSession();
@@ -96,7 +98,7 @@ export default function ApplicationReviewPage({
   );
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
     if (id && applicationId) {
@@ -110,37 +112,37 @@ export default function ApplicationReviewPage({
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications/${applicationId}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch application details');
+        throw new Error("Failed to fetch application details");
       }
 
       const data = await response.json();
 
       // Check if user has access to review this application
       if (data.application.grant.organizationId !== activeOrg?.id) {
-        toast.error('You do not have access to review this application');
-        router.push('/grants');
+        toast.error("You do not have access to review this application");
+        router.push("/grants");
         return;
       }
 
       setApplication(data.application);
-      setFeedback(data.application.feedback || '');
+      setFeedback(data.application.feedback || "");
     } catch (error) {
-      console.error('Error fetching application:', error);
-      toast.error('Failed to load application details');
+      console.error("Error fetching application:", error);
+      toast.error("Failed to load application details");
       router.push(`/grants/${id}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (newStatus: 'APPROVED' | 'REJECTED') => {
-    if (!feedback && newStatus === 'REJECTED') {
-      toast.error('Please provide feedback when rejecting an application');
+  const handleStatusUpdate = async (newStatus: "APPROVED" | "REJECTED") => {
+    if (!feedback && newStatus === "REJECTED") {
+      toast.error("Please provide feedback when rejecting an application");
       return;
     }
 
@@ -149,10 +151,10 @@ export default function ApplicationReviewPage({
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications/${applicationId}/review`,
         {
-          method: 'PATCH',
-          credentials: 'include',
+          method: "PATCH",
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             status: newStatus,
@@ -162,45 +164,45 @@ export default function ApplicationReviewPage({
       );
 
       if (!response.ok) {
-        throw new Error('Failed to update application status');
+        throw new Error("Failed to update application status");
       }
 
       toast.success(`Application ${newStatus.toLowerCase()} successfully`);
       router.push(`/grants/${id}`);
     } catch (error) {
-      console.error('Error updating application:', error);
-      toast.error('Failed to update application status');
+      console.error("Error updating application:", error);
+      toast.error("Failed to update application status");
     } finally {
       setActionLoading(false);
     }
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-US').format(amount);
+    return new Intl.NumberFormat("en-US").format(amount);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'SUBMITTED':
-        return 'bg-blue-500/20 text-blue-400';
-      case 'UNDER_REVIEW':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'APPROVED':
-        return 'bg-green-500/20 text-green-400';
-      case 'REJECTED':
-        return 'bg-red-500/20 text-red-400';
+      case "SUBMITTED":
+        return "bg-blue-500/20 text-blue-400";
+      case "UNDER_REVIEW":
+        return "bg-yellow-500/20 text-yellow-400";
+      case "APPROVED":
+        return "bg-green-500/20 text-green-400";
+      case "REJECTED":
+        return "bg-red-500/20 text-red-400";
       default:
-        return 'bg-white/10 text-white/60';
+        return "bg-white/10 text-white/60";
     }
   };
 
@@ -220,9 +222,9 @@ export default function ApplicationReviewPage({
     <>
       <Header
         pages={[
-          'Grants',
+          "Grants",
           application.grant.title,
-          'Applications',
+          "Applications",
           application.title,
         ]}
         page="Review Application"
@@ -287,7 +289,7 @@ export default function ApplicationReviewPage({
                       <p className="text-sm font-medium text-white/80">
                         {answer.question}
                       </p>
-                      {answer.type === 'url' ? (
+                      {answer.type === "url" ? (
                         <a
                           href={answer.answer}
                           target="_blank"
@@ -338,7 +340,7 @@ export default function ApplicationReviewPage({
             )}
 
             {/* Review Actions */}
-            {application.status === 'SUBMITTED' && (
+            {application.status === "SUBMITTED" && (
               <Card className="bg-white/5 backdrop-blur-md border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white">Review Decision</CardTitle>
@@ -362,7 +364,7 @@ export default function ApplicationReviewPage({
                   </div>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => handleStatusUpdate('APPROVED')}
+                      onClick={() => handleStatusUpdate("APPROVED")}
                       disabled={actionLoading}
                       className="bg-green-600 hover:bg-green-700"
                     >
@@ -374,7 +376,7 @@ export default function ApplicationReviewPage({
                       Approve Application
                     </Button>
                     <Button
-                      onClick={() => handleStatusUpdate('REJECTED')}
+                      onClick={() => handleStatusUpdate("REJECTED")}
                       disabled={actionLoading || !feedback}
                       variant="destructive"
                     >
@@ -391,8 +393,8 @@ export default function ApplicationReviewPage({
             )}
 
             {/* Previous Decision */}
-            {(application.status === 'APPROVED' ||
-              application.status === 'REJECTED') &&
+            {(application.status === "APPROVED" ||
+              application.status === "REJECTED") &&
               application.feedback && (
                 <Card className="bg-white/5 backdrop-blur-md border-white/10">
                   <CardHeader>
@@ -400,10 +402,10 @@ export default function ApplicationReviewPage({
                       Review Decision
                     </CardTitle>
                     <CardDescription className="text-white/60">
-                      Reviewed on{' '}
+                      Reviewed on{" "}
                       {application.reviewedAt
                         ? formatDate(application.reviewedAt)
-                        : 'N/A'}
+                        : "N/A"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -422,9 +424,9 @@ export default function ApplicationReviewPage({
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
-                  {application.applicant.avatarUrl ? (
+                  {application.applicant.image ? (
                     <img
-                      src={application.applicant.avatarUrl}
+                      src={application.applicant.image}
                       alt={application.applicant.username}
                       className="w-12 h-12 rounded-full"
                     />
@@ -435,7 +437,7 @@ export default function ApplicationReviewPage({
                   )}
                   <div>
                     <p className="text-white font-medium">
-                      {application.applicant.firstName}{' '}
+                      {application.applicant.firstName}{" "}
                       {application.applicant.lastName}
                     </p>
                     <p className="text-sm text-white/60">
@@ -497,7 +499,7 @@ export default function ApplicationReviewPage({
                   {application.applicant.github && (
                     <a
                       href={
-                        application.applicant.github.startsWith('http')
+                        application.applicant.github.startsWith("http")
                           ? application.applicant.github
                           : `https://github.com/${application.applicant.github}`
                       }
@@ -512,7 +514,7 @@ export default function ApplicationReviewPage({
                   {application.applicant.linkedin && (
                     <a
                       href={
-                        application.applicant.linkedin.startsWith('http')
+                        application.applicant.linkedin.startsWith("http")
                           ? application.applicant.linkedin
                           : `https://linkedin.com/in/${application.applicant.linkedin}`
                       }
@@ -527,7 +529,7 @@ export default function ApplicationReviewPage({
                   {application.applicant.twitter && (
                     <a
                       href={
-                        application.applicant.twitter.startsWith('http')
+                        application.applicant.twitter.startsWith("http")
                           ? application.applicant.twitter
                           : `https://twitter.com/${application.applicant.twitter}`
                       }
@@ -542,7 +544,7 @@ export default function ApplicationReviewPage({
                   {application.applicant.website && (
                     <a
                       href={
-                        application.applicant.website.startsWith('http')
+                        application.applicant.website.startsWith("http")
                           ? application.applicant.website
                           : `https://${application.applicant.website}`
                       }
@@ -570,7 +572,7 @@ export default function ApplicationReviewPage({
                     <div>
                       <p className="text-sm text-white/60">Budget Request</p>
                       <p className="text-white font-medium">
-                        {formatAmount(application.budget)}{' '}
+                        {formatAmount(application.budget)}{" "}
                         {application.grant.token}
                       </p>
                     </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { env } from "@/env";
 import { Button } from "@packages/base/components/ui/button";
 import { ArrowLeft, Calendar, ExternalLink, Trophy, User } from "lucide-react";
@@ -7,13 +9,51 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CommentSection } from "./comment-section";
+import { useEffect, useState } from "react";
 
-async function getSubmission(bountyId: string, submissionId: string) {
+interface Submission {
+  id: string;
+  title: string;
+  description: string;
+  submissionUrl: string;
+  isWinner: boolean;
+  position: number;
+  winningAmount: number;
+  createdAt: string;
+  submitter: {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    image: string;
+  };
+  answers: {
+    question: string;
+    answer: string;
+  }[];
+  bounty: {
+    id: string;
+    title: string;
+    totalAmount: number;
+    token: string;
+    winnerCount: number;
+    submissions: Submission[];
+  };
+}
+
+interface SubmissionResponse {
+  submission: Submission;
+}
+
+async function getSubmission(
+  bountyId: string,
+  submissionId: string
+): Promise<SubmissionResponse | null> {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(
     `${apiUrl}/api/v1/bounties/${bountyId}/submissions/${submissionId}`,
     {
-      cache: "no-store",
+      credentials: "include",
     }
   );
 
@@ -21,23 +61,45 @@ async function getSubmission(bountyId: string, submissionId: string) {
     return null;
   }
 
-  const data = await res.json();
+  const data: SubmissionResponse = await res.json();
   return data;
 }
 
-export default async function SubmissionDetailPage({
+export default function SubmissionDetailPage({
   params,
 }: {
   params: Promise<{ id: string; submissionId: string }>;
 }) {
-  const { id, submissionId } = await params;
-  const data = await getSubmission(id, submissionId);
+  const [submission, setSubmission] = useState<Submission | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!data?.submission) {
-    notFound();
+  useEffect(() => {
+    const fetchSubmission = async () => {
+      try {
+        const { id, submissionId } = await params;
+        const data = await getSubmission(id, submissionId);
+        setSubmission(data?.submission || null);
+      } catch (error) {
+        console.error("Error fetching submission:", error);
+        setSubmission(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSubmission();
+  }, [params]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
   }
 
-  const { submission } = data;
+  if (!submission) {
+    notFound();
+  }
 
   // Format currency
   const formatAmount = (amount: number) => {
@@ -63,7 +125,7 @@ export default async function SubmissionDetailPage({
       <div className="border-white/10 border-b">
         <div className="container mx-auto px-6 py-4">
           <Link
-            href={`/bounties/${id}`}
+            href={`/bounties/${submission.bounty.id}`}
             className="inline-flex items-center gap-2 text-white/60 transition-colors hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -178,9 +240,9 @@ export default async function SubmissionDetailPage({
               </h3>
               <div className="flex items-start gap-3">
                 <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-600">
-                  {submission.submitter.avatarUrl ? (
+                  {submission.submitter.image ? (
                     <Image
-                      src={submission.submitter.avatarUrl}
+                      src={submission.submitter.image}
                       alt={submission.submitter.username}
                       width={48}
                       height={48}
@@ -247,7 +309,10 @@ export default async function SubmissionDetailPage({
                   </span>
                 </div>
               </div>
-              <Link href={`/bounties/${id}`} className="mt-4 block w-full">
+              <Link
+                href={`/bounties/${submission.bounty.id}`}
+                className="mt-4 block w-full"
+              >
                 <Button
                   variant="outline"
                   className="w-full border-white/20 text-white hover:bg-white/10"

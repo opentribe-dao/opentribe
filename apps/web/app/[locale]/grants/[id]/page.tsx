@@ -1,3 +1,4 @@
+"use client";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,15 +14,15 @@ import {
   Heart,
 } from "lucide-react";
 import { env } from "@/env";
-import { auth } from "@packages/auth/server";
-import { headers } from "next/headers";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
 
 async function getGrant(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/api/v1/grants/${id}`, {
-    cache: "no-store",
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -32,21 +33,54 @@ async function getGrant(id: string) {
   return data.grant;
 }
 
-export default async function GrantDetailPage({
+export default function GrantDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const grant = await getGrant(id);
+  const [grant, setGrant] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [grantId, setGrantId] = useState<string | null>(null);
+
+  // Resolve params once
+  useEffect(() => {
+    const resolveParams = async () => {
+      const { id } = await params;
+      setGrantId(id);
+    };
+    resolveParams();
+  }, [params]);
+
+  // Fetch grant when we have the ID
+  useEffect(() => {
+    if (!grantId) return;
+
+    const fetchGrant = async () => {
+      try {
+        const grantData = await getGrant(grantId);
+        setGrant(grantData);
+      } catch (error) {
+        console.error("Error fetching grant:", error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGrant();
+  }, [grantId]);
+
+  if (loading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <Skeleton className="h-full w-full" />
+      </div>
+    );
+  }
 
   if (!grant) {
     notFound();
   }
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
 
   // Format currency
   const formatAmount = (amount: number) => {
@@ -141,7 +175,16 @@ export default async function GrantDetailPage({
                   <Share2 className="h-4 w-4" />
                 </Button>
 
-                {grant.source === "EXTERNAL" && grant.applicationUrl ? (
+                {grant.userApplicationId ? (
+                  <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>
+                    <Button
+                      className="bg-pink-600 text-white hover:bg-pink-700"
+                      disabled={grant.status !== "OPEN"}
+                    >
+                      View Application
+                    </Button>
+                  </Link>
+                ) : grant.source === "EXTERNAL" && grant.applicationUrl ? (
                   <a
                     href={grant.applicationUrl}
                     target="_blank"
@@ -154,8 +197,15 @@ export default async function GrantDetailPage({
                       Apply Externally
                     </Button>
                   </a>
+                ) : grant.canApply === false ? (
+                  <Button
+                    className="bg-pink-600 text-white hover:bg-pink-700"
+                    disabled={true}
+                  >
+                    Application Closed
+                  </Button>
                 ) : (
-                  <Link href={`/grants/${id}/apply`}>
+                   <Link href={`/grants/${grantId}/apply`}>
                     <Button
                       className="bg-pink-600 text-white hover:bg-pink-700"
                       disabled={grant.status !== "OPEN"}
@@ -188,10 +238,15 @@ export default async function GrantDetailPage({
 
               {grant.instructions && (
                 <div className="mt-6 space-y-4">
-                  <h3 className="font-semibold text-lg">
+                  {/* <h3 className="font-semibold text-lg">
                     Application Requirements:
-                  </h3>
-                  <div className="space-y-2 text-white/80">
+                  </h3> */}
+                  <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {grant.instructions}
+                </ReactMarkdown>
+              </div>
+                  {/* <div className="space-y-2 text-white/80">
                     {grant.instructions
                       .split("\n")
                       .map((instruction: any, idx: number) => (
@@ -200,7 +255,7 @@ export default async function GrantDetailPage({
                           <span>{instruction}</span>
                         </div>
                       ))}
-                  </div>
+                  </div> */}
                 </div>
               )}
 
@@ -349,9 +404,9 @@ export default async function GrantDetailPage({
                         "Anonymous"
                       }`}
                     >
-                      {app.applicant.avatarUrl ? (
+                      {app.applicant.image ? (
                         <Image
-                          src={app.applicant.avatarUrl}
+                          src={app.applicant.image}
                           alt="Applicant"
                           width={40}
                           height={40}

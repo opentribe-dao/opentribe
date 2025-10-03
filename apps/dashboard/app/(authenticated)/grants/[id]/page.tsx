@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Badge } from '@packages/base/components/ui/badge';
 import { Button } from '@packages/base/components/ui/button';

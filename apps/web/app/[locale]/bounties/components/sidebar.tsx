@@ -5,6 +5,8 @@ import { Button } from "@packages/base/components/ui/button"
 import { Checkbox } from "@packages/base/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@packages/base/components/ui/radio-group"
 import { Slider } from "@packages/base/components/ui/slider"
+import { X } from "lucide-react"
+import { HowItWorksCard } from "./how-it-works"
 
 interface BountyFilters {
   status: string[]
@@ -19,7 +21,15 @@ interface BountiesSidebarProps {
   filters: BountyFilters
   activeFiltersCount: number
   showMobileFilters: boolean
-  onFilterChange: (key: keyof BountyFilters | 'showMobileFilters', value: any) => void
+  onFilterChange: {
+    onSortChange: (value: string) => void
+    onStatusChange: (value: string) => void
+    onSkillsChange: (value: string[]) => void
+    onPriceRangeChange: (value: [number, number]) => void
+    onHasSubmissionsChange: (value: boolean) => void
+    onHasDeadlineChange: (value: boolean) => void
+    onMobileFiltersToggle: (show: boolean) => void
+  }
   onStatusToggle: (status: string) => void
   onClearAllFilters: () => void
 }
@@ -48,10 +58,10 @@ function BountiesSidebarComponent({
       {showMobileFilters && (
         <div 
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => onFilterChange('showMobileFilters', false)}
+          onClick={() => onFilterChange.onMobileFiltersToggle(false)}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
-              onFilterChange('showMobileFilters', false);
+              onFilterChange.onMobileFiltersToggle(false);
             }
           }}
           role="button"
@@ -62,8 +72,23 @@ function BountiesSidebarComponent({
       
       {/* Sidebar Content */}
       <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-80 overflow-y-auto bg-[#111111] p-6 lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : "hidden lg:block"}`}>
-      {/* Filters */}
-      <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+        {/* Mobile Close Button */}
+        {showMobileFilters && (
+          <div className='mb-4 flex justify-end lg:hidden'>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onFilterChange.onMobileFiltersToggle(false)}
+              className='h-8 w-8 text-white/60 hover:bg-white/10 hover:text-white'
+              aria-label="Close filters"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        
+        {/* Filters */}
+        <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
         <div className='mb-4 flex items-center justify-between'>
           <h3 className='font-heading font-semibold text-lg'>Filters</h3>
           {activeFiltersCount > 0 && (
@@ -105,7 +130,7 @@ function BountiesSidebarComponent({
           <h4 className='mb-3 font-medium text-sm text-white/80'>Sort By</h4>
           <RadioGroup
             value={filters.sortBy}
-            onValueChange={(value) => onFilterChange("sortBy", value)}
+            onValueChange={(value) => onFilterChange.onSortChange(value)}
           >
             <div className="space-y-2">
               {SORT_OPTIONS.map((option) => (
@@ -132,7 +157,7 @@ function BountiesSidebarComponent({
             <Slider
               value={filters.priceRange}
               onValueChange={(value) =>
-                onFilterChange("priceRange", value as [number, number])
+                onFilterChange.onPriceRangeChange(value as [number, number])
               }
               max={50000}
               step={500}
@@ -154,7 +179,7 @@ function BountiesSidebarComponent({
                 id="has-submissions"
                 checked={filters.hasSubmissions}
                 onCheckedChange={(checked) =>
-                  onFilterChange("hasSubmissions", !!checked)
+                  onFilterChange.onHasSubmissionsChange(!!checked)
                 }
                 className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
               />
@@ -165,7 +190,7 @@ function BountiesSidebarComponent({
                 id="has-deadline"
                 checked={filters.hasDeadline}
                 onCheckedChange={(checked) =>
-                  onFilterChange("hasDeadline", !!checked)
+                  onFilterChange.onHasDeadlineChange(!!checked)
                 }
                 className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
               />
@@ -175,38 +200,9 @@ function BountiesSidebarComponent({
         </div>
       </div>
 
-      {/* How it works */}
-      <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
-        <h3 className='mb-4 font-heading font-semibold text-lg'>How it works</h3>
-        <div className="space-y-4">
-          {[
-            {
-              step: "1",
-              title: "Browse and select",
-              description: "Find a bounty that matches your skills"
-            },
-            {
-              step: "2",
-              title: "Participate / Develop / Submit",
-              description: "Work on the bounty and submit your solution"
-            },
-            {
-              step: "3",
-              title: "Get paid for your work",
-              description: "Receive rewards when your submission is accepted"
-            }
-          ].map((item) => (
-            <div key={item.step} className="flex gap-3">
-              <div className='flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-600'>
-                <span className='font-bold text-sm'>{item.step}</span>
-              </div>
-              <div>
-                <h4 className='mb-1 font-medium text-sm'>{item.title}</h4>
-                <p className='text-white/60 text-xs'>{item.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* How it works - Desktop Only */}
+      <div className="hidden lg:block">
+        <HowItWorksCard />
       </div>
       </div>
     </>

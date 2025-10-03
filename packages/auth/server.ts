@@ -47,7 +47,6 @@ const authOptions = {
       firstName: { type: "string", required: false },
       lastName: { type: "string", required: false },
       username: { type: "string", required: false },
-      avatarUrl: { type: "string", required: false },
       headline: { type: "string", required: false },
       bio: { type: "string", required: false },
       interests: { type: "string", required: false }, // JSON array stored as string
@@ -100,7 +99,7 @@ const authOptions = {
   ],
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Temporarily disabled for testing
+    requireEmailVerification: true, // Should not be committed as false, to be disabled only for local development
     sendResetPassword: async ({ user, url, token }) => {
       console.log("Sending password reset email to:", user.email);
       try {
@@ -217,7 +216,7 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
   plugins: [
     ...authOptions.plugins,
     customSession(async ({ user, session }, ctx) => {
-      console.log("Custom session:", user);
+      // console.debug("Custom session:", user);
       return {
         user: {
           ...user,

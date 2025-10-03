@@ -36,11 +36,21 @@ export async function GET(
       headers: authHeaders,
     });
 
-    const { id: userId } = await params;
+    const { id: idOrUsername } = await params;
 
-    // Get user with all relevant relations
-    const user = await database.user.findUnique({
-      where: { id: userId },
+    // Get user with all relevant relations (by id OR username)
+    const user = await database.user.findFirst({
+      where: {
+        OR: [
+          { id: idOrUsername },
+          {
+            username: {
+              equals: idOrUsername,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
       include: {
         members: {
           include: {
@@ -103,7 +113,7 @@ export async function GET(
     }
 
     // Check if the requesting user can view this profile
-    const isOwnProfile = sessionData?.user?.id === userId;
+    const isOwnProfile = sessionData?.user?.id === user.id;
     const isPublicProfile = !user.private;
 
     if (!isOwnProfile && !isPublicProfile) {
@@ -113,7 +123,6 @@ export async function GET(
           id: user.id,
           name: user.name,
           username: user.username,
-          avatarUrl: user.avatarUrl,
           image: user.image,
           headline: user.headline,
           private: true,
@@ -179,26 +188,26 @@ export async function PATCH(
     }
 
     const updateProfileSchema = z.object({
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-      username: z.string().min(3).max(30).optional(),
-      avatarUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
-      headline: z.string().max(100).optional(),
-      bio: z.string().max(500).optional(),
+      firstName: z.string().trim().optional(),
+      lastName: z.string().trim().optional(),
+      username: z.string().trim().min(3).max(30).optional(),
+      image: z.string().regex(OPTIONAL_URL_REGEX).optional(),
+      headline: z.string().trim().max(100).optional(),
+      bio: z.string().trim().max(500).optional(),
       interests: z.array(z.string()).optional(),
-      location: z.string().optional(),
+      location: z.string().trim().optional(),
       skills: z.any().optional(),
       walletAddress: z.string().optional(),
-      twitter: z.string().optional(),
-      discord: z.string().optional(),
-      github: z.string().optional(),
-      linkedin: z.string().optional(),
+      twitter: z.string().trim().optional(),
+      discord: z.string().trim().optional(),
+      github: z.string().trim().optional(),
+      linkedin: z.string().trim().optional(),
       website: z.string().regex(OPTIONAL_URL_REGEX).optional(),
-      telegram: z.string().optional(),
-      employer: z.string().optional(),
-      workExperience: z.string().optional(),
-      cryptoExperience: z.string().optional(),
-      workPreference: z.string().optional(),
+      telegram: z.string().trim().optional(),
+      employer: z.string().trim().optional(),
+      workExperience: z.string().trim().optional(),
+      cryptoExperience: z.string().trim().optional(),
+      workPreference: z.string().trim().optional(),
       private: z.boolean().optional(),
     });
 
@@ -209,7 +218,10 @@ export async function PATCH(
     if (validatedData.username) {
       const existingUser = await database.user.findFirst({
         where: {
-          username: validatedData.username,
+          username: {
+            equals: validatedData.username,
+            mode: "insensitive",
+          },
           id: { not: userId },
         },
       });

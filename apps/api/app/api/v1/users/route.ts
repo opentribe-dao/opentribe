@@ -26,10 +26,10 @@ export async function GET(request: NextRequest) {
     if (username) {
       // First try exact username match, then try as ID
       whereCondition = {
-        OR: [
-          { username },
-          { id: username }, // In case username parameter is actually an ID
-        ],
+        username: {
+          equals: username,
+          mode: "insensitive",
+        },
       };
     } else if (id) {
       whereCondition = { id };
@@ -41,7 +41,6 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         username: true,
-        avatarUrl: true,
         image: true,
         headline: true,
         private: true,

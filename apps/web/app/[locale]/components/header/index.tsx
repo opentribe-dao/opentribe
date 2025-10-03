@@ -35,14 +35,25 @@ type HeaderProps = {
   dictionary: Dictionary;
 };
 
+type UserSession = {
+  id: string;
+  email?: string;
+  name?: string;
+  image?: string | null;
+  username?: string;
+};
+
+const LOCALE_PREFIX_REGEX = /^\/[a-z]{2}/;
+
 const UserMenu = ({
   user,
   onSignOut,
 }: {
-  user: any;
+  user: UserSession;
   onSignOut: () => void;
 }) => {
   const [userProfile, setUserProfile] = useState<{
+    username?: string;
     organizations: Array<{
       id: string;
       name: string;
@@ -50,25 +61,26 @@ const UserMenu = ({
       role: string;
     }>;
   } | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/users/me`, {
-          credentials: 'include',
-        });
-        
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/users/me`,
+          {
+            credentials: "include",
+          }
+        );
+
         if (response.ok) {
           const data = await response.json();
           setUserProfile({
+            username: data.user.username,
             organizations: data.user.organizations || [],
           });
         }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      } finally {
-        setLoading(false);
+      } catch {
+        // ignore
       }
     };
 
@@ -93,14 +105,16 @@ const UserMenu = ({
   const userInitials = getInitials(user.name, user.email);
   const displayName = user.name || user.email || "User";
   const firstName = user.name ? user.name.split(" ")[0] : displayName;
-  const hasOrganization = userProfile?.organizations && userProfile.organizations.length > 0;
+  const hasOrganization =
+    userProfile?.organizations && userProfile.organizations.length > 0;
+  const profileHref = `/profile/${userProfile?.username || user.username || user.id}`;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className='flex h-auto items-center gap-2 rounded-lg p-2 hover:bg-white/10'
+          className="flex h-auto items-center gap-2 rounded-lg p-2 hover:bg-white/10"
         >
           {user.image ? (
             <Image
@@ -111,16 +125,16 @@ const UserMenu = ({
               className="h-8 w-8 rounded-full"
             />
           ) : (
-            <div className='flex h-8 w-8 items-center justify-center rounded-full bg-pink-600 font-medium text-white text-xs'>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-600 font-medium text-white text-xs">
               {userInitials}
             </div>
           )}
-          <span className='font-medium text-white'>{firstName}</span>
+          <span className="font-medium text-white">{firstName}</span>
           <ChevronDown className="h-4 w-4 text-white/70" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className='w-56 border-white/10 bg-black/90 text-white'
+        className="w-56 border-white/10 bg-black/90 text-white"
         align="end"
       >
         <DropdownMenuLabel className="font-normal">
@@ -132,7 +146,7 @@ const UserMenu = ({
         <DropdownMenuSeparator className="bg-white/10" />
         <DropdownMenuItem asChild>
           <Link
-            href="/profile"
+            href={profileHref}
             className="cursor-pointer focus:bg-white/10 focus:text-white"
           >
             <User className="mr-2 h-4 w-4" />
@@ -193,8 +207,8 @@ const UserMenu = ({
           </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-white/10" />
-        <DropdownMenuItem 
-          onClick={onSignOut} 
+        <DropdownMenuItem
+          onClick={onSignOut}
           className="text-red-400 focus:bg-white/10 focus:text-red-400"
         >
           <LogOut className="mr-2 h-4 w-4" />
@@ -205,7 +219,7 @@ const UserMenu = ({
   );
 };
 
-export const Header = ({ dictionary }: HeaderProps) => {
+export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   const { data: session } = useSession();
   const [isOpen, setOpen] = useState(false);
   const pathname = usePathname();
@@ -235,29 +249,31 @@ export const Header = ({ dictionary }: HeaderProps) => {
 
   const isActive = (href: string) => {
     // Remove locale prefix if present
-    const cleanPathname = pathname.replace(/^\/[a-z]{2}/, '');
-    const cleanHref = href.replace(/^\/[a-z]{2}/, '');
-    return cleanPathname === cleanHref || cleanPathname.startsWith(`${cleanHref}/`);
+    const cleanPathname = pathname.replace(LOCALE_PREFIX_REGEX, "");
+    const cleanHref = href.replace(LOCALE_PREFIX_REGEX, "");
+    return (
+      cleanPathname === cleanHref || cleanPathname.startsWith(`${cleanHref}/`)
+    );
   };
 
   return (
-    <header className='sticky top-0 left-0 z-40 w-full border-white/10 border-b bg-black/90 backdrop-blur-xl'>
+    <header className="sticky top-0 left-0 z-40 w-full border-white/10 border-b bg-black/90 backdrop-blur-xl">
       <div className="container relative mx-auto flex min-h-20 flex-row items-center justify-between px-4">
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
-            <span className='bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-transparent text-xl leading-[1.75] tracking-[0.25em]'>
+            <span className="bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-transparent text-xl leading-[1.75] tracking-[0.25em]">
               OPENTRIBE
             </span>
           </Link>
         </div>
-        <nav className='hidden items-center gap-6 md:flex'>
+        <nav className="hidden items-center gap-6 md:flex">
           {navigationItems.map((item) => (
             <Link
               key={item.title}
               href={item.href}
               className={`text-sm transition-colors ${
                 isActive(item.href)
-                  ? 'font-medium text-white'
+                  ? "font-medium text-white"
                   : "text-white/70 hover:text-white"
               }`}
             >
@@ -274,7 +290,7 @@ export const Header = ({ dictionary }: HeaderProps) => {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className='rounded-full font-bold font-heading text-base'
+                  className="rounded-full font-bold font-heading text-base"
                 >
                   Login / Sign Up
                 </Button>
@@ -287,13 +303,14 @@ export const Header = ({ dictionary }: HeaderProps) => {
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           {isOpen && (
-            <div className='container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg'>
+            <div className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg">
               {navigationItems.map((item) => (
                 <div key={item.title}>
                   <div className="flex flex-col gap-2">
                     {item.href ? (
                       <Link
                         href={item.href}
+                        onClick={() => setOpen(!isOpen)}
                         className={`flex items-center justify-between px-4 ${
                           isActive(item.href) ? "text-white" : ""
                         }`}
@@ -310,7 +327,7 @@ export const Header = ({ dictionary }: HeaderProps) => {
                         <MoveRight className="h-4 w-4 stroke-1 text-muted-foreground" />
                       </Link>
                     ) : (
-                      <p className='pl-4 text-lg'>{item.title}</p>
+                      <p className="pl-4 text-lg">{item.title}</p>
                     )}
                   </div>
                 </div>

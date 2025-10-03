@@ -1,17 +1,12 @@
 "use client";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BountiesHeroSection } from "./components/hero-section";
 import { BountiesContentSection } from "./components/content-section";
 import { BountiesSidebar } from "./components/sidebar";
 import { useBountiesFilters } from "@/hooks/use-bounties-filters";
 import { useBountiesData, useBountiesSkills } from "@/hooks/use-bounties-data";
-import { queryClientConfig } from "@/hooks/react-query";
 import { useState } from "react";
 
-const queryClient = new QueryClient(queryClientConfig);
-
-function BountiesPageContent() {
+export default function BountiesPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const filtersHook = useBountiesFilters();
@@ -67,12 +62,14 @@ function BountiesPageContent() {
             }}
             activeFiltersCount={filtersHook.activeFiltersCount}
             showMobileFilters={showMobileFilters}
-            onFilterChange={(key, value) => {
-              if (key === 'showMobileFilters') {
-                setShowMobileFilters(value);
-              } else {
-                filtersHook.updateFilter(key as keyof typeof filtersHook.filters, value);
-              }
+            onFilterChange={{
+              onSortChange: (value) => filtersHook.updateFilter('sortBy', value),
+              onStatusChange: (value) => filtersHook.updateFilter('status', value),
+              onSkillsChange: (value) => filtersHook.updateFilter('skills', value),
+              onPriceRangeChange: (value) => filtersHook.updateFilter('priceRange', value),
+              onHasSubmissionsChange: (value) => filtersHook.updateFilter('hasSubmissions', value),
+              onHasDeadlineChange: (value) => filtersHook.updateFilter('hasDeadline', value),
+              onMobileFiltersToggle: (show) => setShowMobileFilters(show),
             }}
             onStatusToggle={filtersHook.toggleStatus}
             onClearAllFilters={filtersHook.clearAllFilters}
@@ -80,13 +77,5 @@ function BountiesPageContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function BountiesPage() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BountiesPageContent />
-    </QueryClientProvider>
   );
 }

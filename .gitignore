@@ -1,5 +1,3 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,windows,node,nextjs,vercel,turbo,storybookjs,react
-
 ### macOS ###
 # General
 .DS_Store
@@ -302,6 +300,9 @@ SEARCH_IMPLEMENTATION.md
 BOUNTYPAGE_UI_IMPLEMENTATION.md
 GRANTSPAGE_UI_IMPLEMENTATION.md
 RFPSPAGE_UI_IMPLEMENTATION.md
+DEVELOPER_GUIDELINES_STATS_CARD.md
+
+frontend_todos.md
 
 # AI
 GEMINI.md

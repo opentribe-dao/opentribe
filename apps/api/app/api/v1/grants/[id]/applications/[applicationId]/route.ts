@@ -47,7 +47,7 @@ export async function GET(
             firstName: true,
             lastName: true,
             email: true,
-            avatarUrl: true,
+            image: true,
             location: true,
             bio: true,
             skills: true,
@@ -75,8 +75,9 @@ export async function GET(
       },
     });
 
-    // Only organization members can view applications
-    if (!userMember) {
+    // Allow organization members or the application creator to view
+    const isCreator = application.userId === sessionData.user.id;
+    if (!userMember && !isCreator) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -91,7 +92,7 @@ export async function GET(
       submittedAt: application.submittedAt,
       reviewedAt: application.reviewedAt,
       feedback: application.notes,
-      answers: application.responses as any,
+      answers: application.responses as Record<string, unknown>,
       files: [], // TODO: Implement file attachments
       grant: application.grant,
       applicant: {

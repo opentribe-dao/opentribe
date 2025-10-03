@@ -10,7 +10,6 @@ declare module "better-auth" {
     firstName?: string | null;
     lastName?: string | null;
     username?: string | null;
-    avatarUrl?: string | null;
     headline?: string | null;
     bio?: string | null;
     interests?: string[] | null;

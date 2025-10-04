@@ -19,6 +19,7 @@ import remarkGfm from "remark-gfm";
 import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
 import { ShareButton } from "../../bounties/[id]/share-button";
+import { formatAmount } from "@packages/base/lib/utils";
 
 async function getRfp(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -51,16 +52,6 @@ export default async function RFPDetailPage({
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-
-  // Format currency
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Resources are already parsed from the API
   const resources = rfp.resources || [];
@@ -336,35 +327,35 @@ export default async function RFPDetailPage({
             {relatedRfps.length > 0 && (
               <section>
                 <h3 className='mb-4 font-bold text-xl'>Other RFP</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
                   {relatedRfps.map((related: any) => (
                     <Link
                       key={related.id}
                       href={`/en/rfps/${related.id}`}
                       className="group"
                     >
-                      <div className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/10 transition-all h-full">
-                        <div className="flex items-center justify-center mb-4">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center">
-                            <span className="text-2xl font-bold">K</span>
+                      <div className='h-full rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10'>
+                        <div className='mb-4 flex items-center justify-center'>
+                          <div className='flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-400 to-red-500'>
+                            <span className='font-bold text-2xl'>K</span>
                           </div>
                         </div>
-                        <h4 className="font-semibold text-center mb-2 line-clamp-2 group-hover:text-pink-400 transition-colors">
+                        <h4 className='mb-2 line-clamp-2 text-center font-semibold transition-colors group-hover:text-pink-400'>
                           {related.title}
                         </h4>
-                        <div className="flex items-center justify-center gap-4 text-xs text-white/50">
+                        <div className='flex items-center justify-center gap-4 text-white/50 text-xs'>
                           <span className="flex items-center gap-1">
-                            <ThumbsUp className="w-3 h-3" />
+                            <ThumbsUp className='h-3 w-3' />
                             {related.voteCount}
                           </span>
                           <span className="flex items-center gap-1">
-                            <MessageCircle className="w-3 h-3" />
+                            <MessageCircle className='h-3 w-3' />
                             {related.commentCount}
                           </span>
                         </div>
                         <Button
                           variant="outline"
-                          className="w-full mt-4 text-xs border-white/20 text-white hover:bg-white/10"
+                          className='mt-4 w-full border-white/20 text-white text-xs hover:bg-white/10'
                         >
                           View Now
                         </Button>
@@ -379,8 +370,8 @@ export default async function RFPDetailPage({
           {/* Right Sidebar */}
           <div className="space-y-6">
             {/* Grant Card */}
-            <div className="p-6 bg-gradient-to-br from-purple-600/10 to-pink-600/10 backdrop-blur-sm rounded-xl border border-white/10">
-              <div className="flex items-center gap-4 mb-4">
+            <div className='rounded-xl border border-white/10 bg-gradient-to-br from-purple-600/10 to-pink-600/10 p-6 backdrop-blur-sm'>
+              <div className='mb-4 flex items-center gap-4'>
                 {rfp.grant.logoUrl ? (
                   <Image
                     src={rfp.grant.logoUrl}
@@ -390,24 +381,24 @@ export default async function RFPDetailPage({
                     className="rounded-xl"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                    <span className="text-2xl font-bold">
+                  <div className='flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500'>
+                    <span className='font-bold text-2xl'>
                       {rfp.grant.title[0]}
                     </span>
                   </div>
                 )}
                 <div>
-                  <h3 className="font-semibold font-heading">
+                  <h3 className='font-heading font-semibold'>
                     {rfp.grant.title}
                   </h3>
                   <p className="text-sm text-white/60">FUND</p>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-4">
+              <div className='mb-4 space-y-3'>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60 flex items-center gap-1">
-                    <DollarSign className="w-4 h-4" />
+                  <span className='flex items-center gap-1 text-white/60'>
+                    <DollarSign className='h-4 w-4' />
                     Total Prize
                   </span>
                   <span className="font-semibold">
@@ -417,15 +408,15 @@ export default async function RFPDetailPage({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60 flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
+                  <span className='flex items-center gap-1 text-white/60'>
+                    <Calendar className='h-4 w-4' />
                     RFPs
                   </span>
                   <span className="font-semibold">Multiple</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60 flex items-center gap-1">
-                    <Users className="w-4 h-4" />
+                  <span className='flex items-center gap-1 text-white/60'>
+                    <Users className='h-4 w-4' />
                     Applications
                   </span>
                   <span className="font-semibold">
@@ -449,7 +440,7 @@ export default async function RFPDetailPage({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
+                  <Button className='w-full bg-pink-600 text-white hover:bg-pink-700'>
                     Apply Externally
                   </Button>
                 </a>
@@ -462,7 +453,7 @@ export default async function RFPDetailPage({
                 </Button>
               ) : (
                 <Link href={`/grants/${rfp.grant.id}/apply?rfp=${rfp.id}`}>
-                  <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
+                  <Button className='w-full bg-pink-600 text-white hover:bg-pink-700'>
                     Apply with this RFP
                   </Button>
                 </Link>
@@ -470,26 +461,26 @@ export default async function RFPDetailPage({
             </div>
 
             {/* Vote Stats */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-              <h3 className="text-sm font-medium text-white/60 mb-3">
+            <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+              <h3 className='mb-3 font-medium text-sm text-white/60'>
                 Community Interest
               </h3>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold font-heading">
+                  <p className='font-bold font-heading text-2xl'>
                     {rfp._count.votes}
                   </p>
                   <p className="text-sm text-white/60">Total Votes</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-pink-600/20 flex items-center justify-center">
-                  <ThumbsUp className="w-6 h-6 text-pink-400" />
+                <div className='flex h-12 w-12 items-center justify-center rounded-full bg-pink-600/20'>
+                  <ThumbsUp className='h-6 w-6 text-pink-400' />
                 </div>
               </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-              <h3 className="text-sm font-medium text-white/60 mb-3">
+            <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+              <h3 className='mb-3 font-medium text-sm text-white/60'>
                 Activity
               </h3>
               <div className="space-y-2 text-sm">

@@ -110,7 +110,7 @@ function GrantsContentSectionComponent({
 
       {/* Loading State */}
       {loading && grants.length === 0 && (
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-1'>
           {Array.from({ length: 9 }).map((_, i) => (
             <Skeleton
               key={i}
@@ -146,7 +146,7 @@ function GrantsContentSectionComponent({
       {/* Grants Grid */}
       {!loading && grants.length > 0 && (
         <>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-1 xl:grid-cols-1'>
             {grants.map((grant) => (
               <GrantCard
                 key={grant.id}

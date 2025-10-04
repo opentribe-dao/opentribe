@@ -27,11 +27,11 @@ export function ShareButton({ url, className }: ShareButtonProps) {
   return (
     <Button
       variant="outline"
-      size="icon"
+      // size="icon"
       className={className || "border-white/20 text-white hover:bg-white/10"}
       onClick={handleShare}
     >
-      <Share2 className="h-4 w-4" />
+      <Share2 className="h-4 w-4" /> Share
     </Button>
   );
 }

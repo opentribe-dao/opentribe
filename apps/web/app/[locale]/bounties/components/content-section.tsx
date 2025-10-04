@@ -105,7 +105,7 @@ function BountiesContentSectionComponent({
 
       {/* Content */}
       {loading ? (
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-1'>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
             <Skeleton
               key={i}
@@ -115,7 +115,7 @@ function BountiesContentSectionComponent({
         </div>
       ) : bounties.length > 0 ? (
         <>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-1 xl:grid-cols-1'>
             {bounties.map((bounty, index) => {
               // Add safety check and ensure all required props exist
               if (!bounty?.id) {

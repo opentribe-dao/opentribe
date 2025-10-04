@@ -204,7 +204,7 @@ const BountySubmissionPage = () => {
                   <img
                     src={bounty.organization.logo}
                     alt={bounty.organization.name}
-                    className="w-8 h-8 rounded-full"
+                    className='h-8 w-8 rounded-full'
                   />
                 )}
                 <span>{bounty.organization.name}</span>

@@ -7,9 +7,9 @@ import { X } from "lucide-react"
 import { TopRFPsCard } from "./top-rfps"
 
 interface GrantFilters {
-  status: string[]
-  sortBy: string
-  priceRange: [number, number]
+  status: string[];
+  sortBy: string;
+  priceRange: [number, number];
 }
 
 interface TopRfp {
@@ -48,13 +48,12 @@ const SORT_OPTIONS = [
   { value: "max_funds", label: "Highest Funds" },
   { value: "most_applications", label: "Most Applications" },
   { value: "most_rfps", label: "Most RFPs" },
-]
+];
 
 const STATUS_OPTIONS = [
   { value: "open", label: "Open" },
   { value: "closed", label: "Closed" },
-]
-
+];
 
 function GrantsSidebarComponent({
   filters,
@@ -65,13 +64,13 @@ function GrantsSidebarComponent({
   topRFPsError,
   onFilterChange,
   onStatusToggle,
-  onClearAllFilters
+  onClearAllFilters,
 }: GrantsSidebarProps) {
   return (
     <>
       {/* Mobile Overlay */}
       {showMobileFilters && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => onFilterChange.onMobileFiltersToggle(false)}
           onKeyDown={(e) => {
@@ -84,7 +83,7 @@ function GrantsSidebarComponent({
           aria-label="Close mobile filters"
         />
       )}
-      
+
       {/* Sidebar Content */}
       <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-80 overflow-y-auto bg-[#111111] p-6 lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : "hidden lg:block"}`}>
         {/* Mobile Close Button */}
@@ -103,15 +102,15 @@ function GrantsSidebarComponent({
         )}
         
         {/* Filters */}
-        <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
-          <div className='mb-4 flex items-center justify-between'>
-            <h3 className='font-heading font-semibold text-lg'>Filters</h3>
+        <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="font-heading font-semibold text-lg">Filters</h3>
             {activeFiltersCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClearAllFilters}
-                className='text-sm text-white/60 hover:text-white'
+                className="text-sm text-white/60 hover:text-white"
               >
                 Clear all
               </Button>
@@ -120,19 +119,21 @@ function GrantsSidebarComponent({
 
           {/* Status */}
           <div className="mb-6">
-            <h4 className='mb-3 font-medium text-sm text-white/80'>Status</h4>
-            <div className="space-y-2">
+            <h4 className="mb-3 font-medium text-sm text-white/80">Status</h4>
+            <div className="grid grid-cols-2 gap-4">
+              {" "}
+              {/*Each option stays as a horizontal pair (radio + label) on mobile*/}
               {STATUS_OPTIONS.map((status) => (
                 <label
                   key={status.value}
                   htmlFor={`status-${status.value.toLowerCase()}`}
-                  className='flex cursor-pointer items-center gap-2'
+                  className="flex cursor-pointer items-center gap-2"
                 >
                   <Checkbox
                     id={`status-${status.value.toLowerCase()}`}
                     checked={filters.status.includes(status.value)}
                     onCheckedChange={() => onStatusToggle(status.value)}
-                    className='border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500'
+                    className="border-white/40 data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500"
                   />
                   <span className="text-sm text-white/70">{status.label}</span>
                 </label>
@@ -140,24 +141,25 @@ function GrantsSidebarComponent({
             </div>
           </div>
 
-
           {/* Sort By */}
           <div className="mb-6">
             <h4 className='mb-3 font-medium text-sm text-white/80'>Sort By</h4>
             <RadioGroup value={filters.sortBy} onValueChange={(value) => onFilterChange.onSortChange(value)}>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-4">
                 {SORT_OPTIONS.map((option) => (
                   <label
                     key={option.value}
                     htmlFor={`sort-${option.value}`}
-                    className='flex cursor-pointer items-center gap-2'
+                    className="flex cursor-pointer items-center gap-2"
                   >
-                    <RadioGroupItem 
+                    <RadioGroupItem
                       id={`sort-${option.value}`}
-                      value={option.value} 
-                      className="border-white/40 text-pink-500" 
+                      value={option.value}
+                      className="border-white/40 text-pink-500"
                     />
-                    <span className="text-sm text-white/70">{option.label}</span>
+                    <span className="text-sm text-white/70">
+                      {option.label}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -166,7 +168,9 @@ function GrantsSidebarComponent({
 
           {/* Price Range */}
           <div className="mb-6">
-            <h4 className='mb-3 font-medium text-sm text-white/80'>Amount Range</h4>
+            <h4 className="mb-3 font-medium text-sm text-white/80">
+              Amount Range
+            </h4>
             <div className="space-y-4">
               <Slider
                 value={filters.priceRange}
@@ -192,7 +196,7 @@ function GrantsSidebarComponent({
           />
       </div>
     </>
-  )
+  );
 }
 
 // Memoize the component for performance

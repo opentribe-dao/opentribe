@@ -18,6 +18,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { ShareButton } from "../../bounties/[id]/share-button";
 
 async function getGrant(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -119,16 +120,16 @@ export default function GrantDetailPage({
       <div className="relative overflow-hidden">
         <div className="container relative mx-auto px-6 py-8">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-6">
+            <div className="items-start justify-between md:flex">
+              <div className="items-start gap-6 md:flex">
                 {/* Organization Logo */}
-                <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-green-400 to-blue-500">
+                <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
                   {grant.organization.logo ? (
                     <Image
                       src={grant.organization.logo}
                       alt={grant.organization.name}
                       fill
-                      className="bg-white object-cover p-2"
+                      className="h-20 w-20 object-cover"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -141,10 +142,10 @@ export default function GrantDetailPage({
 
                 {/* Grant Info */}
                 <div>
-                  <h1 className="mb-2 font-bold font-heading text-3xl">
+                  <h1 className="mt-2 mb-2 font-bold font-heading text-2xl sm:text-2xl md:mt-0">
                     {grant.title}
                   </h1>
-                  <div className="flex items-center gap-4 text-white/60">
+                  <div className="flex flex-col gap-4 text-white/60 md:flex-row md:items-center">
                     <span className="flex items-center gap-1">
                       <Building2 className="h-4 w-4" />
                       {grant.organization.industry?.[0] || "Technology"}
@@ -158,7 +159,7 @@ export default function GrantDetailPage({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-4">
+              <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
                 {/* Application count badge */}
                 <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
                   <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
@@ -167,14 +168,8 @@ export default function GrantDetailPage({
                   </span>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
-
+                <ShareButton url={`/grants/${grantId}`} />
+                <div className="col-span-2 w-full">
                 {grant.userApplicationId ? (
                   <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>
                     <Button
@@ -214,6 +209,7 @@ export default function GrantDetailPage({
                     </Button>
                   </Link>
                 )}
+              </div>
               </div>
             </div>
           </div>

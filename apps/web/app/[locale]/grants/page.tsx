@@ -21,6 +21,8 @@ export default function GrantsPage() {
         <GrantsHeroSection
           searchQuery={filtersHook.filters.search || ''}
           totalCount={grantsData.grants.length}
+          totalValue={grantsData.grants.reduce((acc, grant) => acc + (Number(grant.maxAmount) || 0) + (Number(grant.minAmount) || 0), 0)}
+          isLoading={grantsData.isLoading}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}

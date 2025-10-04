@@ -18,6 +18,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
+import { ShareButton } from "../../bounties/[id]/share-button";
+import { formatAmount } from "@packages/base/lib/utils";
 
 async function getRfp(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -51,16 +53,6 @@ export default async function RFPDetailPage({
     headers: await headers(),
   });
 
-  // Format currency
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   // Resources are already parsed from the API
   const resources = rfp.resources || [];
 
@@ -68,22 +60,22 @@ export default async function RFPDetailPage({
     <div className="min-h-screen">
       {/* Glass Header Card */}
       <div className="relative overflow-hidden">
-        <div className="relative container mx-auto px-6 py-8">
-          <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-6">
+        <div className='container relative mx-auto px-6 py-8'>
+          <div className='rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl'>
+            <div className="items-start justify-between md:flex">
+              <div className="items-start gap-6 md:flex">
                 {/* Organization Logo */}
-                <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-pink-400 to-red-500">
+                <div className='relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-red-500'>
                   {rfp.grant.organization.logo ? (
                     <Image
                       src={rfp.grant.organization.logo}
                       alt={rfp.grant.organization.name}
                       fill
-                      className="object-cover bg-white p-2"
+                      className='h-20 w-20 object-cover'
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-3xl font-bold">
+                    <div className='flex h-full w-full items-center justify-center'>
+                      <span className='font-bold text-3xl'>
                         {rfp.grant.organization.name[0]}
                       </span>
                     </div>
@@ -92,17 +84,17 @@ export default async function RFPDetailPage({
 
                 {/* RFP Info */}
                 <div>
-                  <h1 className="text-3xl font-bold font-heading mb-2">
+                  <h1 className='mt-2 mb-2 font-bold font-heading text-2xl sm:text-2xl md:mt-0'>
                     {rfp.title}
                   </h1>
                   <div className="flex items-center gap-4 text-white/60">
                     <span className="text-sm">Part of</span>
                     <Link
                       href={`/en/grants/${rfp.grant.id}`}
-                      className="text-pink-400 hover:text-pink-300 transition-colors flex items-center gap-1"
+                      className='flex items-center gap-1 text-pink-400 transition-colors hover:text-pink-300'
                     >
                       {rfp.grant.title}
-                      <ArrowUpRight className="w-3 h-3" />
+                      <ArrowUpRight className='h-3 w-3' />
                     </Link>
                   </div>
                 </div>
@@ -113,26 +105,20 @@ export default async function RFPDetailPage({
                 {/* Stats */}
                 <div className="flex items-center gap-3 text-sm">
                   <span className="flex items-center gap-1 text-white/60">
-                    <ThumbsUp className="w-4 h-4" />
+                    <ThumbsUp className='h-4 w-4' />
                     {rfp._count.votes}
                   </span>
                   <span className="flex items-center gap-1 text-white/60">
-                    <MessageCircle className="w-4 h-4" />
+                    <MessageCircle className='h-4 w-4' />
                     {rfp._count.comments}
                   </span>
                   <span className="flex items-center gap-1 text-white/60">
-                    <Users className="w-4 h-4" />
+                    <Users className='h-4 w-4' />
                     {rfp._count.applications}
                   </span>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
+                <ShareButton url={`/rfps/${rfp.id}`} />
 
                 <VoteSection rfpId={rfp.id} initialVoteCount={rfp.voteCount} />
               </div>
@@ -143,15 +129,15 @@ export default async function RFPDetailPage({
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
           {/* Left Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className='space-y-8 lg:col-span-2'>
             {/* Description Section */}
             <section>
-              <h2 className="text-2xl font-bold font-heading mb-4">
+              <h2 className='mb-4 font-bold font-heading text-2xl'>
                 Description
               </h2>
-              <div className="prose prose-invert max-w-none prose-headings:font-heading prose-p:text-white/80 prose-li:text-white/80 prose-strong:text-white prose-code:text-pink-400 prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10">
+              <div className='prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white'>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {rfp.description}
                 </ReactMarkdown>
@@ -161,31 +147,31 @@ export default async function RFPDetailPage({
             {/* Acceptance Criteria */}
             {resources.length > 0 && (
               <section>
-                <h2 className="text-2xl font-bold font-heading mb-4">
+                <h2 className='mb-4 font-bold font-heading text-2xl'>
                   Acceptance Criteria
                 </h2>
                 <div className="space-y-3">
-                  <div className="p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-                    <h3 className="font-semibold mb-2">Requirements:</h3>
+                  <div className='rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm'>
+                    <h3 className='mb-2 font-semibold'>Requirements:</h3>
                     <ul className="space-y-2">
-                      <li className="text-white/80 flex items-start gap-2">
-                        <span className="text-pink-400 mt-1">•</span>
+                      <li className='flex items-start gap-2 text-white/80'>
+                        <span className='mt-1 text-pink-400'>•</span>
                         <span>Existing @Writers only</span>
                       </li>
-                      <li className="text-white/80 flex items-start gap-2">
-                        <span className="text-pink-400 mt-1">•</span>
+                      <li className='flex items-start gap-2 text-white/80'>
+                        <span className='mt-1 text-pink-400'>•</span>
                         <span>Word count: 500-2000</span>
                       </li>
-                      <li className="text-white/80 flex items-start gap-2">
-                        <span className="text-pink-400 mt-1">•</span>
+                      <li className='flex items-start gap-2 text-white/80'>
+                        <span className='mt-1 text-pink-400'>•</span>
                         <span>Deadline: December 19th</span>
                       </li>
-                      <li className="text-white/80 flex items-start gap-2">
-                        <span className="text-pink-400 mt-1">•</span>
+                      <li className='flex items-start gap-2 text-white/80'>
+                        <span className='mt-1 text-pink-400'>•</span>
                         <span>Submit article to writer's room</span>
                       </li>
-                      <li className="text-white/80 flex items-start gap-2">
-                        <span className="text-pink-400 mt-1">•</span>
+                      <li className='flex items-start gap-2 text-white/80'>
+                        <span className='mt-1 text-pink-400'>•</span>
                         <span>A final edit will be made by @yoon</span>
                       </li>
                     </ul>
@@ -194,11 +180,11 @@ export default async function RFPDetailPage({
                   {resources.map((resource: any, idx: number) => (
                     <div
                       key={idx}
-                      className="p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10"
+                      className='rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm'
                     >
-                      <h3 className="font-semibold mb-2">{resource.title}</h3>
+                      <h3 className='mb-2 font-semibold'>{resource.title}</h3>
                       {resource.description && (
-                        <p className="text-white/70 text-sm mb-2">
+                        <p className='mb-2 text-sm text-white/70'>
                           {resource.description}
                         </p>
                       )}
@@ -207,10 +193,10 @@ export default async function RFPDetailPage({
                           href={resource.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-pink-400 hover:text-pink-300 text-sm flex items-center gap-1"
+                          className='flex items-center gap-1 text-pink-400 text-sm hover:text-pink-300'
                         >
                           View Resource
-                          <ArrowUpRight className="w-3 h-3" />
+                          <ArrowUpRight className='h-3 w-3' />
                         </a>
                       )}
                     </div>
@@ -226,7 +212,7 @@ export default async function RFPDetailPage({
 
             {/* Old Comments Section - TO BE REMOVED */}
             <section style={{ display: "none" }}>
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <h3 className='mb-4 flex items-center gap-2 font-bold text-xl'>
                 {rfp._count.comments} Comments
               </h3>
 
@@ -236,7 +222,7 @@ export default async function RFPDetailPage({
                   variant="outline"
                   className="mb-6 border-white/20 text-white hover:bg-white/10"
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" />
+                  <MessageCircle className='mr-2 h-4 w-4' />
                   Add Comment
                 </Button>
               )}
@@ -246,9 +232,9 @@ export default async function RFPDetailPage({
                 {rfp.comments.map((comment: any) => (
                   <div
                     key={comment.id}
-                    className="flex items-start gap-3 p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10"
+                    className='flex items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm'
                   >
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex-shrink-0">
+                    <div className='h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-green-500'>
                       {comment.author.image ? (
                         <Image
                           src={comment.author.image}
@@ -258,8 +244,8 @@ export default async function RFPDetailPage({
                           className="rounded-full"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-sm font-bold">
+                        <div className='flex h-full w-full items-center justify-center'>
+                          <span className='font-bold text-sm'>
                             {comment.author.firstName?.[0] ||
                               comment.author.username?.[0] ||
                               "U"}
@@ -268,7 +254,7 @@ export default async function RFPDetailPage({
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
+                      <div className='mb-1 flex items-center justify-between'>
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold">
                             {comment.author.firstName}{" "}
@@ -276,19 +262,19 @@ export default async function RFPDetailPage({
                               comment.author.username ||
                               "Anonymous"}
                           </h4>
-                          <span className="text-xs text-white/50">
+                          <span className='text-white/50 text-xs'>
                             {new Date(comment.createdAt).toLocaleDateString()}
                           </span>
                         </div>
-                        <span className="text-xs text-pink-400">Verified</span>
+                        <span className='text-pink-400 text-xs'>Verified</span>
                       </div>
-                      <p className="text-white/70 text-sm leading-relaxed">
+                      <p className='text-sm text-white/70 leading-relaxed'>
                         {comment.body}
                       </p>
 
                       {/* Comment actions */}
-                      <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
-                        <button className="hover:text-white transition-colors">
+                      <div className='mt-2 flex items-center gap-4 text-white/50 text-xs'>
+                        <button className='transition-colors hover:text-white'>
                           Reply
                         </button>
                       </div>
@@ -301,14 +287,14 @@ export default async function RFPDetailPage({
                               key={reply.id}
                               className="flex items-start gap-2"
                             >
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-shrink-0" />
+                              <div className='h-6 w-6 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500' />
                               <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-sm font-medium">
+                                <div className='mb-1 flex items-center gap-2'>
+                                  <span className='font-medium text-sm'>
                                     {reply.author.firstName ||
                                       reply.author.username}
                                   </span>
-                                  <span className="text-xs text-white/50">
+                                  <span className='text-white/50 text-xs'>
                                     {new Date(
                                       reply.createdAt
                                     ).toLocaleDateString()}
@@ -330,7 +316,7 @@ export default async function RFPDetailPage({
               {rfp.comments.length >= 10 && (
                 <Button
                   variant="outline"
-                  className="w-full mt-4 border-white/20 text-white hover:bg-white/10"
+                  className='mt-4 w-full border-white/20 text-white hover:bg-white/10'
                 >
                   View More
                 </Button>
@@ -340,36 +326,36 @@ export default async function RFPDetailPage({
             {/* Other RFPs */}
             {relatedRfps.length > 0 && (
               <section>
-                <h3 className="text-xl font-bold mb-4">Other RFP</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <h3 className='mb-4 font-bold text-xl'>Other RFP</h3>
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
                   {relatedRfps.map((related: any) => (
                     <Link
                       key={related.id}
                       href={`/en/rfps/${related.id}`}
                       className="group"
                     >
-                      <div className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/10 transition-all h-full">
-                        <div className="flex items-center justify-center mb-4">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center">
-                            <span className="text-2xl font-bold">K</span>
+                      <div className='h-full rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10'>
+                        <div className='mb-4 flex items-center justify-center'>
+                          <div className='flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-400 to-red-500'>
+                            <span className='font-bold text-2xl'>K</span>
                           </div>
                         </div>
-                        <h4 className="font-semibold text-center mb-2 line-clamp-2 group-hover:text-pink-400 transition-colors">
+                        <h4 className='mb-2 line-clamp-2 text-center font-semibold transition-colors group-hover:text-pink-400'>
                           {related.title}
                         </h4>
-                        <div className="flex items-center justify-center gap-4 text-xs text-white/50">
+                        <div className='flex items-center justify-center gap-4 text-white/50 text-xs'>
                           <span className="flex items-center gap-1">
-                            <ThumbsUp className="w-3 h-3" />
+                            <ThumbsUp className='h-3 w-3' />
                             {related.voteCount}
                           </span>
                           <span className="flex items-center gap-1">
-                            <MessageCircle className="w-3 h-3" />
+                            <MessageCircle className='h-3 w-3' />
                             {related.commentCount}
                           </span>
                         </div>
                         <Button
                           variant="outline"
-                          className="w-full mt-4 text-xs border-white/20 text-white hover:bg-white/10"
+                          className='mt-4 w-full border-white/20 text-white text-xs hover:bg-white/10'
                         >
                           View Now
                         </Button>
@@ -384,8 +370,8 @@ export default async function RFPDetailPage({
           {/* Right Sidebar */}
           <div className="space-y-6">
             {/* Grant Card */}
-            <div className="p-6 bg-gradient-to-br from-purple-600/10 to-pink-600/10 backdrop-blur-sm rounded-xl border border-white/10">
-              <div className="flex items-center gap-4 mb-4">
+            <div className='rounded-xl border border-white/10 bg-gradient-to-br from-purple-600/10 to-pink-600/10 p-6 backdrop-blur-sm'>
+              <div className='mb-4 flex items-center gap-4'>
                 {rfp.grant.logoUrl ? (
                   <Image
                     src={rfp.grant.logoUrl}
@@ -395,24 +381,24 @@ export default async function RFPDetailPage({
                     className="rounded-xl"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                    <span className="text-2xl font-bold">
+                  <div className='flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500'>
+                    <span className='font-bold text-2xl'>
                       {rfp.grant.title[0]}
                     </span>
                   </div>
                 )}
                 <div>
-                  <h3 className="font-semibold font-heading">
+                  <h3 className='font-heading font-semibold'>
                     {rfp.grant.title}
                   </h3>
                   <p className="text-sm text-white/60">FUND</p>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-4">
+              <div className='mb-4 space-y-3'>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60 flex items-center gap-1">
-                    <DollarSign className="w-4 h-4" />
+                  <span className='flex items-center gap-1 text-white/60'>
+                    <DollarSign className='h-4 w-4' />
                     Total Prize
                   </span>
                   <span className="font-semibold">
@@ -422,15 +408,15 @@ export default async function RFPDetailPage({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60 flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
+                  <span className='flex items-center gap-1 text-white/60'>
+                    <Calendar className='h-4 w-4' />
                     RFPs
                   </span>
                   <span className="font-semibold">Multiple</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60 flex items-center gap-1">
-                    <Users className="w-4 h-4" />
+                  <span className='flex items-center gap-1 text-white/60'>
+                    <Users className='h-4 w-4' />
                     Applications
                   </span>
                   <span className="font-semibold">
@@ -454,7 +440,7 @@ export default async function RFPDetailPage({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
+                  <Button className='w-full bg-pink-600 text-white hover:bg-pink-700'>
                     Apply Externally
                   </Button>
                 </a>
@@ -467,7 +453,7 @@ export default async function RFPDetailPage({
                 </Button>
               ) : (
                 <Link href={`/grants/${rfp.grant.id}/apply?rfp=${rfp.id}`}>
-                  <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
+                  <Button className='w-full bg-pink-600 text-white hover:bg-pink-700'>
                     Apply with this RFP
                   </Button>
                 </Link>
@@ -475,26 +461,26 @@ export default async function RFPDetailPage({
             </div>
 
             {/* Vote Stats */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-              <h3 className="text-sm font-medium text-white/60 mb-3">
+            <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+              <h3 className='mb-3 font-medium text-sm text-white/60'>
                 Community Interest
               </h3>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold font-heading">
+                  <p className='font-bold font-heading text-2xl'>
                     {rfp._count.votes}
                   </p>
                   <p className="text-sm text-white/60">Total Votes</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-pink-600/20 flex items-center justify-center">
-                  <ThumbsUp className="w-6 h-6 text-pink-400" />
+                <div className='flex h-12 w-12 items-center justify-center rounded-full bg-pink-600/20'>
+                  <ThumbsUp className='h-6 w-6 text-pink-400' />
                 </div>
               </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-              <h3 className="text-sm font-medium text-white/60 mb-3">
+            <div className='rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm'>
+              <h3 className='mb-3 font-medium text-sm text-white/60'>
                 Activity
               </h3>
               <div className="space-y-2 text-sm">

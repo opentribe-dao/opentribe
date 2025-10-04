@@ -91,7 +91,7 @@ export default function SubmissionDetailPage({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className='flex min-h-screen items-center justify-center'>
         <div className="text-white">Loading...</div>
       </div>
     );

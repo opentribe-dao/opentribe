@@ -51,9 +51,9 @@ export const Footer = () => {
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className='border-white/20 bg-white/10 text-white placeholder:text-white/50'
+                className='w-64 border-white/20 bg-white/10 text-white placeholder:text-white/50'
               />
-              <Button className='whitespace-nowrap bg-pink-600 hover:bg-pink-700'>
+              <Button className='-ml-8 whitespace-nowrap bg-pink-600 hover:bg-pink-700'>
                 Subscribe →
               </Button>
             </div>

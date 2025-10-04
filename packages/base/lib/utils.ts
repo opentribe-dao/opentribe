@@ -70,7 +70,7 @@ export const formatCurrency = (value: number): string => {
   } else if (value >= 1_000_000) {
     return `$${(value / 1_000_000).toFixed(1)}M`;
   } else if (value >= 1_000) {
-    return `$${(value / 1_000).toFixed(1)}K`;
+    return `$${(value / 1_000).toFixed(0)}K`;
   } else {
     return `$${value}`;
   }
@@ -99,4 +99,95 @@ export const formatAmount = (
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+};
+
+/**
+ * Interface for deadline information returned by getDeadlineInfo
+ */
+export interface DeadlineInfo {
+  timeRemaining: string | null;
+  isExpired: boolean;
+  isSoon: boolean;
+}
+
+/**
+ * Get deadline information including time remaining, expiration status, and urgency
+ * @param deadline - The deadline date (Date object, string, or null/undefined)
+ * @returns Object containing time remaining text, expiration status, and urgency flag
+ */
+export const getDeadlineInfo = (deadline: Date | string | null | undefined): DeadlineInfo => {
+  if (!deadline)
+    return { timeRemaining: null, isExpired: false, isSoon: false };
+
+  try {
+    const deadlineDate =
+      deadline instanceof Date ? deadline : new Date(deadline);
+    const now = new Date();
+
+    // Check if the date is valid
+    if (Number.isNaN(deadlineDate.getTime())) {
+      return { timeRemaining: null, isExpired: false, isSoon: false };
+    }
+
+    const diffTime = deadlineDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // If deadline has passed
+    if (diffTime <= 0) {
+      // Calculate how long ago the deadline was
+      const absDiffTime = Math.abs(diffTime);
+      const diffDays = Math.floor(absDiffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor((absDiffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const diffMinutes = Math.floor((absDiffTime % (1000 * 60 * 60)) / (1000 * 60));
+
+      let agoText = "";
+      if (diffDays >= 30) {
+        const diffMonths = Math.floor(diffDays / 30);
+        agoText = `Completed ${diffMonths} month${diffMonths !== 1 ? "s" : ""} ago`;
+      } else if (diffDays > 0) {
+        agoText = `Completed ${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+      } else if (diffHours > 0) {
+        agoText = `Completed ${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+      } else if (diffMinutes > 0) {
+        agoText = `Completed ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+      } else {
+        agoText = "Completed just now";
+      }
+
+      return { timeRemaining: agoText, isExpired: true, isSoon: false };
+    }
+
+    // Check if deadline is soon (within 7 days)
+    const isSoon = diffDays <= 7;
+
+    // Calculate time remaining display
+    const diffDaysFloor = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(
+      (diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const diffMinutes = Math.floor(
+      (diffTime % (1000 * 60 * 60)) / (1000 * 60)
+    );
+
+    let timeRemaining: string;
+    if (diffDaysFloor > 0) {
+      timeRemaining = `Due in ${diffDaysFloor} day${
+        diffDaysFloor !== 1 ? "s" : ""
+      }`;
+    } else if (diffHours > 0) {
+      timeRemaining = `Due in ${diffHours} hour${
+        diffHours !== 1 ? "s" : ""
+      } ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""}`;
+    } else if (diffMinutes > 0) {
+      timeRemaining = `Due in ${diffMinutes} minute${
+        diffMinutes !== 1 ? "s" : ""
+      }`;
+    } else {
+      timeRemaining = "Due very soon";
+    }
+
+    return { timeRemaining, isExpired: false, isSoon };
+  } catch {
+    return { timeRemaining: null, isExpired: false, isSoon: false };
+  }
 };

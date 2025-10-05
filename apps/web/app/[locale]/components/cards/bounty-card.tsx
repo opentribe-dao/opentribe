@@ -187,7 +187,7 @@ export function BountyCard({
               <Users className="h-3 w-3" />
               <span>{safeSubmissionCount} submissions</span>
             </div>
-            <Separator orientation="vertical" className="bg-white/10" />
+            <Separator orientation="vertical" className='h-4 bg-white/10' />
             {deadline &&
               (() => {
                 const deadlineInfo = getDeadlineInfo(deadline);

@@ -334,6 +334,7 @@ export default function BountyDetailPage({
                             </p>
                           </div>
                         </div>
+                        {/* TODO: @tarun fix this, ask @shivam about this - /bounties/${bountyId}/submissions/${submission.id}, if bounty is not open anymore, we send submission url otherwise bounty url */}
                         <Link
                           href={submission.submissionUrl || "#"}
                           target="_blank"

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Calendar, Users, Clock } from "lucide-react";
 import Image from "next/image";
+import { formatCurrency, getDeadlineInfo } from "@packages/base/lib/utils";
+import { Separator } from "@packages/base/components/ui/separator";
 
 interface BountyCardProps {
   id: string;
@@ -60,77 +62,21 @@ export function BountyCard({
     }
   };
 
-  const getDeadlineInfo = (deadline: Date | string | null | undefined) => {
-    if (!deadline)
-      return { timeRemaining: null, isExpired: false, isSoon: false };
-
-    try {
-      const deadlineDate =
-        deadline instanceof Date ? deadline : new Date(deadline);
-      const now = new Date();
-
-      // Check if the date is valid
-      if (Number.isNaN(deadlineDate.getTime())) {
-        return { timeRemaining: null, isExpired: false, isSoon: false };
-      }
-
-      const diffTime = deadlineDate.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      // If deadline has passed
-      if (diffTime <= 0) {
-        return { timeRemaining: "Expired", isExpired: true, isSoon: false };
-      }
-
-      // Check if deadline is soon (within 7 days)
-      const isSoon = diffDays <= 7;
-
-      // Calculate time remaining display
-      const diffDaysFloor = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      const diffHours = Math.floor(
-        (diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      );
-      const diffMinutes = Math.floor(
-        (diffTime % (1000 * 60 * 60)) / (1000 * 60)
-      );
-
-      let timeRemaining: string;
-      if (diffDaysFloor > 0) {
-        timeRemaining = `Due in ${diffDaysFloor} day${
-          diffDaysFloor !== 1 ? "s" : ""
-        }`;
-      } else if (diffHours > 0) {
-        timeRemaining = `Due in ${diffHours} hour${
-          diffHours !== 1 ? "s" : ""
-        } ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""}`;
-      } else if (diffMinutes > 0) {
-        timeRemaining = `Due in ${diffMinutes} minute${
-          diffMinutes !== 1 ? "s" : ""
-        }`;
-      } else {
-        timeRemaining = "Due very soon";
-      }
-
-      return { timeRemaining, isExpired: false, isSoon };
-    } catch {
-      return { timeRemaining: null, isExpired: false, isSoon: false };
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status?.toUpperCase()) {
       case "OPEN":
-        return "";
+        return "text-emerald-300 border-emerald-500/20 p-1 rounded-md";
       case "REVIEWING":
-        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/20";
+        return "text-yellow-300 border-yellow-500/20 p-1 rounded-md";
       case "COMPLETED":
-        return "bg-blue-500/20 text-blue-300 border-blue-500/20";
+        return "text-blue-300 border-blue-500/20 p-1 rounded-md";
       case "CLOSED":
-        return "bg-gray-500/20 text-gray-300 border-gray-500/20";
+        return "text-gray-300 border-gray-500/20 p-1 rounded-md";
       case "CANCELLED":
-        return "bg-red-500/20 text-red-300 border-red-500/20";
+        return "text-red-300 border-red-500/20 p-1 rounded-md";
       default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/20";
+        return "text-gray-300 border-gray-500/20 p-1 rounded-md";
     }
   };
 
@@ -147,7 +93,8 @@ export function BountyCard({
 
   return (
     <Link href={`/bounties/${id}`} className="group block h-full">
-      <div className='card-bg flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10'>
+      {/* TODO: @neeraj removed card-bg, as it was causing issues with the border */}
+      <div className='flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10'>
         {/* Header */}
 
         <div className="mb-2 flex items-start justify-between">
@@ -171,14 +118,10 @@ export function BountyCard({
           <div className="min-w-0 flex-1">
             <h3 className="mb-2 line-clamp-2 font-heading font-semibold text-lg text-white transition-colors group-hover:text-pink-300">
               {title || "Untitled Bounty"}
-              <span className={` ml-1 pl-1 ${getStatusColor(status)}`}>
+              <span className={' ml-1 pl-1'}>
                 {/* {status ? status.toLowerCase().replace("_", " ") : "unknown"} */}
-                {status?.toUpperCase() === "OPEN" ? (
+                {status?.toUpperCase() === "OPEN" && (
                   <span className="inline-block h-2 w-2 rounded-full bg-green-400" />
-                ) : status ? (
-                  status.toLowerCase().replace("_", " ")
-                ) : (
-                  "unknown"
                 )}
               </span>
             </h3>
@@ -200,7 +143,7 @@ export function BountyCard({
               <div className="text-right">
                 {safeAmount && (
                   <div className='font-semibold text-green-400 text-xl'>
-                    {safeAmount.toLocaleString()} {token}
+                    {formatCurrency(safeAmount, token)}
                   </div>
                 )}
                 {/* {safeAmountUSD && (
@@ -244,18 +187,13 @@ export function BountyCard({
               <Users className="h-3 w-3" />
               <span>{safeSubmissionCount} submissions</span>
             </div>
+            <Separator orientation="vertical" className='h-4 bg-white/10' />
             {deadline &&
               (() => {
                 const deadlineInfo = getDeadlineInfo(deadline);
                 return (
                   <div
-                    className={`flex items-center gap-1 ${
-                      deadlineInfo.isExpired
-                        ? "text-red-400"
-                        : deadlineInfo.isSoon
-                        ? "text-yellow-400"
-                        : "text-white/50"
-                    }`}
+                    className={`flex items-center gap-1 ${getStatusColor(status)}`}
                   >
                     <Clock className="h-3 w-3" />
                     <span>

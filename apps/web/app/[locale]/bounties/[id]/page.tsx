@@ -17,6 +17,8 @@ import { CommentSection } from "./comment-section";
 import { ShareButton } from "./share-button";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { useCountdown } from "@packages/base/hooks/use-countdown";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -41,6 +43,9 @@ export default function BountyDetailPage({
   const [bounty, setBounty] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [bountyId, setBountyId] = useState<string | null>(null);
+
+  // Countdown string for the deadline
+  const { formatted: countdownFormatted } = useCountdown(bounty?.deadline ?? null);
 
   // Resolve params once
   useEffect(() => {
@@ -80,15 +85,6 @@ export default function BountyDetailPage({
   if (!bounty) {
     notFound();
   }
-  // Format currency
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Handle winnings structure - parse if it's a string
   let winningsData = {};
@@ -111,17 +107,6 @@ export default function BountyDetailPage({
     ) as number) ||
     Number(bounty.amount) ||
     0;
-
-  // Format deadline
-  const formatDeadline = (deadline: string | null) => {
-    if (!deadline) return "No deadline";
-    const date = new Date(deadline);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
   return (
     <div className="min-h-screen">
@@ -163,24 +148,12 @@ export default function BountyDetailPage({
                       <MapPin className="h-4 w-4" />
                       {bounty.organization.location || "Remote"}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      Deadline: {formatDeadline(bounty.deadline)}
-                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
               <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
-                {/* Prize Badge */}
-                {/* <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/20 px-4 py-2 backdrop-blur-sm">
-                  <Trophy className="h-4 w-4 text-green-400" />
-                  <span className="font-bold text-green-400 text-sm">
-                    {formatAmount(totalPrize)} {bounty.token}
-                  </span>
-                </div> */}
-
                 <ShareButton url={`/bounties/${bountyId}`} />
 
                 {bounty.userSubmissionId ? (
@@ -209,15 +182,6 @@ export default function BountyDetailPage({
                   </Link>
                 )}
               </div>
-
-              {/* <div className="flex justify-end"> */}
-              {/* <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/20 px-4 py-2 backdrop-blur-sm">
-                    <Trophy className="h-4 w-4 text-green-400" />
-                    <span className="font-bold text-green-400 text-sm">
-                      {formatAmount(totalPrize)} {bounty.token}
-                    </span>
-                  </div> */}
-              {/* </div> */}
             </div>
           </div>
         </div>
@@ -257,7 +221,7 @@ export default function BountyDetailPage({
                 <DollarSign className='h-7 w-7 rounded-full border border-white/20 bg-[#DBE7FF] p-1 text-black' />Total Prize
               </h3>
               <div className="mb-4 font-bold font-heading text-2xl">
-                {formatAmount(totalPrize)} {bounty.token}
+              {formatCurrency(Number(totalPrize), String(bounty.token))}
               </div>
 
               {/* Winner breakdown */}
@@ -281,7 +245,7 @@ export default function BountyDetailPage({
                           : `Position ${position}`}
                       </span>
                       <span className="font-medium text-lg">
-                        {formatAmount(Number(amount))}
+                        {formatCurrency(Number(amount), String(bounty.token))}
                       </span>
                     </div>
                   ))}
@@ -312,8 +276,9 @@ export default function BountyDetailPage({
                   <Clock className="h-5 w-5 text-pink-400" />
                   {bounty.deadline && (
                     <div className="">
-                      {/* {formatDeadline(bounty.deadline)} */}
-                      <span className="font-semibold text-lg">5d:19h:15m</span>
+                      <span className="font-semibold text-lg">
+                        {countdownFormatted ?? "—"}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -365,10 +330,11 @@ export default function BountyDetailPage({
                                 submission.submitter.username}
                             </p>
                             <p className="text-white/50 text-xs">
-                              {formatAmount(Number(submission.winningAmount))}
+                              {formatCurrency(Number(submission.winningAmount), String(bounty.token))}
                             </p>
                           </div>
                         </div>
+                        {/* TODO: @tarun fix this, ask @shivam about this - /bounties/${bountyId}/submissions/${submission.id}, if bounty is not open anymore, we send submission url otherwise bounty url */}
                         <Link
                           href={submission.submissionUrl || "#"}
                           target="_blank"

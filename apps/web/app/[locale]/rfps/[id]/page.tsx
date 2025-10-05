@@ -19,7 +19,7 @@ import remarkGfm from "remark-gfm";
 import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
 import { ShareButton } from "../../bounties/[id]/share-button";
-import { formatAmount } from "@packages/base/lib/utils";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 async function getRfp(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -403,7 +403,7 @@ export default async function RFPDetailPage({
                   </span>
                   <span className="font-semibold">
                     {rfp.grant.maxAmount
-                      ? formatAmount(Number(rfp.grant.maxAmount))
+                      ? formatCurrency(Number(rfp.grant.maxAmount), String(rfp.grant.token))
                       : "Variable"}
                   </span>
                 </div>

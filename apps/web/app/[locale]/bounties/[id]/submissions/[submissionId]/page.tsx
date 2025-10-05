@@ -10,6 +10,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CommentSection } from "./comment-section";
 import { useEffect, useState } from "react";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 interface Submission {
   id: string;
@@ -101,16 +102,6 @@ export default function SubmissionDetailPage({
     notFound();
   }
 
-  // Format currency
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -170,7 +161,7 @@ export default function SubmissionDetailPage({
                     </div>
                     {submission.winningAmount && (
                       <p className="mt-2 font-bold text-2xl text-green-400">
-                        {formatAmount(submission.winningAmount)}
+                        {formatCurrency(Number(submission.winningAmount), String(submission.bounty.token))}
                       </p>
                     )}
                   </div>
@@ -292,7 +283,7 @@ export default function SubmissionDetailPage({
                 <div className="flex justify-between">
                   <span className="text-white/60">Total Prize</span>
                   <span className="font-medium">
-                    {formatAmount(submission.bounty.totalAmount)}{" "}
+                    {formatCurrency(Number(submission.bounty.totalAmount), String(submission.bounty.token))}
                     {submission.bounty.token}
                   </span>
                 </div>

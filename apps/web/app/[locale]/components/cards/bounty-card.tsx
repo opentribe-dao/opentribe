@@ -143,7 +143,7 @@ export function BountyCard({
               <div className="text-right">
                 {safeAmount && (
                   <div className='font-semibold text-green-400 text-xl'>
-                    {formatCurrency(safeAmount).replace("$", "")} {token}
+                    {formatCurrency(safeAmount, token)}
                   </div>
                 )}
                 {/* {safeAmountUSD && (

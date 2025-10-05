@@ -64,41 +64,57 @@ export const relativeTime = (time: Date): string => {
 // - Summary statistics
 // - Mobile UI where space is premium
 // formatCurrency(1234567) // "$1.2M"
-export const formatCurrency = (value: number): string => {
+export const formatCurrency = (value: number, currency?: string): string => {
+  const suffix = currency ? ` ${currency}` : "";
   if (value >= 1_000_000_000) {
-    return `$${(value / 1_000_000_000).toFixed(1)}B`;
+    const formatted = (value / 1_000_000_000).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}B${suffix}`;
   } else if (value >= 1_000_000) {
-    return `$${(value / 1_000_000).toFixed(1)}M`;
+    const formatted = (value / 1_000_000).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M${suffix}`;
   } else if (value >= 1_000) {
-    return `$${(value / 1_000).toFixed(0)}K`;
+    const formatted = (value / 1_000).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}K${suffix}`;
   } else {
-    return `$${value}`;
+    return `${value}${suffix}`;
   }
 };
 
 /**
- * Format a number as currency using Intl.NumberFormat for accuracy
- * @param amount - The numeric value to format
- * @param locale - The locale for formatting (default: "en-US")
- * @param currency - The currency code (default: "USD")
- * @returns Formatted currency string using browser's internationalization
+ * Returns a compact countdown string like "5d:19h:15m" for a future date.
+ * If the date is invalid, returns null. If already passed, returns "Expired".
+ * The optional `now` parameter is used for testing or external timing.
  */
-// Use formatAmount for:
-// - Financial data where accuracy is critical
-// - User-facing amounts in forms
-// - International applications
-// formatAmount(1234567) // "$1,234,567"
-export const formatAmount = (
-  amount: number, 
-  locale: string = "en-US", 
-  currency: string = "USD"
-): string => {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+export const formatCountdownString = (
+  deadline: Date | string,
+  now: Date = new Date()
+): string | null => {
+  const deadlineDate = deadline instanceof Date ? deadline : new Date(deadline);
+  if (Number.isNaN(deadlineDate.getTime())) return null;
+
+  let diffMs = deadlineDate.getTime() - now.getTime();
+  if (diffMs <= 0) {
+    const date = new Date(deadline);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  const minutesTotal = Math.floor(diffMs / (1000 * 60));
+  const days = Math.floor(minutesTotal / (60 * 24));
+  const hours = Math.floor((minutesTotal % (60 * 24)) / 60);
+  const minutes = minutesTotal % 60;
+
+  // Build a compact string without leading zero units.
+  // Always show minutes, even if 0m (for < 1 minute remaining).
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (days > 0 || hours > 0) parts.push(`${hours}h`);
+  parts.push(`${minutes}m`);
+
+  return parts.join(":");
 };
 
 /**

@@ -23,6 +23,7 @@ import { Button } from "@packages/base/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formatDistanceToNow } from "date-fns";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 interface BountyContentProps {
   bounty: any;
@@ -48,14 +49,6 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
     router.push(`/bounties/${bounty.id}`, { scroll: false });
   };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const SubmissionCard = ({ submission }: { submission: any }) => (
     <div
@@ -108,7 +101,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
               <div className="text-right">
                 <p className='text-white/60 text-xs'>Prize</p>
                 <p className='whitespace-nowrap font-bold text-green-400 text-lg'>
-                  {formatAmount(submission.winningAmount)}
+                  {formatCurrency(Number(submission.winningAmount), String(bounty.token))}
                 </p>
               </div>
             )}

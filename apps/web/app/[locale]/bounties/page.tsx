@@ -18,7 +18,9 @@ export default function BountiesPage() {
       <div className="container mx-auto px-4 py-8">
         <BountiesHeroSection
           searchQuery={filtersHook.filters.search || ''}
+          // TODO: @tarun fix this, ask @shivam about this
           totalCount={bountiesData.bounties.length}
+          // TODO: @tarun fix this, ask @shivam about this
           totalValue={bountiesData.bounties.reduce((acc, bounty) => acc + (Number(bounty.amount) || 0), 0)}
           isLoading={bountiesData.isLoading}
           showMobileFilters={showMobileFilters}

@@ -214,7 +214,7 @@ describe("Bounty Management", () => {
         split: "FIXED" as const,
         status: "OPEN" as const,
         visibility: "PUBLIC" as const,
-        deadline: new Date("2025-12-31"),
+        deadline: new Date("2024-12-31"),
         publishedAt: new Date(),
         winnersAnnouncedAt: new Date(),
         viewCount: 0,

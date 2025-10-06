@@ -282,12 +282,9 @@ export async function POST(
     });
 
     if (submissionCount === 1) {
-      // Get organization members with admin/owner roles
-      const orgMembers = await database.member.findMany({
-        where: {
-          organizationId: bounty.organizationId,
-          role: { in: ["owner", "admin"] },
-        },
+      // Get bounty curators
+      const bountyCurators = await database.curator.findMany({
+        where: { bountyId: bountyId },
         include: {
           user: {
             select: {
@@ -299,15 +296,15 @@ export async function POST(
         },
       });
 
-      // Send first submission email to each admin/owner
-      for (const member of orgMembers) {
-        if (member.user) {
+      // Send first submission email only to the bounty curators
+      for (const curator of bountyCurators) {
+        if (curator.user) {
           try {
             await sendBountyFirstSubmissionEmail(
               {
-                email: member.user.email,
-                firstName: member.user.firstName || undefined,
-                username: member.user.username || undefined,
+                email: curator.user.email,
+                firstName: curator.user.firstName || undefined,
+                username: curator.user.username || undefined,
               },
               {
                 id: bounty.id,

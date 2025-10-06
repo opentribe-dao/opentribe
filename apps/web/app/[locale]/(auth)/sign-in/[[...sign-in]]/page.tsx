@@ -1,20 +1,25 @@
-import { Button } from '@packages/base/components/ui/button';
-import { createMetadata } from '@packages/seo/metadata';
-import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import { Button } from "@packages/base/components/ui/button";
+import { createMetadata } from "@packages/seo/metadata";
+import type { Metadata } from "next";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 
-const title = 'Welcome back';
-const description = 'Enter your details to sign in.';
+const title = "Welcome back";
+const description = "Enter your details to sign in.";
 const SignIn = dynamic(() =>
-  import('@/app/[locale]/(auth)/components/sign-in').then((mod) => mod.SignIn)
+  import("@/app/[locale]/(auth)/components/sign-in").then((mod) => mod.SignIn)
 );
 
 export const metadata: Metadata = createMetadata({ title, description });
 
 const SignInPage = () => (
   <>
-    <div className="flex flex-col space-y-2 text-center">
+    <div className="mb-8 flex flex-col space-y-2 text-center">
+      <Link href="/" className='flex items-center justify-center gap-2'>
+        <span className='bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-2xl text-transparent leading-[2] tracking-[0.25em]'>
+          OPENTRIBE
+        </span>
+      </Link>
       <h1 className="font-semibold text-2xl tracking-tight">{title}</h1>
       <p className="text-muted-foreground text-sm">{description}</p>
     </div>
@@ -23,8 +28,8 @@ const SignInPage = () => (
 
     {/* Navigation to sign up */}
     <div className="text-center">
-      <p className="text-muted-foreground text-sm">
-        Don't have an account?{' '}
+      <p className="mt-4 text-muted-foreground text-sm">
+        Don't have an account?{" "}
         <Button
           variant="link"
           className="h-auto p-0 font-normal text-sm"

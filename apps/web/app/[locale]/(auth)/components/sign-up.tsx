@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { signUp } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signUp } from "@packages/auth/client";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Form,
   FormControl,
@@ -10,21 +10,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@packages/base/components/ui/form';
-import { Input } from '@packages/base/components/ui/input';
-import { parseError } from '@packages/logging/error';
-import { log } from '@packages/logging/log';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
+} from "@packages/base/components/ui/form";
+import { Input } from "@packages/base/components/ui/input";
+import { parseError } from "@packages/logging/error";
+import { log } from "@packages/logging/log";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const signUpSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
@@ -42,9 +42,9 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      password: '',
+      name: "",
+      email: "",
+      password: "",
     },
   });
 
@@ -60,26 +60,26 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
 
       if (result.error) {
         const errorMessage = parseError(result.error);
-        log.error('Sign up error:', { error: result.error, email: data.email });
+        log.error("Sign up error:", { error: result.error, email: data.email });
 
-        toast.error(errorMessage || 'Sign up failed. Please try again.');
+        toast.error(errorMessage || "Sign up failed. Please try again.");
         return;
       }
 
-      toast.success('Account created successfully! Welcome to the platform.');
+      toast.success("Account created successfully! Welcome to the platform.");
 
       if (onSuccess) {
         onSuccess();
       }
 
       // Redirect to dashboard or specified redirect URL
-      const redirectUrl = redirectTo || '/dashboard';
+      const redirectUrl = redirectTo || "/dashboard";
       router.push(redirectUrl);
     } catch (error) {
       const errorMessage = parseError(error);
-      log.error('Sign up error:', { error, email: data.email });
+      log.error("Sign up error:", { error, email: data.email });
       toast.error(
-        errorMessage || 'An unexpected error occurred. Please try again.'
+        errorMessage || "An unexpected error occurred. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -136,19 +136,18 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <div className="relative">
+                <div className="grid grid-cols-[1fr_auto] items-center gap-x-2">
                   <Input
                     {...field}
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Create a secure password"
                     autoComplete="new-password"
                     disabled={isLoading}
                   />
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                    variant="outline"
+                    size="icon"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
@@ -158,7 +157,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
                       <Eye className="h-4 w-4" />
                     )}
                     <span className="sr-only">
-                      {showPassword ? 'Hide password' : 'Show password'}
+                      {showPassword ? "Hide password" : "Show password"}
                     </span>
                   </Button>
                 </div>
@@ -175,7 +174,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
               Creating account...
             </>
           ) : (
-            'Create account'
+            "Create account"
           )}
         </Button>
       </form>

@@ -125,7 +125,7 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
   return (
     <div className="space-y-4">
       {/* OAuth buttons */}
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <Button
           type="button"
           variant="outline"
@@ -181,14 +181,14 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
           )}
           Continue with GitHub
         </Button>
-      </div>
+      </div> */}
 
-      <div className="relative">
+      {/* <div className="relative">
         <Separator className="bg-white/10" />
         <span className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 bg-background px-2 text-muted-foreground text-xs">
           or continue with email
         </span>
-      </div>
+      </div> */}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

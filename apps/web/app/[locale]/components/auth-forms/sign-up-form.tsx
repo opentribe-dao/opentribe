@@ -12,7 +12,6 @@ import {
 } from "@packages/base/components/ui/form";
 import { Input } from "@packages/base/components/ui/input";
 import { authClient } from "@packages/auth/client";
-import { Separator } from "@packages/base/components/ui/separator";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

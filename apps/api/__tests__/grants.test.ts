@@ -22,6 +22,9 @@ vi.mock("@packages/db", () => ({
     member: {
       findFirst: vi.fn(),
     },
+    curator: {
+      create: vi.fn(),
+    },
   },
 }));
 
@@ -539,6 +542,17 @@ describe("Grant Management", () => {
       },
     };
 
+    const mockCurator = {
+      user: {
+        id: "user-1",
+        email: "test@example.com",
+      },
+      grantId: "grant-1",
+      contact: "test@example.com",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
     const mockMembership = {
       id: "member-1",
       userId: "user-1",
@@ -597,6 +611,7 @@ describe("Grant Management", () => {
       );
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
       vi.mocked(database.grant.create).mockResolvedValue(mockGrant as any);
+      vi.mocked(database.curator.create).mockResolvedValue(mockCurator as any);
 
       const requestBody = {
         title: "Test Grant",
@@ -654,6 +669,7 @@ describe("Grant Management", () => {
       );
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
       vi.mocked(database.grant.create).mockResolvedValue(mockGrant as any);
+      vi.mocked(database.curator.create).mockResolvedValue(mockCurator as any);
 
       const requestBody = {
         title: "Test Grant",
@@ -825,6 +841,7 @@ describe("Grant Management", () => {
         .mockResolvedValueOnce({ id: "existing-grant" } as any) // First check finds existing
         .mockResolvedValueOnce(null); // Second check finds available
       vi.mocked(database.grant.create).mockResolvedValue(mockGrant as any);
+      vi.mocked(database.curator.create).mockResolvedValue(mockCurator as any);
 
       const requestBody = {
         title: "Test Grant",
@@ -855,6 +872,7 @@ describe("Grant Management", () => {
         mockMembership as any
       );
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
+      vi.mocked(database.curator.create).mockResolvedValue(mockCurator as any);
       vi.mocked(database.grant.create).mockResolvedValue({
         ...mockGrant,
         visibility: "DRAFT",

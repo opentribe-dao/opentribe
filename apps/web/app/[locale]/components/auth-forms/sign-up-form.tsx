@@ -216,11 +216,11 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
         </span> */}
 
       {/* Divider */}
-      <div className="relative px-6 text-center">
+      {/* <div className="relative px-6 text-center">
         <div className='text-md text-white/50'>OR sign up with email</div>
-      </div>
+      </div> */}
       {/* </div> */}
-      <div className="grid grid-cols-2 justify-center gap-2 space-y-2 align-center">
+      {/* <div className="grid grid-cols-2 justify-center gap-2 space-y-2 align-center">
         <Button
           type="button"
           variant="outline"
@@ -275,7 +275,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
           )}
           GitHub
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };

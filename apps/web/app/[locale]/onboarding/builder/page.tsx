@@ -1,6 +1,9 @@
 "use client";
 
+import { env } from "@/env";
+import { stringifySkillsArray } from "@/lib/utils/skills-parser";
 import { useSession } from "@packages/auth/client";
+import { ImageUpload } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
@@ -12,14 +15,11 @@ import {
   SelectValue,
 } from "@packages/base/components/ui/select";
 import { Textarea } from "@packages/base/components/ui/textarea";
-import { ImageUpload } from "@packages/base";
 import { ChevronLeft, Globe, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { validateWalletAddress } from "../../lib/validations/wallet";
-import { stringifySkillsArray } from "@/lib/utils/skills-parser";
-import { env } from "@/env";
 
 const SKILLS_OPTIONS = [
   "Smart Contracts",
@@ -55,6 +55,11 @@ export default function BuilderOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  // Username validation state
+  const [usernameError, setUsernameError] = useState<string>("");
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Form data
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
@@ -79,10 +84,7 @@ export default function BuilderOnboardingPage() {
 
   useEffect(() => {
     if (!isPending) {
-      if (!session?.user) {
-        // User is not authenticated, redirect to home
-        router.push("/");
-      } else {
+      if (session?.user) {
         // Pre-fill form with existing user data
         if (session.user.name) {
           const [firstName, ...lastNameParts] = session.user.name.split(" ");
@@ -92,14 +94,91 @@ export default function BuilderOnboardingPage() {
             lastName: lastNameParts.join(" ") || "",
           }));
         }
+      } else {
+        // User is not authenticated, redirect to home
+        router.push("/");
       }
     }
   }, [session, isPending, router]);
 
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Username validation function
+  const checkUsernameAvailability = useCallback(
+    async (username: string) => {
+      // Skip validation if username is empty or too short
+      if (!username || username.length < 3) {
+        setUsernameError("");
+        return;
+      }
+
+      // Skip validation if it's the user's current username
+      if (username === session?.user?.username) {
+        setUsernameError("");
+        return;
+      }
+
+      setIsCheckingUsername(true);
+      setUsernameError("");
+
+      try {
+        const response = await fetch(
+          `${
+            env.NEXT_PUBLIC_API_URL
+          }/api/v1/users?username=${encodeURIComponent(username)}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to check username");
+        }
+
+        const data = await response.json();
+
+        // If any users are returned, the username is taken
+        if (data.users && data.users.length > 0) {
+          setUsernameError("This username is already taken");
+        } else {
+          setUsernameError("");
+        }
+      } catch (error) {
+        console.error("Username check failed:", error);
+        // Don't show error to user, allow them to proceed
+        setUsernameError("");
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    },
+    [session?.user?.username]
+  );
+
   const handleInputChange = (field: string, value: string) => {
     // Convert username to lowercase for consistency
-    const processedValue = field === 'username' ? value.toLowerCase() : value;
+    const processedValue = field === "username" ? value.toLowerCase() : value;
     setFormData((prev) => ({ ...prev, [field]: processedValue }));
+
+    // Debounced username validation
+    if (field === "username") {
+      // Clear any existing timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // Set a new timer
+      debounceTimerRef.current = setTimeout(() => {
+        checkUsernameAvailability(processedValue);
+      }, 500); // 500ms debounce
+    }
   };
 
   const handleSkillToggle = (skill: string) => {
@@ -124,6 +203,19 @@ export default function BuilderOnboardingPage() {
       toast.error("Please fill in all required fields");
       return false;
     }
+
+    // Check if username is still being validated
+    if (isCheckingUsername) {
+      toast.error("Please wait while we check username availability");
+      return false;
+    }
+
+    // Check if username has an error
+    if (usernameError) {
+      toast.error(usernameError);
+      return false;
+    }
+
     if (formData.skills.length === 0) {
       toast.error("Please select at least one skill");
       return false;
@@ -149,7 +241,7 @@ export default function BuilderOnboardingPage() {
       toast.error("Please add at least one social media link");
       return false;
     }
-    
+
     return true;
   };
 
@@ -165,7 +257,7 @@ export default function BuilderOnboardingPage() {
     if (currentStep === 1 && validateStep1()) {
       setCurrentStep(2);
       // Scroll to top when moving to next step, especially important for mobile
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (currentStep === 2 && validateStep2()) {
       handleSubmit();
     }
@@ -175,7 +267,7 @@ export default function BuilderOnboardingPage() {
     if (currentStep === 2) {
       setCurrentStep(1);
       // Scroll to top when going back to previous step, especially important for mobile
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       router.push("/onboarding");
     }
@@ -185,13 +277,12 @@ export default function BuilderOnboardingPage() {
     try {
       setLoading(true);
 
-      // Prepare the payload with detailed logging
+      // Prepare the payload
       const payload = {
         ...formData,
         username: formData.username.toLowerCase(), // Ensure username is lowercase in API
         skills: stringifySkillsArray(formData.skills),
-        // TODO: @tarun - discuss with team, don't send profileCompleted update it in the backend
-        profileCompleted: true,
+        // Note: profileCompleted is automatically set by the backend based on required fields
       };
 
       // Update user profile
@@ -208,14 +299,19 @@ export default function BuilderOnboardingPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to update profile");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update profile");
       }
 
       toast.success("Profile created successfully!");
       router.push("/");
     } catch (error) {
       console.error("Profile update failed:", error);
-      toast.error("Failed to create profile. Please try again.");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to create profile. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -223,8 +319,8 @@ export default function BuilderOnboardingPage() {
 
   if (isPending) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
-        <div className='h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2'></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2" />
       </div>
     );
   }
@@ -232,32 +328,32 @@ export default function BuilderOnboardingPage() {
   // If no session, show loading (will redirect)
   if (!session?.user) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
-        <div className='h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2'></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2" />
       </div>
     );
   }
 
   return (
-    <div className='flex min-h-screen items-center justify-center p-4'>
-      <div className='w-full max-w-2xl'>
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
         {/* Header */}
-        <div className='mb-8 flex items-center justify-between'>
-          <div className='font-medium text-white/70 text-xs tracking-[0.2em]'>
+        <div className="mb-8 flex items-center justify-between">
+          <div className="font-medium text-white/70 text-xs tracking-[0.2em]">
             OPENTRIBE
           </div>
           <div className="flex items-center gap-6">
             <span className="text-sm text-white/60">Questions?</span>
             <span className="text-sm text-white/60">Contact</span>
             <Button variant="ghost" size="sm" className="text-white/60">
-              <Globe className='mr-1 h-4 w-4' />
+              <Globe className="mr-1 h-4 w-4" />
               EN
             </Button>
           </div>
         </div>
 
         {/* Form Container */}
-        <div className='rounded-2xl border border-white/10 bg-zinc-900/95 p-8 backdrop-blur-md'>
+        <div className="rounded-2xl border border-white/10 bg-zinc-900/95 p-8 backdrop-blur-md">
           {/* Back Button */}
           <Button
             variant="ghost"
@@ -265,36 +361,36 @@ export default function BuilderOnboardingPage() {
             onClick={handleBack}
             className="mb-6 text-white/60 hover:text-white"
           >
-            <ChevronLeft className='mr-1 h-4 w-4' />
+            <ChevronLeft className="mr-1 h-4 w-4" />
             Back
           </Button>
 
           {/* Title */}
           <div className="mb-8">
-            <h1 className='mb-2 font-semibold text-2xl text-white'>Profile</h1>
-            <p className='text-sm text-white/60'>
+            <h1 className="mb-2 font-semibold text-2xl text-white">Profile</h1>
+            <p className="text-sm text-white/60">
               Help us to know about you so that we can have tailored experience.
             </p>
           </div>
 
           {/* Progress Indicator */}
-          <div className='mb-8 flex items-center gap-4'>
+          <div className="mb-8 flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div
                 className={`h-2 w-2 rounded-full ${
                   currentStep >= 1 ? "bg-white" : "bg-white/20"
                 }`}
               />
-              <span className='text-white/60 text-xs'>Personal Details</span>
+              <span className="text-white/60 text-xs">Personal Details</span>
             </div>
-            <div className='h-px flex-1 bg-white/20' />
+            <div className="h-px flex-1 bg-white/20" />
             <div className="flex items-center gap-2">
               <div
                 className={`h-2 w-2 rounded-full ${
                   currentStep >= 2 ? "bg-white" : "bg-white/20"
                 }`}
               />
-              <span className='text-white/60 text-xs'>
+              <span className="text-white/60 text-xs">
                 Professional Details
               </span>
             </div>
@@ -306,7 +402,7 @@ export default function BuilderOnboardingPage() {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className='mb-2 text-white/80'>
+                  <Label htmlFor="firstName" className="mb-2 text-white/80">
                     First Name *
                   </Label>
                   <Input
@@ -316,11 +412,11 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("firstName", e.target.value)
                     }
                     placeholder="Enter your first name"
-                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className='mb-2 text-white/80'>
+                  <Label htmlFor="lastName" className="mb-2 text-white/80">
                     Last Name *
                   </Label>
                   <Input
@@ -330,14 +426,14 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("lastName", e.target.value)
                     }
                     placeholder="Enter your last name"
-                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   />
                 </div>
               </div>
 
               {/* Avatar */}
               <div>
-                <Label className='mb-4 block text-white/80'>
+                <Label className="mb-4 block text-white/80">
                   Profile Picture
                 </Label>
                 <ImageUpload
@@ -351,23 +447,43 @@ export default function BuilderOnboardingPage() {
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className='mb-2 text-white/80'>
+                <Label htmlFor="username" className="mb-2 text-white/80">
                   Username *
                 </Label>
-                <Input
-                  id="username"
-                  value={formData.username}
-                  onChange={(e) =>
-                    handleInputChange("username", e.target.value)
-                  }
-                  placeholder="Choose a unique username"
-                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
-                />
+                <div className="relative">
+                  <Input
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) =>
+                      handleInputChange("username", e.target.value)
+                    }
+                    placeholder="Choose a unique username"
+                    className={`bg-white/5 text-white placeholder:text-white/40 ${
+                      usernameError ? "border-red-500" : "border-white/20"
+                    }`}
+                  />
+                  {isCheckingUsername && (
+                    <div className="-translate-y-1/2 absolute top-1/2 right-3">
+                      <Loader2 className="h-4 w-4 animate-spin text-white/40" />
+                    </div>
+                  )}
+                </div>
+                {usernameError && (
+                  <p className="mt-1 text-red-500 text-xs">{usernameError}</p>
+                )}
+                {!usernameError &&
+                  !isCheckingUsername &&
+                  formData.username &&
+                  formData.username.length >= 3 && (
+                    <p className="mt-1 text-green-500 text-xs">
+                      ✓ Username is available
+                    </p>
+                  )}
               </div>
 
               {/* Location */}
               <div>
-                <Label htmlFor="location" className='mb-2 text-white/80'>
+                <Label htmlFor="location" className="mb-2 text-white/80">
                   Location *
                 </Label>
                 <Input
@@ -377,15 +493,15 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("location", e.target.value)
                   }
                   placeholder="City, Country"
-                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                 />
               </div>
 
               {/* Skills */}
               <div>
-                <Label className='mb-2 text-white/80'>
+                <Label className="mb-2 text-white/80">
                   Skills *{" "}
-                  <span className='text-white/40 text-xs'>
+                  <span className="text-white/40 text-xs">
                     (We will use this to match you to new opportunities)
                   </span>
                 </Label>
@@ -399,7 +515,7 @@ export default function BuilderOnboardingPage() {
                       onClick={() => handleSkillToggle(skill)}
                       className={`border-white/20 ${
                         formData.skills.includes(skill)
-                          ? 'border-[#E6007A] bg-[#E6007A] text-white'
+                          ? "border-[#E6007A] bg-[#E6007A] text-white"
                           : "bg-white/5 text-white/80 hover:bg-white/10"
                       }`}
                     >
@@ -411,7 +527,7 @@ export default function BuilderOnboardingPage() {
 
               {/* Wallet Address */}
               <div>
-                <Label htmlFor="walletAddress" className='mb-2 text-white/80'>
+                <Label htmlFor="walletAddress" className="mb-2 text-white/80">
                   Wallet Address *
                 </Label>
                 <Input
@@ -421,7 +537,7 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("walletAddress", e.target.value)
                   }
                   placeholder="Enter your Polkadot or Kusama address"
-                  className='border-white/20 bg-white/5 font-mono text-white placeholder:text-white/40'
+                  className="border-white/20 bg-white/5 font-mono text-white placeholder:text-white/40"
                 />
                 {formData.walletAddress && (
                   <p
@@ -442,9 +558,9 @@ export default function BuilderOnboardingPage() {
 
               {/* Social Links */}
               <div>
-                <Label className='mb-2 text-white/80'>
+                <Label className="mb-2 text-white/80">
                   Social Media Links{" "}
-                  <span className='text-white/40 text-xs'>
+                  <span className="text-white/40 text-xs">
                     (Add at least one)
                   </span>
                 </Label>
@@ -455,7 +571,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("website", e.target.value)
                     }
                     placeholder="Personal website"
-                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   />
                   <Input
                     value={formData.twitter}
@@ -463,7 +579,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("twitter", e.target.value)
                     }
                     placeholder="Twitter handle"
-                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   />
                   <Input
                     value={formData.github}
@@ -471,7 +587,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("github", e.target.value)
                     }
                     placeholder="GitHub username"
-                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   />
                   <Input
                     value={formData.linkedin}
@@ -479,7 +595,7 @@ export default function BuilderOnboardingPage() {
                       handleInputChange("linkedin", e.target.value)
                     }
                     placeholder="LinkedIn profile"
-                    className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   />
                 </div>
               </div>
@@ -490,9 +606,9 @@ export default function BuilderOnboardingPage() {
             <div className="space-y-6">
               {/* Current Employer */}
               <div>
-                <Label htmlFor="employer" className='mb-2 text-white/80'>
+                <Label htmlFor="employer" className="mb-2 text-white/80">
                   Current Employer{" "}
-                  <span className='text-white/40 text-xs'>(Optional)</span>
+                  <span className="text-white/40 text-xs">(Optional)</span>
                 </Label>
                 <Input
                   id="employer"
@@ -501,15 +617,15 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("employer", e.target.value)
                   }
                   placeholder="Company name"
-                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                 />
               </div>
 
               {/* Work Experience */}
               <div>
-                <Label htmlFor="workExperience" className='mb-2 text-white/80'>
+                <Label htmlFor="workExperience" className="mb-2 text-white/80">
                   Work Experience{" "}
-                  <span className='text-white/40 text-xs'>(Optional)</span>
+                  <span className="text-white/40 text-xs">(Optional)</span>
                 </Label>
                 <Textarea
                   id="workExperience"
@@ -519,13 +635,13 @@ export default function BuilderOnboardingPage() {
                   }
                   placeholder="Tell us about your professional experience"
                   rows={4}
-                  className='border-white/20 bg-white/5 text-white placeholder:text-white/40'
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                 />
               </div>
 
               {/* Crypto Experience */}
               <div>
-                <Label className='mb-2 text-white/80'>
+                <Label className="mb-2 text-white/80">
                   Crypto Experience *
                 </Label>
                 <Select
@@ -534,10 +650,10 @@ export default function BuilderOnboardingPage() {
                     handleInputChange("cryptoExperience", value)
                   }
                 >
-                  <SelectTrigger className='border-white/20 bg-white/5 text-white'>
+                  <SelectTrigger className="border-white/20 bg-white/5 text-white">
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
-                  <SelectContent className='border-white/20 bg-zinc-900'>
+                  <SelectContent className="border-white/20 bg-zinc-900">
                     {CRYPTO_EXPERIENCE_OPTIONS.map((option) => (
                       <SelectItem
                         key={option.value}
@@ -553,17 +669,17 @@ export default function BuilderOnboardingPage() {
 
               {/* Work Preference */}
               <div>
-                <Label className='mb-2 text-white/80'>Work Preference *</Label>
+                <Label className="mb-2 text-white/80">Work Preference *</Label>
                 <Select
                   value={formData.workPreference}
                   onValueChange={(value) =>
                     handleInputChange("workPreference", value)
                   }
                 >
-                  <SelectTrigger className='border-white/20 bg-white/5 text-white'>
+                  <SelectTrigger className="border-white/20 bg-white/5 text-white">
                     <SelectValue placeholder="Select your preferred work type" />
                   </SelectTrigger>
-                  <SelectContent className='border-white/20 bg-zinc-900'>
+                  <SelectContent className="border-white/20 bg-zinc-900">
                     {WORK_PREFERENCE_OPTIONS.map((option) => (
                       <SelectItem
                         key={option.value}
@@ -580,7 +696,7 @@ export default function BuilderOnboardingPage() {
           )}
 
           {/* Actions */}
-          <div className='mt-8 flex items-center justify-between'>
+          <div className="mt-8 flex items-center justify-between">
             {/* TODO: @yogesh - Discuss with team about Save as draft */}
             {/* <Button
               variant="ghost"
@@ -595,7 +711,7 @@ export default function BuilderOnboardingPage() {
             <Button
               onClick={handleNext}
               disabled={loading}
-              className='bg-[#E6007A] px-8 text-white hover:bg-[#E6007A]/90'
+              className="bg-[#E6007A] px-8 text-white hover:bg-[#E6007A]/90"
             >
               {loading ? (
                 <>

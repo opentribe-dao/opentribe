@@ -44,7 +44,10 @@ export const AuthModal = ({
       await authClient.signIn.social({
         provider,
         callbackURL:
-          redirectTo === undefined ? `${env.NEXT_PUBLIC_WEB_URL}/onboarding` : redirectTo,
+          redirectTo === undefined
+            ? `${env.NEXT_PUBLIC_WEB_URL}/onboarding`
+            : redirectTo,
+        newUserCallbackURL: `${env.NEXT_PUBLIC_WEB_URL}/onboarding`,
       });
     } catch (error) {
       const errorMessage =

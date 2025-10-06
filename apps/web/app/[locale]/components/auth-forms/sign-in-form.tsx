@@ -233,20 +233,22 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
                   </Link>
                 </div>
                 <FormControl>
-                  <div className="grid grid-cols-[1fr_auto] items-center gap-x-2">
+                  <div className="relative grid-cols-[1fr_auto] items-center gap-x-2">
                     <Input
                       {...field}
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       autoComplete="current-password"
                       disabled={isLoading}
+                      className="static"
                     />
                     <Button
                       type="button"
-                      variant="outline"
-                      size="icon"
+                      // variant="outline"
+                      // size="icon"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={isLoading}
+                      className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />

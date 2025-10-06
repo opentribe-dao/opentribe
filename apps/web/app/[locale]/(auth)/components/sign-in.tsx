@@ -20,6 +20,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import Link from "next/link";
+
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -114,21 +116,36 @@ export const SignIn = ({ onSuccess, redirectTo }: SignInProps) => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Password</FormLabel>
+                <Link
+                  href="/forgot-password"
+                  className="text-[#E6007A] text-sm hover:underline"
+                  tabIndex={-1}
+                  onClick={() => {
+                    if (onSuccess) {
+                      onSuccess();
+                    }
+                  }}
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <FormControl>
-                <div className="grid grid-cols-[1fr_auto] items-center gap-x-2">
+                <div className='relative grid-cols-[1fr_auto] items-center gap-x-2'>
                   <Input
                     {...field}
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     autoComplete="current-password"
                     disabled={isLoading}
+                    className="static"
                   />
                   <Button
                     type="button"
-                    variant="outline"
-                    size="icon"
-                    // className='-translate-y-1/2 absolute top-1/2 right-0 flex h-full w-1/5 items-center justify-center rounded-l-none hover:bg-transparent'
+                    // variant="outline"
+                    // size="icon"
+                    className='-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent'
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >

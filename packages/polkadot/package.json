@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.4",
     "dedot": "^0.16.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",

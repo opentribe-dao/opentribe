@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import Link from "next/link";
+import { env } from "@/env";
 
 
 const signInSchema = z.object({
@@ -74,8 +75,8 @@ export const SignIn = ({ onSuccess, redirectTo }: SignInProps) => {
         onSuccess();
       }
 
-      // Redirect to dashboard or specified redirect URL
-      const redirectUrl = redirectTo || "/dashboard";
+      // Redirect to homepage or specified redirect URL
+      const redirectUrl = redirectTo || `${env.NEXT_PUBLIC_WEB_URL}`;
       router.push(redirectUrl);
     } catch (error) {
       const errorMessage = parseError(error);

@@ -10,11 +10,13 @@ import {
 } from '@packages/base/components/ui/card';
 import { useSession } from '@packages/auth/client';
 
-import { DollarSign, ExternalLink, Loader2 } from 'lucide-react';
+import { DollarSign, ExternalLink } from 'lucide-react';
 import { useGrantContext } from '../../components/grants/grant-provider';
-import React, { memo } from 'react';
+import type React from 'react';
+import { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { LoadingPage } from '@/components/loading-states';
 
 type FundingInfoProps = {
   minAmount?: number | null;
@@ -30,7 +32,6 @@ type OrganizationInfo = {
 };
 
 type MarkdownSectionProps = {
-  title: string;
   content?: string | null;
 };
 
@@ -50,7 +51,7 @@ const GlassCard: React.FC<React.PropsWithChildren<{ title?: string }>> = ({
   title,
   children,
 }) => (
-  <Card className="bg-white/10 backdrop-blur-[10px] border border-white/20">
+  <Card className="border border-white/20 bg-white/10 backdrop-blur-[10px]">
     {title ? (
       <CardHeader>
         <CardTitle className="font-heading">{title}</CardTitle>
@@ -58,12 +59,6 @@ const GlassCard: React.FC<React.PropsWithChildren<{ title?: string }>> = ({
     ) : null}
     <CardContent className="space-y-6">{children}</CardContent>
   </Card>
-);
-
-const LoadingState = () => (
-  <div className="flex min-h-screen items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
-  </div>
 );
 
 const ErrorState: React.FC<{ onRetry: () => void; message?: string }> = ({
@@ -94,29 +89,30 @@ const OrganizationSection = memo(function OrganizationSection({
   organization: OrganizationInfo;
 }) {
   return (
-    <div>
-      {/* <p className="mb-2 text-sm text-white/60 font-sans">Organization</p> */}
-      <div className="flex items-center gap-3">
-        {organization.logo ? (
-          // Using <img> to avoid domain config issues in dashboard
-          <img
-            src={organization.logo}
-            alt={organization.name}
-            className="w-10 h-10 rounded-full"
-          />
-        ) : null}
-        <div>
-          <p className="text-white font-medium font-sans">
-            {organization.name}
-          </p>
-          {organization.location ? (
-            <p className="text-sm text-white/60 font-sans">
-              {organization.location}
-            </p>
+    <GlassCard title="Organization">
+      <div>
+        <div className="flex items-center gap-3">
+          {organization.logo ? (
+            // Using <img> to avoid domain config issues in dashboard
+            <img
+              src={organization.logo}
+              alt={organization.name}
+              className="h-10 w-10 rounded-full"
+            />
           ) : null}
+          <div>
+            <p className="font-medium font-sans text-white">
+              {organization.name}
+            </p>
+            {organization.location ? (
+              <p className="font-sans text-sm text-white/60">
+                {organization.location}
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 });
 
@@ -146,7 +142,7 @@ const FundingSection = memo(function FundingSection({
         {minAmount && maxAmount ? (
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-white/40" />
-            <span className="text-white font-sans">
+            <span className="font-sans text-white">
               {formatAmount(minAmount)} - {formatAmount(maxAmount)}{' '}
               {token ?? ''}
             </span>
@@ -155,7 +151,7 @@ const FundingSection = memo(function FundingSection({
         {totalFunds ? (
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-white/40" />
-            <span className="text-white font-sans">
+            <span className="font-sans text-white">
               Total Funds: {formatAmount(totalFunds)} {token ?? ''}
             </span>
           </div>
@@ -175,12 +171,12 @@ const ExternalApplicationSection = memo(function ExternalApplicationSection({
   }
   return (
     <div>
-      <p className="text-sm text-white/60 mb-2 font-sans">
+      <p className="mb-2 font-sans text-sm text-white/60">
         External Application
       </p>
-      <Button className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white" asChild>
+      <Button className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90" asChild>
         <a href={applicationUrl} target="_blank" rel="noopener noreferrer">
-          <ExternalLink className="h-4 w-4 mr-2" />
+          <ExternalLink className="mr-2 h-4 w-4" />
           Apply Externally
         </a>
       </Button>
@@ -189,7 +185,6 @@ const ExternalApplicationSection = memo(function ExternalApplicationSection({
 });
 
 const MarkdownSection = memo(function MarkdownSection({
-  title,
   content,
 }: MarkdownSectionProps) {
   if (!content) {
@@ -197,8 +192,7 @@ const MarkdownSection = memo(function MarkdownSection({
   }
   return (
     <div>
-      <p className="text-sm text-white/60 mb-2 font-sans">{title}</p>
-      <div className="prose prose-invert max-w-none font-sans">
+      <div className="prose prose-invert prose-pink max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
       </div>
     </div>
@@ -212,20 +206,21 @@ const SkillsSection = memo(function SkillsSection({
     return null;
   }
   return (
-    <div>
-      {/* <p className="text-sm text-white/60 mb-2 font-sans">Required Skills</p> */}
-      <div className="flex flex-wrap gap-2">
-        {skills.map((skill, index) => (
-          <Badge
-            key={index}
-            variant="secondary"
-            className="bg-white/10 text-white border border-white/20"
-          >
-            {skill}
-          </Badge>
-        ))}
+    <GlassCard title="Required Skills">
+      <div>
+        <div className="flex flex-wrap gap-2">
+          {skills.map((skill, index) => (
+            <Badge
+              key={index}
+              variant="secondary"
+              className="border border-white/20 bg-white/10 text-white"
+            >
+              {skill}
+            </Badge>
+          ))}
+        </div>
       </div>
-    </div>
+    </GlassCard>
   );
 });
 
@@ -236,27 +231,31 @@ const ResourcesSection = memo(function ResourcesSection({
     return null;
   }
   return (
-    <div>
-      <p className="text-sm text-white/60 mb-2 font-sans">Resources</p>
-      <div className="space-y-2">
+    <GlassCard title="Resources">
+      <div className="space-y-3">
         {resources.map((resource, index) => (
-          <a
-            key={index}
-            href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block p-3 bg-white/10 backdrop-blur-[10px] border border-white/20 rounded-lg hover:bg-white/20 transition-colors"
-          >
-            <p className="text-white font-medium font-sans">{resource.title}</p>
-            {resource.description ? (
-              <p className="text-sm text-white/60 mt-1 font-sans">
-                {resource.description}
-              </p>
-            ) : null}
-          </a>
+          <div key={index} className="flex items-start justify-between">
+            <div>
+              <a
+                key={index}
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-white transition-colors hover:text-[#E6007A]"
+              >
+                {resource.title}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+              {resource.description ? (
+                <p className="mt-1 text-sm text-white/60">
+                  {resource.description}
+                </p>
+              ) : null}
+            </div>
+          </div>
         ))}
       </div>
-    </div>
+    </GlassCard>
   );
 });
 
@@ -265,11 +264,15 @@ const GrantOverviewPage = () => {
   const { grant, isLoading, isError, error, refetch } = useGrantContext();
 
   if (isPending) {
-    return <LoadingState />;
+    return <LoadingPage />;
   }
-  if (!session) return <UnauthorizedState />;
+  if (!session) {
+    return <UnauthorizedState />;
+  }
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   if (isError || !grant) {
     return (
@@ -282,31 +285,18 @@ const GrantOverviewPage = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left Column (70%) */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="space-y-6 lg:col-span-8">
           <GlassCard>
-            {/* <OrganizationSection organization={grant.organization as OrganizationInfo} />
-            <FundingSection
-              minAmount={grant.minAmount}
-              maxAmount={grant.maxAmount}
-              totalFunds={grant.totalFunds}
-              token={grant.token}
-            /> */}
-            <MarkdownSection title="Summary" content={grant.summary} />
-            <MarkdownSection title="Description" content={grant.description} />
-
-            <MarkdownSection
-              title="Application Instructions"
-              content={grant.instructions}
-            />
-            {/* <SkillsSection skills={grant.skills ?? []} /> */}
-            <ResourcesSection resources={grant.resources ?? []} />
+            <MarkdownSection content={grant.summary} />
+            <MarkdownSection content={grant.description} />
+            <MarkdownSection content={grant.instructions} />
           </GlassCard>
         </div>
 
         {/* Right Column (30%) */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="space-y-6 lg:col-span-4">
           <GlassCard title="Funding">
             <FundingSection
               minAmount={grant.minAmount}
@@ -314,17 +304,14 @@ const GrantOverviewPage = () => {
               totalFunds={grant.totalFunds}
               token={grant.token}
             />
-            <ExternalApplicationSection applicationUrl={grant.applicationUrl} />
+            {/* <ExternalApplicationSection applicationUrl={grant.applicationUrl} /> */}
           </GlassCard>
-          <GlassCard title="Required Skills">
-            <SkillsSection skills={grant.skills ?? []} />
-          </GlassCard>
+          <SkillsSection skills={grant.skills ?? []} />
 
-          <GlassCard title="Organization">
-            <OrganizationSection
-              organization={grant.organization as OrganizationInfo}
-            />
-          </GlassCard>
+          <ResourcesSection resources={grant.resources ?? []} />
+          <OrganizationSection
+            organization={grant.organization as OrganizationInfo}
+          />
         </div>
       </div>
     </>

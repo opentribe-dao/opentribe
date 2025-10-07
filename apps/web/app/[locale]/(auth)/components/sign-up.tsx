@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/env";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUp } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
@@ -72,8 +73,8 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
         onSuccess();
       }
 
-      // Redirect to dashboard or specified redirect URL
-      const redirectUrl = redirectTo || "/dashboard";
+      // Redirect to homepage or specified redirect URL
+      const redirectUrl = redirectTo || `${env.NEXT_PUBLIC_WEB_URL}`;
       router.push(redirectUrl);
     } catch (error) {
       const errorMessage = parseError(error);

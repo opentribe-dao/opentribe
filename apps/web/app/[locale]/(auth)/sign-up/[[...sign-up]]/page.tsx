@@ -3,7 +3,7 @@ import { createMetadata } from "@packages/seo/metadata";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { OAuthButtons } from "@/app/[locale]/(auth)/components/oauth-buttons";
+import { OAuthButtons } from "@/app/[locale]/components/oauth-buttons";
 
 const title = "Create an account";
 const description = "Enter your details to get started.";

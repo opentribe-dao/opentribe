@@ -50,14 +50,14 @@ const SignUpPage = async ({
         <p className="text-muted-foreground text-sm">{description}</p>
       </div>
 
-      <OAuthButtons />
+      <SignUp />
 
       {/* Divider */}
       <div className="relative p-5 text-center">
-        <div className="text-md text-white/50">OR sign up with email</div>
+        <div className="text-md text-white/50">OR sign up with</div>
       </div>
 
-      <SignUp />
+      <OAuthButtons />
 
       {/* Navigation to sign in */}
       <div className="text-center">

@@ -8,8 +8,8 @@ export const Footer = () => {
 
   const communityLinks = [
     { title: "Polkadot", href: "https://polkadot.com/community/" },
-    { title: "Discord", href: "#" },
-    { title: "Telegram", href: "#" },
+    { title: "Discord", href: "https://discord.gg/EB3mHy2Jwg" },
+    { title: "Telegram", href: "https://t.me/opentribe_dao" },
     { title: "Twitter", href: "https://x.com/opentribe_io" },
     { title: "GitHub", href: "https://github.com/opentribe-dao/" },
   ];

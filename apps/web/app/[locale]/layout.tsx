@@ -7,8 +7,7 @@ import { Toolbar } from "@packages/feature-flags/components/toolbar";
 import { getDictionary } from "@packages/i18n";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
-import { Footer } from "./components/footer";
-import { Header } from "./components/header";
+import { SiteLayout } from "./components/site-layout";
 import Providers from "./components/providers";
 
 type RootLayoutProperties = {
@@ -33,9 +32,9 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
         <BaseProvider>
           <AuthProvider>
           <Providers>
-            <Header dictionary={dictionary} />
-            {children}
-            <Footer />
+            <SiteLayout dictionary={dictionary}>
+              {children}
+            </SiteLayout>
             <Toaster />
           </Providers>
           </AuthProvider>

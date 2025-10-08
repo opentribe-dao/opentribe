@@ -1,6 +1,9 @@
 import { Button } from "@packages/base/components/ui/button";
 import { createMetadata } from "@packages/seo/metadata";
+import { auth } from "@packages/auth/server";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { OAuthButtons } from "@/app/[locale]/components/oauth-buttons";
@@ -13,41 +16,63 @@ const SignIn = dynamic(() =>
 
 export const metadata: Metadata = createMetadata({ title, description });
 
-const SignInPage = () => (
-  <>
-    <div className="mb-8 flex flex-col space-y-2 text-center">
-      <Link href="/" className="flex items-center justify-center gap-2">
-        <span className="bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-2xl text-transparent leading-[2] tracking-[0.25em]">
-          OPENTRIBE
-        </span>
-      </Link>
-      <h1 className='mt-4 font-semibold text-2xl tracking-tight'>{title}</h1>
-      <p className="text-muted-foreground text-sm">{description}</p>
-    </div>
+type SignInRouteParams = {
+  locale: string;
+  "sign-in"?: string[];
+};
 
-    <OAuthButtons />
+const SignInPage = async ({
+  params,
+}: {
+  params: Promise<SignInRouteParams>;
+}) => {
+  const { locale } = await params;
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    {/* Divider */}
-    <div className="relative p-5 text-center">
-      <div className="text-md text-white/50">OR sign In with email</div>
-    </div>
+  if (session?.user) {
+    redirect(`/${locale}`);
+  }
 
-    <SignIn />
+  const homeHref = `/${locale}`;
 
-    {/* Navigation to sign up */}
-    <div className="text-center">
-      <p className="mt-4 text-muted-foreground text-sm">
-        Don't have an account?{" "}
-        <Button
-          variant="link"
-          className="h-auto p-0 font-normal text-sm"
-          asChild
-        >
-          <Link href="/sign-up">Create an account</Link>
-        </Button>
-      </p>
-    </div>
-  </>
-);
+  return (
+    <>
+      <div className="mb-8 flex flex-col space-y-2 text-center">
+        <Link href={homeHref} className="flex items-center justify-center gap-2">
+          <span className="bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-2xl text-transparent leading-[2] tracking-[0.25em]">
+            OPENTRIBE
+          </span>
+        </Link>
+        <h1 className='mt-4 font-semibold text-2xl tracking-tight'>{title}</h1>
+        <p className="text-muted-foreground text-sm">{description}</p>
+      </div>
+
+      <OAuthButtons />
+
+      {/* Divider */}
+      <div className="relative p-5 text-center">
+        <div className="text-md text-white/50">OR sign In with email</div>
+      </div>
+
+      <SignIn />
+
+      {/* Navigation to sign up */}
+      <div className="text-center">
+        <p className="mt-4 text-muted-foreground text-sm">
+          Don't have an account?{" "}
+          <Button
+            variant="link"
+            className="h-auto p-0 font-normal text-sm"
+            asChild
+          >
+            <Link href={`/${locale}/sign-up`}>Create an account</Link>
+          </Button>
+        </p>
+      </div>
+    </>
+  );
+};
 
 export default SignInPage;

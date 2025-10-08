@@ -36,7 +36,7 @@ export function PrizeDistributionCard({
 }: PrizeDistributionCardProps) {
 
   return (
-    <Card className="border-white/10 bg-white/10 backdrop-blur-[10px]">
+    <>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-heading text-white">
           <Award className="size-4" />
@@ -50,7 +50,7 @@ export function PrizeDistributionCard({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="amount" className="text-white/80">
-              Total Amount
+              Total Amount *
             </Label>
             <Input
               id="amount"
@@ -112,7 +112,7 @@ export function PrizeDistributionCard({
 
         {formData.split === 'FIXED' && (
           <div className="space-y-4">
-            <Label className="text-white/80">Winner Prizes</Label>
+            <Label className="text-white/80">Winner Prizes *</Label>
             <div className="space-y-2">
               {(formData.winnings && Object.keys(formData.winnings).length > 0
                 ? Object.keys(formData.winnings)
@@ -193,6 +193,6 @@ export function PrizeDistributionCard({
           </div>
         )}
       </CardContent>
-    </Card>
+    </>
   );
 }

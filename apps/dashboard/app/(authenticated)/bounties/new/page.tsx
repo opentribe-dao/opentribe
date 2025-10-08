@@ -4,9 +4,6 @@ import { Button } from '@packages/base/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@packages/base/components/ui/card';
 import { Input } from '@packages/base/components/ui/input';
 import { Label } from '@packages/base/components/ui/label';
@@ -103,9 +100,9 @@ const CreateBountyPage = () => {
       <Header pages={['Overview', 'Bounties']} page="Create Bounty" />
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Progress Steps */}
-        <div className="flex items-center justify-between">
+         <div className="flex items-center justify-between px-8">
           {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center">
+            <div key={step.id} className="flex items-center justify-between">
               <div className="flex flex-col items-center">
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-full ${
@@ -145,18 +142,14 @@ const CreateBountyPage = () => {
         </div>
 
         {/* Form Content */}
-        <Card className="border-white/10 bg-zinc-900/50">
-          <CardHeader>
-            <CardTitle>{STEPS[currentStep - 1].name}</CardTitle>
-            <CardDescription>
-              {STEPS[currentStep - 1].description}
-            </CardDescription>
-          </CardHeader>
+        <Card className="border-white/10 bg-white/10 backdrop-blur-[10px]">
+          
           <CardContent>
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div>
                   <Label htmlFor="title">Bounty Title *</Label>
+                  <div className="mt-2">
                   <Input
                     id="title"
                     value={formData.title}
@@ -164,6 +157,7 @@ const CreateBountyPage = () => {
                     placeholder="e.g., Build a Substrate Pallet for NFT Marketplace"
                     className="border-white/10 bg-white/5 text-white"
                   />
+                  </div>
                 </div>
 
                 <div>

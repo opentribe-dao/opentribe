@@ -296,7 +296,7 @@ const EditProfilePage = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className='mb2 mb-2 text-white'>
+                  <Label htmlFor="lastName" className='mb-2 text-white'>
                     Last Name
                   </Label>
                   <Input

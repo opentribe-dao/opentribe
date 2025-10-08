@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from '@packages/base/components/ui/card';
 import {
-  Badge,
   CalendarIcon,
   CoinsIcon,
   ExternalLink,
@@ -18,6 +17,7 @@ import {
 import { useBountyContext } from '../../components/bounty-provider';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
+import { Badge } from '@packages/base/components/ui/badge';
 
 export default function BountyOverviewPage() {
   const { bounty, bountyLoading, bountyError } = useBountyContext();
@@ -48,14 +48,14 @@ export default function BountyOverviewPage() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <CoinsIcon className="h-5 w-5 text-[#E6007A]" />
-                <span className="text-2xl font-semibold text-white">
+                <span className="font-semibold text-2xl text-white">
                   {bounty.amount} {bounty.token}
                 </span>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-zinc-900/badge50 border-white/10">
+          <Card className="border-white/10 bg-zinc-900/badge50">
             <CardHeader>
               <CardDescription className="text-white/60">
                 Deadline
@@ -64,21 +64,21 @@ export default function BountyOverviewPage() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5 text-[#E6007A]" />
-                <span className="text-2xl font-semibold text-white">
+                <span className="font-semibold text-2xl text-white">
                   {new Date(bounty.deadline).toLocaleDateString()}
                 </span>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-zinc-900/50 border-white/10">
+          <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardDescription className="text-white/60">
                 Submissions
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <span className="text-2xl font-semibold text-white">
+              <span className="font-semibold text-2xl text-white">
                 {bounty.submissionCount}
               </span>
             </CardContent>
@@ -86,10 +86,7 @@ export default function BountyOverviewPage() {
         </div>
 
         {/* Description */}
-        <Card className="bg-zinc-900/50 border-white/10">
-          <CardHeader>
-            <CardTitle>Description</CardTitle>
-          </CardHeader>
+        <Card className="border-white/10 bg-zinc-900/50">
           <CardContent>
             <div className="prose prose-invert prose-pink max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -103,7 +100,7 @@ export default function BountyOverviewPage() {
       {/* Sidebar */}
       <div className="space-y-6">
         {/* Prize Distribution */}
-        <Card className="bg-zinc-900/50 border-white/10">
+        <Card className="border-white/10 bg-zinc-900/50">
           <CardHeader>
             <CardTitle>Prize Distribution</CardTitle>
           </CardHeader>
@@ -159,23 +156,20 @@ export default function BountyOverviewPage() {
         </Card>
 
         {/* Skills */}
-        <Card className="bg-zinc-900/50 border-white/10">
+        <Card className="border-white/10 bg-zinc-900/50">
           <CardHeader>
             <CardTitle>Required Skills</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {bounty.skills.map((skill) => (
-                // <Badge
-                //   key={skill}
-                //   variant="secondary"
-                //   className="border-0 bg-white/10 text-white"
-                // >
-                //   {skill}
-                // </Badge>
-                <span key={skill} className="px-3 py-1 rounded bg-white/10 text-white text-sm font-medium">
+                <Badge
+                  key={skill}
+                  variant="secondary"
+                  className="border-0 bg-white/10 text-white"
+                >
                   {skill}
-                </span>
+                </Badge>
               ))}
             </div>
           </CardContent>
@@ -183,7 +177,7 @@ export default function BountyOverviewPage() {
 
         {/* Resources */}
         {bounty.resources && bounty.resources.length > 0 && (
-          <Card className="bg-zinc-900/50 border-white/10">
+          <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardTitle>Resources</CardTitle>
             </CardHeader>

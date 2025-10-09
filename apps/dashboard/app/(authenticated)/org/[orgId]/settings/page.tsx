@@ -80,7 +80,7 @@ interface OrganizationDetails {
   members: Array<{
     id: string;
     role: string;
-    joinedAt: string;
+    createdAt: string;
     user: {
       id: string;
       name: string;
@@ -90,6 +90,19 @@ interface OrganizationDetails {
   }>;
   createdAt: string;
   updatedAt: string;
+}
+
+interface PendingInvitation {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  expiresAt: string;
+  inviter: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export default function OrganizationSettingsPage({
@@ -111,6 +124,15 @@ export default function OrganizationSettingsPage({
   const [inviteRole, setInviteRole] = useState("member");
   const [inviting, setInviting] = useState(false);
   const [copiedInvite, setCopiedInvite] = useState(false);
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [pendingInvitations, setPendingInvitations] = useState<
+    PendingInvitation[]
+  >([]);
+  const [loadingInvitations, setLoadingInvitations] = useState(false);
+  const [copiedInvitationId, setCopiedInvitationId] = useState<string | null>(
+    null
+  );
 
   // Form states
   const [formData, setFormData] = useState({
@@ -166,6 +188,19 @@ export default function OrganizationSettingsPage({
     fetchOrganization();
   }, [orgId, router]);
 
+  useEffect(() => {
+    if (organization) {
+      const userRole = organization.members.find(
+        (member) => member.user.id === session?.user?.id
+      )?.role;
+      const canManageMembers = userRole === "owner" || userRole === "admin";
+
+      if (canManageMembers) {
+        fetchPendingInvitations();
+      }
+    }
+  }, [organization, session]);
+
   const handleUpdateOrganization = async () => {
     if (!organization) return;
 
@@ -201,36 +236,70 @@ export default function OrganizationSettingsPage({
 
     try {
       setInviting(true);
-      // const response = await fetch(
-      //   `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organization.id}/invitations`,
-      //   {
-      //     method: "POST",
-      //     credentials: "include",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       email: inviteEmail,
-      //       role: inviteRole,
-      //     }),
-      //   }
-      // );
+      setInviteError(null);
+      setInviteSuccess(false);
 
-      // if (!response.ok) {
-      //   throw new Error("Failed to send invitation");
-      // }
-      const response = await authClient.organization.inviteMember({
-        email: inviteEmail, // required
-        role: "member", // required
+      // Check if user is already a member
+      const existingMember = organization.members.find(
+        (member) =>
+          member.user.email.toLowerCase() === inviteEmail.toLowerCase()
+      );
+
+      if (existingMember) {
+        setInviteError("This user is already a member of your organization.");
+        setInviting(false);
+        return;
+      }
+
+      // Check if user has a pending invitation
+      const pendingInvitation = pendingInvitations.find(
+        (invitation) =>
+          invitation.email.toLowerCase() === inviteEmail.toLowerCase()
+      );
+
+      if (pendingInvitation) {
+        setInviteError(
+          `An invitation has already been sent to ${inviteEmail}. You can copy the invitation link from the Pending Invitations section below.`
+        );
+        setInviting(false);
+        return;
+      }
+
+      const { data, error } = await authClient.organization.inviteMember({
+        email: inviteEmail,
+        role: inviteRole as "member" | "admin",
         organizationId: organization.id,
         resend: true,
       });
 
-      setInviteEmail("");
-      setInviteRole("member");
-      // TODO: Show success message
+      if (error) {
+        // Handle specific error cases
+        let errorMessage = error.message || "Failed to send invitation";
+
+        // Check for unique constraint violation or already invited
+        if (
+          errorMessage.includes("unique") ||
+          errorMessage.includes("already") ||
+          errorMessage.includes("P2002")
+        ) {
+          errorMessage = "An invitation has already been sent to this email.";
+        }
+
+        setInviteError(errorMessage);
+        return;
+      }
+
+      if (data) {
+        setInviteSuccess(true);
+        setInviteEmail("");
+        setInviteRole("member");
+        // Refresh pending invitations
+        fetchPendingInvitations();
+        // Hide success message after 5 seconds
+        setTimeout(() => setInviteSuccess(false), 5000);
+      }
     } catch (error) {
-      console.error("Error sending invitation:", error);
+      setInviteError("An unexpected error occurred");
     } finally {
       setInviting(false);
     }
@@ -268,11 +337,36 @@ export default function OrganizationSettingsPage({
     }
   };
 
-  const handleCopyInviteLink = () => {
-    const inviteLink = `${window.location.origin}/invite/${organization?.id}`;
+  const fetchPendingInvitations = async () => {
+    if (!organization) return;
+
+    try {
+      setLoadingInvitations(true);
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organization.id}/invitations`,
+        {
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch pending invitations");
+      }
+
+      const data = await response.json();
+      setPendingInvitations(data.invitations || []);
+    } catch (error) {
+      console.error("Error fetching pending invitations:", error);
+    } finally {
+      setLoadingInvitations(false);
+    }
+  };
+
+  const handleCopyInvitationLink = (invitationId: string) => {
+    const inviteLink = `${env.NEXT_PUBLIC_WEB_URL}/org-invite?token=${invitationId}`;
     navigator.clipboard.writeText(inviteLink);
-    setCopiedInvite(true);
-    setTimeout(() => setCopiedInvite(false), 2000);
+    setCopiedInvitationId(invitationId);
+    setTimeout(() => setCopiedInvitationId(null), 2000);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -541,6 +635,23 @@ export default function OrganizationSettingsPage({
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {inviteSuccess && (
+                  <Alert className="bg-green-500/10 border-green-500/20">
+                    <AlertDescription className="text-green-400">
+                      Invitation sent successfully! The user will receive an
+                      email with instructions to join your organization.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {inviteError && (
+                  <Alert className="bg-red-500/10 border-red-500/20">
+                    <AlertDescription className="text-red-400">
+                      {inviteError}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="flex gap-4">
                   <Input
                     type="email"
@@ -573,35 +684,6 @@ export default function OrganizationSettingsPage({
                     )}
                   </Button>
                 </div>
-
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-                  <div>
-                    <p className="text-white text-sm font-medium">
-                      Share invite link
-                    </p>
-                    <p className="text-white/60 text-xs mt-1">
-                      Anyone with this link can request to join your
-                      organization
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
-                    onClick={handleCopyInviteLink}
-                  >
-                    {copiedInvite ? (
-                      <>
-                        <Check className="h-4 w-4 mr-2" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Link
-                      </>
-                    )}
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           )}
@@ -618,11 +700,19 @@ export default function OrganizationSettingsPage({
               <Table>
                 <TableHeader>
                   <TableRow className="border-white/10">
-                    <TableHead className="text-white">Member</TableHead>
-                    <TableHead className="text-white">Role</TableHead>
-                    <TableHead className="text-white">Joined</TableHead>
+                    <TableHead className="text-white text-left">
+                      Member
+                    </TableHead>
+                    <TableHead className="text-white text-center">
+                      Role
+                    </TableHead>
+                    <TableHead className="text-white text-center">
+                      Joined
+                    </TableHead>
                     {canManageMembers && (
-                      <TableHead className="text-white">Actions</TableHead>
+                      <TableHead className="text-white text-left">
+                        Actions
+                      </TableHead>
                     )}
                   </TableRow>
                 </TableHeader>
@@ -647,7 +737,7 @@ export default function OrganizationSettingsPage({
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <Badge
                           className={`${getRoleBadgeColor(
                             member.role
@@ -656,11 +746,11 @@ export default function OrganizationSettingsPage({
                           {member.role}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-white/60">
-                        {new Date(member.joinedAt).toLocaleDateString()}
+                      <TableCell className="text-white/60 text-center">
+                        {new Date(member.createdAt).toLocaleDateString()}
                       </TableCell>
                       {canManageMembers && (
-                        <TableCell>
+                        <TableCell className="text-left">
                           {member.role !== "owner" &&
                             member.user.id !== session?.user?.id && (
                               <Button
@@ -680,6 +770,115 @@ export default function OrganizationSettingsPage({
               </Table>
             </CardContent>
           </Card>
+
+          {canManageMembers && (
+            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white">
+                  Pending Invitations
+                </CardTitle>
+                <CardDescription className="text-white/60">
+                  {pendingInvitations.length} pending invitation
+                  {pendingInvitations.length !== 1 ? "s" : ""}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingInvitations ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-[#E6007A]" />
+                  </div>
+                ) : pendingInvitations.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-white/60">No pending invitations</p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-white/10">
+                        <TableHead className="text-white text-left">
+                          Email
+                        </TableHead>
+                        <TableHead className="text-white text-left">
+                          Invited By
+                        </TableHead>
+                        <TableHead className="text-white text-center">
+                          Role
+                        </TableHead>
+                        <TableHead className="text-white text-center">
+                          Expires
+                        </TableHead>
+                        <TableHead className="text-white text-left">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingInvitations.map((invitation) => (
+                        <TableRow
+                          key={invitation.id}
+                          className="border-white/10"
+                        >
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback>
+                                  {invitation.email.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="text-white font-medium">
+                                  {invitation.email}
+                                </p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-white/60 text-left">
+                            {invitation.inviter.name}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              className={`${getRoleBadgeColor(
+                                invitation.role
+                              )} border-0`}
+                            >
+                              {invitation.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-white/60 text-center">
+                            {new Date(
+                              invitation.expiresAt
+                            ).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-left">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                handleCopyInvitationLink(invitation.id)
+                              }
+                              className="border-white/20 text-white hover:bg-white/10"
+                            >
+                              {copiedInvitationId === invitation.id ? (
+                                <>
+                                  <Check className="h-4 w-4 mr-2" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  Copy Link
+                                </>
+                              )}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">

@@ -124,7 +124,7 @@ export async function sendOrgInviteEmail(
   role: "admin" | "member",
   inviteToken: string
 ) {
-  const inviteUrl = `${DASHBOARD_URL}/invite?token=${inviteToken}`;
+  const inviteUrl = `${BASE_URL}/org-invite?token=${inviteToken}`;
 
   return resend.emails.send({
     from: FROM_EMAIL,

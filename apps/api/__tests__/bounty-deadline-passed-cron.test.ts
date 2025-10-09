@@ -31,26 +31,22 @@ describe("Bounty Deadline Passed Cron Job", () => {
       submissionCount: 5,
       amount: 1000,
       token: "DOT",
-      organization: {
-        members: [
-          {
-            role: "admin",
-            user: {
-              email: "admin@org.com",
-              firstName: "Admin",
-              username: "admin",
-            },
+      curators: [
+        {
+          user: {
+            email: "admin@org.com",
+            firstName: "Admin",
+            username: "admin",
           },
-          {
-            role: "owner",
-            user: {
-              email: "owner@org.com",
-              firstName: "Owner",
-              username: "owner",
-            },
+        },
+        {
+          user: {
+            email: "owner@org.com",
+            firstName: "Owner",
+            username: "owner",
           },
-        ],
-      },
+        },
+      ],
     };
 
     const mockExpiredBountyNoSubmissions = {
@@ -60,18 +56,15 @@ describe("Bounty Deadline Passed Cron Job", () => {
       submissionCount: 0,
       amount: 500,
       token: "DOT",
-      organization: {
-        members: [
-          {
-            role: "admin",
-            user: {
-              email: "admin@org.com",
-              firstName: "Admin",
-              username: "admin",
-            },
+      curators: [
+        {
+          user: {
+            email: "admin@org.com",
+            firstName: "Admin",
+            username: "admin",
           },
-        ],
-      },
+        },
+      ],
     };
 
     test("should successfully update expired bounties to REVIEWING status", async () => {
@@ -114,20 +107,13 @@ describe("Bounty Deadline Passed Cron Job", () => {
           visibility: "PUBLISHED",
         },
         include: {
-          organization: {
+          curators: {
             include: {
-              members: {
-                where: {
-                  role: { in: ["owner", "admin"] },
-                },
-                include: {
-                  user: {
-                    select: {
-                      email: true,
-                      firstName: true,
-                      username: true,
-                    },
-                  },
+              user: {
+                select: {
+                  email: true,
+                  firstName: true,
+                  username: true,
                 },
               },
             },
@@ -148,7 +134,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
       });
     });
 
-    test("should send reminder emails to organization members", async () => {
+    test("should send reminder emails to bounty curators", async () => {
       // Arrange
       const mockBounties = [mockExpiredBounty];
       const mockUpdateResult = { count: 1 };
@@ -167,7 +153,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
       expect(response.status).toBe(200);
       expect(data.emailsSent).toBe(1);
 
-      // Verify emails were sent to both admin and owner
+      // Verify emails were sent to both curators
       expect(sendBountyWinnerReminderEmail).toHaveBeenCalledTimes(2);
       expect(sendBountyWinnerReminderEmail).toHaveBeenCalledWith(
         {
@@ -284,18 +270,15 @@ describe("Bounty Deadline Passed Cron Job", () => {
       // Arrange
       const mockBountyWithMissingFields = {
         ...mockExpiredBounty,
-        organization: {
-          members: [
-            {
-              role: "admin",
-              user: {
-                email: "admin@org.com",
-                firstName: null,
-                username: null,
-              },
+        curators: [
+          {
+            user: {
+              email: "admin@org.com",
+              firstName: null,
+              username: null,
             },
-          ],
-        },
+          },
+        ],
       };
       const mockBounties = [mockBountyWithMissingFields];
       const mockUpdateResult = { count: 1 };
@@ -401,7 +384,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
       expect(response.status).toBe(200);
       expect(data.totalCount).toBe(2);
       expect(data.emailsSent).toBe(1); // Only one bounty has submissions
-      expect(sendBountyWinnerReminderEmail).toHaveBeenCalledTimes(2); // 2 members for bounty with submissions
+      expect(sendBountyWinnerReminderEmail).toHaveBeenCalledTimes(2); // 2 curators for bounty with submissions
     });
 
     test("should handle email sending failures gracefully", async () => {
@@ -542,15 +525,13 @@ describe("Bounty Deadline Passed Cron Job", () => {
       expect(database.bounty.updateMany).toHaveBeenCalledTimes(1); // Only status update
     });
 
-    test("should handle bounties with no organization members", async () => {
+    test("should handle bounties with no curators", async () => {
       // Arrange
-      const mockBountyNoMembers = {
+      const mockBountyNoCurators = {
         ...mockExpiredBounty,
-        organization: {
-          members: [],
-        },
+        curators: [],
       };
-      const mockBounties = [mockBountyNoMembers];
+      const mockBounties = [mockBountyNoCurators];
       const mockUpdateResult = { count: 1 };
 
       vi.mocked(database.bounty.findMany).mockResolvedValue(
@@ -570,15 +551,13 @@ describe("Bounty Deadline Passed Cron Job", () => {
       expect(sendBountyWinnerReminderEmail).not.toHaveBeenCalled(); // But no emails sent
     });
 
-    test("should handle bounties with only member role users", async () => {
+    test("should handle bounties with empty curators array", async () => {
       // Arrange
-      const mockBountyMemberOnly = {
+      const mockBountyEmptyCurators = {
         ...mockExpiredBounty,
-        organization: {
-          members: [],
-        },
+        curators: [],
       };
-      const mockBounties = [mockBountyMemberOnly];
+      const mockBounties = [mockBountyEmptyCurators];
       const mockUpdateResult = { count: 1 };
 
       vi.mocked(database.bounty.findMany).mockResolvedValue(
@@ -595,7 +574,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
       expect(response.status).toBe(200);
       expect(data.totalCount).toBe(1);
       expect(data.emailsSent).toBe(1); // Still counts as having submissions
-      expect(sendBountyWinnerReminderEmail).not.toHaveBeenCalled(); // But no emails sent (no admin/owner)
+      expect(sendBountyWinnerReminderEmail).not.toHaveBeenCalled(); // But no emails sent (no curators)
     });
   });
 });

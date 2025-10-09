@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
 export const URL_REGEX =
-  /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?$/i;
+  /^(https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,10}(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?$/i;
 
 export const OPTIONAL_URL_REGEX =
-  /^((https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,6}(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)?$/i;
+  /^((https?:\/\/)?([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,10}(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)?$/i;
 
 export const cn = (...inputs: ClassValue[]): string => twMerge(clsx(inputs));
 
@@ -68,13 +68,19 @@ export const formatCurrency = (value: number, currency?: string): string => {
   const suffix = currency ? ` ${currency}` : "";
   if (value >= 1_000_000_000) {
     const formatted = (value / 1_000_000_000).toFixed(1);
-    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}B${suffix}`;
+    return `${
+      formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
+    }B${suffix}`;
   } else if (value >= 1_000_000) {
     const formatted = (value / 1_000_000).toFixed(1);
-    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M${suffix}`;
+    return `${
+      formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
+    }M${suffix}`;
   } else if (value >= 1_000) {
     const formatted = (value / 1_000).toFixed(1);
-    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}K${suffix}`;
+    return `${
+      formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
+    }K${suffix}`;
   } else {
     return `${value}${suffix}`;
   }
@@ -131,7 +137,9 @@ export interface DeadlineInfo {
  * @param deadline - The deadline date (Date object, string, or null/undefined)
  * @returns Object containing time remaining text, expiration status, and urgency flag
  */
-export const getDeadlineInfo = (deadline: Date | string | null | undefined): DeadlineInfo => {
+export const getDeadlineInfo = (
+  deadline: Date | string | null | undefined
+): DeadlineInfo => {
   if (!deadline)
     return { timeRemaining: null, isExpired: false, isSoon: false };
 
@@ -153,19 +161,29 @@ export const getDeadlineInfo = (deadline: Date | string | null | undefined): Dea
       // Calculate how long ago the deadline was
       const absDiffTime = Math.abs(diffTime);
       const diffDays = Math.floor(absDiffTime / (1000 * 60 * 60 * 24));
-      const diffHours = Math.floor((absDiffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const diffMinutes = Math.floor((absDiffTime % (1000 * 60 * 60)) / (1000 * 60));
+      const diffHours = Math.floor(
+        (absDiffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const diffMinutes = Math.floor(
+        (absDiffTime % (1000 * 60 * 60)) / (1000 * 60)
+      );
 
       let agoText = "";
       if (diffDays >= 30) {
         const diffMonths = Math.floor(diffDays / 30);
-        agoText = `Completed ${diffMonths} month${diffMonths !== 1 ? "s" : ""} ago`;
+        agoText = `Completed ${diffMonths} month${
+          diffMonths !== 1 ? "s" : ""
+        } ago`;
       } else if (diffDays > 0) {
         agoText = `Completed ${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
       } else if (diffHours > 0) {
-        agoText = `Completed ${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+        agoText = `Completed ${diffHours} hour${
+          diffHours !== 1 ? "s" : ""
+        } ago`;
       } else if (diffMinutes > 0) {
-        agoText = `Completed ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+        agoText = `Completed ${diffMinutes} minute${
+          diffMinutes !== 1 ? "s" : ""
+        } ago`;
       } else {
         agoText = "Completed just now";
       }
@@ -181,9 +199,7 @@ export const getDeadlineInfo = (deadline: Date | string | null | undefined): Dea
     const diffHours = Math.floor(
       (diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
     );
-    const diffMinutes = Math.floor(
-      (diffTime % (1000 * 60 * 60)) / (1000 * 60)
-    );
+    const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
 
     let timeRemaining: string;
     if (diffDaysFloor > 0) {

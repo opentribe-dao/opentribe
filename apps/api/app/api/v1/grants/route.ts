@@ -393,6 +393,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // add current user as curator
+    await database.curator.create({
+      data: {
+        userId: session.user.id,
+        grantId: grant.id,
+        contact: session.user.email,
+      },
+    });
+
     return NextResponse.json({
       success: true,
       grant,

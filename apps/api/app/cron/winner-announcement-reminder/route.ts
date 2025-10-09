@@ -28,20 +28,13 @@ export const GET = async () => {
         ],
       },
       include: {
-        organization: {
+        curators: {
           include: {
-            members: {
-              where: {
-                role: { in: ["owner", "admin"] },
-              },
-              include: {
-                user: {
-                  select: {
-                    email: true,
-                    firstName: true,
-                    username: true,
-                  },
-                },
+            user: {
+              select: {
+                email: true,
+                firstName: true,
+                username: true,
               },
             },
           },
@@ -71,15 +64,15 @@ export const GET = async () => {
       if (!bounty.deadline) continue;
 
       try {
-        // Send to each admin/owner
-        for (const member of bounty.organization.members) {
-          if (member.user) {
+        // Send only to the bounty curators
+        for (const curator of bounty.curators) {
+          if (curator.user) {
             try {
               await sendBountyWinnerReminderEmail(
                 {
-                  email: member.user.email,
-                  firstName: member.user.firstName || undefined,
-                  username: member.user.username || undefined,
+                  email: curator.user.email,
+                  firstName: curator.user.firstName || undefined,
+                  username: curator.user.username || undefined,
                 },
                 {
                   id: bounty.id,
@@ -93,12 +86,12 @@ export const GET = async () => {
               emailsSent++;
             } catch (emailError) {
               console.error(
-                `Failed to send reminder to ${member.user.email}:`,
+                `Failed to send reminder to ${curator.user.email}:`,
                 emailError
               );
               errors.push({
                 bountyId: bounty.id,
-                email: member.user.email,
+                email: curator.user.email,
                 error:
                   emailError instanceof Error
                     ? emailError.message

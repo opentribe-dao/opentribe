@@ -2,7 +2,10 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GET as getBounty } from "../app/api/v1/bounties/[id]/route";
-import { GET as getBounties } from "../app/api/v1/bounties/route";
+import {
+  GET as getBounties,
+  POST as createBounty,
+} from "../app/api/v1/bounties/route";
 import { PATCH as resetWinners } from "../app/api/v1/bounties/[id]/winners/reset/route";
 import { NextRequest } from "next/server";
 
@@ -27,6 +30,9 @@ vi.mock("@packages/db", () => ({
     member: {
       findFirst: vi.fn(),
       count: vi.fn(),
+    },
+    curator: {
+      create: vi.fn(),
     },
   },
 }));
@@ -208,7 +214,7 @@ describe("Bounty Management", () => {
         split: "FIXED" as const,
         status: "OPEN" as const,
         visibility: "PUBLIC" as const,
-        deadline: new Date("2025-12-31"),
+        deadline: new Date("2024-12-31"),
         publishedAt: new Date(),
         winnersAnnouncedAt: new Date(),
         viewCount: 0,
@@ -1020,6 +1026,627 @@ describe("Bounty Management", () => {
       expect(response.json()).resolves.toEqual({
         error: "Failed to reset approved submissions",
       });
+    });
+  });
+
+  describe("POST /api/v1/bounties", () => {
+    const validBountyData = {
+      title: "Build a DApp on Polkadot",
+      description: "We need a decentralized application built on Polkadot",
+      skills: ["Rust", "Substrate", "React"],
+      amount: 5000,
+      token: "DOT",
+      split: "FIXED" as const,
+      winnings: { "1": 5000 },
+      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      resources: [
+        {
+          title: "Polkadot Documentation",
+          url: "https://polkadot.network/docs",
+          description: "Official docs",
+        },
+      ],
+      screening: [
+        {
+          question: "What is your experience with Rust?",
+          type: "text" as const,
+          optional: false,
+        },
+      ],
+      visibility: "PUBLISHED" as const,
+      organizationId: "org-123",
+    };
+
+    test("should create a bounty successfully as organization owner", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const mockMembership = {
+        id: "member-123",
+        userId: "user-123",
+        organizationId: "org-123",
+        role: "owner",
+      };
+
+      const mockCreatedBounty = {
+        id: "bounty-123",
+        title: validBountyData.title,
+        slug: "build-a-dapp-on-polkadot",
+        description: validBountyData.description,
+        skills: validBountyData.skills,
+        amount: validBountyData.amount,
+        token: validBountyData.token,
+        split: validBountyData.split,
+        winnings: validBountyData.winnings,
+        deadline: new Date(validBountyData.deadline).toISOString(),
+        resources: validBountyData.resources,
+        screening: validBountyData.screening,
+        visibility: validBountyData.visibility,
+        status: "OPEN",
+        organizationId: validBountyData.organizationId,
+        publishedAt: new Date().toISOString(),
+        organization: {
+          id: "org-123",
+          name: "Test Organization",
+          logo: null,
+        },
+      };
+
+      const mockCurator = {
+        id: "curator-123",
+        userId: "user-123",
+        bountyId: "bounty-123",
+        contact: "owner@example.com",
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (database.bounty.findUnique as any).mockResolvedValue(null); // No slug conflict
+      (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
+      (database.curator.create as any).mockResolvedValue(mockCurator);
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(validBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.bounty).toEqual(mockCreatedBounty);
+      expect(database.bounty.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          title: validBountyData.title,
+          slug: "build-a-dapp-on-polkadot",
+          description: validBountyData.description,
+          skills: validBountyData.skills,
+          amount: validBountyData.amount,
+          status: "OPEN",
+          organizationId: validBountyData.organizationId,
+        }),
+        include: expect.any(Object),
+      });
+      expect(database.curator.create).toHaveBeenCalledWith({
+        data: {
+          userId: mockSession.user.id,
+          bountyId: mockCreatedBounty.id,
+          contact: mockSession.user.email,
+        },
+      });
+    });
+
+    test("should create a bounty successfully as organization admin", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-456",
+          email: "admin@example.com",
+        },
+      };
+
+      const mockMembership = {
+        id: "member-456",
+        userId: "user-456",
+        organizationId: "org-123",
+        role: "admin",
+      };
+
+      const mockCreatedBounty = {
+        id: "bounty-456",
+        title: validBountyData.title,
+        slug: "build-a-dapp-on-polkadot",
+        description: validBountyData.description,
+        skills: validBountyData.skills,
+        amount: validBountyData.amount,
+        token: validBountyData.token,
+        split: validBountyData.split,
+        winnings: validBountyData.winnings,
+        deadline: new Date(validBountyData.deadline),
+        resources: validBountyData.resources,
+        screening: validBountyData.screening,
+        visibility: validBountyData.visibility,
+        status: "OPEN",
+        organizationId: validBountyData.organizationId,
+        publishedAt: new Date(),
+        organization: {
+          id: "org-123",
+          name: "Test Organization",
+          logo: null,
+        },
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (database.bounty.findUnique as any).mockResolvedValue(null);
+      (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
+      (database.curator.create as any).mockResolvedValue({});
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(validBountyData),
+      });
+
+      const response = await createBounty(request);
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(database.member.findFirst).toHaveBeenCalledWith({
+        where: {
+          userId: mockSession.user.id,
+          organizationId: validBountyData.organizationId,
+          role: {
+            in: ["owner", "admin"],
+          },
+        },
+      });
+    });
+
+    test("should create a draft bounty without publishedAt", async () => {
+      // Arrange
+      const draftBountyData = {
+        ...validBountyData,
+        visibility: "DRAFT" as const,
+      };
+
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const mockMembership = {
+        id: "member-123",
+        userId: "user-123",
+        organizationId: "org-123",
+        role: "owner",
+      };
+
+      const mockCreatedBounty = {
+        id: "bounty-draft",
+        title: draftBountyData.title,
+        slug: "build-a-dapp-on-polkadot",
+        visibility: "DRAFT",
+        publishedAt: null,
+        organization: {
+          id: "org-123",
+          name: "Test Organization",
+          logo: null,
+        },
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (database.bounty.findUnique as any).mockResolvedValue(null);
+      (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
+      (database.curator.create as any).mockResolvedValue({});
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(draftBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(data.bounty.publishedAt).toBeNull();
+      expect(database.bounty.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          visibility: "DRAFT",
+          publishedAt: null,
+        }),
+        include: expect.any(Object),
+      });
+    });
+
+    test("should handle slug conflicts by appending numbers", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const mockMembership = {
+        id: "member-123",
+        userId: "user-123",
+        organizationId: "org-123",
+        role: "owner",
+      };
+
+      // Simulate existing slugs
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (database.bounty.findUnique as any)
+        .mockResolvedValueOnce({ id: "existing-1" }) // First slug exists
+        .mockResolvedValueOnce({ id: "existing-2" }) // Second slug exists
+        .mockResolvedValueOnce(null); // Third slug is available
+
+      (database.bounty.create as any).mockResolvedValue({
+        id: "bounty-new",
+        slug: "build-a-dapp-on-polkadot-2",
+        organization: { id: "org-123", name: "Test Org", logo: null },
+      });
+      (database.curator.create as any).mockResolvedValue({});
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(validBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(data.bounty.slug).toBe("build-a-dapp-on-polkadot-2");
+      expect(database.bounty.findUnique).toHaveBeenCalledTimes(3);
+    });
+
+    test("should return 401 if user is not authenticated", async () => {
+      // Arrange
+      (auth.api.getSession as any).mockResolvedValue(null);
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(validBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(401);
+      expect(data.error).toBe("Unauthorized");
+      expect(database.member.findFirst).not.toHaveBeenCalled();
+      expect(database.bounty.create).not.toHaveBeenCalled();
+    });
+
+    test("should return 403 if user is not a member of the organization", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-unauthorized",
+          email: "unauthorized@example.com",
+        },
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(null); // No membership
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(validBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(403);
+      expect(data.error).toBe(
+        "You do not have permission to create bounties for this organization"
+      );
+      expect(database.bounty.create).not.toHaveBeenCalled();
+    });
+
+    test("should return 403 if user is only a member (not admin or owner)", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-member",
+          email: "member@example.com",
+        },
+      };
+
+      const mockMembership = {
+        id: "member-member",
+        userId: "user-member",
+        organizationId: "org-123",
+        role: "member", // Only regular member
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(null); // Query filters for owner/admin
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(validBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(403);
+      expect(database.member.findFirst).toHaveBeenCalledWith({
+        where: {
+          userId: mockSession.user.id,
+          organizationId: validBountyData.organizationId,
+          role: {
+            in: ["owner", "admin"],
+          },
+        },
+      });
+    });
+
+    test("should return 400 for invalid bounty data (missing title)", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const invalidData = {
+        ...validBountyData,
+        title: "", // Invalid: empty title
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(invalidData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Invalid request data");
+      expect(data.details).toBeDefined();
+      expect(database.bounty.create).not.toHaveBeenCalled();
+    });
+
+    test("should return 400 for invalid bounty data (negative amount)", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const invalidData = {
+        ...validBountyData,
+        amount: -100, // Invalid: negative amount
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(invalidData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Invalid request data");
+      expect(database.bounty.create).not.toHaveBeenCalled();
+    });
+
+    test("should return 400 for invalid bounty data (empty skills array)", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const invalidData = {
+        ...validBountyData,
+        skills: [], // Invalid: must have at least one skill
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(invalidData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Invalid request data");
+      expect(database.bounty.create).not.toHaveBeenCalled();
+    });
+
+    test("should return 400 for invalid resource URL", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const invalidData = {
+        ...validBountyData,
+        resources: [
+          {
+            title: "Invalid Resource",
+            url: "not-a-valid-url", // Invalid URL
+            description: "Test",
+          },
+        ],
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(invalidData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Invalid request data");
+      expect(database.bounty.create).not.toHaveBeenCalled();
+    });
+
+    test("should return 500 on database error", async () => {
+      // Arrange
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const mockMembership = {
+        id: "member-123",
+        userId: "user-123",
+        organizationId: "org-123",
+        role: "owner",
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (database.bounty.findUnique as any).mockResolvedValue(null);
+      (database.bounty.create as any).mockRejectedValue(
+        new Error("Database connection failed")
+      );
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(validBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(500);
+      expect(data.error).toBe("Failed to create bounty");
+    });
+
+    test("should create bounty with minimal optional fields", async () => {
+      // Arrange
+      const minimalBountyData = {
+        title: "Simple Bounty",
+        description: "A minimal bounty",
+        skills: ["JavaScript"],
+        amount: 1000,
+        winnings: { "1": 1000 },
+        deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        organizationId: "org-123",
+      };
+
+      const mockSession = {
+        user: {
+          id: "user-123",
+          email: "owner@example.com",
+        },
+      };
+
+      const mockMembership = {
+        id: "member-123",
+        userId: "user-123",
+        organizationId: "org-123",
+        role: "owner",
+      };
+
+      const mockCreatedBounty = {
+        id: "bounty-minimal",
+        title: minimalBountyData.title,
+        slug: "simple-bounty",
+        description: minimalBountyData.description,
+        skills: minimalBountyData.skills,
+        amount: minimalBountyData.amount,
+        token: "DOT", // Default
+        split: "FIXED", // Default
+        winnings: minimalBountyData.winnings,
+        deadline: new Date(minimalBountyData.deadline),
+        resources: undefined,
+        screening: undefined,
+        visibility: "DRAFT", // Default
+        status: "OPEN",
+        organizationId: minimalBountyData.organizationId,
+        publishedAt: null,
+        organization: {
+          id: "org-123",
+          name: "Test Organization",
+          logo: null,
+        },
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (database.bounty.findUnique as any).mockResolvedValue(null);
+      (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
+      (database.curator.create as any).mockResolvedValue({});
+
+      // Act
+      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
+        method: "POST",
+        body: JSON.stringify(minimalBountyData),
+      });
+
+      const response = await createBounty(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.bounty.token).toBe("DOT");
+      expect(data.bounty.split).toBe("FIXED");
+      expect(data.bounty.visibility).toBe("DRAFT");
     });
   });
 });

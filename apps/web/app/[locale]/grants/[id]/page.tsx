@@ -19,6 +19,7 @@ import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { ShareButton } from "../../bounties/[id]/share-button";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 async function getGrant(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -82,16 +83,6 @@ export default function GrantDetailPage({
   if (!grant) {
     notFound();
   }
-
-  // Format currency
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Calculate date range
   const getDateRange = () => {
@@ -263,15 +254,15 @@ export default function GrantDetailPage({
                 <p className="text-white/70">
                   {grant.minAmount && grant.maxAmount ? (
                     <>
-                      Grants range from {formatAmount(Number(grant.minAmount))}{" "}
-                      to {formatAmount(Number(grant.maxAmount))} in{" "}
+                      Grants range from {formatCurrency(Number(grant.minAmount), String(grant.token))}{" "}
+                      to {formatCurrency(Number(grant.maxAmount), String(grant.token))} in{" "}
                       {grant.token || "DOT"} capital, designed to help teams
                       scale.
                     </>
                   ) : (
                     <>
                       Total funding available:{" "}
-                      {formatAmount(Number(grant.totalFunds || 0))}{" "}
+                      {formatCurrency(Number(grant.totalFunds || 0), String(grant.token))}{" "}
                       {grant.token || "DOT"}
                     </>
                   )}
@@ -290,20 +281,17 @@ export default function GrantDetailPage({
               <div className="font-bold font-heading text-2xl">
                 {grant.minAmount && grant.maxAmount ? (
                   <>
-                    {formatAmount(Number(grant.minAmount))} -{" "}
-                    {formatAmount(Number(grant.maxAmount))}
+                    {formatCurrency(Number(grant.minAmount), String(grant.token))} -{" "}
+                    {formatCurrency(Number(grant.maxAmount), String(grant.token))}
                   </>
                 ) : grant.minAmount ? (
-                  <>From {formatAmount(Number(grant.minAmount))}</>
+                  <>From {formatCurrency(Number(grant.minAmount), String(grant.token))}</>
                 ) : grant.maxAmount ? (
-                  <>Up to {formatAmount(Number(grant.maxAmount))}</>
+                  <>Up to {formatCurrency(Number(grant.maxAmount), String(grant.token))}</>
                 ) : (
                   "Variable"
                 )}
               </div>
-              <p className="mt-1 text-sm text-white/50">
-                {grant.token || "DOT"}
-              </p>
             </div>
 
             {/* Grant Validity Card */}

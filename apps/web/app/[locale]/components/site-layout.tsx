@@ -14,7 +14,8 @@ const shouldHideChrome = (pathname: string) => {
   return (
     normalized.startsWith("/sign-in") ||
     normalized.startsWith("/sign-up") ||
-    normalized.startsWith("/onboarding")
+    normalized.startsWith("/onboarding") ||
+    normalized.startsWith("/verify-email")
   );
 };
 

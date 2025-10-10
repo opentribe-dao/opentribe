@@ -45,7 +45,7 @@ export const AuthModal = ({
         provider,
         callbackURL:
           redirectTo === undefined
-            ? `${env.NEXT_PUBLIC_WEB_URL}/onboarding`
+            ? `${env.NEXT_PUBLIC_WEB_URL}/`
             : redirectTo,
         newUserCallbackURL: `${env.NEXT_PUBLIC_WEB_URL}/onboarding`,
       });

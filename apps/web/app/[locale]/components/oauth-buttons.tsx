@@ -19,7 +19,8 @@ export const OAuthButtons = () => {
       await authClient.signIn.social({
         provider,
         // @TODO: @Yogesh fix this, after social login, it redirects to onboarding, not the homepage
-        callbackURL: `${env.NEXT_PUBLIC_WEB_URL ?? origin}/onboarding`,
+        callbackURL: `${env.NEXT_PUBLIC_WEB_URL ?? origin}/`,
+        newUserCallbackURL: `${env.NEXT_PUBLIC_WEB_URL ?? origin}/onboarding`,
       });
     } catch (error) {
       const errorMessage =

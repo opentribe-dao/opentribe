@@ -30,6 +30,7 @@ import { Header } from "../../../components/header";
 import { AuthModal } from "../../../components/auth-modal";
 import { env } from "@/env";
 import type { Bounty } from "@/hooks/use-bounties-data";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 const BountySubmissionPage = () => {
   const params = useParams();
@@ -179,14 +180,6 @@ const BountySubmissionPage = () => {
     return null;
   }
 
-  const formatAmount = (amount?: number) => {
-    if (!amount) return "N/A";
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   return (
     <>
       <div className="min-h-screen">
@@ -221,7 +214,7 @@ const BountySubmissionPage = () => {
                   <span>Bounty #{params.id?.slice(0, 8)}</span>
                   {bounty.amount && (
                     <span>
-                      Prize: {formatAmount(Number(bounty.amount))} {bounty.token}
+                      Prize: {formatCurrency(Number(bounty.amount), String(bounty.token))}
                     </span>
                   )}
                 </div>

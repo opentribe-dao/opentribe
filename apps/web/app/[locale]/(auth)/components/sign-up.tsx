@@ -57,6 +57,8 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
         name: data.name,
         email: data.email,
         password: data.password,
+        // @TODO: @itsyogesh fix this, after sign up, it redirects to signin instead of verify-email
+        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/verify-email`
       });
 
       if (result.error) {

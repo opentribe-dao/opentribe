@@ -121,6 +121,7 @@ const authOptions = {
   },
 
   emailVerification: {
+    autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }) => {
       console.log("Sending verification email to:", user.email);
       try {

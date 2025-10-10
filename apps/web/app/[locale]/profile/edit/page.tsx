@@ -280,7 +280,7 @@ const EditProfilePage = () => {
               {/* Name */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="text-white">
+                  <Label htmlFor="firstName" className='mb-2 text-white'>
                     First Name
                   </Label>
                   <Input
@@ -292,11 +292,11 @@ const EditProfilePage = () => {
                         firstName: e.target.value,
                       }))
                     }
-                    className='mt-2 border-white/10 bg-white/5 text-white'
+                    className='border-white/10 bg-white/5 text-white'
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="text-white">
+                  <Label htmlFor="lastName" className='mb-2 text-white'>
                     Last Name
                   </Label>
                   <Input
@@ -308,14 +308,14 @@ const EditProfilePage = () => {
                         lastName: e.target.value,
                       }))
                     }
-                    className='mt-2 border-white/10 bg-white/5 text-white'
+                    className='border-white/10 bg-white/5 text-white'
                   />
                 </div>
               </div>
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className="text-white">
+                <Label htmlFor="username" className='mb-2 text-white'>
                   Username
                 </Label>
                 <Input
@@ -328,7 +328,7 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="johndoe"
-                  className='mt-2 border-white/10 bg-white/5 text-white'
+                  className='border-white/10 bg-white/5 text-white'
                 />
                 <p className='mt-1 text-white/40 text-xs'>
                   Your unique username for your profile URL
@@ -337,7 +337,7 @@ const EditProfilePage = () => {
 
               {/* Headline */}
               <div>
-                <Label htmlFor="headline" className="text-white">
+                <Label htmlFor="headline" className='mb-2 text-white'>
                   Headline
                 </Label>
                 <Input
@@ -351,7 +351,7 @@ const EditProfilePage = () => {
                   }
                   placeholder="Full Stack Developer | Substrate Enthusiast"
                   maxLength={100}
-                  className='mt-2 border-white/10 bg-white/5 text-white'
+                  className='border-white/10 bg-white/5 text-white'
                 />
               </div>
 
@@ -476,7 +476,7 @@ const EditProfilePage = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="employer" className="text-white">
+                <Label htmlFor="employer" className='mb-2 text-white'>
                   Current Employer
                 </Label>
                 <Input
@@ -489,7 +489,7 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="Parity Technologies"
-                  className='mt-2 border-white/10 bg-white/5 text-white'
+                  className=' border-white/10 bg-white/5 text-white'
                 />
               </div>
 
@@ -701,7 +701,7 @@ const EditProfilePage = () => {
             </CardHeader>
             <CardContent>
               <div>
-                <Label htmlFor="walletAddress" className="text-white">
+                <Label htmlFor="walletAddress" className='mb-2 text-white'>
                   Wallet Address
                 </Label>
                 <Input
@@ -714,7 +714,7 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="Enter your Polkadot or Kusama address"
-                  className='mt-2 border-white/10 bg-white/5 font-mono text-white'
+                  className='border-white/10 bg-white/5 font-mono text-white'
                 />
                 {formData.walletAddress ? (
                   <p

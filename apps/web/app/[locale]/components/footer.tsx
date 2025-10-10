@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Facebook, Twitter, Linkedin, Github, Youtube } from "lucide-react";

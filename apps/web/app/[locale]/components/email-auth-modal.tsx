@@ -38,7 +38,7 @@ export const EmailAuthModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[440px] bg-zinc-900/95 backdrop-blur-md border-white/10">
+      <DialogContent className='border-white/10 bg-zinc-900/95 backdrop-blur-md sm:max-w-[440px]'>
         <DialogHeader>
           <DialogTitle className="text-center text-white">
             {activeTab === 'sign-in' ? 'Welcome back' : 'Create your account'}
@@ -53,10 +53,10 @@ export const EmailAuthModal = ({
           className="mt-4"
         >
           <TabsList className="grid w-full grid-cols-2 bg-white/5">
-            <TabsTrigger value="sign-in" className="data-[state=active]:bg-white/10">
+            <TabsTrigger value="sign-in" className="data-[state=active]:bg-white/50">
               Sign In
             </TabsTrigger>
-            <TabsTrigger value="sign-up" className="data-[state=active]:bg-white/10">
+            <TabsTrigger value="sign-up" className="data-[state=active]:bg-white/50">
               Sign Up
             </TabsTrigger>
           </TabsList>

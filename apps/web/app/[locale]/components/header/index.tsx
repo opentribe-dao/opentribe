@@ -1,6 +1,7 @@
 "use client";
 
 import { env } from "@/env";
+import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
 import {
@@ -42,8 +43,6 @@ type UserSession = {
   image?: string | null;
   username?: string;
 };
-
-const LOCALE_PREFIX_REGEX = /^\/[a-z]{2}/;
 
 const UserMenu = ({
   user,

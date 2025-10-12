@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { authMiddleware } from "@packages/auth/middleware";
+import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 import { internationalizationMiddleware } from "@packages/i18n/middleware";
 import {
   noseconeMiddleware,
@@ -17,14 +18,14 @@ export const config = {
 const authRequiredRouteRegex = [
   /^\/dashboard/,
   /^\/bounties\/create/,
-  /^\/grants\/[^\/]+\/apply/,
+  /^\/grants\/[^/]+\/apply/,
   /^\/onboarding/,
-  /^\/bounties\/[^\/]+\/submit/,
+  /^\/bounties\/[^/]+\/submit/,
 ];
 
 const profileRequiredRouteRegex = [
-  /^\/bounties\/[^\/]+\/submit/,
-  /^\/grants\/[^\/]+\/apply/,
+  /^\/bounties\/[^/]+\/submit/,
+  /^\/grants\/[^/]+\/apply/,
 ];
 
 const securityHeaders = env.FLAGS_SECRET
@@ -41,10 +42,7 @@ export default async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
     // Skip locale prefix if present
-    const pathnameWithoutLocale = pathname.replace(
-      /^\/[a-z]{2}(-[A-Z]{2})?/,
-      ""
-    );
+    const pathnameWithoutLocale = pathname.replace(LOCALE_PREFIX_REGEX, "");
 
     // Protected routes that require authentication
     const requiresAuth = authRequiredRouteRegex.some(

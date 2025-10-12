@@ -237,9 +237,9 @@ export async function GET(
       data: { viewCount: { increment: 1 } },
     });
 
-    // Show all submissions after winners have been announced
-    // Before winners are announced, submissions are private
-    if (!bounty.winnersAnnouncedAt) {
+    // Show all submissions after deadline has passed
+    // Before deadline, submissions are private and mutable
+    if (bounty.deadline && new Date() < bounty.deadline) {
       // If winners haven't been announced, don't show any submissions publicly
       bounty.submissions = [];
     }

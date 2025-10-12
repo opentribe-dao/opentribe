@@ -4,13 +4,11 @@ import React from "react";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Search, Filter, X } from "lucide-react";
-import { StatsCard } from "@packages/base/components/ui/stats-card";
+import { GrantsStats } from "./stats/stats";
+import { GrantsStatsProvider } from "./stats/stats-provider";
 
 interface GrantsHeroSectionProps {
   searchQuery: string;
-  totalCount: number;
-  totalValue: number;
-  isLoading: boolean;
   showMobileFilters: boolean;
   activeFiltersCount: number;
   onSearchChange: (value: string) => void;
@@ -20,9 +18,6 @@ interface GrantsHeroSectionProps {
 
 function GrantsHeroSectionComponent({
   searchQuery,
-  totalCount,
-  totalValue,
-  isLoading,
   activeFiltersCount,
   onSearchChange,
   onSearchSubmit,
@@ -90,7 +85,9 @@ function GrantsHeroSectionComponent({
             )}
           </Button>
         </div>
-        <StatsCard type="Grants" totalValue={totalValue} totalCount={totalCount} isLoading={isLoading} />
+        <GrantsStatsProvider>
+          <GrantsStats />
+        </GrantsStatsProvider>
       </div>
     </div>
   );

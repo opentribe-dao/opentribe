@@ -172,7 +172,7 @@ const BountiesPage = () => {
             className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
             asChild
           >
-            <Link href="/bounties/new">
+            <Link href="/bounties/create">
               Create New Bounty
             </Link>
           </Button>
@@ -271,7 +271,7 @@ const BountiesPage = () => {
                           className="border-white/20 text-white hover:bg-white/10"
                           asChild
                         >
-                          <Link href="/bounties/new">
+                          <Link href="/bounties/create">
                             <Plus className="mr-2 h-4 w-4" />
                             Create your first bounty
                           </Link>

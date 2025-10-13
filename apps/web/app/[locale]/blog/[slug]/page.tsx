@@ -84,13 +84,13 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
         <div className="mt-16 flex flex-col items-start gap-8 sm:flex-row">
           <div className="sm:flex-1">
             <div className="prose prose-neutral dark:prose-invert max-w-none">
-              <h1 className="scroll-m-20 text-balance font-extrabold text-4xl tracking-tight lg:text-5xl">
+              {/* <h1 className="scroll-m-20 text-balance font-extrabold text-4xl tracking-tight lg:text-5xl">
                 {page._title}
               </h1>
               <p className="text-balance leading-7 [&:not(:first-child)]:mt-6">
                 {page.description}
-              </p>
-              {page.image ? (
+              </p> */}
+              {/* {page.image ? (
                 <Image
                   src={page.image}
                   width={600}
@@ -98,7 +98,7 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
                   alt=""
                   className="my-16 h-full w-full rounded-xl"
                 />
-              ) : undefined}
+              ) : undefined} */}
               <div className="mx-auto max-w-prose">
                 <Body
                   content={page.body}

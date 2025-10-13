@@ -193,7 +193,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
               size="sm"
               asChild
             >
-              <Link href="/bounties/new">
+              <Link href="/bounties/create">
                 <Plus className="mr-2 h-4 w-4" />
                 Create New Bounty
               </Link>

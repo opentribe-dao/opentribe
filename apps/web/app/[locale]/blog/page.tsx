@@ -49,17 +49,17 @@ const BlogIndex = async ({ params }: BlogProps) => {
                 <Link
                   href={`/blog/${post._slug}`}
                   className={cn(
-                    'flex cursor-pointer flex-col gap-4 hover:opacity-75',
+                    'flex cursor-pointer flex-col gap-4 rounded-lg p-4 hover:bg-white/15 hover:text-white hover:opacity-75 hover:shadow-lg',
                     !index && 'md:col-span-2'
                   )}
                   key={post._slug}
                 >
-                  <Image
+                  {/* <Image
                     src={post.image}
                     alt=""
                     width={600}
                     height={300}
-                  />
+                  /> */}
                   <div className="flex flex-row items-center gap-4">
                     <p className="text-muted-foreground text-sm">
                       {new Date(post.date).toLocaleDateString('en-US', {

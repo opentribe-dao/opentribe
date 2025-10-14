@@ -149,7 +149,7 @@ export function ContentSection({
           items={grants}
           loading={loading.grants}
           error={error.grants}
-          gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+          gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6"
           renderItem={(grant) => (
             <GrantCard
               key={grant.id}

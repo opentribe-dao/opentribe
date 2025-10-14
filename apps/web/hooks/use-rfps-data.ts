@@ -14,6 +14,8 @@ interface RFP {
   grant: {
     id: string;
     title: string;
+    minAmount: string;
+    maxAmount: string;
     organization: {
       id: string;
       name: string;

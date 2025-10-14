@@ -71,7 +71,7 @@ function BountiesSidebarComponent({
       )}
       
       {/* Sidebar Content */}
-      <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-80 overflow-y-auto bg-[#111111] p-6 lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : "hidden lg:block"}`}>
+      <div className={`space-y-6 ${showMobileFilters ? 'fixed top-0 right-0 z-50 h-full w-90 translate-x-0 transform-gpu overflow-y-auto bg-[#111111] p-6 opacity-100 transition-opacity transition-transform duration-300 ease-out lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:bg-transparent lg:p-0' : "pointer-events-none fixed top-0 right-0 z-40 h-full w-90 translate-x-full transform-gpu overflow-y-auto bg-[#111111] p-6 opacity-0 transition-opacity transition-transform duration-300 ease-out lg:pointer-events-auto lg:relative lg:top-auto lg:right-auto lg:z-auto lg:h-auto lg:w-auto lg:translate-x-0 lg:bg-transparent lg:p-0 lg:opacity-100"}`}>
         {/* Mobile Close Button */}
         {showMobileFilters && (
           <div className='mb-4 flex justify-end lg:hidden'>
@@ -106,7 +106,7 @@ function BountiesSidebarComponent({
         {/* Status */}
         <div className="mb-6">
           <h4 className='mb-3 font-medium text-sm text-white/80'>Status</h4>
-          <div className="space-y-2">
+          <div className="flex items-center justify-between align-center">
             {["Open", "In Review", "Completed"].map((status) => (
               <label
                 key={status}
@@ -132,10 +132,10 @@ function BountiesSidebarComponent({
             value={filters.sortBy}
             onValueChange={(value) => onFilterChange.onSortChange(value)}
           >
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-4">
               {SORT_OPTIONS.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option.value} id={option.value} />
+                  <RadioGroupItem className="border-white/40 text-pink-500" value={option.value} id={option.value} />
                   <label
                     htmlFor={option.value}
                     className='cursor-pointer font-medium text-sm text-white/70 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
@@ -173,7 +173,7 @@ function BountiesSidebarComponent({
         {/* Additional Filters */}
         <div>
           <h4 className='mb-3 font-medium text-sm text-white/80'>Additional</h4>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-4">
             <label htmlFor="has-submissions" className='flex cursor-pointer items-center gap-2'>
               <Checkbox
                 id="has-submissions"

@@ -2,14 +2,12 @@
 import { env } from "@/env";
 import { Button } from "@packages/base/components/ui/button";
 import {
+  Briefcase,
   Building2,
-  Calendar,
   Clock,
   DollarSign,
   MapPin,
   Tag,
-  Trophy,
-  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +17,8 @@ import { CommentSection } from "./comment-section";
 import { ShareButton } from "./share-button";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { useCountdown } from "@packages/base/hooks/use-countdown";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -43,6 +43,9 @@ export default function BountyDetailPage({
   const [bounty, setBounty] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [bountyId, setBountyId] = useState<string | null>(null);
+
+  // Countdown string for the deadline
+  const { formatted: countdownFormatted } = useCountdown(bounty?.deadline ?? null);
 
   // Resolve params once
   useEffect(() => {
@@ -82,15 +85,6 @@ export default function BountyDetailPage({
   if (!bounty) {
     notFound();
   }
-  // Format currency
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Handle winnings structure - parse if it's a string
   let winningsData = {};
@@ -114,25 +108,14 @@ export default function BountyDetailPage({
     Number(bounty.amount) ||
     0;
 
-  // Format deadline
-  const formatDeadline = (deadline: string | null) => {
-    if (!deadline) return "No deadline";
-    const date = new Date(deadline);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   return (
     <div className="min-h-screen">
       {/* Glass Header Card */}
       <div className="relative overflow-hidden">
         <div className="container relative mx-auto px-6 py-8">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-6">
+            <div className='items-start justify-between md:flex'>
+              <div className='items-start gap-6 md:flex'>
                 {/* Organization Logo */}
                 <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
                   {bounty.organization.logo ? (
@@ -140,7 +123,7 @@ export default function BountyDetailPage({
                       src={bounty.organization.logo}
                       alt={bounty.organization.name}
                       fill
-                      className="bg-white object-cover p-2"
+                      className='h-20 w-20 object-cover'
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -153,10 +136,10 @@ export default function BountyDetailPage({
 
                 {/* Bounty Info */}
                 <div>
-                  <h1 className="mb-2 font-bold font-heading text-3xl">
+                  <h1 className='mt-2 mb-2 font-bold font-heading text-2xl sm:text-2xl md:mt-0'>
                     {bounty.title}
                   </h1>
-                  <div className="flex items-center gap-4 text-white/60">
+                  <div className='flex flex-col gap-4 text-white/60 md:flex-row md:items-center'>
                     <span className="flex items-center gap-1">
                       <Building2 className="h-4 w-4" />
                       {bounty.organization.industry?.[0] || "Technology"}
@@ -165,30 +148,18 @@ export default function BountyDetailPage({
                       <MapPin className="h-4 w-4" />
                       {bounty.organization.location || "Remote"}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      Deadline: {formatDeadline(bounty.deadline)}
-                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-4">
-                {/* Prize Badge */}
-                <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/20 px-4 py-2 backdrop-blur-sm">
-                  <Trophy className="h-4 w-4 text-green-400" />
-                  <span className="font-bold text-green-400 text-sm">
-                    {formatAmount(totalPrize)} {bounty.token}
-                  </span>
-                </div>
-
+              <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
                 <ShareButton url={`/bounties/${bountyId}`} />
 
                 {bounty.userSubmissionId ? (
                   <Link href={`/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`}>
                     <Button
-                      className="bg-pink-600 text-white hover:bg-pink-700"
+                      className='w-full bg-pink-600 text-white hover:bg-pink-700'
                       disabled={bounty.status !== "OPEN"}
                     >
                       View Submission
@@ -196,7 +167,7 @@ export default function BountyDetailPage({
                   </Link>
                 ) : bounty.canSubmit === false ? (
                   <Button
-                    className="bg-pink-600 text-white hover:bg-pink-700"
+                    className='w-full bg-pink-600 text-white hover:bg-pink-700'
                     disabled={true}
                   >
                     Submit Now
@@ -204,7 +175,7 @@ export default function BountyDetailPage({
                 ) : (
                   <Link href={`/bounties/${bountyId}/submit`}>
                     <Button
-                      className="bg-pink-600 text-white hover:bg-pink-700"
+                      className='w-full bg-pink-600 text-white hover:bg-pink-700'
                     >
                       Submit Now
                     </Button>
@@ -246,11 +217,11 @@ export default function BountyDetailPage({
           <div className="space-y-6">
             {/* Grant Price Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <h3 className="mb-2 flex items-center gap-2 font-medium text-sm text-white/60">
-                <DollarSign className="h-4 w-4" /> Total Prize
+              <h3 className='mb-2 flex items-center gap-2 font-medium text-white/60 text-xl' >
+                <DollarSign className='h-7 w-7 rounded-full border border-white/20 bg-[#DBE7FF] p-1 text-black' />Total Prize
               </h3>
               <div className="mb-4 font-bold font-heading text-2xl">
-                {formatAmount(totalPrize)} {bounty.token}
+              {formatCurrency(Number(totalPrize), String(bounty.token))}
               </div>
 
               {/* Winner breakdown */}
@@ -264,7 +235,7 @@ export default function BountyDetailPage({
                       key={position}
                       className="flex items-center justify-between"
                     >
-                      <span className="text-sm text-white/70">
+                      <span className="text-lg text-white/70">
                         {position === "1"
                           ? "🥇 1st Place"
                           : position === "2"
@@ -273,8 +244,8 @@ export default function BountyDetailPage({
                           ? "🥉 3rd Place"
                           : `Position ${position}`}
                       </span>
-                      <span className="font-medium text-sm">
-                        {formatAmount(Number(amount))}
+                      <span className="font-medium text-lg">
+                        {formatCurrency(Number(amount), String(bounty.token))}
                       </span>
                     </div>
                   ))}
@@ -283,23 +254,35 @@ export default function BountyDetailPage({
             </div>
 
             {/* Submissions Info */}
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <h3 className="mb-3 font-medium text-sm text-white/60">
-                Submissions
-              </h3>
-              <div className="mb-4 flex items-center gap-3">
-                <Users className="h-5 w-5 text-pink-400" />
-                <span className="font-semibold text-lg">
-                  {bounty._count.submissions} Total
-                </span>
+            <div className="flex justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6 align-center backdrop-blur-sm">
+              <div className=" items-center gap-4">
+                <h3 className="mb-3 font-medium text-sm text-white/60">
+                  Submissions
+                </h3>
+                <div className="mb-4 flex items-center gap-2">
+                  {/* <Users className="h-5 w-5 text-pink-400" /> */}
+                  <Briefcase className="h-5 w-5 text-pink-400" />
+                  <span className="font-semibold text-lg">
+                    {bounty._count.submissions} Total
+                  </span>
+                </div>
               </div>
 
-              {bounty.deadline && (
-                <div className="text-sm text-white/60">
-                  <Clock className="mr-1 inline h-4 w-4" />
-                  Deadline: {formatDeadline(bounty.deadline)}
+              <div className=" items-center gap-4">
+                <h3 className="mb-3 font-medium text-sm text-white/60">
+                  Deadline
+                </h3>
+                <div className="mb-4 flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-pink-400" />
+                  {bounty.deadline && (
+                    <div className="">
+                      <span className="font-semibold text-lg">
+                        {countdownFormatted ?? "—"}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Skills Required */}
@@ -347,10 +330,11 @@ export default function BountyDetailPage({
                                 submission.submitter.username}
                             </p>
                             <p className="text-white/50 text-xs">
-                              {formatAmount(Number(submission.winningAmount))}
+                              {formatCurrency(Number(submission.winningAmount), String(bounty.token))}
                             </p>
                           </div>
                         </div>
+                        {/* TODO: @tarun fix this, ask @shivam about this - /bounties/${bountyId}/submissions/${submission.id}, if bounty is not open anymore, we send submission url otherwise bounty url */}
                         <Link
                           href={submission.submissionUrl || "#"}
                           target="_blank"

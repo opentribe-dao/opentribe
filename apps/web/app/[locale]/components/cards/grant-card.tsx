@@ -1,6 +1,6 @@
 import { Card } from "@packages/base/components/ui/card";
 import { Badge } from "@packages/base/components/ui/badge";
-import { DollarSign, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -57,7 +57,7 @@ export function GrantCard({
                   );
                   e.currentTarget.style.display = "none";
                 }}
-                className="rounded-lg"
+                className='h-[48px] w-[48px] rounded-full bg-white'
               />
             ) : (
               <div className='flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-purple-600'>
@@ -82,14 +82,14 @@ export function GrantCard({
         </div>
 
         {summary && (
-          <p className='mb-4 line-clamp-2 text-sm text-white/70'>{summary}</p>
+          <p className='text-sm text-white/70'>{summary}</p>
         )}
 
-        <div className="flex items-center justify-between text-sm text-white/60">
+        <div className='flex flex-col justify-between gap-3 text-sm text-white/60 md:flex-row lg:flex-row lg:items-center'>
           <div className="flex items-center gap-4">
             {(minAmount || maxAmount) && (
-              <span className="flex items-center gap-1">
-                <DollarSign className='h-4 w-4' />
+              <span className='flex items-center gap-1'>
+                {/* <DollarSign className='h-4 w-4' /> */}
                 {minAmount && maxAmount ? (
                   <>
                     {minAmount.toLocaleString()} - {maxAmount.toLocaleString()}{" "}

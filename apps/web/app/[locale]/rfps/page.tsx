@@ -18,7 +18,11 @@ export default function RFPsPage() {
       <div className="container mx-auto px-4 py-8">
         <RfpsHeroSection
           searchQuery={filtersHook.filters.search || ''}
+          // TODO: @tarun fix this, ask @shivam about this
           totalCount={rfpsData.rfps.length}
+          // TODO: @tarun fix this, ask @shivam about this
+          totalValue={rfpsData.rfps.reduce((acc, rfp) => acc + (Number(rfp.grant.maxAmount) || 0), 0)}
+          isLoading={rfpsData.isLoading}
           showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
           onSearchChange={(value) => filtersHook.updateFilter('search', value)}

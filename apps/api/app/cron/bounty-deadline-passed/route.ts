@@ -22,20 +22,13 @@ export const GET = async () => {
         visibility: "PUBLISHED", // Only published bounties
       },
       include: {
-        organization: {
+        curators: {
           include: {
-            members: {
-              where: {
-                role: { in: ["owner", "admin"] },
-              },
-              include: {
-                user: {
-                  select: {
-                    email: true,
-                    firstName: true,
-                    username: true,
-                  },
-                },
+            user: {
+              select: {
+                email: true,
+                firstName: true,
+                username: true,
               },
             },
           },
@@ -82,7 +75,7 @@ export const GET = async () => {
       submissionCount: bounty.submissionCount,
     }));
 
-    // Send winner reminder emails to organization admins/owners
+    // Send winner reminder emails to bounty curators
     const emailPromises = expiredBounties.map(async (bounty) => {
       // Only send emails if there are submissions
       if (bounty.submissionCount === 0) {
@@ -90,16 +83,16 @@ export const GET = async () => {
         return null;
       }
 
-      // Send email to all organization admins/owners
-      const emailPromises = bounty.organization.members.map(async (member) => {
+      // Send email only to the bounty curators
+      const curatorEmailPromises = bounty.curators.map(async (curator) => {
         try {
           const totalPrize = bounty.amount ? bounty.amount.toString() : "0";
 
           await sendBountyWinnerReminderEmail(
             {
-              email: member.user.email,
-              firstName: member.user.firstName || undefined,
-              username: member.user.username || undefined,
+              email: curator.user.email,
+              firstName: curator.user.firstName || undefined,
+              username: curator.user.username || undefined,
             },
             {
               id: bounty.id,
@@ -112,17 +105,17 @@ export const GET = async () => {
           );
 
           console.log(
-            `Sent winner reminder email for bounty ${bounty.id} to ${member.user.email}`
+            `Sent winner reminder email for bounty ${bounty.id} to ${curator.user.email}`
           );
         } catch (error) {
           console.error(
-            `Failed to send email for bounty ${bounty.id} to ${member.user.email}:`,
+            `Failed to send email for bounty ${bounty.id} to ${curator.user.email}:`,
             error
           );
         }
       });
 
-      return Promise.allSettled(emailPromises);
+      return Promise.allSettled(curatorEmailPromises);
     });
 
     // Wait for all emails to be sent (or fail)

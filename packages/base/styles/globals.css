@@ -279,3 +279,16 @@
     animation-delay: 2s;
   }
 }
+
+.card-bg{
+  background: linear-gradient(90.77deg, rgba(255, 255, 255, 0.28) -5.34%, rgba(255, 255, 255, 0) 114.33%);
+  backdrop-filter: blur(4px);
+}
+
+.stats-card{
+  background: #A4A4E533;
+  border: 1px solid #ffffff4d;
+  padding: 18px 10px;
+  border-radius: 20px;
+  /* border-image-source: linear-gradient(160deg, rgba(255, 255, 255, 0.6) -5.94%, rgba(255, 255, 255, 0) 111.23%); */
+}

@@ -58,7 +58,7 @@ export const Footer = () => {
   ];
 
   // const categoriesLinks = [
-  //   { title: 'Development', href: '#' },
+  //   { title: 'Development', href: '#' }, 
   //   { title: 'Design', href: '#' },
   //   { title: 'Marketing', href: '#' },
   //   { title: 'Writing', href: '#' },
@@ -115,9 +115,9 @@ export const Footer = () => {
         </div>
 
         {/* Main Footer Content */}
-        <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-6">
+        <div className="mb-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Logo and Description */}
-          <div className="col-span-2">
+          <div>
             <Link href="/" className="mb-4 flex items-center gap-2">
               <span className="bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-transparent text-xl leading-[1.75] tracking-[0.25em]">
                 OPENTRIBE
@@ -133,74 +133,60 @@ export const Footer = () => {
             </p>
           </div>
 
-          {/* Community */}
-          <div>
-            <h4 className="mb-4 font-semibold">Community</h4>
-            <ul className="space-y-2">
-              {communityLinks.map((link) => (
-                <li key={link.title}>
-                  <Link
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-white/60 transition-colors hover:text-white"
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Links Container - All links in one section */}
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:ml-8">
+            {/* Community */}
+            <div>
+              <h4 className="mb-4 font-semibold">Community</h4>
+              <ul className="space-y-2">
+                {communityLinks.map((link) => (
+                  <li key={link.title}>
+                    <Link
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Categories */}
-          {/* <div>
-            <h4 className="mb-4 font-semibold">Categories</h4>
-            <ul className="space-y-2">
-              {categoriesLinks.map((link) => (
-                <li key={link.title}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/60 transition-colors hover:text-white"
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div> */}
+            {/* About */}
+            <div>
+              <h4 className="mb-4 font-semibold">About</h4>
+              <ul className="space-y-2">
+                {aboutLinks.map((link) => (
+                  <li key={link.title}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* About */}
-          <div>
-            <h4 className="mb-4 font-semibold">About</h4>
-            <ul className="space-y-2">
-              {aboutLinks.map((link) => (
-                <li key={link.title}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/60 transition-colors hover:text-white"
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h4 className="mb-4 font-semibold">Legal</h4>
-            <ul className="space-y-2">
-              {legalLinks.map((link) => (
-                <li key={link.title}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/60 transition-colors hover:text-white"
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* Legal */}
+            <div>
+              <h4 className="mb-4 font-semibold">Legal</h4>
+              <ul className="space-y-2">
+                {legalLinks.map((link) => (
+                  <li key={link.title}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 

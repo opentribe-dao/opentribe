@@ -4,8 +4,7 @@ import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Input } from "@packages/base/components/ui/input"
 import { Search, Filter, X } from "lucide-react"
-import { BountyStats } from './stats/stats'
-import { BountyStatsProvider } from './stats/stats-provider'
+import { BountyStats } from './stats'
 
 interface BountiesHeroSectionProps {
   searchQuery: string
@@ -80,9 +79,7 @@ function BountiesHeroSectionComponent({
             )}
           </Button>
         </div>
-        <BountyStatsProvider>
-          <BountyStats />
-        </BountyStatsProvider>
+        <BountyStats />
       </div>
     </div>
   )

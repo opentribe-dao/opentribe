@@ -1,13 +1,44 @@
 'use client'
 
+import { env } from '@/env'
 import { Separator } from '@packages/base/components/ui/separator'
 import { Skeleton } from '@packages/base/components/ui/skeleton'
-import { formatCurrency } from '@packages/base/lib/utils'
-import { DollarSign, Briefcase } from 'lucide-react'
-import { useBountyStats } from './stats-provider'
+import { FileText, Award } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
 
-export function BountyStats() {
-  const { data, isLoading, error } = useBountyStats()
+interface RfpsStatsResponse {
+  total_rfps_count: number
+  total_grants_count: number
+}
+
+export function RfpsStats() {
+  const [data, setData] = useState<RfpsStatsResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchRfpsStats = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/stats`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch RFPs stats: ${response.status}`)
+      }
+
+      const statsData: RfpsStatsResponse = await response.json()
+      setData(statsData)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch RFPs stats'
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchRfpsStats()
+  }, [fetchRfpsStats])
 
   if (error) {
     return (
@@ -24,7 +55,7 @@ export function BountyStats() {
       <div className='stats-card flex justify-around gap-4 text-sm lg:w-full '>
         
         <div className='flex items-center gap-2 '>
-            <Briefcase 
+            <FileText 
               className='rounded-full bg-white/10 p-2' 
               style={{ width: '32px', height: '32px' }} 
             />
@@ -33,17 +64,17 @@ export function BountyStats() {
               {isLoading ? (
                 <Skeleton className='mx-4 mb-1 h-4 w-8 bg-white/10' />
               ) : (
-                data?.total_bounties_count || 0
+                data?.total_rfps_count || 0
               )}
             </span>
-            <span className='text-white/60'>Total Bounties</span>
+            <span className='text-white/60'>Total RFPs</span>
           </div>
         </div>
 
         <Separator orientation="vertical" className='h-10 bg-white/10 md:h-16' />
 
         <div className='flex items-center gap-2 '>
-            <DollarSign 
+            <Award 
               className='rounded-full bg-white/10 p-2' 
               style={{ width: '32px', height: '32px' }} 
             />
@@ -52,10 +83,10 @@ export function BountyStats() {
               <Skeleton className='mx-4 mb-1 h-4 w-8 bg-white/10' />
             ) : (
               <span className='mb-1 font-bold text-white'>
-                {formatCurrency(data?.total_rewards_earned || 0)}
+                {data?.total_grants_count || 0}
               </span>
             )}
-            <span className='text-white/60'>Total Earned</span>
+            <span className='text-white/60'>Total Grants</span>
           </div>
         </div>
 

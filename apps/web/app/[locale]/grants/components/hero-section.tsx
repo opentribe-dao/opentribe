@@ -4,8 +4,7 @@ import React from "react";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Search, Filter, X } from "lucide-react";
-import { GrantsStats } from "./stats/stats";
-import { GrantsStatsProvider } from "./stats/stats-provider";
+import { GrantsStats } from "./stats";
 
 interface GrantsHeroSectionProps {
   searchQuery: string;
@@ -85,9 +84,7 @@ function GrantsHeroSectionComponent({
             )}
           </Button>
         </div>
-        <GrantsStatsProvider>
-          <GrantsStats />
-        </GrantsStatsProvider>
+        <GrantsStats />
       </div>
     </div>
   );

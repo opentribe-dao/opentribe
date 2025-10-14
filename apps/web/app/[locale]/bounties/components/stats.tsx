@@ -1,16 +1,46 @@
 'use client'
 
+import { env } from '@/env'
 import { Separator } from '@packages/base/components/ui/separator'
 import { Skeleton } from '@packages/base/components/ui/skeleton'
 import { formatCurrency } from '@packages/base/lib/utils'
-import { DollarSign, Award } from 'lucide-react'
-import { useGrantsStats } from './stats-provider'
+import { DollarSign, Briefcase } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
 
-export function GrantsStats() {
-  // Use the custom hook to get data from the provider
-  const { data, isLoading, error } = useGrantsStats()
+interface BountyStatsResponse {
+  total_bounties_count: number
+  total_rewards_earned: number
+}
 
-  // Show error state if there's an error
+export function BountyStats() {
+  const [data, setData] = useState<BountyStatsResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchBountyStats = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/stats`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bounty stats: ${response.status}`)
+      }
+
+      const statsData: BountyStatsResponse = await response.json()
+      setData(statsData)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch bounty stats'
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchBountyStats()
+  }, [fetchBountyStats])
+
   if (error) {
     return (
       <div className='row-start-1 items-center gap-4 sm:flex md:flex lg:row-start-auto'>
@@ -26,7 +56,7 @@ export function GrantsStats() {
       <div className='stats-card flex justify-around gap-4 text-sm lg:w-full '>
         
         <div className='flex items-center gap-2 '>
-            <Award 
+            <Briefcase 
               className='rounded-full bg-white/10 p-2' 
               style={{ width: '32px', height: '32px' }} 
             />
@@ -35,10 +65,10 @@ export function GrantsStats() {
               {isLoading ? (
                 <Skeleton className='mx-4 mb-1 h-4 w-8 bg-white/10' />
               ) : (
-                data?.total_grants_count || 0
+                data?.total_bounties_count || 0
               )}
             </span>
-            <span className='text-white/60'>Total Grants</span>
+            <span className='text-white/60'>Total Bounties</span>
           </div>
         </div>
 
@@ -54,10 +84,10 @@ export function GrantsStats() {
               <Skeleton className='mx-4 mb-1 h-4 w-8 bg-white/10' />
             ) : (
               <span className='mb-1 font-bold text-white'>
-                {formatCurrency(data?.total_funds || 0)}
+                {formatCurrency(data?.total_rewards_earned || 0)}
               </span>
             )}
-            <span className='text-white/60'>Total Funds</span>
+            <span className='text-white/60'>Total Earned</span>
           </div>
         </div>
 

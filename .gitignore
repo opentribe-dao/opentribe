@@ -270,6 +270,9 @@ $RECYCLE.BIN/
 CLAUDE.md
 CLAUDE_PLAN.md
 
+#Codex files
+AGENTS.md
+
 # Database
 packages/db/generated
 

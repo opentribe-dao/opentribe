@@ -293,64 +293,51 @@ export async function POST(
 
     if (applicationCount === 1) {
       // Get grant curators
-      const grantWithDetails = await database.grant.findUnique({
-        where: { id: grantId },
+      const grantCurators = await database.curator.findMany({
+        where: { grantId: grantId },
         include: {
-          organization: {
-            include: {
-              members: {
-                where: {
-                  role: { in: ["owner", "admin"] },
-                },
-                include: {
-                  user: {
-                    select: {
-                      email: true,
-                      firstName: true,
-                      username: true,
-                    },
-                  },
-                },
-              },
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+              username: true,
             },
           },
         },
       });
 
-      if (grantWithDetails?.organization) {
-        // Send first application email to each curator
-        for (const member of grantWithDetails.organization.members) {
-          if (member.user) {
-            try {
-              await sendGrantFirstApplicationEmail(
-                {
-                  email: member.user.email,
-                  firstName: member.user.firstName || undefined,
-                  username: member.user.username || undefined,
+      // Send first application email to only the grant curators
+      for (const curator of grantCurators) {
+        if (curator.user) {
+          try {
+            await sendGrantFirstApplicationEmail(
+              {
+                email: curator.user.email,
+                firstName: curator.user.firstName || undefined,
+                username: curator.user.username || undefined,
+              },
+              {
+                id: grant.id,
+                title: grant.title,
+              },
+              {
+                id: application.id,
+                title: application.title,
+                summary:
+                  application.summary ||
+                  application.description.substring(0, 200),
+                requestedAmount: application.budget
+                  ? `$${application.budget.toLocaleString()}`
+                  : "Not specified",
+                applicant: {
+                  firstName: application.applicant.firstName || undefined,
+                  username: application.applicant.username || "Anonymous",
                 },
-                {
-                  id: grant.id,
-                  title: grant.title,
-                },
-                {
-                  id: application.id,
-                  title: application.title,
-                  summary:
-                    application.summary ||
-                    application.description.substring(0, 200),
-                  requestedAmount: application.budget
-                    ? `$${application.budget.toLocaleString()}`
-                    : "Not specified",
-                  applicant: {
-                    firstName: application.applicant.firstName || undefined,
-                    username: application.applicant.username || "Anonymous",
-                  },
-                }
-              );
-            } catch (error) {
-              console.error("Failed to send first application email:", error);
-              // Don't fail the request if email fails
-            }
+              }
+            );
+          } catch (error) {
+            console.error("Failed to send first application email:", error);
+            // Don't fail the request if email fails
           }
         }
       }

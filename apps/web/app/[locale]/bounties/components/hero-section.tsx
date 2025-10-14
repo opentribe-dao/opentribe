@@ -3,12 +3,15 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Input } from "@packages/base/components/ui/input"
-import { Separator } from "@packages/base/components/ui/separator"
 import { Search, Filter, X } from "lucide-react"
+import { StatsCard } from "@packages/base/components/ui/stats-card"
+
 
 interface BountiesHeroSectionProps {
   searchQuery: string
   totalCount: number
+  totalValue: number
+  isLoading: boolean
   showMobileFilters: boolean
   activeFiltersCount: number
   onSearchChange: (value: string) => void
@@ -19,21 +22,24 @@ interface BountiesHeroSectionProps {
 function BountiesHeroSectionComponent({
   searchQuery,
   totalCount,
-  showMobileFilters,
+  totalValue,
+  isLoading,
+  showMobileFilters: _showMobileFilters,
   activeFiltersCount,
   onSearchChange,
   onSearchSubmit,
   onToggleMobileFilters
 }: BountiesHeroSectionProps) {
   return (
-    <div className="mb-4">
+    <div className="mb-8">
       <h1 className='mb-2 font-bold font-heading text-4xl'>Bounties</h1>
       <p className="text-white/60">
         Complete tasks and earn rewards in the Polkadot ecosystem
       </p>
 
       {/* Search and Stats */}
-      <div className='mt-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center'>
+      <div className='mt-6 grid grid-cols-1 gap-8 lg:grid-cols-4'>
+        <div className='row-start-2 flex max-w-xl items-center gap-2 lg:col-span-3 lg:row-start-auto'>{/* Search form → push to 2nd row on mobile */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -64,31 +70,23 @@ function BountiesHeroSectionComponent({
             Search
           </Button>
         </form>
-
-        <div className="flex items-center gap-6">
-          <div className="text-sm">
-            <span className="text-white/60">Total bounties: </span>
-            <span className="font-semibold text-white">{totalCount}</span>
-          </div>
-          
-          <Separator orientation="vertical" className="h-4 bg-white/20 lg:hidden" />
-          
-          {/* Mobile Filter Toggle */}
+            {/* Mobile filter toggle moved here to appear first in mobile view */}
           <Button
             variant="outline"
             size="sm"
             onClick={onToggleMobileFilters}
-            className="border-white/20 text-white hover:bg-white/10 lg:hidden"
+            className='h-9 border-white/20 text-white hover:bg-white/10 lg:hidden'
           >
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
+            <Filter className="h-4 w-4" />
+            
             {activeFiltersCount > 0 && (
-              <span className='ml-2 rounded-full bg-pink-500 px-1.5 py-0.5 text-white text-xs'>
+              <span className=' rounded-full bg-pink-500 px-1.5 py-0.5 text-white text-xs'>
                 {activeFiltersCount}
               </span>
             )}
           </Button>
         </div>
+        <StatsCard type="bounties" totalValue={totalValue} totalCount={totalCount} isLoading={isLoading} />
       </div>
     </div>
   )

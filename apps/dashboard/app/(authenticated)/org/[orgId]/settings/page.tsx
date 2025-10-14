@@ -1,7 +1,11 @@
 "use client";
 
 import { use } from "react";
-import { useActiveOrganization, useSession } from "@packages/auth/client";
+import {
+  authClient,
+  useActiveOrganization,
+  useSession,
+} from "@packages/auth/client";
 import {
   Card,
   CardContent,
@@ -14,10 +18,19 @@ import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
 import { Textarea } from "@packages/base/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@packages/base/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@packages/base/components/ui/tabs";
 import { Alert, AlertDescription } from "@packages/base/components/ui/alert";
 import { Badge } from "@packages/base/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@packages/base/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@packages/base/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -79,12 +92,18 @@ interface OrganizationDetails {
   updatedAt: string;
 }
 
-export default function OrganizationSettingsPage({ params }: { params: Promise<{ orgId: string }> }) {
+export default function OrganizationSettingsPage({
+  params,
+}: {
+  params: Promise<{ orgId: string }>;
+}) {
   const { orgId } = use(params);
   const router = useRouter();
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();
-  const [organization, setOrganization] = useState<OrganizationDetails | null>(null);
+  const [organization, setOrganization] = useState<OrganizationDetails | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
@@ -182,24 +201,30 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
 
     try {
       setInviting(true);
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organization.id}/invitations`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: inviteEmail,
-            role: inviteRole,
-          }),
-        }
-      );
+      // const response = await fetch(
+      //   `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organization.id}/invitations`,
+      //   {
+      //     method: "POST",
+      //     credentials: "include",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({
+      //       email: inviteEmail,
+      //       role: inviteRole,
+      //     }),
+      //   }
+      // );
 
-      if (!response.ok) {
-        throw new Error("Failed to send invitation");
-      }
+      // if (!response.ok) {
+      //   throw new Error("Failed to send invitation");
+      // }
+      const response = await authClient.organization.inviteMember({
+        email: inviteEmail, // required
+        role: "member", // required
+        organizationId: organization.id,
+        resend: true,
+      });
 
       setInviteEmail("");
       setInviteRole("member");
@@ -284,7 +309,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Organization Settings</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Organization Settings
+        </h1>
         <p className="text-white/60">
           Manage your organization profile, team members, and preferences
         </p>
@@ -292,15 +319,24 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-white/10 border-white/20 mb-8">
-          <TabsTrigger value="general" className="data-[state=active]:bg-white/20">
+          <TabsTrigger
+            value="general"
+            className="data-[state=active]:bg-white/20"
+          >
             <Settings className="h-4 w-4 mr-2" />
             General
           </TabsTrigger>
-          <TabsTrigger value="members" className="data-[state=active]:bg-white/20">
+          <TabsTrigger
+            value="members"
+            className="data-[state=active]:bg-white/20"
+          >
             <Users className="h-4 w-4 mr-2" />
             Members
           </TabsTrigger>
-          <TabsTrigger value="security" className="data-[state=active]:bg-white/20">
+          <TabsTrigger
+            value="security"
+            className="data-[state=active]:bg-white/20"
+          >
             <Shield className="h-4 w-4 mr-2" />
             Security
           </TabsTrigger>
@@ -316,7 +352,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label className="text-white mb-4 block">Organization Logo</Label>
+                <Label className="text-white mb-4 block">
+                  Organization Logo
+                </Label>
                 <ImageUpload
                   currentImageUrl={formData.logo}
                   onImageChange={(url) =>
@@ -337,7 +375,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     disabled={!canEditOrganization}
                     className="bg-white/10 border-white/20 text-white"
                   />
@@ -350,7 +390,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                   <Input
                     id="slug"
                     value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, slug: e.target.value })
+                    }
                     disabled={!canEditOrganization}
                     className="bg-white/10 border-white/20 text-white"
                   />
@@ -367,7 +409,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     disabled={!canEditOrganization}
                     className="bg-white/10 border-white/20 text-white"
                   />
@@ -380,7 +424,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                   <Input
                     id="website"
                     value={formData.website}
-                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, website: e.target.value })
+                    }
                     disabled={!canEditOrganization}
                     className="bg-white/10 border-white/20 text-white"
                     placeholder="https://example.com"
@@ -395,7 +441,12 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                 <Textarea
                   id="shortDescription"
                   value={formData.shortDescription}
-                  onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      shortDescription: e.target.value,
+                    })
+                  }
                   disabled={!canEditOrganization}
                   className="bg-white/10 border-white/20 text-white min-h-[80px]"
                   placeholder="Brief description of your organization"
@@ -409,7 +460,12 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                 <Textarea
                   id="longDescription"
                   value={formData.longDescription}
-                  onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      longDescription: e.target.value,
+                    })
+                  }
                   disabled={!canEditOrganization}
                   className="bg-white/10 border-white/20 text-white min-h-[150px]"
                   placeholder="Detailed description of your organization"
@@ -427,7 +483,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                   <Input
                     id="twitter"
                     value={formData.twitter}
-                    onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, twitter: e.target.value })
+                    }
                     disabled={!canEditOrganization}
                     className="bg-white/10 border-white/20 text-white"
                     placeholder="@yourhandle"
@@ -444,7 +502,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                   <Input
                     id="instagram"
                     value={formData.instagram}
-                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, instagram: e.target.value })
+                    }
                     disabled={!canEditOrganization}
                     className="bg-white/10 border-white/20 text-white"
                     placeholder="@yourhandle"
@@ -516,9 +576,12 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
 
                 <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
                   <div>
-                    <p className="text-white text-sm font-medium">Share invite link</p>
+                    <p className="text-white text-sm font-medium">
+                      Share invite link
+                    </p>
                     <p className="text-white/60 text-xs mt-1">
-                      Anyone with this link can request to join your organization
+                      Anyone with this link can request to join your
+                      organization
                     </p>
                   </div>
                   <Button
@@ -547,7 +610,8 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
             <CardHeader>
               <CardTitle className="text-white">Current Members</CardTitle>
               <CardDescription className="text-white/60">
-                {organization.members.length} member{organization.members.length !== 1 ? "s" : ""}
+                {organization.members.length} member
+                {organization.members.length !== 1 ? "s" : ""}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -557,7 +621,9 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                     <TableHead className="text-white">Member</TableHead>
                     <TableHead className="text-white">Role</TableHead>
                     <TableHead className="text-white">Joined</TableHead>
-                    {canManageMembers && <TableHead className="text-white">Actions</TableHead>}
+                    {canManageMembers && (
+                      <TableHead className="text-white">Actions</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -567,16 +633,26 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={member.user.image} />
-                            <AvatarFallback>{member.user.name.charAt(0)}</AvatarFallback>
+                            <AvatarFallback>
+                              {member.user.name.charAt(0)}
+                            </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-white font-medium">{member.user.name}</p>
-                            <p className="text-white/60 text-sm">{member.user.email}</p>
+                            <p className="text-white font-medium">
+                              {member.user.name}
+                            </p>
+                            <p className="text-white/60 text-sm">
+                              {member.user.email}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${getRoleBadgeColor(member.role)} border-0`}>
+                        <Badge
+                          className={`${getRoleBadgeColor(
+                            member.role
+                          )} border-0`}
+                        >
                           {member.role}
                         </Badge>
                       </TableCell>
@@ -585,16 +661,17 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
                       </TableCell>
                       {canManageMembers && (
                         <TableCell>
-                          {member.role !== "owner" && member.user.id !== session?.user?.id && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveMember(member.id)}
-                              className="text-red-400 hover:bg-red-500/20"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
+                          {member.role !== "owner" &&
+                            member.user.id !== session?.user?.id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveMember(member.id)}
+                                className="text-red-400 hover:bg-red-500/20"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                         </TableCell>
                       )}
                     </TableRow>
@@ -616,8 +693,8 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
             <CardContent className="space-y-6">
               <Alert className="bg-yellow-500/10 border-yellow-500/20">
                 <AlertDescription className="text-yellow-400">
-                  Security settings are coming soon. We're working on features like two-factor
-                  authentication, API keys, and audit logs.
+                  Security settings are coming soon. We're working on features
+                  like two-factor authentication, API keys, and audit logs.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -634,12 +711,18 @@ export default function OrganizationSettingsPage({ params }: { params: Promise<{
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-white font-medium mb-2">Delete Organization</h4>
+                    <h4 className="text-white font-medium mb-2">
+                      Delete Organization
+                    </h4>
                     <p className="text-white/60 text-sm mb-4">
-                      Once you delete an organization, there is no going back. All data including
-                      bounties, grants, and submissions will be permanently deleted.
+                      Once you delete an organization, there is no going back.
+                      All data including bounties, grants, and submissions will
+                      be permanently deleted.
                     </p>
-                    <Button variant="destructive" className="bg-red-500 hover:bg-red-600">
+                    <Button
+                      variant="destructive"
+                      className="bg-red-500 hover:bg-red-600"
+                    >
                       Delete Organization
                     </Button>
                   </div>

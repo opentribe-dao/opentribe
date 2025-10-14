@@ -23,6 +23,7 @@ import { Button } from "@packages/base/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formatDistanceToNow } from "date-fns";
+import { formatCurrency } from "@packages/base/lib/utils";
 
 interface BountyContentProps {
   bounty: any;
@@ -48,23 +49,15 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
     router.push(`/bounties/${bounty.id}`, { scroll: false });
   };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const SubmissionCard = ({ submission }: { submission: any }) => (
     <div
       onClick={() => handleSubmissionClick(submission.id)}
-      className="block p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
-    >
+      className='block cursor-pointer rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-colors hover:bg-white/10'
+  >
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex-shrink-0">
+        <div className='flex min-w-0 flex-1 items-start gap-3'>
+          <div className='h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-600'>
             {submission.submitter.image ? (
               <Image
                 src={submission.submitter.image}
@@ -74,14 +67,14 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
                 className="rounded-full"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-sm font-bold">
+              <div className='flex h-full w-full items-center justify-center'>
+                <span className='font-bold text-sm'>
                   {submission.submitter.username[0].toUpperCase()}
                 </span>
               </div>
             )}
           </div>
-          <div className="flex-1 min-w-0">
+          <div className='min-w-0 flex-1'>
             <h4 className="font-semibold text-white">{submission.title}</h4>
             <p className="text-sm text-white/60">
               by @{submission.submitter.username} •{" "}
@@ -90,25 +83,25 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
               })}
             </p>
             {submission.description && (
-              <p className="text-sm text-white/70 mt-1 line-clamp-2">
+              <p className='mt-1 line-clamp-2 text-sm text-white/70'>
                 {submission.description}
               </p>
             )}
           </div>
         </div>
         {submission.isWinner && (
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-full border border-yellow-500/30">
+          <div className='flex flex-shrink-0 items-center gap-3'>
+            <div className='flex items-center gap-2 rounded-full border border-yellow-500/30 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-3 py-1.5'>
               <span className="text-lg">🏆</span>
-              <span className="text-sm font-medium text-yellow-400 whitespace-nowrap">
+              <span className='whitespace-nowrap font-medium text-sm text-yellow-400'>
                 Winner #{submission.position}
               </span>
             </div>
             {submission.winningAmount && (
               <div className="text-right">
-                <p className="text-xs text-white/60">Prize</p>
-                <p className="text-lg font-bold text-green-400 whitespace-nowrap">
-                  {formatAmount(submission.winningAmount)}
+                <p className='text-white/60 text-xs'>Prize</p>
+                <p className='whitespace-nowrap font-bold text-green-400 text-lg'>
+                  {formatCurrency(Number(submission.winningAmount), String(bounty.token))}
                 </p>
               </div>
             )}
@@ -122,8 +115,8 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
     <>
       {/* Description */}
       <section>
-        <h2 className="text-2xl font-bold font-heading mb-4">Description</h2>
-        <div className="prose prose-invert max-w-none prose-headings:font-heading prose-p:text-white/80 prose-li:text-white/80 prose-strong:text-white prose-code:text-pink-400 prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10">
+        <h2 className='mb-4 font-bold font-heading text-2xl'>Description</h2>
+        <div className='prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white'>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {bounty.description}
           </ReactMarkdown>
@@ -133,7 +126,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
       {/* Acceptance Criteria */}
       {bounty.screening && (
         <section>
-          <h2 className="text-2xl font-bold font-heading mb-4">
+          <h2 className='mb-4 font-bold font-heading text-2xl'>
             Acceptance Criteria
           </h2>
           <div className="space-y-3">
@@ -141,17 +134,17 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
               (criteria: any, idx: number) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10"
+                  className='flex items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm'
                 >
-                  <div className="w-6 h-6 rounded-full bg-pink-600/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-pink-400">
+                  <div className='mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-pink-600/20'>
+                    <span className='font-bold text-pink-400 text-xs'>
                       {idx + 1}
                     </span>
                   </div>
                   <div className="flex-1">
                     <p className="text-white/80">{criteria.question}</p>
                     {criteria.optional && (
-                      <span className="text-xs text-white/50 mt-1 inline-block">
+                      <span className='mt-1 inline-block text-white/50 text-xs'>
                         Optional
                       </span>
                     )}
@@ -167,8 +160,8 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
 
   const SubmissionsList = () => (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold font-heading">
+      <div className='mb-6 flex items-center justify-between'>
+        <h2 className='font-bold font-heading text-2xl'>
           All Submissions ({bounty.submissions.length})
         </h2>
       </div>
@@ -176,7 +169,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
       {/* Winners Section */}
       {bounty.submissions.filter((s: any) => s.isWinner).length > 0 && (
         <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <h3 className='mb-4 flex items-center gap-2 font-semibold text-lg'>
             🏆 Winners
           </h3>
           <div className="space-y-3">
@@ -193,7 +186,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
       {/* Other Submissions */}
       {bounty.submissions.filter((s: any) => !s.isWinner).length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <h3 className='mb-4 flex items-center gap-2 font-semibold text-lg'>
             Other Submissions
           </h3>
           <div className="space-y-3">
@@ -222,13 +215,13 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
   return (
     <div className="space-y-8">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="bg-white/5 border border-white/10">
+        <TabsList className='border border-white/10 bg-white/5'>
           <TabsTrigger value="overview" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
+            <FileText className='h-4 w-4' />
             Overview
           </TabsTrigger>
           <TabsTrigger value="submissions" className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
+            <Users className='h-4 w-4' />
             Submissions ({bounty.submissions.length})
           </TabsTrigger>
         </TabsList>

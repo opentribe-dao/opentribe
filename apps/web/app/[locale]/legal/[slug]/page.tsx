@@ -1,11 +1,7 @@
-import { Sidebar } from '@/app/[locale]/components/sidebar';
-import { legal, type Legal } from '@packages/cms';
+import { type Legal, legal } from '@packages/cms';
 import { Body } from '@packages/cms/components/body';
-import { TableOfContents } from '@packages/cms/components/toc';
 import { createMetadata } from '@packages/seo/metadata';
-import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 type LegalPageProperties = {
@@ -44,32 +40,24 @@ const LegalPage = async ({ params }: LegalPageProperties) => {
   }
 
   return (
-    <div className="container max-w-5xl py-16">
-      <Link
-        className="mb-4 inline-flex items-center gap-1 text-muted-foreground text-sm focus:underline focus:outline-none"
-        href="/"
-      >
-        <ArrowLeftIcon className="h-4 w-4" />
-        Back to Home
-      </Link>
-      <h1 className="scroll-m-20 text-balance font-extrabold text-4xl tracking-tight lg:text-5xl">
+    <div className="container mx-auto px-4 pt-8 pb-16 sm:px-6 sm:pt-12 md:pt-16 md:pb-20 lg:px-8">
+      {/* Page Title - Responsive Text Size */}
+      <h1 className="scroll-m-20 text-balance font-extrabold text-3xl tracking-tight sm:text-4xl lg:text-5xl">
         {page._title}
       </h1>
-      <p className="text-balance leading-7 [&:not(:first-child)]:mt-6">
+
+      {/* Description */}
+      <p className="text-balance text-sm leading-7 sm:text-base [&:not(:first-child)]:mt-4 sm:[&:not(:first-child)]:mt-6">
         {page.description}
       </p>
-      <div className="mt-16 flex flex-col items-start gap-8 sm:flex-row">
-        <div className="sm:flex-1">
-          <div className="prose prose-neutral dark:prose-invert">
+
+      {/* Main Content Area */}
+      <div className="mt-4 flex flex-col items-start gap-8 sm:mt-12 md:mt-16 md:flex-row lg:gap-12">
+        {/* Article Content - Responsive Width */}
+        <div className="w-full md:flex-1">
+          <article className="prose prose-neutral prose-sm sm:prose-base md:prose-lg dark:prose-invert max-w-none">
             <Body content={page.body} />
-          </div>
-        </div>
-        <div className="sticky top-24 hidden shrink-0 md:block">
-          <Sidebar
-            toc={<TableOfContents data={page.content} />}
-            readingTime={`${page.readingTime} min read`}
-            date={new Date()}
-          />
+          </article>
         </div>
       </div>
     </div>

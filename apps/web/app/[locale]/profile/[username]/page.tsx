@@ -97,6 +97,7 @@ interface UserProfile {
     bounty: {
       id: string;
       title: string;
+      slug: string;
       organization: {
         name: string;
         logo?: string;
@@ -111,6 +112,7 @@ interface UserProfile {
     bounty: {
       id: string;
       title: string;
+      slug: string;
       token: string;
       organization: {
         name: string;
@@ -535,7 +537,7 @@ const ProfilePage = () => {
                               href={
                                 item.type === "application"
                                   ? `/grants/${item.grant.id}/`
-                                  : `/bounties/${item.bounty.id}/submissions/${item.id}`
+                                  : `/bounties/${item.bounty.slug || item.bounty.id}/submissions/${item.id}`
                               }
                             >
                               <div className="flex items-start justify-between">
@@ -618,7 +620,7 @@ const ProfilePage = () => {
                         profile.submissions.map((sub) => (
                           <Link
                             key={sub.id}
-                            href={`/bounties/${sub.bounty.id}/submissions/${sub.id}`}
+                            href={`/bounties/${sub.bounty.slug || sub.bounty.id}/submissions/${sub.id}`}
                             className="block"
                           >
                             <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>
@@ -661,7 +663,7 @@ const ProfilePage = () => {
                         profile.wonSubmissions.map((win) => (
                           <Link
                             key={win.id}
-                            href={`/bounties/${win.bounty.id}/submissions/${win.id}`}
+                            href={`/bounties/${win.bounty.slug || win.bounty.id}/submissions/${win.id}`}
                             className="block"
                           >
                             <div className='rounded-lg border border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-green-500/10 p-4'>

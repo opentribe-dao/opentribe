@@ -119,6 +119,7 @@ export function ContentSection({
             <BountyCard
               key={bounty.id}
               id={bounty.id}
+              slug={bounty.slug}
               title={bounty.title}
               organization={bounty.organization || "Unknown Organization"}
               amount={

@@ -27,6 +27,7 @@ describe("Submission System Tests", () => {
 
       const mockBounty = {
         id: "bounty-1",
+        slug: "bounty-1",
         title: "Test Bounty",
         status: "OPEN",
         deadline: new Date("2025-12-31"),
@@ -36,6 +37,7 @@ describe("Submission System Tests", () => {
       const mockSubmission = {
         id: "submission-1",
         bountyId: "bounty-1",
+        bountySlug: "bounty-1",
         submitterId: "user-123",
         title: "My Submission",
         description: "Submission description",
@@ -51,7 +53,7 @@ describe("Submission System Tests", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.user.findUnique as any).mockResolvedValue(mockUser);
-      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
       (database.submission.findFirst as any).mockResolvedValue(null);
       (database.submission.create as any).mockResolvedValue(mockSubmission);
       (database.member.findMany as any).mockResolvedValue([]);
@@ -143,7 +145,7 @@ describe("Submission System Tests", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
 
       // Act
       const body = JSON.stringify({
@@ -186,6 +188,7 @@ describe("Submission System Tests", () => {
 
       const mockBounty = {
         id: "bounty-1",
+        slug: "bounty-1",
         title: "Test Bounty",
         status: "OPEN",
         visibility: "PUBLISHED",
@@ -204,7 +207,7 @@ describe("Submission System Tests", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.user.findUnique as any).mockResolvedValue(mockUser);
-      (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
       (database.submission.findFirst as any).mockResolvedValue(null);
       (database.member.findMany as any).mockResolvedValue(mockMembership);
 

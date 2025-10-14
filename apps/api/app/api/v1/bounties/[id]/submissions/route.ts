@@ -28,8 +28,13 @@ export async function GET(
     const bountyId = (await params).id;
 
     // Get the bounty
-    const bounty = await database.bounty.findUnique({
-      where: { id: bountyId },
+    const bounty = await database.bounty.findFirst({
+      where: {
+        OR: [
+          { id: bountyId },
+          { slug: { equals: bountyId, mode: "insensitive" } },
+        ],
+      },
       include: {
         organization: {
           select: {
@@ -181,8 +186,13 @@ export async function POST(
     const bountyId = (await params).id;
 
     // Check if bounty exists and is open
-    const bounty = await database.bounty.findUnique({
-      where: { id: bountyId },
+    const bounty = await database.bounty.findFirst({
+      where: {
+        OR: [
+          { id: bountyId },
+          { slug: { equals: bountyId, mode: "insensitive" } },
+        ],
+      },
       select: {
         id: true,
         title: true,

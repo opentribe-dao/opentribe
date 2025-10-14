@@ -93,7 +93,7 @@ export async function sendOnboardingCompleteEmail(
   const exploreUrl =
     userType === "builder"
       ? `${BASE_URL}/bounties`
-      : `${DASHBOARD_URL}/bounties/new`;
+      : `${DASHBOARD_URL}/bounties/create`;
   const profileUrl =
     userType === "builder"
       ? `${BASE_URL}/profile/${user.username}`

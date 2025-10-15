@@ -9,6 +9,7 @@ const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
 interface Grant {
   id: string;
+  slug: string;
   title: string;
   organization: {
     id: string;
@@ -277,6 +278,7 @@ export function useTopRFPs() {
 // Top RFP interface
 interface TopRfp {
   id: string;
+  slug: string;
   title: string;
   voteCount: number;
   grant: {

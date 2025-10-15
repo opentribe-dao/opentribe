@@ -8,6 +8,7 @@ import { cn } from '@packages/base/lib/utils'
 
 export interface TopRFP {
   id: string
+  slug: string
   title: string
   voteCount: number
   grant: {
@@ -78,7 +79,7 @@ export function TopRFPsCard({
           {topRFPs.map((rfp, index) => (
              <Link
              key={rfp.id}
-             href={`/rfps/${rfp.id}`}
+             href={`/rfps/${rfp.slug || rfp.id}`}
              className='flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/5'
              aria-label={`View RFP: ${rfp.title} by ${rfp.grant.organization.name}`}
            >

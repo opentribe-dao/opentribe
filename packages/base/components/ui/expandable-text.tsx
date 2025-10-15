@@ -66,7 +66,7 @@ export function ExpandableText({ children, maxHeight = 400, className, mobileOnl
       {/* View More/Less Button */}
       <div className="relative z-20 flex justify-center pb-4">
         <Button onClick={() => setIsExpanded(!isExpanded)} variant="outline" size="sm" className="shadow-lg">
-          {isExpanded ? "View Less" : "View More"}
+          {isExpanded ? "View Less ↑" : "View More ↓"}
         </Button>
       </div>
 

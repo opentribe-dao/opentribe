@@ -130,6 +130,7 @@ function BountiesContentSectionComponent({
                 <BountyCard
                   key={bounty.id}
                   id={bounty.id}
+                  slug={bounty.slug}
                   title={bounty.title || "Untitled Bounty"}
                   organization={
                     bounty.organization

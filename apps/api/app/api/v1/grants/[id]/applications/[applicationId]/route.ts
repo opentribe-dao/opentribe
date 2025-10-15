@@ -23,11 +23,24 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const grant = await database.grant.findFirst({
+      where: {
+        OR: [
+          { id: (await params).id },
+          { slug: { equals: (await params).id, mode: "insensitive" } },
+        ],
+      },
+    });
+    
+    if (!grant) {
+      return NextResponse.json({ error: "Grant not found" }, { status: 404 });
+    }
+
     // Fetch application with all related data
     const application = await database.grantApplication.findUnique({
       where: {
         id: (await params).applicationId,
-        grantId: (await params).id,
+        grantId: grant?.id,
       },
       include: {
         grant: {
@@ -38,6 +51,7 @@ export async function GET(
             token: true,
             minAmount: true,
             maxAmount: true,
+            slug: true,
           },
         },
         applicant: {

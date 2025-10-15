@@ -14,16 +14,28 @@ export async function GET(
   { params }: { params: Promise<{ id: string; submissionId: string }> }
 ) {
   try {
+
+    const bounty = await database.bounty.findFirst({
+      where: {
+        OR: [{ id: (await params).id }, { slug: { equals: (await params).id, mode: "insensitive" } }],
+      },
+    });
+
+    if (!bounty) {
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
+    }
+
     // Fetch submission with all related data
     const submission = await database.submission.findUnique({
       where: {
         id: (await params).submissionId,
-        bountyId: (await params).id,
+        bountyId: bounty?.id,
       },
       include: {
         bounty: {
           select: {
             id: true,
+            slug: true,
             title: true,
             organizationId: true,
             amount: true, // Use amount instead of totalAmount
@@ -130,6 +142,7 @@ export async function GET(
       files: [], // files field doesn't exist in schema
       bounty: {
         id: submission.bounty.id,
+        slug: submission.bounty.slug,
         title: submission.bounty.title,
         organizationId: submission.bounty.organizationId,
         winnerCount: winnerCount, // Calculate from winnings

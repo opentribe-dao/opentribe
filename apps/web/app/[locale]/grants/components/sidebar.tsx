@@ -14,6 +14,7 @@ interface GrantFilters {
 
 interface TopRfp {
   id: string;
+  slug: string;
   title: string;
   voteCount: number;
   grant: {

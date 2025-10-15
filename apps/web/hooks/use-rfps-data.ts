@@ -9,10 +9,12 @@ const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
 interface RFP {
   id: string;
+  slug: string;
   title: string;
   description: string;
   grant: {
     id: string;
+    slug: string;
     title: string;
     minAmount: string;
     maxAmount: string;
@@ -160,6 +162,7 @@ export function fetchRfpsData(filters: RFPsFilters = {}) {
 // Top Bounty interface
 interface TopBounty {
   id: string;
+  slug: string;
   title: string;
   voteCount: number;
   organization: {

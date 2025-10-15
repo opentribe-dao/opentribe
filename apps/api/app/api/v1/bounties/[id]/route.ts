@@ -317,7 +317,7 @@ export async function PATCH(
     // Try to find by ID first, then by slug
     const bounty = await database.bounty.findFirst({
       where: {
-        OR: [{ id: bountyId }, { slug: bountyId }],
+        OR: [{ id: bountyId }, { slug: { equals: bountyId, mode: "insensitive" } }],
       },
       include: {
         organization: {

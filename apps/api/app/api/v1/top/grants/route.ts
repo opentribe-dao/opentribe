@@ -4,6 +4,7 @@ import { redis } from "@packages/security/cache";
 
 interface TopGrant {
   id: string;
+  slug: string;
   title: string;
   applicationCount: number;
   viewCount: number;
@@ -67,6 +68,7 @@ async function getTopGrants(): Promise<TopGrant[]> {
     },
     select: {
       id: true,
+      slug: true,
       title: true,
       applicationCount: true,
       viewCount: true,
@@ -84,6 +86,7 @@ async function getTopGrants(): Promise<TopGrant[]> {
 
   return grants.map((grant) => ({
     id: grant.id,
+    slug: grant.slug,
     title: grant.title,
     applicationCount: grant.applicationCount,
     viewCount: grant.viewCount,

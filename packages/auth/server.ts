@@ -8,6 +8,7 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
   sendWelcomeEmail,
+  createContact,
 } from "@packages/email";
 
 const trustedOrigins = [
@@ -152,6 +153,42 @@ const authOptions = {
         console.error("Failed to send welcome email:", error);
         // Don't throw here - email verification was successful
       }
+      try {
+        await createContact({
+          email: user.email,
+          firstName: user.name || undefined,
+          lastName: user.name || undefined,
+        });
+      } catch (error) {
+        console.error("Failed to subscribe to newsletter:", error);
+        // Don't throw here - email verification was successful
+      }
+    },
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          console.log(
+            "After user create hook:",
+            user.createdAt,
+            user.email,
+            user.emailVerified
+          );
+          if (user.emailVerified) {
+            try {
+              await createContact({
+                email: user.email,
+                firstName: user.name || undefined,
+                lastName: user.name || undefined,
+              });
+            } catch (error) {
+              console.error("Failed to subscribe to newsletter:", error);
+            }
+          }
+        },
+      },
     },
   },
 

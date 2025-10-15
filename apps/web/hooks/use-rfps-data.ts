@@ -160,6 +160,7 @@ export function fetchRfpsData(filters: RFPsFilters = {}) {
 // Top Bounty interface
 interface TopBounty {
   id: string;
+  slug: string;
   title: string;
   voteCount: number;
   organization: {

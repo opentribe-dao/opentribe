@@ -4,13 +4,10 @@ import React from "react";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Search, Filter, X } from "lucide-react";
-import { StatsCard } from "@packages/base/components/ui/stats-card";
+import { RfpsStats } from "./stats";
 
 interface RfpsHeroSectionProps {
   searchQuery: string;
-  totalCount: number;
-  totalValue: number;
-  isLoading: boolean;
   showMobileFilters: boolean;
   activeFiltersCount: number;
   onSearchChange: (value: string) => void;
@@ -20,9 +17,6 @@ interface RfpsHeroSectionProps {
 
 function RfpsHeroSectionComponent({
   searchQuery,
-  totalCount,
-  totalValue,
-  isLoading,
   activeFiltersCount,
   onSearchChange,
   onSearchSubmit,
@@ -90,7 +84,7 @@ function RfpsHeroSectionComponent({
             )}
           </Button>
         </div>
-        <StatsCard type="RFPs" totalValue={totalValue} totalCount={totalCount} isLoading={isLoading} />
+        <RfpsStats />
       </div>
     </div>
   );

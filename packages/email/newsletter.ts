@@ -1,8 +1,9 @@
 import { resend } from "./index";
+import { keys } from "./keys";
 
 interface CreateContactParams {
   email: string;
-  audienceId: string;
+  audienceId?: string;
   firstName?: string;
   lastName?: string;
   unsubscribed?: boolean;
@@ -19,9 +20,9 @@ interface CreateContactResult {
  */
 export async function createContact({
   email,
-  audienceId,
   firstName,
   lastName,
+  audienceId = keys().RESEND_GENERAL_AUDIENCE_ID,
   unsubscribed = false,
 }: CreateContactParams): Promise<CreateContactResult> {
   try {

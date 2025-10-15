@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createContact } from "@packages/email/newsletter";
-import { keys } from "@packages/email/keys";
+import { createContact } from "@packages/email";
 import { z } from "zod";
 
 const subscribeSchema = z.object({
@@ -14,14 +13,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, firstName, lastName } = subscribeSchema.parse(body);
 
-    const audienceId = keys().RESEND_GENERAL_AUDIENCE_ID;
-
     const result = await createContact({
       email,
-      audienceId,
       firstName,
       lastName,
-      unsubscribed: false,
     });
 
     if (result.success) {

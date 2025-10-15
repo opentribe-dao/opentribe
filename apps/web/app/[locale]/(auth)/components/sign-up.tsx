@@ -58,7 +58,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
         email: data.email,
         password: data.password,
         // @TODO: @itsyogesh fix this, after sign up, it redirects to signin instead of verify-email
-        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/verify-email`
+        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/verify-email`,
       });
 
       if (result.error) {
@@ -69,7 +69,9 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
         return;
       }
 
-      toast.success("Account created successfully! Welcome to the platform.");
+      toast.success(
+        "Account created successfully! Please check your inbox for verification email."
+      );
 
       if (onSuccess) {
         onSuccess();
@@ -154,7 +156,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
                     // size="icon"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
-                    className='-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent'
+                    className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />

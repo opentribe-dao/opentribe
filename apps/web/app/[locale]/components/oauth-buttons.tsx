@@ -15,10 +15,10 @@ export const OAuthButtons = () => {
   const handleOAuthSignUp = async (provider: "google" | "github") => {
     try {
       setOauthLoading(provider);
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "";
       await authClient.signIn.social({
         provider,
-        // @TODO: @Yogesh fix this, after social login, it redirects to onboarding, not the homepage
         callbackURL: `${env.NEXT_PUBLIC_WEB_URL ?? origin}/`,
         newUserCallbackURL: `${env.NEXT_PUBLIC_WEB_URL ?? origin}/onboarding`,
       });
@@ -89,5 +89,3 @@ export const OAuthButtons = () => {
 };
 
 export default OAuthButtons;
-
-

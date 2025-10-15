@@ -10,6 +10,7 @@ type RFPWithRelations = Prisma.RFPGetPayload<{
     grant: {
       select: {
         id: true;
+        slug: true;
         title: true;
         logoUrl: true;
         minAmount: true;
@@ -111,6 +112,7 @@ export async function GET(
         grant: {
           select: {
             id: true,
+            slug: true,
             title: true,
             logoUrl: true,
             minAmount: true,

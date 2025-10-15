@@ -9,10 +9,12 @@ const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
 interface RFP {
   id: string;
+  slug: string;
   title: string;
   description: string;
   grant: {
     id: string;
+    slug: string;
     title: string;
     minAmount: string;
     maxAmount: string;

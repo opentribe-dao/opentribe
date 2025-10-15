@@ -8,6 +8,7 @@ import {  type TopBounty, TopBountiesCard } from "./top-bounties"
 
 interface RFP {
   id: string;
+  slug: string;
   title: string;
   description: string;
   grant: {
@@ -144,6 +145,7 @@ function RfpsContentSectionComponent({
               <div key={rfp.id} className={index > 0 ? "mt-6" : ""}>
                 <RFPCard
                   id={rfp.id}
+                  slug={rfp.slug}
                   title={rfp.title}
                   grant={{
                     title: rfp.grant.title,

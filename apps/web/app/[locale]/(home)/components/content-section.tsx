@@ -155,6 +155,7 @@ export function ContentSection({
             <GrantCard
               key={grant.id}
               id={grant.id}
+              slug={grant.slug}
               title={grant.title}
               organization={grant.organization}
               bannerUrl={grant.bannerUrl}
@@ -186,6 +187,7 @@ export function ContentSection({
             <RFPCard
               key={rfp.id}
               id={rfp.id}
+              slug={rfp.slug}
               title={rfp.title}
               grant={rfp.grant}
               voteCount={rfp.voteCount}

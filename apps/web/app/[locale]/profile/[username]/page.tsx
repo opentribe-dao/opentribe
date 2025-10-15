@@ -80,6 +80,7 @@ interface UserProfile {
     createdAt: string;
     grant: {
       id: string;
+      slug: string;
       title: string;
       organization: {
         name: string;
@@ -96,8 +97,8 @@ interface UserProfile {
     createdAt: string;
     bounty: {
       id: string;
-      title: string;
       slug: string;
+      title: string;
       organization: {
         name: string;
         logo?: string;
@@ -111,8 +112,8 @@ interface UserProfile {
     winningAmount?: string;
     bounty: {
       id: string;
-      title: string;
       slug: string;
+      title: string;
       token: string;
       organization: {
         name: string;
@@ -536,7 +537,7 @@ const ProfilePage = () => {
                               className="block"
                               href={
                                 item.type === "application"
-                                  ? `/grants/${item.grant.id}/`
+                                  ? `/grants/${item.grant.slug || item.grant.id}/applications/${item.id}`
                                   : `/bounties/${item.bounty.slug || item.bounty.id}/submissions/${item.id}`
                               }
                             >
@@ -584,7 +585,7 @@ const ProfilePage = () => {
                         profile.applications.map((app) => (
                           <Link
                             key={app.id}
-                            href={`/grants/${app.grant.id}/`}
+                            href={`/grants/${app.grant.slug || app.grant.id}/`}
                             className="block"
                           >
                             <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>

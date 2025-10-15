@@ -41,13 +41,13 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
   const showTabs = bounty.winnersAnnouncedAt && bounty.submissions.length > 0;
 
   const handleSubmissionClick = (submissionId: string) => {
-    router.push(`/bounties/${bounty.id}?submission=${submissionId}`, {
+    router.push(`/bounties/${bounty.slug || bounty.id}?submission=${submissionId}`, {
       scroll: false,
     });
   };
 
   const handleCloseModal = () => {
-    router.push(`/bounties/${bounty.id}`, { scroll: false });
+    router.push(`/bounties/${bounty.slug || bounty.id}`, { scroll: false });
   };
 
 
@@ -245,7 +245,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
       {/* Submission Modal */}
       {selectedSubmissionId && (
         <SubmissionModal
-          bountyId={bounty.id}
+          bountyId={bounty.slug || bounty.id}
           submissionId={selectedSubmissionId}
           onClose={handleCloseModal}
         />

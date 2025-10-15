@@ -80,6 +80,7 @@ interface UserProfile {
     createdAt: string;
     grant: {
       id: string;
+      slug: string;
       title: string;
       organization: {
         name: string;
@@ -96,6 +97,7 @@ interface UserProfile {
     createdAt: string;
     bounty: {
       id: string;
+      slug: string;
       title: string;
       organization: {
         name: string;
@@ -110,6 +112,7 @@ interface UserProfile {
     winningAmount?: string;
     bounty: {
       id: string;
+      slug: string;
       title: string;
       token: string;
       organization: {
@@ -534,8 +537,8 @@ const ProfilePage = () => {
                               className="block"
                               href={
                                 item.type === "application"
-                                  ? `/grants/${item.grant.id}/`
-                                  : `/bounties/${item.bounty.id}/submissions/${item.id}`
+                                  ? `/grants/${item.grant.slug || item.grant.id}/applications/${item.id}`
+                                  : `/bounties/${item.bounty.slug || item.bounty.id}/submissions/${item.id}`
                               }
                             >
                               <div className="flex items-start justify-between">
@@ -582,7 +585,7 @@ const ProfilePage = () => {
                         profile.applications.map((app) => (
                           <Link
                             key={app.id}
-                            href={`/grants/${app.grant.id}/`}
+                            href={`/grants/${app.grant.slug || app.grant.id}/`}
                             className="block"
                           >
                             <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>
@@ -618,7 +621,7 @@ const ProfilePage = () => {
                         profile.submissions.map((sub) => (
                           <Link
                             key={sub.id}
-                            href={`/bounties/${sub.bounty.id}/submissions/${sub.id}`}
+                            href={`/bounties/${sub.bounty.slug || sub.bounty.id}/submissions/${sub.id}`}
                             className="block"
                           >
                             <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>
@@ -661,7 +664,7 @@ const ProfilePage = () => {
                         profile.wonSubmissions.map((win) => (
                           <Link
                             key={win.id}
-                            href={`/bounties/${win.bounty.id}/submissions/${win.id}`}
+                            href={`/bounties/${win.bounty.slug || win.bounty.id}/submissions/${win.id}`}
                             className="block"
                           >
                             <div className='rounded-lg border border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-green-500/10 p-4'>

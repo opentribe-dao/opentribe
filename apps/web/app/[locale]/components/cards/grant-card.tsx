@@ -6,6 +6,7 @@ import Link from "next/link";
 
 interface GrantCardProps {
   id: string;
+  slug: string;
   title: string;
   organization: {
     id: string;
@@ -27,6 +28,7 @@ interface GrantCardProps {
 
 export function GrantCard({
   id,
+  slug,
   title,
   organization,
   minAmount,
@@ -40,7 +42,7 @@ export function GrantCard({
   const isOpen = status === "OPEN";
 
   return (
-    <Link href={`/grants/${id}`}>
+    <Link href={`/grants/${slug || id}`}>
       <Card className='cursor-pointer border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10'>
         <div className='mb-4 flex items-start justify-between'>
           <div className="flex items-center gap-3">

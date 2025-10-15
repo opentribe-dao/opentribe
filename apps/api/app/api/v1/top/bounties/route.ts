@@ -4,6 +4,7 @@ import { redis } from "@packages/security/cache";
 
 interface TopBounty {
   id: string;
+  slug: string;
   title: string;
   viewCount: number;
   token: string;
@@ -77,6 +78,7 @@ async function getTopBounties(): Promise<TopBounty[]> {
     },
     select: {
       id: true,
+      slug: true,
       title: true,
       viewCount: true,
       token: true,
@@ -94,6 +96,7 @@ async function getTopBounties(): Promise<TopBounty[]> {
 
   return bounties.map((bounty) => ({
     id: bounty.id,
+    slug: bounty.slug,
     title: bounty.title,
     viewCount: bounty.viewCount,
     token: bounty.token,

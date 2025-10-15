@@ -279,7 +279,7 @@ export default function GrantDetailPage({
             {/* Grant Price Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
               <h3 className="mb-2 flex items-center gap-2 font-medium text-sm text-white/60">
-                <span className="text-xl">💰</span> Grant Price
+                <span className="text-xl">💰</span> Grant Prize
               </h3>
               <div className="font-bold font-heading text-2xl">
                 {grant.minAmount && grant.maxAmount ? (
@@ -353,7 +353,7 @@ export default function GrantDetailPage({
                   {grant.rfps.map((rfp: any) => (
                     <Link
                       key={rfp.id}
-                      href={`/rfps/${rfp.slug}`}
+                      href={`/rfps/${rfp.slug || rfp.id}`}
                       className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-white/5"
                     >
                       <div className="flex items-center gap-3">

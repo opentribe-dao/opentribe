@@ -17,6 +17,7 @@ interface RfpsFilters {
 
 interface TopBounty {
   id: string;
+  slug: string;
   title: string;
   voteCount: number;
   organization: {

@@ -61,6 +61,7 @@ interface ApplicationDetails {
   }>;
   grant: {
     id: string;
+    slug: string;
     title: string;
     organizationId: string;
     token: string;

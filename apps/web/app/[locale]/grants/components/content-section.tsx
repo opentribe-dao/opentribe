@@ -151,6 +151,7 @@ function GrantsContentSectionComponent({
               <GrantCard
                 key={grant.id}
                 id={grant.id}
+                slug={grant.slug}
                 title={grant.title}
                 organization={grant.organization}
                 bannerUrl={grant.bannerUrl}

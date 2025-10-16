@@ -24,6 +24,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formatDistanceToNow } from "date-fns";
 import { formatCurrency } from "@packages/base/lib/utils";
+import { ExpandableText } from "@packages/base/components/ui/expandable-text";
 
 interface BountyContentProps {
   bounty: any;
@@ -40,13 +41,13 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
   const showTabs = bounty.winnersAnnouncedAt && bounty.submissions.length > 0;
 
   const handleSubmissionClick = (submissionId: string) => {
-    router.push(`/bounties/${bounty.id}?submission=${submissionId}`, {
+    router.push(`/bounties/${bounty.slug || bounty.id}?submission=${submissionId}`, {
       scroll: false,
     });
   };
 
   const handleCloseModal = () => {
-    router.push(`/bounties/${bounty.id}`, { scroll: false });
+    router.push(`/bounties/${bounty.slug || bounty.id}`, { scroll: false });
   };
 
 
@@ -114,13 +115,16 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
   const BountyDetails = () => (
     <>
       {/* Description */}
-      <section>
-        <h2 className='mb-4 font-bold font-heading text-2xl'>Description</h2>
-        <div className='prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white'>
+      <section>   
+           <ExpandableText maxHeight={300} className="py-0">
+           <h2 className='mb-4 font-bold font-heading text-2xl'>Description</h2>
+           <div className='prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white'>  
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {bounty.description}
           </ReactMarkdown>
-        </div>
+          </div>
+          </ExpandableText>
+        
       </section>
 
       {/* Acceptance Criteria */}
@@ -241,7 +245,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
       {/* Submission Modal */}
       {selectedSubmissionId && (
         <SubmissionModal
-          bountyId={bounty.id}
+          bountyId={bounty.slug || bounty.id}
           submissionId={selectedSubmissionId}
           onClose={handleCloseModal}
         />

@@ -7,6 +7,7 @@ import { Separator } from "@packages/base/components/ui/separator";
 interface BountyCardProps {
   id: string;
   title: string;
+  slug: string;
   organization: {
     id: string;
     name: string;
@@ -29,6 +30,7 @@ interface BountyCardProps {
 export function BountyCard({
   id,
   title,
+  slug,
   organization,
   amount,
   token,
@@ -92,7 +94,7 @@ export function BountyCard({
       : "Unknown Organization";
 
   return (
-    <Link href={`/bounties/${id}`} className="group block h-full">
+    <Link href={`/bounties/${slug || id}`} className="group block h-full">
       {/* TODO: @neeraj removed card-bg, as it was causing issues with the border */}
       <div className='flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10'>
         {/* Header */}

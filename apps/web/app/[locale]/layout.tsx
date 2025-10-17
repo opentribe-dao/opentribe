@@ -23,7 +23,7 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
   const { locale } = await params;
   const dictionary = await getDictionary(locale);
 
-  const consent = cookies().get("cookie_consent")?.value;
+  const consent = (await cookies()).get("cookie_consent")?.value;
   return (
     <html
       lang="en"

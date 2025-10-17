@@ -30,7 +30,7 @@ export default function CookieBanner() {
         <CardContent className="px-4">
           <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
             <p className="flex-1 text-muted-foreground text-sm">
-            We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies. See our {""}
+            We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies. See our {""}
               <Link href="/legal/cookie-policy" className="underline">
                 Cookie Policy
               </Link>

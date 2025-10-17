@@ -7,6 +7,7 @@ import { ImageUpload } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
+import SkillsOptions from "@packages/base/components/ui/skills-options";
 import {
   Select,
   SelectContent,
@@ -179,6 +180,10 @@ export default function BuilderOnboardingPage() {
       debounceTimerRef.current = setTimeout(() => {
         checkUsernameAvailability(processedValue);
       }, 500); // 500ms debounce
+    }
+
+    if (field === "skills") {
+      // handleSkillToggle(value);
     }
   };
 
@@ -501,29 +506,14 @@ export default function BuilderOnboardingPage() {
               {/* Skills */}
               <div>
                 <Label className="mb-2 text-white/80">
-                  Skills *{" "}
-                  <span className="text-white/40 text-xs">
-                    (We will use this to match you to new opportunities)
-                  </span>
+                  Skills *
                 </Label>
-                <div className="flex flex-wrap gap-2">
-                  {SKILLS_OPTIONS.map((skill) => (
-                    <Button
-                      key={skill}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSkillToggle(skill)}
-                      className={`border-white/20 ${
-                        formData.skills.includes(skill)
-                          ? "border-[#E6007A] bg-[#E6007A] text-white"
-                          : "bg-white/5 text-white/80 hover:bg-white/10"
-                      }`}
-                    >
-                      {skill}
-                    </Button>
-                  ))}
-                </div>
+                <SkillsOptions 
+                  value={formData.skills}
+                  onChange={(skills) => {
+                    handleInputChange("skills", skills.join(","));
+                  }}
+                />
               </div>
 
               {/* Wallet Address */}

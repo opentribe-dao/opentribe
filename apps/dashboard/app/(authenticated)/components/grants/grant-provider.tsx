@@ -1,7 +1,7 @@
 'use client';
 
 
-import { type Grant, useGrant } from '@/hooks/use-grant';
+import { type Grant, useGrant } from '@/hooks/grants/use-grant';
 import type React from 'react';
 import { createContext, useContext } from 'react';
 

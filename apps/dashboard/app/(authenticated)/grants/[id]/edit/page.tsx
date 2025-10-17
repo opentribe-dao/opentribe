@@ -28,6 +28,12 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Header } from '../../../components/header';
 import { env } from '@/env';
+import { useGrantEdit } from '@/hooks/grants/use-grant-edit';
+import { GrantDetailsForm } from '@/app/(authenticated)/components/grants/grant-detail-form';
+import { GrantFundingForm } from '@/app/(authenticated)/components/grants/grant-funding-form';
+import { GrantRequirementsForm } from '@/app/(authenticated)/components/grants/grant-requirement-form';
+import { GrantPublishForm } from '@/app/(authenticated)/components/grants/grant-publish-form';
+import { FormNavigation } from '@/app/(authenticated)/components/grants/grant-form-navigation';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
@@ -83,86 +89,18 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const router = useRouter();
   const { id } = use(params);
   const [currentStep, setCurrentStep] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  const [formData, setFormData] = useState<GrantFormData>({
-    title: '',
-    description: '',
-    summary: '',
-    instructions: '',
-    logoUrl: '',
-    bannerUrl: '',
-    skills: [],
-    minAmount: '',
-    maxAmount: '',
-    totalFunds: '',
-    token: 'DOT',
-    applicationUrl: '',
-    resources: [],
-    screening: [],
-    visibility: 'DRAFT',
-    source: 'NATIVE',
-    status: 'OPEN',
-  });
-
-  useEffect(() => {
-    const fetchGrant = async () => {
-      if (!session?.user || !activeOrg) return;
-
-      try {
-        const response = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
-          {
-            credentials: 'include',
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch grant');
-        }
-
-        const data = await response.json();
-        const grant = data.grant;
-
-        // Check if user has permission to edit
-        if (grant.organization.id !== activeOrg.id) {
-          toast.error('You do not have permission to edit this grant');
-          router.push('/grants');
-          return;
-        }
-
-        // Populate form data
-        setFormData({
-          title: grant.title || '',
-          description: grant.description || '',
-          summary: grant.summary || '',
-          instructions: grant.instructions || '',
-          logoUrl: grant.logoUrl || '',
-          bannerUrl: grant.bannerUrl || '',
-          skills: grant.skills || [],
-          minAmount: grant.minAmount?.toString() || '',
-          maxAmount: grant.maxAmount?.toString() || '',
-          totalFunds: grant.totalFunds?.toString() || '',
-          token: grant.token || 'DOT',
-          applicationUrl: grant.applicationUrl || '',
-          resources: grant.resources || [],
-          screening: grant.screening || [],
-          visibility: grant.visibility || 'DRAFT',
-          source: grant.source || 'NATIVE',
-          status: grant.status || 'OPEN',
-        });
-      } catch (error) {
-        console.error('Error fetching grant:', error);
-        toast.error('Failed to load grant details');
-        router.push('/grants');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGrant();
-  }, [session, activeOrg, id, router]);
+  const {
+    formData, setFormData,
+    loading,
+    error,
+    submitting,
+    handleSubmit,
+    addSkill, removeSkill,
+    addResource, removeResource, updateResource,
+    addScreeningQuestion, removeScreeningQuestion, updateScreeningQuestion,
+    setSubmitting
+  } = useGrantEdit(id, session, activeOrg, router);
 
   // Show loading state while checking authentication
   if (sessionLoading || orgLoading || loading) {
@@ -186,48 +124,6 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
       </div>
     );
   }
-
-  const updateFormData = (field: keyof GrantFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const addSkill = (skill: string) => {
-    if (!formData.skills.includes(skill)) {
-      updateFormData('skills', [...formData.skills, skill]);
-    }
-  };
-
-  const removeSkill = (skill: string) => {
-    updateFormData('skills', formData.skills.filter(s => s !== skill));
-  };
-
-  const addResource = () => {
-    updateFormData('resources', [...formData.resources, { title: '', url: '', description: '' }]);
-  };
-
-  const removeResource = (index: number) => {
-    updateFormData('resources', formData.resources.filter((_, i) => i !== index));
-  };
-
-  const updateResource = (index: number, field: keyof typeof formData.resources[0], value: string) => {
-    updateFormData('resources', formData.resources.map((r, i) => 
-      i === index ? { ...r, [field]: value } : r
-    ));
-  };
-
-  const addScreeningQuestion = () => {
-    updateFormData('screening', [...formData.screening, { question: '', type: 'text', optional: false }]);
-  };
-
-  const removeScreeningQuestion = (index: number) => {
-    updateFormData('screening', formData.screening.filter((_, i) => i !== index));
-  };
-
-  const updateScreeningQuestion = (index: number, field: keyof typeof formData.screening[0], value: any) => {
-    updateFormData('screening', formData.screening.map((q, i) => 
-      i === index ? { ...q, [field]: value } : q
-    ));
-  };
 
   const validateStep = (step: number): boolean => {
     switch (step) {
@@ -266,57 +162,6 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
   const handleBack = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
-
-  const handleSubmit = async () => {
-    if (!validateStep(4)) return;
-
-    try {
-      setSubmitting(true);
-      
-      // Prepare the grant data for API
-      const grantData = {
-        title: formData.title,
-        description: formData.description,
-        summary: formData.summary || undefined,
-        instructions: formData.instructions || undefined,
-        logoUrl: formData.logoUrl || null,
-        bannerUrl: formData.bannerUrl || null,
-        skills: formData.skills,
-        minAmount: formData.minAmount ? parseFloat(formData.minAmount) : null,
-        maxAmount: formData.maxAmount ? parseFloat(formData.maxAmount) : null,
-        totalFunds: formData.totalFunds ? parseFloat(formData.totalFunds) : null,
-        token: formData.token,
-        applicationUrl: formData.applicationUrl || null,
-        resources: formData.resources.filter(r => r.title && r.url),
-        screening: formData.screening.filter(q => q.question),
-        visibility: formData.visibility,
-        source: formData.source,
-        status: formData.status,
-      };
-
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(grantData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update grant');
-      }
-
-      const result = await response.json();
-      toast.success('Grant updated successfully!');
-      router.push(`/grants/${id}`);
-    } catch (error) {
-      console.error('Grant update failed:', error);
-      toast.error('Failed to update grant. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   return (
@@ -361,491 +206,52 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
           </CardHeader>
           <CardContent>
             {currentStep === 1 && (
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="title">Grant Title *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => updateFormData('title', e.target.value)}
-                    placeholder="e.g., Polkadot Ecosystem Development Grant"
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="summary">Summary</Label>
-                  <Textarea
-                    id="summary"
-                    value={formData.summary}
-                    onChange={(e) => updateFormData('summary', e.target.value)}
-                    placeholder="A brief summary of your grant program..."
-                    rows={3}
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => updateFormData('description', e.target.value)}
-                    placeholder="Describe your grant program, what you're looking to fund, and the impact you want to create..."
-                    rows={6}
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="instructions">Application Instructions</Label>
-                  <Textarea
-                    id="instructions"
-                    value={formData.instructions}
-                    onChange={(e) => updateFormData('instructions', e.target.value)}
-                    placeholder="Provide detailed instructions on how to apply, what to include, etc..."
-                    rows={4}
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-white mb-4 block">Grant Logo</Label>
-                  <ImageUpload
-                    currentImageUrl={formData.logoUrl}
-                    onImageChange={(url) => updateFormData('logoUrl', url || '')}
-                    uploadType="organization-logo"
-                    entityId={id}
-                    variant="logo"
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-white mb-4 block">Grant Banner</Label>
-                  <ImageUpload
-                    currentImageUrl={formData.bannerUrl}
-                    onImageChange={(url) => updateFormData('bannerUrl', url || '')}
-                    uploadType="grant-banner"
-                    entityId={id}
-                    variant="banner"
-                    placeholder="Upload a banner image for your grant (1200x400px recommended)"
-                  />
-                </div>
-
-                <div>
-                  <Label>Skills</Label>
-                  <div className="mt-2 space-y-3">
-                    <div className="flex flex-wrap gap-2">
-                      {formData.skills.map(skill => (
-                        <Badge 
-                          key={skill}
-                          variant="secondary" 
-                          className="bg-[#E6007A]/20 text-[#E6007A] border-0"
-                        >
-                          {skill}
-                          <button
-                            onClick={() => removeSkill(skill)}
-                            className="ml-2 hover:text-white"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {SKILLS.filter(s => !formData.skills.includes(s)).map(skill => (
-                        <Badge
-                          key={skill}
-                          variant="outline"
-                          className="cursor-pointer border-white/20 text-white/60 hover:bg-white/10 hover:text-white"
-                          onClick={() => addSkill(skill)}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+             <GrantDetailsForm
+             formData={formData}
+             setFormData={setFormData}
+             addSkill={addSkill}
+             removeSkill={removeSkill}
+           />
             )}
 
             {currentStep === 2 && (
-              <div className="space-y-6">
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <p className="text-sm text-blue-400">
-                    Funding information is optional. Leave blank if funding amounts are not predetermined.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="minAmount">Minimum Amount</Label>
-                    <Input
-                      id="minAmount"
-                      type="number"
-                      value={formData.minAmount}
-                      onChange={(e) => updateFormData('minAmount', e.target.value)}
-                      placeholder="0"
-                      className="bg-white/5 border-white/10 text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="maxAmount">Maximum Amount</Label>
-                    <Input
-                      id="maxAmount"
-                      type="number"
-                      value={formData.maxAmount}
-                      onChange={(e) => updateFormData('maxAmount', e.target.value)}
-                      placeholder="0"
-                      className="bg-white/5 border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="totalFunds">Total Available Funds</Label>
-                    <Input
-                      id="totalFunds"
-                      type="number"
-                      value={formData.totalFunds}
-                      onChange={(e) => updateFormData('totalFunds', e.target.value)}
-                      placeholder="0"
-                      className="bg-white/5 border-white/10 text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="token">Token</Label>
-                    <Select value={formData.token} onValueChange={(value) => updateFormData('token', value)}>
-                      <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-white/10">
-                        {TOKENS.map(token => (
-                          <SelectItem key={token.value} value={token.value} className="text-white">
-                            {token.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+              <GrantFundingForm
+              formData={formData}
+              setFormData={setFormData}
+            />
             )}
 
             {currentStep === 3 && (
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="applicationUrl">External Application URL</Label>
-                  <Input
-                    id="applicationUrl"
-                    type="url"
-                    value={formData.applicationUrl}
-                    onChange={(e) => updateFormData('applicationUrl', e.target.value)}
-                    placeholder="https://..."
-                    className="bg-white/5 border-white/10 text-white"
-                  />
-                  <p className="text-sm text-white/40 mt-1">
-                    If you have an external application form, provide the URL here.
-                  </p>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <Label>Resources</Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={addResource}
-                      className="border-white/20 text-white hover:bg-white/10"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Resource
-                    </Button>
-                  </div>
-                  {formData.resources.length > 0 ? (
-                    <div className="space-y-3">
-                      {formData.resources.map((resource, index) => (
-                        <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 space-y-3">
-                              <Input
-                                value={resource.title}
-                                onChange={(e) => updateResource(index, 'title', e.target.value)}
-                                placeholder="Resource title"
-                                className="bg-white/5 border-white/10 text-white"
-                              />
-                              <Input
-                                value={resource.url}
-                                onChange={(e) => updateResource(index, 'url', e.target.value)}
-                                placeholder="https://..."
-                                className="bg-white/5 border-white/10 text-white"
-                              />
-                              <Input
-                                value={resource.description}
-                                onChange={(e) => updateResource(index, 'description', e.target.value)}
-                                placeholder="Brief description (optional)"
-                                className="bg-white/5 border-white/10 text-white"
-                              />
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeResource(index)}
-                              className="text-white/60 hover:text-white ml-2"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-white/40">No resources added yet</p>
-                  )}
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <Label>Screening Questions</Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={addScreeningQuestion}
-                      className="border-white/20 text-white hover:bg-white/10"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Question
-                    </Button>
-                  </div>
-                  {formData.screening.length > 0 ? (
-                    <div className="space-y-3">
-                      {formData.screening.map((question, index) => (
-                        <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 space-y-3">
-                              <Input
-                                value={question.question}
-                                onChange={(e) => updateScreeningQuestion(index, 'question', e.target.value)}
-                                placeholder="Enter your question"
-                                className="bg-white/5 border-white/10 text-white"
-                              />
-                              <div className="flex items-center gap-3">
-                                <Select
-                                  value={question.type}
-                                  onValueChange={(value) => updateScreeningQuestion(index, 'type', value)}
-                                >
-                                  <SelectTrigger className="bg-white/5 border-white/10 text-white w-32">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-zinc-900 border-white/10">
-                                    <SelectItem value="text" className="text-white">Text</SelectItem>
-                                    <SelectItem value="url" className="text-white">URL</SelectItem>
-                                    <SelectItem value="file" className="text-white">File</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <label className="flex items-center gap-2 text-sm text-white/60">
-                                  <input
-                                    type="checkbox"
-                                    checked={question.optional}
-                                    onChange={(e) => updateScreeningQuestion(index, 'optional', e.target.checked)}
-                                    className="rounded border-white/20"
-                                  />
-                                  Optional
-                                </label>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeScreeningQuestion(index)}
-                              className="text-white/60 hover:text-white ml-2"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-white/40">No screening questions added yet</p>
-                  )}
-                </div>
-              </div>
+               <GrantRequirementsForm
+               formData={formData}
+               setFormData={setFormData}
+               addResource={addResource}
+               removeResource={removeResource}
+               updateResource={updateResource}
+               addScreeningQuestion={addScreeningQuestion}
+               removeScreeningQuestion={removeScreeningQuestion}
+               updateScreeningQuestion={updateScreeningQuestion}
+             />
             )}
 
             {currentStep === 4 && (
-              <div className="space-y-6">
-                <div className="bg-white/5 rounded-lg p-6 space-y-4">
-                  <h3 className="text-lg font-medium text-white">Review Your Grant</h3>
-                  
-                  <div>
-                    <p className="text-sm text-white/60">Title</p>
-                    <p className="text-white">{formData.title}</p>
-                  </div>
-
-                  {formData.summary && (
-                    <div>
-                      <p className="text-sm text-white/60">Summary</p>
-                      <p className="text-white">{formData.summary}</p>
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="text-sm text-white/60">Description</p>
-                    <p className="text-white whitespace-pre-wrap">{formData.description}</p>
-                  </div>
-
-                  {formData.skills.length > 0 && (
-                    <div>
-                      <p className="text-sm text-white/60">Skills</p>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {formData.skills.map(skill => (
-                          <Badge key={skill} variant="secondary" className="bg-white/10 text-white border-0">
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {(formData.minAmount || formData.maxAmount || formData.totalFunds) && (
-                    <div>
-                      <p className="text-sm text-white/60">Funding</p>
-                      <div className="space-y-1 mt-1">
-                        {formData.minAmount && formData.maxAmount && (
-                          <p className="text-white">Range: {formData.minAmount} - {formData.maxAmount} {formData.token}</p>
-                        )}
-                        {formData.totalFunds && (
-                          <p className="text-white">Total Funds: {formData.totalFunds} {formData.token}</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <Label>Grant Type</Label>
-                  <div className="flex gap-4 mt-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="source"
-                        value="NATIVE"
-                        checked={formData.source === 'NATIVE'}
-                        onChange={(e) => updateFormData('source', e.target.value)}
-                        className="text-[#E6007A]"
-                      />
-                      <span className="text-white">Native (managed in Opentribe)</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="source"
-                        value="EXTERNAL"
-                        checked={formData.source === 'EXTERNAL'}
-                        onChange={(e) => updateFormData('source', e.target.value)}
-                        className="text-[#E6007A]"
-                      />
-                      <span className="text-white">External (managed externally)</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Grant Status</Label>
-                  <Select value={formData.status} onValueChange={(value: any) => updateFormData('status', value)}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/10">
-                      <SelectItem value="OPEN" className="text-white">Open</SelectItem>
-                      <SelectItem value="PAUSED" className="text-white">Paused</SelectItem>
-                      <SelectItem value="CLOSED" className="text-white">Closed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>Visibility</Label>
-                  <div className="flex gap-4 mt-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        value="DRAFT"
-                        checked={formData.visibility === 'DRAFT'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
-                        className="text-[#E6007A]"
-                      />
-                      <span className="text-white">Draft</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        value="PUBLISHED"
-                        checked={formData.visibility === 'PUBLISHED'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
-                        className="text-[#E6007A]"
-                      />
-                      <span className="text-white">Published</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        value="ARCHIVED"
-                        checked={formData.visibility === 'ARCHIVED'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
-                        className="text-[#E6007A]"
-                      />
-                      <span className="text-white">Archived</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
+              <GrantPublishForm
+              formData={formData}
+              setFormData={setFormData}
+            />
             )}
           </CardContent>
         </Card>
 
         {/* Navigation */}
-        <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={currentStep > 1 ? handleBack : () => router.push(`/grants/${id}`)}
-            className="border-white/20 text-white hover:bg-white/10"
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            {currentStep > 1 ? 'Back' : 'Cancel'}
-          </Button>
-
-          {currentStep < 4 ? (
-            <Button
-              onClick={handleNext}
-              className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
-            >
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                'Update Grant'
-              )}
-            </Button>
-          )}
-        </div>
+        <FormNavigation
+            currentStep={currentStep}
+            maxStep={4}
+            onBack={currentStep > 1 ? handleBack : () => router.push(`/grants/${id}`)}
+            onNext={currentStep < 4 ? handleNext : undefined}
+            onSubmit={currentStep === 4 ? () => handleSubmit({ setSubmitting, router, toast }) : undefined}
+            submitting={submitting}
+          />
       </div>
     </>
   );

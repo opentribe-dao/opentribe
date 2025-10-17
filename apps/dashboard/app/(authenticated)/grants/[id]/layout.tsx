@@ -21,6 +21,16 @@ export default function GrantDetailLayout({
   params,
 }: { children: React.ReactNode; params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const pathname = usePathname();
+
+  if(pathname.endsWith('/edit') ){
+    return (
+      <GrantProvider grantId={id}>
+        {children}
+      </GrantProvider>
+    );
+  }
+
   return (
     <GrantProvider grantId={id}>
       <GrantDetailLayoutBody>{children}</GrantDetailLayoutBody>

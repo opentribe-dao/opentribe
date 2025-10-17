@@ -332,7 +332,7 @@ function OrganizationOnboardingPageContent() {
               variant="outline"
               size="sm"
               className="text-white/60"
-              onClick={() => window.open("mailto:support@opentribe.io", "_self")}
+              onClick={() => router.push("/contact")}
             >
               <Mail className='mr-1 h-4 w-4' />
               Contact

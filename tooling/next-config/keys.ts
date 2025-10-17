@@ -12,9 +12,9 @@ export const keys = () =>
       NEXT_RUNTIME: z.enum(["nodejs", "edge"]).optional(),
     },
     client: {
-      NEXT_PUBLIC_DASHBOARD_URL: z.url().optional(),
-      NEXT_PUBLIC_WEB_URL: z.url().optional(),
-      NEXT_PUBLIC_API_URL: z.url().optional(),
+      NEXT_PUBLIC_DASHBOARD_URL: z.url(),
+      NEXT_PUBLIC_WEB_URL: z.url(),
+      NEXT_PUBLIC_API_URL: z.url(),
       NEXT_PUBLIC_DOCS_URL: z.url().optional(),
     },
     runtimeEnv: {

@@ -12,7 +12,7 @@ const profileUpdateSchema = z.object({
   username: z.string().optional(),
   name: z.string().optional(),
   location: z.string().optional(),
-  skills: z.string().optional(), // JSON string
+  skills: z.array(z.string()).optional(),
   walletAddress: z.string().optional(),
   website: z.string().optional(),
   twitter: z.string().optional(),

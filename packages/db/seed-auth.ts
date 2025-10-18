@@ -38,15 +38,17 @@ async function main() {
       data: {
         headline: "Substrate Runtime Developer",
         bio: "Building the future of Web3 with Rust and Substrate. Previously at Parity Technologies.",
-        skills: {
-          languages: ["Rust", "TypeScript", "Go"],
-          frameworks: ["Substrate", "ink!", "React"],
-          expertise: [
-            "Runtime Development",
-            "Smart Contracts",
-            "Consensus Mechanisms",
-          ],
-        },
+        skills: [
+          "Rust",
+          "TypeScript",
+          "Go",
+          "Substrate",
+          "ink!",
+          "React",
+          "Runtime Development",
+          "Smart Contracts",
+          "Consensus Mechanisms",
+        ],
         interests: ["DeFi", "Governance", "Cross-chain"],
         location: "Berlin, Germany",
         walletAddress: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
@@ -64,16 +66,19 @@ async function main() {
       data: {
         headline: "Web3 UI/UX Designer & Frontend Dev",
         bio: "Crafting beautiful and intuitive interfaces for dApps. Passionate about making blockchain accessible.",
-        skills: {
-          design: ["Figma", "Framer", "Adobe XD"],
-          languages: ["TypeScript", "JavaScript"],
-          frameworks: ["React", "Next.js", "Vue"],
-          expertise: [
-            "UI/UX Design",
-            "Design Systems",
-            "Frontend Architecture",
-          ],
-        },
+        skills: [
+          "Figma",
+          "Framer",
+          "Adobe XD",
+          "TypeScript",
+          "JavaScript",
+          "React",
+          "Next.js",
+          "Vue",
+          "UI/UX Design",
+          "Design Systems",
+          "Frontend Architecture",
+        ],
         interests: ["NFTs", "Gaming", "Social"],
         location: "San Francisco, USA",
         walletAddress: "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty",
@@ -91,15 +96,16 @@ async function main() {
       data: {
         headline: "Technical Writer & Developer Advocate",
         bio: "Making complex blockchain concepts accessible through clear documentation and tutorials.",
-        skills: {
-          writing: ["Technical Documentation", "Tutorials", "API Docs"],
-          languages: ["JavaScript", "Python"],
-          expertise: [
-            "Developer Relations",
-            "Content Strategy",
-            "Community Building",
-          ],
-        },
+        skills: [
+          "Technical Documentation",
+          "Tutorials",
+          "API Docs",
+          "JavaScript",
+          "Python",
+          "Developer Relations",
+          "Content Strategy",
+          "Community Building",
+        ],
         interests: ["Education", "Documentation", "Community"],
         location: "London, UK",
         walletAddress: "5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL",
@@ -117,14 +123,14 @@ async function main() {
       data: {
         headline: "Grant Program Manager at Web3 Foundation",
         bio: "Managing the Web3 Foundation Grants Program. Helping teams build the decentralized web.",
-        skills: {
-          expertise: [
-            "Grant Management",
-            "Project Evaluation",
-            "Ecosystem Development",
-          ],
-          domains: ["DeFi", "Infrastructure", "Tooling"],
-        },
+        skills: [
+          "Grant Management",
+          "Project Evaluation",
+          "Ecosystem Development",
+          "DeFi",
+          "Infrastructure",
+          "Tooling",
+        ],
         location: "Zug, Switzerland",
         walletAddress: "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy",
         twitter: "w3f_grants",
@@ -140,10 +146,14 @@ async function main() {
       data: {
         headline: "Developer Relations at Moonbeam Network",
         bio: "Building bridges between Ethereum and Polkadot. Smart contract enthusiast.",
-        skills: {
-          expertise: ["Developer Relations", "Smart Contracts", "Cross-chain"],
-          languages: ["Solidity", "JavaScript", "Rust"],
-        },
+        skills: [
+          "Developer Relations",
+          "Smart Contracts",
+          "Cross-chain",
+          "Solidity",
+          "JavaScript",
+          "Rust",
+        ],
         location: "Miami, USA",
         walletAddress: "5HGjWAeFDfFCWPsjFQdVV2Msvz2XtMktvgocEZcCj68kUMaw",
         telegram: "emma_moonbeam",
@@ -159,10 +169,14 @@ async function main() {
       data: {
         headline: "Ecosystem Growth at Acala Network",
         bio: "Growing the DeFi ecosystem on Polkadot. Focused on sustainable liquidity and adoption.",
-        skills: {
-          expertise: ["DeFi", "Liquidity Management", "Ecosystem Growth"],
-          domains: ["Stablecoins", "DEX", "Liquid Staking"],
-        },
+        skills: [
+          "DeFi",
+          "Liquidity Management",
+          "Ecosystem Growth",
+          "Stablecoins",
+          "DEX",
+          "Liquid Staking",
+        ],
         location: "Singapore",
         walletAddress: "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y",
         twitter: "acala_frank",

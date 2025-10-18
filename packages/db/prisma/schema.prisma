@@ -28,7 +28,7 @@ model User {
   bio                  String?
   interests            String[]              @default([])
   location             String?
-  skills               Json?
+  skills               String[]              @default([])
   walletAddress        String?               @unique
   twitter              String?
   discord              String?

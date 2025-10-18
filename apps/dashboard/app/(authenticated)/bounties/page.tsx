@@ -93,7 +93,7 @@ const BountiesPage = () => {
       case 'OPEN':
       case 'ACTIVE':
         return 'bg-green-500/20 text-green-400 border-0';
-      case 'REVIEW':
+      case 'REVIEWING':
         return 'bg-yellow-500/20 text-yellow-400 border-0';
       case 'CLOSED':
       case 'COMPLETED':
@@ -110,8 +110,8 @@ const BountiesPage = () => {
         return 'Open';
       case 'ACTIVE':
         return 'Active';
-      case 'REVIEW':
-        return 'Under Review';
+      case 'REVIEWING':
+        return 'Reviewing';
       case 'CLOSED':
         return 'Closed';
       case 'COMPLETED':

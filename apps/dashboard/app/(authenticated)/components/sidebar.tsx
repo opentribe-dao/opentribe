@@ -169,29 +169,12 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
 
           <SidebarGroup className="mt-8">
             <SidebarGroupLabel className="text-xs font-medium text-white/40 uppercase tracking-wider">
-              Popular activities
+              Quick Actions
             </SidebarGroupLabel>
             <SidebarGroupContent className="mt-3">
-              {activeOrg ? (
-                <div className="flex items-center justify-between py-2 px-3">
-                  <span className="text-sm text-white/60">
-                    {activeOrg.name}
-                  </span>
-                  <span className="text-xs text-white/40">0</span>
-                </div>
-              ) : (
-                <div className="py-2 px-3">
-                  <span className="text-xs text-white/40">
-                    No organization selected
-                  </span>
-                </div>
-              )}
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <div className="mt-auto space-y-2 px-3">
+              <div className="mt-auto space-y-2 px-3">
             <Button
-              className="w-full bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+              variant="ghost"
               size="sm"
               asChild
             >
@@ -201,8 +184,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
               </Link>
             </Button>
             <Button
-              variant="outline"
-              className="w-full border-white/20 text-white hover:bg-white/10"
+              variant="ghost"
               size="sm"
               asChild
             >
@@ -212,8 +194,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
               </Link>
             </Button>
             <Button
-              variant="outline"
-              className="w-full border-white/20 text-white hover:bg-white/10"
+              variant="ghost"
               size="sm"
               asChild
             >
@@ -223,6 +204,8 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
               </Link>
             </Button>
           </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
 
         <SidebarFooter className="border-t border-white/10 p-3">

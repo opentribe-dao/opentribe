@@ -6,7 +6,10 @@ import { Button } from '@packages/base/components/ui/button';
 import router from 'next/router';
 import { Header } from '../../components/header';
 
-import { BountyProvider, useBountyContext } from '../../components/bounty-provider';
+import {
+  BountyProvider,
+  useBountyContext,
+} from '../../components/bounty-provider';
 import { usePathname } from 'next/navigation';
 import { use } from 'react';
 import { PaymentModal } from './payment-modal';
@@ -22,12 +25,7 @@ export default function BountyLayout({
   const { id } = use(params);
   const pathname = usePathname();
 
-
-
-  if (
-    pathname.endsWith('/edit') ||
-    BOUNTY_REGEX.test(pathname)
-  ) {
+  if (pathname.endsWith('/edit') || BOUNTY_REGEX.test(pathname)) {
     return <BountyProvider bountyId={id}>{children}</BountyProvider>;
   }
   return (
@@ -38,12 +36,8 @@ export default function BountyLayout({
 }
 
 function BountyLayoutBody({ children }: { children: React.ReactNode }) {
-  const {
-    bounty,
-    bountyLoading,
-    bountyError,
-    selectedPaymentSubmission,
-  } = useBountyContext();
+  const { bounty, bountyLoading, bountyError, selectedPaymentSubmission } =
+    useBountyContext();
 
   const pathname = usePathname();
 
@@ -79,6 +73,40 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
     { name: 'Settings', href: `/bounties/${bounty.id}/settings` },
   ];
 
+  const getStatusColor = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'OPEN':
+      case 'ACTIVE':
+        return 'bg-green-500/20 text-green-400 border-0';
+      case 'REVIEWING':
+        return 'bg-yellow-500/20 text-yellow-400 border-0';
+      case 'CLOSED':
+      case 'COMPLETED':
+        return 'bg-blue-500/20 text-blue-400 border-0';
+      case 'DRAFT':
+      default:
+        return 'bg-gray-500/20 text-gray-400 border-0';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'OPEN':
+        return 'Open';
+      case 'ACTIVE':
+        return 'Active';
+      case 'REVIEWING':
+        return 'Reviewing';
+      case 'CLOSED':
+        return 'Closed';
+      case 'COMPLETED':
+        return 'Completed';
+      case 'DRAFT':
+      default:
+        return 'Draft';
+    }
+  };
+
   return (
     <>
       <Header pages={['Overview', 'Bounties']} page={bounty.title} />
@@ -100,15 +128,8 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge
-              variant="secondary"
-              className={
-                bounty.status === 'OPEN'
-                  ? 'border-0 bg-green-500/20 text-green-400'
-                  : 'border-0 bg-gray-500/20 text-gray-400'
-              }
-            >
-            {bounty.status}
+            <Badge className={getStatusColor(bounty.status)}>
+              {getStatusLabel(bounty.status)}
             </Badge>
             <Button
               variant="outline"
@@ -126,7 +147,9 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
             <Link
               key={tab.name}
               href={tab.href}
-              className={'rounded-t bg-white/5 px-4 py-2 text-white/80 transition hover:bg-white/10 data-[active=true]:bg-zinc-950 data-[active=true]:text-white '}
+              className={
+                'rounded-t bg-white/5 px-4 py-2 text-white/80 transition hover:bg-white/10 data-[active=true]:bg-zinc-950 data-[active=true]:text-white '
+              }
               data-active={
                 typeof window !== 'undefined' &&
                 (pathname === tab.href ||
@@ -142,10 +165,8 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
         {/* Tab Content */}
         <div className="flex-1 p-6">{children}</div>
 
-         {/* Payment Modal */}
-      {selectedPaymentSubmission && bounty && (
-        <PaymentModal/>
-      )}
+        {/* Payment Modal */}
+        {selectedPaymentSubmission && bounty && <PaymentModal />}
       </div>
     </>
   );

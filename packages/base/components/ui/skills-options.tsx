@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { MultiSelect } from "@packages/base/components/ui/multi-select"
 import { skillsOptions } from "@packages/base/lib/skills"
 import { cn } from "@packages/base/lib/utils"
@@ -17,14 +17,19 @@ export default function SkillsOptions({
   className 
 }: SkillsOptionsProps) {
   const [selectedSkills, setSelectedSkills] = useState<string[]>(value)
+  const isInternalUpdate = useRef(false)
 
-  // Update internal state when value prop changes
+  // Update internal state when value prop changes (for external control)
   useEffect(() => {
-    setSelectedSkills(value)
+    if (!isInternalUpdate.current) {
+      setSelectedSkills(value)
+    }
+    isInternalUpdate.current = false
   }, [value])
 
   // Handle skill selection changes
   const handleSkillsChange = (skills: string[]) => {
+    isInternalUpdate.current = true
     setSelectedSkills(skills)
     onChange?.(skills) // Call parent onChange if provided
   }
@@ -35,7 +40,7 @@ export default function SkillsOptions({
         <MultiSelect
           options={skillsOptions}
           onValueChange={handleSkillsChange}
-          value={selectedSkills}
+          defaultValue={selectedSkills}
           placeholder="Choose your skills..."
           className={cn(
             "w-full", 
@@ -48,6 +53,7 @@ export default function SkillsOptions({
           hideSelectAll={false}
           maxCount={5}
           responsive={true}
+          resetOnDefaultValueChange={false}
         />
       </div>
     </div>

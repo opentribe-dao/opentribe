@@ -23,21 +23,6 @@ import { toast } from "sonner";
 import { validateWalletAddress } from "../../lib/validations/wallet";
 import Link from "next/link";
 
-const SKILLS_OPTIONS = [
-  "Smart Contracts",
-  "Frontend Development",
-  "Backend Development",
-  "Mobile Development",
-  "UI/UX Design",
-  "DevOps",
-  "Security",
-  "Data Analysis",
-  "Product Management",
-  "Community Management",
-  "Content Creation",
-  "Marketing",
-];
-
 const CRYPTO_EXPERIENCE_OPTIONS = [
   { value: "new", label: "New to crypto" },
   { value: "occasional", label: "Contribute occasionally" },
@@ -181,24 +166,8 @@ export default function BuilderOnboardingPage() {
         checkUsernameAvailability(processedValue);
       }, 500); // 500ms debounce
     }
-
-    if (field === "skills") {
-      // handleSkillToggle(value);
-    }
   };
-
-  const handleSkillToggle = (skill: string) => {
-    setFormData((prev) => {
-      const newSkills = prev.skills.includes(skill)
-        ? prev.skills.filter((s) => s !== skill)
-        : [...prev.skills, skill];
-      return {
-        ...prev,
-        skills: newSkills,
-      };
-    });
-  };
-
+  
   const validateStep1 = () => {
     if (
       !formData.firstName ||
@@ -287,8 +256,7 @@ export default function BuilderOnboardingPage() {
       const payload = {
         ...formData,
         username: formData.username.toLowerCase(), // Ensure username is lowercase in API
-        skills: stringifySkillsArray(formData.skills),
-        // Note: profileCompleted is automatically set by the backend based on required fields
+        skills: formData.skills,
       };
 
       // Update user profile
@@ -511,7 +479,12 @@ export default function BuilderOnboardingPage() {
                 <SkillsOptions 
                   value={formData.skills}
                   onChange={(skills) => {
-                    handleInputChange("skills", skills.join(","));
+                    if (skills && skills.length > 0) {
+                      setFormData((prev) => ({ ...prev, skills: skills }));
+                    } else {
+                      setFormData((prev) => ({ ...prev, skills: [] }));
+                      toast.error("Please select at least one skill");
+                    }
                   }}
                 />
               </div>

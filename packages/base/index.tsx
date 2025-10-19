@@ -1,9 +1,9 @@
-import { AnalyticsProvider } from '@packages/analytics';
-import { AuthProvider } from '@packages/auth/provider';
-import type { ThemeProviderProps } from 'next-themes';
-import { Toaster } from './components/ui/sonner';
-import { TooltipProvider } from './components/ui/tooltip';
-import { ThemeProvider } from './providers/theme';
+import { AnalyticsProvider } from "@packages/analytics";
+import { AuthProvider } from "@packages/auth/provider";
+import type { ThemeProviderProps } from "next-themes";
+import { Toaster } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { ThemeProvider } from "./providers/theme";
 
 export const BaseProvider = ({
   children,
@@ -20,8 +20,11 @@ export const BaseProvider = ({
 );
 
 // Export components
-export { Background } from './components/background';
-export { MarkdownEditor } from './components/ui/markdown-editor';
-export type { MarkdownEditorProps } from './components/ui/markdown-editor';
-export { ImageUpload } from './components/ui/image-upload';
-export { FileUpload } from './components/ui/file-upload';
+export { Background } from "./components/background";
+export { MarkdownEditor } from "./components/ui/markdown-editor";
+export type { MarkdownEditorProps } from "./components/ui/markdown-editor";
+export { ImageUpload } from "./components/ui/image-upload";
+export { FileUpload } from "./components/ui/file-upload";
+
+// Export lib
+export { skillsOptions } from "./lib/skills";

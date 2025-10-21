@@ -252,7 +252,7 @@ importers:
         version: 15.6.2(@types/react@19.1.13)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       fumadocs-mdx:
         specifier: 11.6.10
-        version: 11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.13)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.0.4(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.0))
+        version: 11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.13)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
       fumadocs-ui:
         specifier: 15.6.2
         version: 15.6.2(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(tailwindcss@4.1.13)
@@ -337,7 +337,7 @@ importers:
         version: 1.3.2(react@19.1.1)
       '@sentry/nextjs':
         specifier: ^9.22.0
-        version: 9.46.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.3.2(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(webpack@5.100.1(esbuild@0.25.10))
+        version: 9.46.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.3.2(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(webpack@5.100.1(esbuild@0.25.6))
       '@t3-oss/env-nextjs':
         specifier: ^0.13.4
         version: 0.13.8(typescript@5.9.2)(zod@4.1.11)
@@ -367,7 +367,7 @@ importers:
         version: 0.511.0(react@19.1.1)
       mdx-bundler:
         specifier: ^10.1.1
-        version: 10.1.1(acorn@8.15.0)(esbuild@0.25.10)
+        version: 10.1.1(acorn@8.15.0)(esbuild@0.25.6)
       next:
         specifier: 15.3.2
         version: 15.3.2(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -1026,6 +1026,9 @@ importers:
 
   packages/polkadot:
     dependencies:
+      '@packages/security':
+        specifier: workspace:*
+        version: link:../security
       '@t3-oss/env-nextjs':
         specifier: ^0.13.4
         version: 0.13.8(typescript@5.9.2)(zod@4.1.11)
@@ -10685,16 +10688,6 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@esbuild-plugins/node-resolve@0.2.2(esbuild@0.25.10)':
-    dependencies:
-      '@types/resolve': 1.20.6
-      debug: 4.4.1
-      esbuild: 0.25.10
-      escape-string-regexp: 4.0.0
-      resolve: 1.22.10
-    transitivePeerDependencies:
-      - supports-color
-
   '@esbuild-plugins/node-resolve@0.2.2(esbuild@0.25.6)':
     dependencies:
       '@types/resolve': 1.20.6
@@ -11451,18 +11444,6 @@ snapshots:
       react: 19.0.0
 
   '@lottiefiles/dotlottie-web@0.42.0': {}
-
-  '@mdx-js/esbuild@3.1.0(acorn@8.15.0)(esbuild@0.25.10)':
-    dependencies:
-      '@mdx-js/mdx': 3.1.0(acorn@8.15.0)
-      '@types/unist': 3.0.3
-      esbuild: 0.25.10
-      source-map: 0.7.4
-      vfile: 6.0.3
-      vfile-message: 4.0.2
-    transitivePeerDependencies:
-      - acorn
-      - supports-color
 
   '@mdx-js/esbuild@3.1.0(acorn@8.15.0)(esbuild@0.25.6)':
     dependencies:
@@ -13674,32 +13655,6 @@ snapshots:
 
   '@sentry/core@9.46.0': {}
 
-  '@sentry/nextjs@9.46.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.3.2(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(webpack@5.100.1(esbuild@0.25.10))':
-    dependencies:
-      '@opentelemetry/api': 1.9.0
-      '@opentelemetry/semantic-conventions': 1.36.0
-      '@rollup/plugin-commonjs': 28.0.1(rollup@4.35.0)
-      '@sentry-internal/browser-utils': 9.46.0
-      '@sentry/core': 9.46.0
-      '@sentry/node': 9.46.0
-      '@sentry/opentelemetry': 9.46.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.36.0)
-      '@sentry/react': 9.46.0(react@19.1.1)
-      '@sentry/vercel-edge': 9.46.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))
-      '@sentry/webpack-plugin': 3.5.0(webpack@5.100.1(esbuild@0.25.10))
-      chalk: 3.0.0
-      next: 15.3.2(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      resolve: 1.22.8
-      rollup: 4.35.0
-      stacktrace-parser: 0.1.11
-    transitivePeerDependencies:
-      - '@opentelemetry/context-async-hooks'
-      - '@opentelemetry/core'
-      - '@opentelemetry/sdk-trace-base'
-      - encoding
-      - react
-      - supports-color
-      - webpack
-
   '@sentry/nextjs@9.46.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.3.2(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(webpack@5.100.1(esbuild@0.25.6))':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -13832,16 +13787,6 @@ snapshots:
       - '@opentelemetry/context-async-hooks'
       - '@opentelemetry/core'
       - '@opentelemetry/sdk-trace-base'
-
-  '@sentry/webpack-plugin@3.5.0(webpack@5.100.1(esbuild@0.25.10))':
-    dependencies:
-      '@sentry/bundler-plugin-core': 3.5.0
-      unplugin: 1.0.1
-      uuid: 9.0.1
-      webpack: 5.100.1(esbuild@0.25.10)
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
 
   '@sentry/webpack-plugin@3.5.0(webpack@5.100.1(esbuild@0.25.6))':
     dependencies:
@@ -14368,7 +14313,7 @@ snapshots:
     dependencies:
       '@types/node': 24.5.2
       tapable: 2.2.3
-      webpack: 5.100.1(esbuild@0.25.6)
+      webpack: 5.100.1(esbuild@0.25.0)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -16014,7 +15959,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  fumadocs-mdx@11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.13)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.0.4(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.0)):
+  fumadocs-mdx@11.6.10(acorn@8.15.0)(fumadocs-core@15.6.2(@types/react@19.1.13)(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(next@15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)):
     dependencies:
       '@mdx-js/mdx': 3.1.0(acorn@8.15.0)
       '@standard-schema/spec': 1.0.0
@@ -16031,7 +15976,6 @@ snapshots:
       zod: 3.25.76
     optionalDependencies:
       next: 15.3.4(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      vite: 7.0.4(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.0)
     transitivePeerDependencies:
       - acorn
       - supports-color
@@ -17118,22 +17062,6 @@ snapshots:
   mdast-util-to-string@4.0.0:
     dependencies:
       '@types/mdast': 4.0.4
-
-  mdx-bundler@10.1.1(acorn@8.15.0)(esbuild@0.25.10):
-    dependencies:
-      '@babel/runtime': 7.27.6
-      '@esbuild-plugins/node-resolve': 0.2.2(esbuild@0.25.10)
-      '@fal-works/esbuild-plugin-global-externals': 2.1.2
-      '@mdx-js/esbuild': 3.1.0(acorn@8.15.0)(esbuild@0.25.10)
-      esbuild: 0.25.10
-      gray-matter: 4.0.3
-      remark-frontmatter: 5.0.0
-      remark-mdx-frontmatter: 4.0.0
-      uuid: 9.0.1
-      vfile: 6.0.3
-    transitivePeerDependencies:
-      - acorn
-      - supports-color
 
   mdx-bundler@10.1.1(acorn@8.15.0)(esbuild@0.25.6):
     dependencies:
@@ -19292,18 +19220,18 @@ snapshots:
       ansi-escapes: 4.3.2
       supports-hyperlinks: 2.3.0
 
-  terser-webpack-plugin@5.3.14(esbuild@0.25.10)(webpack@5.100.1(esbuild@0.25.10)):
+  terser-webpack-plugin@5.3.14(esbuild@0.25.0)(webpack@5.100.1(esbuild@0.25.6)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.2
       serialize-javascript: 6.0.2
       terser: 5.43.1
-      webpack: 5.100.1(esbuild@0.25.10)
+      webpack: 5.100.1(esbuild@0.25.0)
     optionalDependencies:
-      esbuild: 0.25.10
+      esbuild: 0.25.0
 
-  terser-webpack-plugin@5.3.14(esbuild@0.25.6)(webpack@5.100.1(esbuild@0.25.0)):
+  terser-webpack-plugin@5.3.14(esbuild@0.25.6)(webpack@5.100.1(esbuild@0.25.6)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
@@ -19949,7 +19877,7 @@ snapshots:
 
   webpack-virtual-modules@0.5.0: {}
 
-  webpack@5.100.1(esbuild@0.25.10):
+  webpack@5.100.1(esbuild@0.25.0):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -19973,7 +19901,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.2
       tapable: 2.2.3
-      terser-webpack-plugin: 5.3.14(esbuild@0.25.10)(webpack@5.100.1(esbuild@0.25.10))
+      terser-webpack-plugin: 5.3.14(esbuild@0.25.0)(webpack@5.100.1(esbuild@0.25.6))
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:
@@ -20005,7 +19933,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.2
       tapable: 2.2.3
-      terser-webpack-plugin: 5.3.14(esbuild@0.25.6)(webpack@5.100.1(esbuild@0.25.0))
+      terser-webpack-plugin: 5.3.14(esbuild@0.25.6)(webpack@5.100.1(esbuild@0.25.6))
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:

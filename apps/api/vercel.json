@@ -3,8 +3,8 @@
   "ignoreCommand": "node scripts/skip-ci.js",
   "crons": [
     {
-      "path": "/cron/bounty-deadline-passed",
-      "schedule": "0 0 * * *"
+      "path": "/cron/update-usd-amount",
+      "schedule": "*/20 * * * *"
     }
   ]
 }

@@ -51,7 +51,7 @@ export default function SkillsOptions({
           )}
           searchable={true}
           hideSelectAll={false}
-          maxCount={5}
+          maxCount={8}
           responsive={true}
           resetOnDefaultValueChange={false}
         />

@@ -1,7 +1,6 @@
 "use client";
 
 import { env } from "@/env";
-import { stringifySkillsArray } from "@/lib/utils/skills-parser";
 import { useSession } from "@packages/auth/client";
 import { ImageUpload } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";

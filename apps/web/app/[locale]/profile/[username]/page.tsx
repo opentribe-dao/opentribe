@@ -2,7 +2,6 @@
 
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
-import { parseSkillsArray } from "@/lib/utils/skills-parser";
 import {
   Card,
   CardContent,
@@ -37,6 +36,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { env } from "@/env";
 import Image from "next/image";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 interface UserProfile {
   id: string;
@@ -196,11 +196,6 @@ const ProfilePage = () => {
       year: "numeric",
       month: "short",
     });
-  };
-
-  const getSkillsArray = (skills: any) => {
-    const parsedSkills = parseSkillsArray(skills);
-    return parsedSkills;
   };
 
   const getStatusColor = (status: string) => {
@@ -413,7 +408,7 @@ const ProfilePage = () => {
             {/* Left Column - Skills & Organizations */}
             <div className="space-y-6">
               {/* Skills */}
-              {profile.skills && getSkillsArray(profile.skills).length > 0 && (
+              {profile.skills && profile.skills.length > 0 && (
                 <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
                   <CardHeader>
                     <CardTitle className='flex items-center gap-2 text-white'>
@@ -422,13 +417,13 @@ const ProfilePage = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {getSkillsArray(profile.skills).map((skill: string) => (
+                      {profile.skills.map((skill) => (
                         <Badge
                           key={skill}
                           variant="secondary"
                           className='border-0 bg-[#E6007A]/20 text-[#FFFFFF]'
                         >
-                          {skill}
+                          {getSkillLabel(skill)}
                         </Badge>
                       ))}
                     </div>

@@ -36,7 +36,7 @@ export const BountyRequirementsStepComponent: React.FC<
     <div className="space-y-6">
       <div>
         <Label htmlFor="deadline">Submission Deadline *</Label>
-        <div className="relative">
+        <div className="relative mt-2">
           <Input
             id="deadline"
             type="date"

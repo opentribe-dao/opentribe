@@ -304,10 +304,8 @@ export function useBountyForm() {
     [formData.winnings, updateFormData]
   );
 
-  const addSkill = (skill: string) => {
-    if (formData.skills && !formData.skills.includes(skill)) {
-      updateFormData('skills', [...formData.skills, skill]);
-    }
+  const addSkill = (skills: string[]) => {
+    updateFormData('skills', skills);
   };
 
   const removeSkill = (skill: string) => {
@@ -435,7 +433,6 @@ export function useBountyForm() {
         return false;
     }
   };
-
 
   const handleNext = () => {
     if (validateStep(currentStep)) {

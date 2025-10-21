@@ -34,9 +34,8 @@ export function PrizeDistributionCard({
   updateFormData,
   updateWinnings,
 }: PrizeDistributionCardProps) {
-
   return (
-    <>
+    <Card className="border-white/10 bg-white/10 backdrop-blur-[10px]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-heading text-white">
           <Award className="size-4" />
@@ -126,16 +125,17 @@ export function PrizeDistributionCard({
                       {position === '1'
                         ? 'st'
                         : position === '2'
-                        ? 'nd'
-                        : position === '3'
-                        ? 'rd'
-                        : 'th'}{' '}
+                          ? 'nd'
+                          : position === '3'
+                            ? 'rd'
+                            : 'th'}{' '}
                       Place
                     </span>
                     <Input
                       type="number"
                       value={
-                        formData.winnings && formData.winnings[position] !== undefined
+                        formData.winnings &&
+                        formData.winnings[position] !== undefined
                           ? formData.winnings[position]
                           : ''
                       }
@@ -148,23 +148,26 @@ export function PrizeDistributionCard({
                     <span className="text-sm text-white/60">
                       {formData.token}
                     </span>
-                    {formData.winnings && Object.keys(formData.winnings).length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="ml-2 text-white/40 hover:text-white"
-                        onClick={() => {
-                          if (!formData.winnings){ return;}
-                          const newWinnings = { ...formData.winnings };
-                          delete newWinnings[position];
-                          updateFormData('winnings', newWinnings);
-                        }}
-                        aria-label="Remove tier"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    )}
+                    {formData.winnings &&
+                      Object.keys(formData.winnings).length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="ml-2 text-white/40 hover:text-white"
+                          onClick={() => {
+                            if (!formData.winnings) {
+                              return;
+                            }
+                            const newWinnings = { ...formData.winnings };
+                            delete newWinnings[position];
+                            updateFormData('winnings', newWinnings);
+                          }}
+                          aria-label="Remove tier"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      )}
                   </div>
                 ))}
               <Button
@@ -193,6 +196,6 @@ export function PrizeDistributionCard({
           </div>
         )}
       </CardContent>
-    </>
+    </Card>
   );
 }

@@ -50,9 +50,7 @@ export async function GET(request: Request) {
       where: {
         profileCompleted: true,
         skills: {
-          not: {
-            isEmpty: true,
-          },
+          isEmpty: false,
         },
         // Check if user has skill match notifications enabled
         preferences: {

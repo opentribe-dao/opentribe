@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { validateWalletAddress } from "../../lib/validations/wallet";
+import Link from "next/link";
 
 const SKILLS_OPTIONS = [
   "Smart Contracts",
@@ -343,12 +344,12 @@ export default function BuilderOnboardingPage() {
             OPENTRIBE
           </div>
           <div className="flex items-center gap-6">
-            <span className="text-sm text-white/60">Questions?</span>
-            <span className="text-sm text-white/60">Contact</span>
-            <Button variant="ghost" size="sm" className="text-white/60">
-              <Globe className="mr-1 h-4 w-4" />
-              EN
-            </Button>
+            <Link href="/faq" className="text-sm text-white/60" target="_blank" rel="noopener noreferrer">
+              Questions?
+            </Link>
+            <Link href="/contact" className="text-sm text-white/60" target="_blank" rel="noopener noreferrer">
+              Contact
+            </Link>
           </div>
         </div>
 

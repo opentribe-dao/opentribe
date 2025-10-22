@@ -41,8 +41,7 @@ export const Footer = () => {
       } else {
         toast.error(result.error || "Failed to subscribe");
       }
-    } catch (error) {
-      console.error("Newsletter subscription error:", error);
+    } catch {
       toast.error("Failed to subscribe. Please try again.");
     } finally {
       setLoading(false);
@@ -75,8 +74,7 @@ export const Footer = () => {
   const legalLinks = [
     { title: "Terms", href: "/legal/terms-of-service" },
     { title: "Privacy", href: "/legal/privacy-policy" },
-    // { title: "Cookies", href: "/legal/cookies" },
-    // Note: Cookies page doesn't exist yet - removed to prevent 404
+    { title: "Cookies", href: "/legal/cookie-policy" },
   ];
 
   return (

@@ -1,5 +1,18 @@
 import { authClient } from "@packages/auth/client";
+import { skillsOptions } from "@packages/base";
 import { database as prisma } from "./index";
+
+// Helper function to get random skills
+function getRandomSkills(count = 7) {
+  // Flatten all skills into a single array
+  const allSkills = skillsOptions.flatMap((category) =>
+    category.options.map((skill) => skill.value)
+  );
+
+  // Shuffle and select random skills
+  const shuffled = [...allSkills].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
 
 async function main() {
   console.log("🌱 Starting database seed with Better Auth...");
@@ -38,15 +51,7 @@ async function main() {
       data: {
         headline: "Substrate Runtime Developer",
         bio: "Building the future of Web3 with Rust and Substrate. Previously at Parity Technologies.",
-        skills: {
-          languages: ["Rust", "TypeScript", "Go"],
-          frameworks: ["Substrate", "ink!", "React"],
-          expertise: [
-            "Runtime Development",
-            "Smart Contracts",
-            "Consensus Mechanisms",
-          ],
-        },
+        skills: getRandomSkills(8),
         interests: ["DeFi", "Governance", "Cross-chain"],
         location: "Berlin, Germany",
         walletAddress: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
@@ -64,16 +69,7 @@ async function main() {
       data: {
         headline: "Web3 UI/UX Designer & Frontend Dev",
         bio: "Crafting beautiful and intuitive interfaces for dApps. Passionate about making blockchain accessible.",
-        skills: {
-          design: ["Figma", "Framer", "Adobe XD"],
-          languages: ["TypeScript", "JavaScript"],
-          frameworks: ["React", "Next.js", "Vue"],
-          expertise: [
-            "UI/UX Design",
-            "Design Systems",
-            "Frontend Architecture",
-          ],
-        },
+        skills: getRandomSkills(9),
         interests: ["NFTs", "Gaming", "Social"],
         location: "San Francisco, USA",
         walletAddress: "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty",
@@ -91,15 +87,7 @@ async function main() {
       data: {
         headline: "Technical Writer & Developer Advocate",
         bio: "Making complex blockchain concepts accessible through clear documentation and tutorials.",
-        skills: {
-          writing: ["Technical Documentation", "Tutorials", "API Docs"],
-          languages: ["JavaScript", "Python"],
-          expertise: [
-            "Developer Relations",
-            "Content Strategy",
-            "Community Building",
-          ],
-        },
+        skills: getRandomSkills(7),
         interests: ["Education", "Documentation", "Community"],
         location: "London, UK",
         walletAddress: "5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL",
@@ -117,14 +105,7 @@ async function main() {
       data: {
         headline: "Grant Program Manager at Web3 Foundation",
         bio: "Managing the Web3 Foundation Grants Program. Helping teams build the decentralized web.",
-        skills: {
-          expertise: [
-            "Grant Management",
-            "Project Evaluation",
-            "Ecosystem Development",
-          ],
-          domains: ["DeFi", "Infrastructure", "Tooling"],
-        },
+        skills: getRandomSkills(6),
         location: "Zug, Switzerland",
         walletAddress: "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy",
         twitter: "w3f_grants",
@@ -140,10 +121,7 @@ async function main() {
       data: {
         headline: "Developer Relations at Moonbeam Network",
         bio: "Building bridges between Ethereum and Polkadot. Smart contract enthusiast.",
-        skills: {
-          expertise: ["Developer Relations", "Smart Contracts", "Cross-chain"],
-          languages: ["Solidity", "JavaScript", "Rust"],
-        },
+        skills: getRandomSkills(6),
         location: "Miami, USA",
         walletAddress: "5HGjWAeFDfFCWPsjFQdVV2Msvz2XtMktvgocEZcCj68kUMaw",
         telegram: "emma_moonbeam",
@@ -159,10 +137,7 @@ async function main() {
       data: {
         headline: "Ecosystem Growth at Acala Network",
         bio: "Growing the DeFi ecosystem on Polkadot. Focused on sustainable liquidity and adoption.",
-        skills: {
-          expertise: ["DeFi", "Liquidity Management", "Ecosystem Growth"],
-          domains: ["Stablecoins", "DEX", "Liquid Staking"],
-        },
+        skills: getRandomSkills(6),
         location: "Singapore",
         walletAddress: "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y",
         twitter: "acala_frank",
@@ -178,6 +153,7 @@ async function main() {
       data: {
         headline: "Platform Administrator",
         bio: "Managing the Opentribe platform.",
+        skills: getRandomSkills(5),
         profileCompleted: true,
       },
     },

@@ -7,6 +7,8 @@ import { Toolbar } from "@packages/feature-flags/components/toolbar";
 import { getDictionary } from "@packages/i18n";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
+import { cookies } from "next/headers";
+import CookieBanner from "./legal/components/cookie-banner";
 import { SiteLayout } from "./components/site-layout";
 import Providers from "./components/providers";
 import { AnalyticsProvider } from "@packages/analytics";
@@ -24,6 +26,7 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
   const { locale } = await params;
   const dictionary = await getDictionary(locale);
 
+  const consent = (await cookies()).get("cookie_consent")?.value;
   return (
     <html
       lang="en"
@@ -37,6 +40,7 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
             <Providers>
               <SiteLayout dictionary={dictionary}>{children}</SiteLayout>
               <Toaster />
+              {!consent && <CookieBanner />}
             </Providers>
           </BaseProvider>
           <Toolbar />

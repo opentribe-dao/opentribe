@@ -23,14 +23,68 @@ interface BountyRequirementsProps {
 export const BountyRequirementsStepComponent: React.FC<
   BountyRequirementsProps
 > = ({ formData, updateFormData }) => {
-  const {
-    addResource,
-    removeResource,
-    updateResource,
-    addScreeningQuestion,
-    removeScreeningQuestion,
-    updateScreeningQuestion,
-  } = useBountyForm();
+  // const {
+  //   addResource,
+  //   removeResource,
+  //   updateResource,
+  //   addScreeningQuestion,
+  //   removeScreeningQuestion,
+  //   updateScreeningQuestion,
+  // } = useBountyForm();
+
+  const addResource = () => {
+    updateFormData('resources', [
+      ...(formData.resources ?? []),
+      { title: '', url: '', description: '' },
+    ]);
+  };
+
+  const removeResource = (index: number) => {
+    updateFormData(
+      'resources',
+      (formData.resources ?? []).filter((_, i) => i !== index)
+    );
+  };
+
+  const updateResource = (
+    index: number,
+    field: keyof NonNullable<BountyDetails['resources']>[number],
+    value: string
+  ) => {
+    updateFormData(
+      'resources',
+      (formData.resources ?? []).map((r, i) =>
+        i === index ? { ...r, [field]: value } : r
+      )
+    );
+  };
+
+  const addScreeningQuestion = () => {
+    updateFormData('screening', [
+      ...(formData.screening ?? []),
+      { question: '', type: 'text', optional: false },
+    ]);
+  };
+
+  const removeScreeningQuestion = (index: number) => {
+    updateFormData(
+      'screening',
+      (formData.screening ?? []).filter((_, i) => i !== index)
+    );
+  };
+
+  const updateScreeningQuestion = (
+    index: number,
+    field: keyof NonNullable<typeof formData.screening>[number],
+    value: string | boolean
+  ) => {
+    updateFormData(
+      'screening',
+      (formData.screening ?? []).map((q, i) =>
+        i === index ? { ...q, [field]: value } : q
+      )
+    );
+  };
 
   return (
     <div className="space-y-6">

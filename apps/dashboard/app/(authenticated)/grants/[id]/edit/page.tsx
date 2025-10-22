@@ -37,6 +37,7 @@ import { toast } from 'sonner';
 import { Header } from '../../../components/header';
 import { env } from '@/env';
 import SkillsOptions from '@packages/base/components/ui/skills-options';
+import { getSkillLabel } from '@packages/base/lib/skills';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
@@ -821,7 +822,7 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                             variant="secondary"
                             className="bg-white/10 text-white border-0"
                           >
-                            {skill}
+                            {getSkillLabel(skill)}
                           </Badge>
                         ))}
                       </div>

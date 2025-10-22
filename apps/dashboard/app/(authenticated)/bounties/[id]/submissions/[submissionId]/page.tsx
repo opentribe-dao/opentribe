@@ -39,6 +39,7 @@ import { Header } from "../../../../components/header";
 import { env } from "@/env";
 import { useBountyContext } from "../../../../components/bounty-provider";
 import { set } from "zod/v4-mini";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 export default function SubmissionReviewPage({
   params,
@@ -531,7 +532,7 @@ export default function SubmissionReviewPage({
                             variant="secondary"
                             className="bg-white/10 text-white border-0"
                           >
-                            {skill}
+                            {getSkillLabel(skill)}
                           </Badge>
                         ))}
                       </div>

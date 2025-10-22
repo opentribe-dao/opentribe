@@ -36,6 +36,7 @@ import { Header } from '../../../components/header';
 import { env } from '@/env';
 import { MarkdownEditor } from '@packages/base/components/ui/markdown-editor';
 import SkillsOptions from '@packages/base/components/ui/skills-options';
+import { getSkillLabel } from '@packages/base/lib/skills';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
@@ -795,7 +796,7 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           variant="secondary"
                           className="bg-white/10 text-white border-0"
                         >
-                          {skill}
+                          {getSkillLabel(skill)}
                         </Badge>
                       ))}
                     </div>

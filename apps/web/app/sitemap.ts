@@ -1,49 +1,53 @@
-import fs from "node:fs";
 import { env } from "@/env";
 import type { MetadataRoute } from "next";
+import { blog, legal } from "@packages/cms";
 
-const appFolders = fs.readdirSync("app/[locale]", { withFileTypes: true });
-const pages = appFolders
-  .filter((file) => file.isDirectory())
-  .filter((folder) => !folder.name.startsWith("_"))
-  .filter((folder) => !folder.name.startsWith("("))
-  .map((folder) => folder.name);
-
-const blogs = fs
-  .readdirSync("content/blog", { withFileTypes: true })
-  .filter((file) => !file.isDirectory())
-  .filter((file) => !file.name.startsWith("_"))
-  .filter((file) => !file.name.startsWith("("))
-  .map((file) => file.name.replace(".mdx", ""));
-
-const legals = fs
-  .readdirSync("content/legal", { withFileTypes: true })
-  .filter((file) => !file.isDirectory())
-  .filter((file) => !file.name.startsWith("_"))
-  .filter((file) => !file.name.startsWith("("))
-  .map((file) => file.name.replace(".mdx", ""));
-
-const url = new URL(
-  env.VERCEL_PROJECT_PRODUCTION_URL || "https://opentribe.io"
-);
-
-const sitemap = async (): Promise<MetadataRoute.Sitemap> => [
-  {
-    url: new URL("/", url).href,
-    lastModified: new Date(),
-  },
-  ...pages.map((page) => ({
-    url: new URL(page, url).href,
-    lastModified: new Date(),
-  })),
-  ...blogs.map((blog) => ({
-    url: new URL(`blog/${blog}`, url).href,
-    lastModified: new Date(),
-  })),
-  ...legals.map((legal) => ({
-    url: new URL(`legal/${legal}`, url).href,
-    lastModified: new Date(),
-  })),
+// Only include indexable, public routes
+const staticRoutes: string[] = [
+  "/",
+  "/blog",
+  "/bounties",
+  "/grants",
+  "/rfps",
+  "/changelog",
+  "/contact",
+  "/faq",
 ];
 
-export default sitemap;
+function getBaseUrl(): URL {
+  const fromPublic = env.NEXT_PUBLIC_WEB_URL;
+  if (fromPublic) {
+    return new URL(fromPublic);
+  }
+  const project = env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (project) {
+    return new URL(`https://${project}`);
+  }
+  return new URL("http://localhost:3000");
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = getBaseUrl();
+
+  const entries: MetadataRoute.Sitemap = [];
+
+  for (const path of staticRoutes) {
+    entries.push({ url: new URL(path, base).href, lastModified: new Date() });
+  }
+
+  for (const post of blog.getPosts()) {
+    entries.push({
+      url: new URL(`/blog/${post._slug}`, base).href,
+      lastModified: new Date(post.date || Date.now()),
+    });
+  }
+
+  for (const page of legal.getPosts()) {
+    entries.push({
+      url: new URL(`/legal/${page._slug}`, base).href,
+      lastModified: new Date(page.date || Date.now()),
+    });
+  }
+
+  return entries;
+}

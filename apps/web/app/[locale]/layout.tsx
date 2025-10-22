@@ -10,6 +10,8 @@ import { Toaster } from "sonner";
 import { SiteLayout } from "./components/site-layout";
 import Providers from "./components/providers";
 import { AnalyticsProvider } from "@packages/analytics";
+import { createSiteMetadata } from "@packages/seo/meta";
+import { defaultDescription, defaultKeywords } from "@packages/seo/config";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -46,3 +48,9 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
 };
 
 export default RootLayout;
+
+export const metadata = createSiteMetadata({
+  title: "Opentribe",
+  description: defaultDescription,
+  keywords: defaultKeywords,
+});

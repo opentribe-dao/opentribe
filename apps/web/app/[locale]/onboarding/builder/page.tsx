@@ -15,12 +15,13 @@ import {
   SelectValue,
 } from "@packages/base/components/ui/select";
 import { Textarea } from "@packages/base/components/ui/textarea";
-import { ChevronLeft, Globe, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { validateWalletAddress } from "../../lib/validations/wallet";
 import Link from "next/link";
+import { useUserProfile, useUpdateProfile } from "@/hooks/use-user-profile";
 
 const CRYPTO_EXPERIENCE_OPTIONS = [
   { value: "new", label: "New to crypto" },
@@ -37,22 +38,24 @@ const WORK_PREFERENCE_OPTIONS = [
 
 export default function BuilderOnboardingPage() {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending: sessionLoading } = useSession();
+  const { data: userProfile, isLoading: profileLoading } = useUserProfile();
+  const updateProfileMutation = useUpdateProfile();
   const [currentStep, setCurrentStep] = useState(1);
-  const [loading, setLoading] = useState(false);
 
   // Username validation state
   const [usernameError, setUsernameError] = useState<string>("");
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+
   // Form data
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
-    firstName: session?.user?.name?.split(" ")[0] || "",
-    lastName: session?.user?.name?.split(" ")[1] || "",
-    username: session?.user?.username || "",
-    image: session?.user?.image || "",
+    firstName: "",
+    lastName: "",
+    username: "",
+    image: "",
     location: "",
     skills: [] as string[],
     walletAddress: "",
@@ -69,23 +72,41 @@ export default function BuilderOnboardingPage() {
   });
 
   useEffect(() => {
-    if (!isPending) {
-      if (session?.user) {
-        // Pre-fill form with existing user data
-        if (session.user.name) {
-          const [firstName, ...lastNameParts] = session.user.name.split(" ");
-          setFormData((prev) => ({
-            ...prev,
-            firstName: firstName || "",
-            lastName: lastNameParts.join(" ") || "",
-          }));
-        }
-      } else {
-        // User is not authenticated, redirect to home
-        router.push("/");
-      }
+    if (!sessionLoading && !session?.user) {
+      // User is not authenticated, redirect to home
+      router.push("/");
     }
-  }, [session, isPending, router]);
+  }, [session, sessionLoading, router]);
+
+  useEffect(() => {
+    // Pre-fill form with user profile data when it loads
+    if (userProfile) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName:
+          userProfile.firstName ||
+          (userProfile.name ? userProfile.name.split(" ")[0] : ""),
+        lastName:
+          userProfile.lastName ||
+          (userProfile.name
+            ? userProfile.name.split(" ").slice(1).join(" ")
+            : ""),
+        username: userProfile.username || "",
+        image: userProfile.image || "",
+        location: userProfile.location || "",
+        skills: userProfile.skills || [],
+        walletAddress: userProfile.walletAddress || "",
+        website: userProfile.website || "",
+        twitter: userProfile.twitter || "",
+        github: userProfile.github || "",
+        linkedin: userProfile.linkedin || "",
+        employer: userProfile.employer || "",
+        workExperience: userProfile.workExperience || "",
+        cryptoExperience: userProfile.cryptoExperience || "",
+        workPreference: userProfile.workPreference || "",
+      }));
+    }
+  }, [userProfile]);
 
   // Cleanup debounce timer on unmount
   useEffect(() => {
@@ -137,8 +158,8 @@ export default function BuilderOnboardingPage() {
         } else {
           setUsernameError("");
         }
-      } catch (error) {
-        console.error("Username check failed:", error);
+      } catch {
+        // Username check failed, but allow user to proceed
         // Don't show error to user, allow them to proceed
         setUsernameError("");
       } finally {
@@ -249,48 +270,39 @@ export default function BuilderOnboardingPage() {
 
   const handleSubmit = async () => {
     try {
-      setLoading(true);
-
-      // Prepare the payload
+      // payload
       const payload = {
-        ...formData,
-        username: formData.username.toLowerCase(), // Ensure username is lowercase in API
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username.toLowerCase(),
+        image: formData.image,
+        location: formData.location,
         skills: formData.skills,
+        walletAddress: formData.walletAddress,
+        website: formData.website,
+        twitter: formData.twitter,
+        github: formData.github,
+        linkedin: formData.linkedin,
+        employer: formData.employer,
+        workExperience: formData.workExperience,
+        cryptoExperience: formData.cryptoExperience,
+        workPreference: formData.workPreference,
       };
 
-      // Update user profile
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/users/profile`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update profile");
-      }
-
+      await updateProfileMutation.mutateAsync(payload);
       toast.success("Profile created successfully!");
       router.push("/");
     } catch (error) {
-      console.error("Profile update failed:", error);
+      // Profile update failed
       const errorMessage =
         error instanceof Error
           ? error.message
           : "Failed to create profile. Please try again.";
       toast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (isPending) {
+  if (sessionLoading || profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-primary border-t-2 border-b-2" />
@@ -482,7 +494,6 @@ export default function BuilderOnboardingPage() {
                       setFormData((prev) => ({ ...prev, skills: skills }));
                     } else {
                       setFormData((prev) => ({ ...prev, skills: [] }));
-                      toast.error("Please select at least one skill");
                     }
                   }}
                 />
@@ -673,18 +684,16 @@ export default function BuilderOnboardingPage() {
 
             <Button
               onClick={handleNext}
-              disabled={loading}
+              disabled={updateProfileMutation.isPending}
               className="bg-[#E6007A] px-8 text-white hover:bg-[#E6007A]/90"
             >
-              {loading ? (
+              {updateProfileMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
-              ) : currentStep === 1 ? (
-                "Next Step"
               ) : (
-                "Complete Profile"
+                currentStep === 1 ? "Next Step" : "Complete Profile"
               )}
             </Button>
           </div>

@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React from "react"
 import { MultiSelect } from "@packages/base/components/ui/multi-select"
 import { skillsOptions } from "@packages/base/lib/skills"
 import { cn } from "@packages/base/lib/utils"
+import { toast } from "sonner"
 
 interface SkillsOptionsProps {
   value?: string[]
@@ -16,22 +17,12 @@ export default function SkillsOptions({
   onChange,
   className 
 }: SkillsOptionsProps) {
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(value)
-  const isInternalUpdate = useRef(false)
-
-  // Update internal state when value prop changes (for external control)
-  useEffect(() => {
-    if (!isInternalUpdate.current) {
-      setSelectedSkills(value)
-    }
-    isInternalUpdate.current = false
-  }, [value])
-
   // Handle skill selection changes
   const handleSkillsChange = (skills: string[]) => {
-    isInternalUpdate.current = true
-    setSelectedSkills(skills)
-    onChange?.(skills) // Call parent onChange if provided
+    if (skills && skills.length === 0) {
+      toast.error("Please select at least one skill");
+    }
+    onChange?.(skills);
   }
 
   return (
@@ -40,7 +31,7 @@ export default function SkillsOptions({
         <MultiSelect
           options={skillsOptions}
           onValueChange={handleSkillsChange}
-          defaultValue={selectedSkills}
+          values={value}
           placeholder="Choose your skills..."
           className={cn(
             "w-full", 
@@ -51,9 +42,8 @@ export default function SkillsOptions({
           )}
           searchable={true}
           hideSelectAll={false}
-          maxCount={8}
+          maxCount={10}
           responsive={true}
-          resetOnDefaultValueChange={false}
         />
       </div>
     </div>

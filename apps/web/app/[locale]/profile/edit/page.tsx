@@ -409,7 +409,6 @@ const EditProfilePage = () => {
                       setFormData((prev) => ({ ...prev, skills: skills }));
                     } else {
                       setFormData((prev) => ({ ...prev, skills: [] }));
-                      toast.error("Please select at least one skill");
                     }
                   }}
                 />

@@ -127,7 +127,7 @@ interface MultiSelectProps
   onValueChange: (value: string[]) => void
 
   /** The default selected values when the component mounts. */
-  defaultValue?: string[]
+  values?: string[]
 
   /**
    * Placeholder text to be displayed when no values are selected.
@@ -312,7 +312,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       options,
       onValueChange,
       variant,
-      defaultValue = [],
+      values = [],
       placeholder = "Select options",
       animation = 0,
       animationConfig,
@@ -338,10 +338,11 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
     ref
   ) => {
     const [selectedValues, setSelectedValues] =
-      React.useState<string[]>(defaultValue)
+      React.useState<string[]>(values)
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
     const [isAnimating, setIsAnimating] = React.useState(false)
     const [searchValue, setSearchValue] = React.useState("")
+    const isControlled = values !== undefined
 
     const [politeMessage, setPoliteMessage] = React.useState("")
     const [assertiveMessage, setAssertiveMessage] = React.useState("")
@@ -367,7 +368,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
     const triggerDescriptionId = `${multiSelectId}-description`
     const selectedCountId = `${multiSelectId}-count`
 
-    const prevDefaultValueRef = React.useRef<string[]>(defaultValue)
+    const prevDefaultValueRef = React.useRef<string[]>(values)
 
     const isGroupedOptions = React.useCallback(
       (
@@ -388,12 +389,24 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       []
     )
 
+    const applySelection = React.useCallback(
+      (newValues: string[]) => {
+        if (!isControlled) {
+          setSelectedValues(newValues)
+        }
+        onValueChange(newValues)
+      },
+      [isControlled, onValueChange]
+    )
+
     const resetToDefault = React.useCallback(() => {
-      setSelectedValues(defaultValue)
       setIsPopoverOpen(false)
       setSearchValue("")
-      onValueChange(defaultValue)
-    }, [defaultValue, onValueChange])
+      if (!isControlled) {
+        setSelectedValues(values)
+      }
+      onValueChange(values)
+    }, [values, onValueChange, isControlled])
 
     const buttonRef = React.useRef<HTMLButtonElement>(null)
 
@@ -614,8 +627,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       } else if (event.key === "Backspace" && !event.currentTarget.value) {
         const newSelectedValues = [...selectedValues]
         newSelectedValues.pop()
-        setSelectedValues(newSelectedValues)
-        onValueChange(newSelectedValues)
+        applySelection(newSelectedValues)
       }
     }
 
@@ -626,8 +638,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       const newSelectedValues = selectedValues.includes(optionValue)
         ? selectedValues.filter((value) => value !== optionValue)
         : [...selectedValues, optionValue]
-      setSelectedValues(newSelectedValues)
-      onValueChange(newSelectedValues)
+      applySelection(newSelectedValues)
       if (closeOnSelect) {
         setIsPopoverOpen(false)
       }
@@ -635,8 +646,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
 
     const handleClear = () => {
       if (disabled) return
-      setSelectedValues([])
-      onValueChange([])
+      applySelection([])
     }
 
     const handleTogglePopover = () => {
@@ -650,8 +660,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
         0,
         responsiveSettings.maxCount
       )
-      setSelectedValues(newSelectedValues)
-      onValueChange(newSelectedValues)
+      applySelection(newSelectedValues)
     }
 
     const toggleAll = () => {
@@ -661,8 +670,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
         handleClear()
       } else {
         const allValues = allOptions.map((option) => option.value)
-        setSelectedValues(allValues)
-        onValueChange(allValues)
+        applySelection(allValues)
       }
 
       if (closeOnSelect) {
@@ -671,15 +679,21 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
     }
 
     React.useEffect(() => {
-      if (!resetOnDefaultValueChange) return
+      if (isControlled) return
       const prevDefaultValue = prevDefaultValueRef.current
-      if (!arraysEqual(prevDefaultValue, defaultValue)) {
-        if (!arraysEqual(selectedValues, defaultValue)) {
-          setSelectedValues(defaultValue)
+      if (!arraysEqual(prevDefaultValue, values)) {
+        if (resetOnDefaultValueChange) {
+          // Reset to new defaultValue when it changes
+          setSelectedValues(values)
+        } else {
+          // Only update if current selectedValues is empty (initial state)
+          if (selectedValues.length === 0) {
+            setSelectedValues(values)
+          }
         }
-        prevDefaultValueRef.current = [...defaultValue]
+        prevDefaultValueRef.current = [...values]
       }
-    }, [defaultValue, selectedValues, arraysEqual, resetOnDefaultValueChange])
+    }, [values, selectedValues, arraysEqual, resetOnDefaultValueChange, isControlled])
 
     const getWidthConstraints = () => {
       const defaultMinWidth = screenSize === "mobile" ? "0px" : "200px"
@@ -762,6 +776,15 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
         prevSearchValue.current = searchValue
       }
     }, [selectedValues, isPopoverOpen, searchValue, announce, getAllOptions])
+
+    // Sync with controlled value when provided
+    React.useEffect(() => {
+      if (!isControlled) return
+      const controlledValues = values ?? []
+      if (!arraysEqual(selectedValues, controlledValues)) {
+        setSelectedValues(controlledValues)
+      }
+    }, [isControlled, values, arraysEqual, selectedValues])
 
     return (
       <>

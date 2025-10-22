@@ -12,7 +12,6 @@ interface BountyDetailProps {
   ) => void;
   addSkill: (skills: string[]) => void;
   removeSkill: (skill: string) => void;
-  skills: string[];
 }
 
 export const BountyDetailStepComponent: React.FC<BountyDetailProps> = ({

@@ -1,28 +1,12 @@
 import { ImageResponse } from "next/og";
 import { siteName } from "@packages/seo/config";
 import { env } from "@/env";
-import fs from "node:fs/promises";
-import { createRequire } from "node:module";
+import { loadOgAssets } from "@packages/seo/og-assets";
+import type { RFP } from "@/hooks/use-rfps-data";
 
 export const runtime = "nodejs";
-const require = createRequire(import.meta.url);
 
-const fontChakra700 = fs.readFile(
-  require.resolve("@packages/base/fonts/ChakraPetch-Bold.ttf")
-);
-const fontChakra500 = fs.readFile(
-  require.resolve("@packages/base/fonts/ChakraPetch-Medium.ttf")
-);
-const fontSatoshi400 = fs.readFile(
-  require.resolve("@packages/base/fonts/Satoshi-Regular.otf")
-);
-const fontSatoshi500 = fs.readFile(
-  require.resolve("@packages/base/fonts/Satoshi-Medium.otf")
-);
-// Local background image (public/images/og-background.png)
-const bgImage = fs.readFile(
-  new URL("../../../../../public/images/og-background.png", import.meta.url)
-);
+const ogAssets = loadOgAssets();
 
 async function getRfp(id: string) {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`, {
@@ -49,25 +33,18 @@ export async function GET(
   const rfp = await getRfp(id);
   const title = rfp?.title ?? "RFP";
   const org =
-    (rfp as any)?.grant?.organization?.name ||
+    (rfp as RFP)?.grant?.organization?.name ||
     rfp?.organization?.name ||
     siteName;
   const orgLogo =
-    (rfp as any)?.grant?.organization?.logo ||
-    (rfp as any)?.grant?.logoUrl ||
-    rfp?.organization?.logo ||
-    null;
-  const grantTitle = (rfp as any)?.grant?.title || "";
-  const grantOrg = (rfp as any)?.grant?.organization?.name || "";
+    (rfp as RFP)?.grant?.organization?.logo || rfp?.organization?.logo || null;
+  const grantTitle = (rfp as RFP)?.grant?.title || "";
+  const grantOrg = (rfp as RFP)?.grant?.organization?.name || "";
   const grantLine = `${(grantTitle || "").slice(0, 50)}${grantOrg ? ` | ${grantOrg}` : ""}`;
 
-  const [chakra700, chakra500, satoshi400, satoshi500] = await Promise.all([
-    fontChakra700,
-    fontChakra500,
-    fontSatoshi400,
-    fontSatoshi500,
-  ]);
-  const bgBuffer = await bgImage.catch(() => null);
+  const { chakra700, chakra500, satoshi400, satoshi500, background } =
+    await ogAssets;
+  const bgBuffer = background ?? null;
   const bgDataUrl = bgBuffer
     ? `url(data:image/png;base64,${Buffer.from(bgBuffer).toString("base64")})`
     : undefined;
@@ -115,6 +92,7 @@ export async function GET(
                 width={140}
                 height={140}
                 style={{ borderRadius: 9999 }}
+                alt={orgLogo}
               />
             ) : (
               <div

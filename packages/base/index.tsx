@@ -1,5 +1,3 @@
-import { AnalyticsProvider } from "@packages/analytics";
-import { AuthProvider } from "@packages/auth/provider";
 import type { ThemeProviderProps } from "next-themes";
 import { Toaster } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
@@ -10,12 +8,8 @@ export const BaseProvider = ({
   ...properties
 }: ThemeProviderProps) => (
   <ThemeProvider {...properties}>
-    <AnalyticsProvider>
-      <AuthProvider>
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster />
-      </AuthProvider>
-    </AnalyticsProvider>
+    <TooltipProvider>{children}</TooltipProvider>
+    <Toaster />
   </ThemeProvider>
 );
 

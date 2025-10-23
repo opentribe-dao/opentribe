@@ -116,17 +116,17 @@ export async function GET(request: NextRequest) {
 
     // Filter by amount range
     if (minAmount || maxAmount) {
-      whereClause.amount = {};
+      whereClause.amountUSD = {};
       if (minAmount) {
         const minAmountNum = Number.parseFloat(minAmount);
         if (!isNaN(minAmountNum)) {
-          whereClause.amount.gte = minAmountNum;
+          whereClause.amountUSD.gte = minAmountNum;
         }
       }
       if (maxAmount) {
         const maxAmountNum = Number.parseFloat(maxAmount);
         if (!isNaN(maxAmountNum)) {
-          whereClause.amount.lte = maxAmountNum;
+          whereClause.amountUSD.lte = maxAmountNum;
         }
       }
     }
@@ -170,13 +170,13 @@ export async function GET(request: NextRequest) {
         orderBy = { viewCount: "desc" };
         break;
       case "amount":
-        orderBy = { amount: "desc" };
+        orderBy = { amountUSD: "desc" };
         break;
       case "amount_high":
-        orderBy = { amount: "desc" };
+        orderBy = { amountUSD: "desc" };
         break;
       case "amount_low":
-        orderBy = { amount: "asc" };
+        orderBy = { amountUSD: "asc" };
         break;
       case "deadline":
         orderBy = [{ deadline: { sort: "asc", nulls: "last" } }];

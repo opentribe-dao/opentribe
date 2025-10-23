@@ -95,8 +95,8 @@ export async function GET(request: Request) {
 
         // Send only the best match (highest prize)
         const bestMatch = matchingBounties.sort((a, b) => {
-          const aAmount = Number(a.amount) || 0;
-          const bAmount = Number(b.amount) || 0;
+          const aAmount = Number(a.amountUSD) || 0;
+          const bAmount = Number(b.amountUSD) || 0;
           return bAmount - aAmount;
         })[0];
 

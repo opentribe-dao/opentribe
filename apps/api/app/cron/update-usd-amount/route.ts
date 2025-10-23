@@ -32,7 +32,11 @@ export const GET = async (request: NextRequest) => {
       database.grant.findMany({
         select: { token: true },
         where: {
-          totalFunds: { not: null },
+          OR: [
+            { totalFunds: { not: null } },
+            { minAmount: { not: null } },
+            { maxAmount: { not: null } },
+          ],
         },
         distinct: ["token"],
       }),
@@ -109,9 +113,12 @@ export const GET = async (request: NextRequest) => {
         if (originalToken) {
           const result = await database.$executeRaw`
             UPDATE "grant" 
-            SET "totalFundsUSD" = "totalFunds" * ${rate}
+            SET 
+              "totalFundsUSD" = "totalFunds" * ${rate},
+              "minAmountUSD" = "minAmount" * ${rate},
+              "maxAmountUSD" = "maxAmount" * ${rate}
             WHERE "token" = ${originalToken} 
-            AND "totalFunds" IS NOT NULL
+            AND ("totalFunds" IS NOT NULL OR "minAmount" IS NOT NULL OR "maxAmount" IS NOT NULL)
           `;
           updatedGrants += result;
           console.log(

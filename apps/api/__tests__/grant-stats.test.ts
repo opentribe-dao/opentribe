@@ -42,7 +42,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(mockGrantsCount);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFunds: mockTotalFunds,
+          totalFundsUSD: mockTotalFunds,
         },
         _avg: {},
         _count: {},
@@ -86,7 +86,7 @@ describe("Grant Stats API", () => {
           visibility: "PUBLISHED",
         },
         _sum: {
-          totalFunds: true,
+          totalFundsUSD: true,
         },
       });
     });
@@ -127,7 +127,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(mockGrantsCount);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFunds: null, // No funds
+          totalFundsUSD: null, // No funds
         },
         _avg: {},
         _count: {},
@@ -157,7 +157,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(0);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFunds: null,
+          totalFundsUSD: null,
         },
         _avg: {},
         _count: {},
@@ -187,7 +187,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(10);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFunds: 1000000,
+          totalFundsUSD: 1000000,
         },
         _avg: {},
         _count: {},
@@ -215,7 +215,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(10);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFunds: 1000000,
+          totalFundsUSD: 1000000,
         },
         _avg: {},
         _count: {},
@@ -309,7 +309,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(mockGrantsCount);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFunds: mockTotalFunds,
+          totalFundsUSD: mockTotalFunds,
         },
         _avg: {},
         _count: {},
@@ -337,7 +337,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(15);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFunds: 3000000,
+          totalFundsUSD: 3000000,
         },
         _avg: {},
         _count: {},
@@ -362,7 +362,7 @@ describe("Grant Stats API", () => {
           visibility: "PUBLISHED",
         },
         _sum: {
-          totalFunds: true,
+          totalFundsUSD: true,
         },
       });
     });

@@ -3,6 +3,7 @@ import { Calendar, Users, Clock } from "lucide-react";
 import Image from "next/image";
 import { formatCurrency, getDeadlineInfo } from "@packages/base/lib/utils";
 import { Separator } from "@packages/base/components/ui/separator";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 interface BountyCardProps {
   id: string;
@@ -171,7 +172,7 @@ export function BountyCard({
                 key={index}
                 className="rounded-md bg-pink-500/20 px-2 py-1 text-pink-300 text-xs"
               >
-                {skill}
+                {getSkillLabel(skill)}
               </span>
             ))}
             {safeSkills.length > 5 && (

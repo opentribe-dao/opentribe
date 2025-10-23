@@ -75,11 +75,11 @@ async function getGrantStats(): Promise<GrantStatsResponse> {
       visibility: "PUBLISHED",
     },
     _sum: {
-      totalFunds: true,
+      totalFundsUSD: true,
     },
   });
 
-  const totalFunds = grantsAggregate._sum.totalFunds || 0;
+  const totalFunds = grantsAggregate._sum.totalFundsUSD || 0;
 
   return {
     total_grants_count: totalGrantsCount,

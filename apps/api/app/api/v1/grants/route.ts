@@ -128,22 +128,22 @@ export async function GET(request: NextRequest) {
             // Grant's minAmount is within filter range
             {
               AND: [
-                { minAmount: { gte: minAmountNum } },
-                { minAmount: { lte: maxAmountNum } },
+                { minAmountUSD: { gte: minAmountNum } },
+                { minAmountUSD: { lte: maxAmountNum } },
               ],
             },
             // Grant's maxAmount is within filter range
             {
               AND: [
-                { maxAmount: { gte: minAmountNum } },
-                { maxAmount: { lte: maxAmountNum } },
+                { maxAmountUSD: { gte: minAmountNum } },
+                { maxAmountUSD: { lte: maxAmountNum } },
               ],
             },
             // Grant range encompasses filter range
             {
               AND: [
-                { minAmount: { lte: minAmountNum } },
-                { maxAmount: { gte: maxAmountNum } },
+                { minAmountUSD: { lte: minAmountNum } },
+                { maxAmountUSD: { gte: maxAmountNum } },
               ],
             },
           ],
@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
         // Only min provided - grant's maxAmount should be >= filter min
         rangeConditions.push({
           OR: [
-            { maxAmount: { gte: minAmountNum } },
+            { maxAmountUSD: { gte: minAmountNum } },
             { maxAmount: null }, // Handle cases where maxAmount is not set
           ],
         });
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
         // Only max provided - grant's minAmount should be <= filter max
         rangeConditions.push({
           OR: [
-            { minAmount: { lte: maxAmountNum } },
+            { minAmountUSD: { lte: maxAmountNum } },
             { minAmount: null }, // Handle cases where minAmount is not set
           ],
         });
@@ -196,13 +196,13 @@ export async function GET(request: NextRequest) {
         orderBy = { publishedAt: "asc" };
         break;
       case "MAX_AMOUNT":
-        orderBy = { maxAmount: "desc" };
+        orderBy = { maxAmountUSD: "desc" };
         break;
       case "MIN_AMOUNT":
-        orderBy = { minAmount: "asc" };
+        orderBy = { minAmountUSD: "asc" };
         break;
       case "MAX_FUNDS":
-        orderBy = { totalFunds: "desc" };
+        orderBy = { totalFundsUSD: "desc" };
         break;
       case "MOST_APPLICATIONS":
         orderBy = { applicationCount: "desc" };
@@ -243,10 +243,13 @@ export async function GET(request: NextRequest) {
     const transformedGrants = grants.map((grant) => ({
       ...grant,
       minAmount: grant.minAmount
-        ? parseFloat(grant.minAmount.toString())
+        ? Number.parseFloat(grant.minAmount.toString())
         : undefined,
       maxAmount: grant.maxAmount
-        ? parseFloat(grant.maxAmount.toString())
+        ? Number.parseFloat(grant.maxAmount.toString())
+        : undefined,
+      totalFunds: grant.totalFunds
+        ? Number.parseFloat(grant.totalFunds.toString())
         : undefined,
     }));
 

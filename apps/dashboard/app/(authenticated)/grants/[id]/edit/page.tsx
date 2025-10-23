@@ -22,25 +22,28 @@ import {
 } from '@packages/base/components/ui/select';
 import { Badge } from '@packages/base/components/ui/badge';
 import { ImageUpload } from '@packages/base';
-import { Check, ChevronLeft, ChevronRight, Loader2, Plus, X, Upload } from 'lucide-react';
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Plus,
+  X,
+  Upload,
+} from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Header } from '../../../components/header';
 import { env } from '@/env';
+import SkillsOptions from '@packages/base/components/ui/skills-options';
+import { getSkillLabel } from '@packages/base/lib/skills';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
   { id: 2, name: 'Funding', description: 'Budget and amounts' },
   { id: 3, name: 'Requirements', description: 'Application criteria' },
   { id: 4, name: 'Publish', description: 'Review and publish' },
-];
-
-const SKILLS = [
-  'Rust', 'Substrate', 'Polkadot SDK', 'Smart Contracts', 'ink!',
-  'JavaScript', 'TypeScript', 'React', 'Node.js', 'Web3.js',
-  'UI/UX Design', 'Technical Writing', 'Marketing', 'Community Management',
-  'DeFi', 'NFTs', 'Governance', 'Research', 'Data Analysis'
 ];
 
 const TOKENS = [
@@ -69,7 +72,11 @@ interface GrantFormData {
   // Step 3: Requirements
   applicationUrl: string;
   resources: Array<{ title: string; url: string; description: string }>;
-  screening: Array<{ question: string; type: 'text' | 'url' | 'file'; optional: boolean }>;
+  screening: Array<{
+    question: string;
+    type: 'text' | 'url' | 'file';
+    optional: boolean;
+  }>;
 
   // Step 4: Publish
   visibility: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
@@ -188,45 +195,72 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
   }
 
   const updateFormData = (field: keyof GrantFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const addSkill = (skill: string) => {
-    if (!formData.skills.includes(skill)) {
-      updateFormData('skills', [...formData.skills, skill]);
-    }
+  const addSkill = (skills: string[]) => {
+    updateFormData('skills', skills);
   };
 
   const removeSkill = (skill: string) => {
-    updateFormData('skills', formData.skills.filter(s => s !== skill));
+    updateFormData(
+      'skills',
+      formData.skills.filter((s) => s !== skill)
+    );
   };
 
   const addResource = () => {
-    updateFormData('resources', [...formData.resources, { title: '', url: '', description: '' }]);
+    updateFormData('resources', [
+      ...formData.resources,
+      { title: '', url: '', description: '' },
+    ]);
   };
 
   const removeResource = (index: number) => {
-    updateFormData('resources', formData.resources.filter((_, i) => i !== index));
+    updateFormData(
+      'resources',
+      formData.resources.filter((_, i) => i !== index)
+    );
   };
 
-  const updateResource = (index: number, field: keyof typeof formData.resources[0], value: string) => {
-    updateFormData('resources', formData.resources.map((r, i) => 
-      i === index ? { ...r, [field]: value } : r
-    ));
+  const updateResource = (
+    index: number,
+    field: keyof (typeof formData.resources)[0],
+    value: string
+  ) => {
+    updateFormData(
+      'resources',
+      formData.resources.map((r, i) =>
+        i === index ? { ...r, [field]: value } : r
+      )
+    );
   };
 
   const addScreeningQuestion = () => {
-    updateFormData('screening', [...formData.screening, { question: '', type: 'text', optional: false }]);
+    updateFormData('screening', [
+      ...formData.screening,
+      { question: '', type: 'text', optional: false },
+    ]);
   };
 
   const removeScreeningQuestion = (index: number) => {
-    updateFormData('screening', formData.screening.filter((_, i) => i !== index));
+    updateFormData(
+      'screening',
+      formData.screening.filter((_, i) => i !== index)
+    );
   };
 
-  const updateScreeningQuestion = (index: number, field: keyof typeof formData.screening[0], value: any) => {
-    updateFormData('screening', formData.screening.map((q, i) => 
-      i === index ? { ...q, [field]: value } : q
-    ));
+  const updateScreeningQuestion = (
+    index: number,
+    field: keyof (typeof formData.screening)[0],
+    value: any
+  ) => {
+    updateFormData(
+      'screening',
+      formData.screening.map((q, i) =>
+        i === index ? { ...q, [field]: value } : q
+      )
+    );
   };
 
   const validateStep = (step: number): boolean => {
@@ -260,12 +294,12 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4));
+      setCurrentStep((prev) => Math.min(prev + 1, 4));
     }
   };
 
   const handleBack = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = async () => {
@@ -273,7 +307,7 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
     try {
       setSubmitting(true);
-      
+
       // Prepare the grant data for API
       const grantData = {
         title: formData.title,
@@ -285,24 +319,29 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
         skills: formData.skills,
         minAmount: formData.minAmount ? parseFloat(formData.minAmount) : null,
         maxAmount: formData.maxAmount ? parseFloat(formData.maxAmount) : null,
-        totalFunds: formData.totalFunds ? parseFloat(formData.totalFunds) : null,
+        totalFunds: formData.totalFunds
+          ? parseFloat(formData.totalFunds)
+          : null,
         token: formData.token,
         applicationUrl: formData.applicationUrl || null,
-        resources: formData.resources.filter(r => r.title && r.url),
-        screening: formData.screening.filter(q => q.question),
+        resources: formData.resources.filter((r) => r.title && r.url),
+        screening: formData.screening.filter((q) => q.question),
         visibility: formData.visibility,
         source: formData.source,
         status: formData.status,
       };
 
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(grantData),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(grantData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to update grant');
@@ -328,26 +367,38 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
           {STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                  currentStep > step.id 
-                    ? 'bg-green-500 text-white' 
-                    : currentStep === step.id 
-                    ? 'bg-[#E6007A] text-white' 
-                    : 'bg-white/10 text-white/60'
-                }`}>
-                  {currentStep > step.id ? <Check className="h-5 w-5" /> : step.id}
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                    currentStep > step.id
+                      ? 'bg-green-500 text-white'
+                      : currentStep === step.id
+                        ? 'bg-[#E6007A] text-white'
+                        : 'bg-white/10 text-white/60'
+                  }`}
+                >
+                  {currentStep > step.id ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    step.id
+                  )}
                 </div>
                 <div className="mt-2 text-center">
-                  <p className={`text-sm font-medium ${
-                    currentStep >= step.id ? 'text-white' : 'text-white/60'
-                  }`}>{step.name}</p>
+                  <p
+                    className={`text-sm font-medium ${
+                      currentStep >= step.id ? 'text-white' : 'text-white/60'
+                    }`}
+                  >
+                    {step.name}
+                  </p>
                   <p className="text-xs text-white/40">{step.description}</p>
                 </div>
               </div>
               {index < STEPS.length - 1 && (
-                <div className={`h-px w-24 mx-4 ${
-                  currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
-                }`} />
+                <div
+                  className={`h-px w-24 mx-4 ${
+                    currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
+                  }`}
+                />
               )}
             </div>
           ))}
@@ -357,7 +408,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
         <Card className="bg-zinc-900/50 border-white/10">
           <CardHeader>
             <CardTitle>{STEPS[currentStep - 1].name}</CardTitle>
-            <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
+            <CardDescription>
+              {STEPS[currentStep - 1].description}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {currentStep === 1 && (
@@ -390,7 +443,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => updateFormData('description', e.target.value)}
+                    onChange={(e) =>
+                      updateFormData('description', e.target.value)
+                    }
                     placeholder="Describe your grant program, what you're looking to fund, and the impact you want to create..."
                     rows={6}
                     className="bg-white/5 border-white/10 text-white"
@@ -402,7 +457,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   <Textarea
                     id="instructions"
                     value={formData.instructions}
-                    onChange={(e) => updateFormData('instructions', e.target.value)}
+                    onChange={(e) =>
+                      updateFormData('instructions', e.target.value)
+                    }
                     placeholder="Provide detailed instructions on how to apply, what to include, etc..."
                     rows={4}
                     className="bg-white/5 border-white/10 text-white"
@@ -413,7 +470,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   <Label className="text-white mb-4 block">Grant Logo</Label>
                   <ImageUpload
                     currentImageUrl={formData.logoUrl}
-                    onImageChange={(url) => updateFormData('logoUrl', url || '')}
+                    onImageChange={(url) =>
+                      updateFormData('logoUrl', url || '')
+                    }
                     uploadType="organization-logo"
                     entityId={id}
                     variant="logo"
@@ -424,7 +483,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   <Label className="text-white mb-4 block">Grant Banner</Label>
                   <ImageUpload
                     currentImageUrl={formData.bannerUrl}
-                    onImageChange={(url) => updateFormData('bannerUrl', url || '')}
+                    onImageChange={(url) =>
+                      updateFormData('bannerUrl', url || '')
+                    }
                     uploadType="grant-banner"
                     entityId={id}
                     variant="banner"
@@ -436,34 +497,12 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   <Label>Skills</Label>
                   <div className="mt-2 space-y-3">
                     <div className="flex flex-wrap gap-2">
-                      {formData.skills.map(skill => (
-                        <Badge 
-                          key={skill}
-                          variant="secondary" 
-                          className="bg-[#E6007A]/20 text-[#E6007A] border-0"
-                        >
-                          {skill}
-                          <button
-                            onClick={() => removeSkill(skill)}
-                            className="ml-2 hover:text-white"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {SKILLS.filter(s => !formData.skills.includes(s)).map(skill => (
-                        <Badge
-                          key={skill}
-                          variant="outline"
-                          className="cursor-pointer border-white/20 text-white/60 hover:bg-white/10 hover:text-white"
-                          onClick={() => addSkill(skill)}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          {skill}
-                        </Badge>
-                      ))}
+                      <SkillsOptions
+                        value={formData.skills ?? []}
+                        onChange={(skills) => {
+                          addSkill(skills);
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -474,7 +513,8 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
               <div className="space-y-6">
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
                   <p className="text-sm text-blue-400">
-                    Funding information is optional. Leave blank if funding amounts are not predetermined.
+                    Funding information is optional. Leave blank if funding
+                    amounts are not predetermined.
                   </p>
                 </div>
 
@@ -485,7 +525,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       id="minAmount"
                       type="number"
                       value={formData.minAmount}
-                      onChange={(e) => updateFormData('minAmount', e.target.value)}
+                      onChange={(e) =>
+                        updateFormData('minAmount', e.target.value)
+                      }
                       placeholder="0"
                       className="bg-white/5 border-white/10 text-white"
                     />
@@ -496,7 +538,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       id="maxAmount"
                       type="number"
                       value={formData.maxAmount}
-                      onChange={(e) => updateFormData('maxAmount', e.target.value)}
+                      onChange={(e) =>
+                        updateFormData('maxAmount', e.target.value)
+                      }
                       placeholder="0"
                       className="bg-white/5 border-white/10 text-white"
                     />
@@ -510,20 +554,29 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       id="totalFunds"
                       type="number"
                       value={formData.totalFunds}
-                      onChange={(e) => updateFormData('totalFunds', e.target.value)}
+                      onChange={(e) =>
+                        updateFormData('totalFunds', e.target.value)
+                      }
                       placeholder="0"
                       className="bg-white/5 border-white/10 text-white"
                     />
                   </div>
                   <div>
                     <Label htmlFor="token">Token</Label>
-                    <Select value={formData.token} onValueChange={(value) => updateFormData('token', value)}>
+                    <Select
+                      value={formData.token}
+                      onValueChange={(value) => updateFormData('token', value)}
+                    >
                       <SelectTrigger className="bg-white/5 border-white/10 text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-white/10">
-                        {TOKENS.map(token => (
-                          <SelectItem key={token.value} value={token.value} className="text-white">
+                        {TOKENS.map((token) => (
+                          <SelectItem
+                            key={token.value}
+                            value={token.value}
+                            className="text-white"
+                          >
                             {token.label}
                           </SelectItem>
                         ))}
@@ -537,17 +590,22 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div>
-                  <Label htmlFor="applicationUrl">External Application URL</Label>
+                  <Label htmlFor="applicationUrl">
+                    External Application URL
+                  </Label>
                   <Input
                     id="applicationUrl"
                     type="url"
                     value={formData.applicationUrl}
-                    onChange={(e) => updateFormData('applicationUrl', e.target.value)}
+                    onChange={(e) =>
+                      updateFormData('applicationUrl', e.target.value)
+                    }
                     placeholder="https://..."
                     className="bg-white/5 border-white/10 text-white"
                   />
                   <p className="text-sm text-white/40 mt-1">
-                    If you have an external application form, provide the URL here.
+                    If you have an external application form, provide the URL
+                    here.
                   </p>
                 </div>
 
@@ -567,24 +625,37 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   {formData.resources.length > 0 ? (
                     <div className="space-y-3">
                       {formData.resources.map((resource, index) => (
-                        <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
+                        <div
+                          key={index}
+                          className="bg-white/5 rounded-lg p-4 space-y-3"
+                        >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
                               <Input
                                 value={resource.title}
-                                onChange={(e) => updateResource(index, 'title', e.target.value)}
+                                onChange={(e) =>
+                                  updateResource(index, 'title', e.target.value)
+                                }
                                 placeholder="Resource title"
                                 className="bg-white/5 border-white/10 text-white"
                               />
                               <Input
                                 value={resource.url}
-                                onChange={(e) => updateResource(index, 'url', e.target.value)}
+                                onChange={(e) =>
+                                  updateResource(index, 'url', e.target.value)
+                                }
                                 placeholder="https://..."
                                 className="bg-white/5 border-white/10 text-white"
                               />
                               <Input
                                 value={resource.description}
-                                onChange={(e) => updateResource(index, 'description', e.target.value)}
+                                onChange={(e) =>
+                                  updateResource(
+                                    index,
+                                    'description',
+                                    e.target.value
+                                  )
+                                }
                                 placeholder="Brief description (optional)"
                                 className="bg-white/5 border-white/10 text-white"
                               />
@@ -602,7 +673,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/40">No resources added yet</p>
+                    <p className="text-sm text-white/40">
+                      No resources added yet
+                    </p>
                   )}
                 </div>
 
@@ -622,34 +695,70 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   {formData.screening.length > 0 ? (
                     <div className="space-y-3">
                       {formData.screening.map((question, index) => (
-                        <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
+                        <div
+                          key={index}
+                          className="bg-white/5 rounded-lg p-4 space-y-3"
+                        >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
                               <Input
                                 value={question.question}
-                                onChange={(e) => updateScreeningQuestion(index, 'question', e.target.value)}
+                                onChange={(e) =>
+                                  updateScreeningQuestion(
+                                    index,
+                                    'question',
+                                    e.target.value
+                                  )
+                                }
                                 placeholder="Enter your question"
                                 className="bg-white/5 border-white/10 text-white"
                               />
                               <div className="flex items-center gap-3">
                                 <Select
                                   value={question.type}
-                                  onValueChange={(value) => updateScreeningQuestion(index, 'type', value)}
+                                  onValueChange={(value) =>
+                                    updateScreeningQuestion(
+                                      index,
+                                      'type',
+                                      value
+                                    )
+                                  }
                                 >
                                   <SelectTrigger className="bg-white/5 border-white/10 text-white w-32">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent className="bg-zinc-900 border-white/10">
-                                    <SelectItem value="text" className="text-white">Text</SelectItem>
-                                    <SelectItem value="url" className="text-white">URL</SelectItem>
-                                    <SelectItem value="file" className="text-white">File</SelectItem>
+                                    <SelectItem
+                                      value="text"
+                                      className="text-white"
+                                    >
+                                      Text
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="url"
+                                      className="text-white"
+                                    >
+                                      URL
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="file"
+                                      className="text-white"
+                                    >
+                                      File
+                                    </SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <label className="flex items-center gap-2 text-sm text-white/60">
                                   <input
                                     type="checkbox"
                                     checked={question.optional}
-                                    onChange={(e) => updateScreeningQuestion(index, 'optional', e.target.checked)}
+                                    onChange={(e) =>
+                                      updateScreeningQuestion(
+                                        index,
+                                        'optional',
+                                        e.target.checked
+                                      )
+                                    }
                                     className="rounded border-white/20"
                                   />
                                   Optional
@@ -669,7 +778,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/40">No screening questions added yet</p>
+                    <p className="text-sm text-white/40">
+                      No screening questions added yet
+                    </p>
                   )}
                 </div>
               </div>
@@ -678,8 +789,10 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
             {currentStep === 4 && (
               <div className="space-y-6">
                 <div className="bg-white/5 rounded-lg p-6 space-y-4">
-                  <h3 className="text-lg font-medium text-white">Review Your Grant</h3>
-                  
+                  <h3 className="text-lg font-medium text-white">
+                    Review Your Grant
+                  </h3>
+
                   <div>
                     <p className="text-sm text-white/60">Title</p>
                     <p className="text-white">{formData.title}</p>
@@ -694,31 +807,44 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
                   <div>
                     <p className="text-sm text-white/60">Description</p>
-                    <p className="text-white whitespace-pre-wrap">{formData.description}</p>
+                    <p className="text-white whitespace-pre-wrap">
+                      {formData.description}
+                    </p>
                   </div>
 
                   {formData.skills.length > 0 && (
                     <div>
                       <p className="text-sm text-white/60">Skills</p>
                       <div className="flex flex-wrap gap-2 mt-1">
-                        {formData.skills.map(skill => (
-                          <Badge key={skill} variant="secondary" className="bg-white/10 text-white border-0">
-                            {skill}
+                        {formData.skills.map((skill) => (
+                          <Badge
+                            key={skill}
+                            variant="secondary"
+                            className="bg-white/10 text-white border-0"
+                          >
+                            {getSkillLabel(skill)}
                           </Badge>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {(formData.minAmount || formData.maxAmount || formData.totalFunds) && (
+                  {(formData.minAmount ||
+                    formData.maxAmount ||
+                    formData.totalFunds) && (
                     <div>
                       <p className="text-sm text-white/60">Funding</p>
                       <div className="space-y-1 mt-1">
                         {formData.minAmount && formData.maxAmount && (
-                          <p className="text-white">Range: {formData.minAmount} - {formData.maxAmount} {formData.token}</p>
+                          <p className="text-white">
+                            Range: {formData.minAmount} - {formData.maxAmount}{' '}
+                            {formData.token}
+                          </p>
                         )}
                         {formData.totalFunds && (
-                          <p className="text-white">Total Funds: {formData.totalFunds} {formData.token}</p>
+                          <p className="text-white">
+                            Total Funds: {formData.totalFunds} {formData.token}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -734,10 +860,14 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         name="source"
                         value="NATIVE"
                         checked={formData.source === 'NATIVE'}
-                        onChange={(e) => updateFormData('source', e.target.value)}
+                        onChange={(e) =>
+                          updateFormData('source', e.target.value)
+                        }
                         className="text-[#E6007A]"
                       />
-                      <span className="text-white">Native (managed in Opentribe)</span>
+                      <span className="text-white">
+                        Native (managed in Opentribe)
+                      </span>
                     </label>
                     <label className="flex items-center gap-2">
                       <input
@@ -745,24 +875,39 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         name="source"
                         value="EXTERNAL"
                         checked={formData.source === 'EXTERNAL'}
-                        onChange={(e) => updateFormData('source', e.target.value)}
+                        onChange={(e) =>
+                          updateFormData('source', e.target.value)
+                        }
                         className="text-[#E6007A]"
                       />
-                      <span className="text-white">External (managed externally)</span>
+                      <span className="text-white">
+                        External (managed externally)
+                      </span>
                     </label>
                   </div>
                 </div>
 
                 <div>
                   <Label>Grant Status</Label>
-                  <Select value={formData.status} onValueChange={(value: any) => updateFormData('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value: any) =>
+                      updateFormData('status', value)
+                    }
+                  >
                     <SelectTrigger className="bg-white/5 border-white/10 text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10">
-                      <SelectItem value="OPEN" className="text-white">Open</SelectItem>
-                      <SelectItem value="PAUSED" className="text-white">Paused</SelectItem>
-                      <SelectItem value="CLOSED" className="text-white">Closed</SelectItem>
+                      <SelectItem value="OPEN" className="text-white">
+                        Open
+                      </SelectItem>
+                      <SelectItem value="PAUSED" className="text-white">
+                        Paused
+                      </SelectItem>
+                      <SelectItem value="CLOSED" className="text-white">
+                        Closed
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -776,7 +921,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         name="visibility"
                         value="DRAFT"
                         checked={formData.visibility === 'DRAFT'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
+                        onChange={(e) =>
+                          updateFormData('visibility', e.target.value)
+                        }
                         className="text-[#E6007A]"
                       />
                       <span className="text-white">Draft</span>
@@ -787,7 +934,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         name="visibility"
                         value="PUBLISHED"
                         checked={formData.visibility === 'PUBLISHED'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
+                        onChange={(e) =>
+                          updateFormData('visibility', e.target.value)
+                        }
                         className="text-[#E6007A]"
                       />
                       <span className="text-white">Published</span>
@@ -798,7 +947,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         name="visibility"
                         value="ARCHIVED"
                         checked={formData.visibility === 'ARCHIVED'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
+                        onChange={(e) =>
+                          updateFormData('visibility', e.target.value)
+                        }
                         className="text-[#E6007A]"
                       />
                       <span className="text-white">Archived</span>
@@ -814,7 +965,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
         <div className="flex justify-between">
           <Button
             variant="outline"
-            onClick={currentStep > 1 ? handleBack : () => router.push(`/grants/${id}`)}
+            onClick={
+              currentStep > 1 ? handleBack : () => router.push(`/grants/${id}`)
+            }
             className="border-white/20 text-white hover:bg-white/10"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />

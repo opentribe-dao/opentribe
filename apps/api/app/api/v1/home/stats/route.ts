@@ -107,7 +107,10 @@ async function calculatePlatformStats(): Promise<
 > {
   const [activeBounties, activeGrants] = await Promise.all([
     database.bounty.count({
-      where: { visibility: "PUBLISHED", status: { in: ["OPEN"] } },
+      where: {
+        visibility: "PUBLISHED",
+        status: { in: ["OPEN", "COMPLETED", "REVIEWING"] },
+      },
     }),
     database.grant.count({
       where: { visibility: "PUBLISHED", status: "OPEN" },
@@ -133,23 +136,23 @@ async function calculatePlatformStats(): Promise<
     ...applicationUsers.map((u) => u.userId),
   ]);
 
-  const [bountyAgg, grantsForSum] = await Promise.all([
+  const [bountyAgg, grantsAgg] = await Promise.all([
     database.bounty.aggregate({
-      _sum: { amount: true },
-      where: { winnersAnnouncedAt: { not: null } },
+      _sum: { amountUSD: true },
+      where: {
+        winnersAnnouncedAt: { not: null },
+        visibility: "PUBLISHED",
+        status: { in: ["OPEN", "COMPLETED", "REVIEWING"] },
+      },
     }),
-    database.grant.findMany({
-      select: { id: true, maxAmount: true, minAmount: true },
+    database.grant.aggregate({
+      _sum: { totalFundsUSD: true },
       where: { visibility: "PUBLISHED", status: "OPEN" },
     }),
   ]);
 
-  const bountyTotal = Number(bountyAgg?._sum?.amount ?? 0);
-  const grantTotal = grantsForSum.reduce((sum, g) => {
-    const max = g.maxAmount ? Number(g.maxAmount) : 0;
-    const min = g.minAmount ? Number(g.minAmount) : 0;
-    return sum + Math.max(max, min);
-  }, 0);
+  const bountyTotal = Number(bountyAgg?._sum?.amountUSD ?? 0);
+  const grantTotal = Number(grantsAgg?._sum?.totalFundsUSD ?? 0);
   const totalRewards = formatCurrency(bountyTotal + grantTotal);
 
   return {
@@ -169,16 +172,18 @@ async function getFeaturedOrganizations(): Promise<
     database.bounty.groupBy({
       by: ["organizationId"],
       _where: undefined as unknown as never,
-      where: { visibility: "PUBLISHED", status: { in: ["OPEN", "COMPLETED"] } },
-      _sum: { amount: true },
+      where: {
+        visibility: "PUBLISHED",
+        status: { in: ["OPEN", "COMPLETED", "REVIEWING"] },
+      },
+      _sum: { amountUSD: true },
       _count: { _all: true },
     } as any),
     database.grant.findMany({
       where: { visibility: "PUBLISHED", status: "OPEN" },
       select: {
         organizationId: true,
-        maxAmount: true,
-        minAmount: true,
+        totalFundsUSD: true,
         id: true,
       },
     }),
@@ -199,10 +204,8 @@ async function getFeaturedOrganizations(): Promise<
   const grantsByOrg = new Map<string, { count: number; value: number }>();
   for (const g of grantAggByOrg) {
     const current = grantsByOrg.get(g.organizationId) || { count: 0, value: 0 };
-    const max = g.maxAmount ? Number(g.maxAmount) : 0;
-    const min = g.minAmount ? Number(g.minAmount) : 0;
     current.count += 1;
-    current.value += Math.max(max, min);
+    current.value += Number(g.totalFundsUSD ?? 0);
     grantsByOrg.set(g.organizationId, current);
   }
 

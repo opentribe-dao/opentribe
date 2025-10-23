@@ -1,6 +1,7 @@
 import type { BountyDetails } from '@/hooks/use-bounty';
 import { Badge } from '@packages/base/components/ui/badge';
 import { Label } from '@packages/base/components/ui/label';
+import { getSkillLabel } from '@packages/base/lib/skills';
 
 interface BountyReviewProps {
   formData: Partial<BountyDetails>;
@@ -40,7 +41,7 @@ export const BountyReviewStepComponent: React.FC<BountyReviewProps> = ({
                 variant="secondary"
                 className="border-0 bg-white/10 text-white"
               >
-                {skill}
+                {getSkillLabel(skill)}
               </Badge>
             ))}
           </div>

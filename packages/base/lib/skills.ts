@@ -140,3 +140,36 @@ export const skillsOptions = [
     ],
   },
 ];
+
+const skillLabelMap = new Map<string, string>();
+skillsOptions.forEach(category => {
+  category.options.forEach(option => {
+    skillLabelMap.set(option.value, option.label);
+  });
+});
+
+/**
+ * Helper function to get the display label for a skill value
+ * @param value - The skill value (e.g., "react", "typescript")
+ * @returns The corresponding label (e.g., "React", "Typescript") or the original value if not found
+ * 
+ * @example
+ * getSkillLabel("react") // Returns "React"
+ * getSkillLabel("typescript") // Returns "Typescript"
+ * getSkillLabel("unknown-skill") // Returns "unknown-skill"
+ */
+export function getSkillLabel(value: string): string {
+  return skillLabelMap.get(value) ?? value;
+}
+
+/**
+ * Helper function to get multiple skill labels from an array of values
+ * @param values - Array of skill values
+ * @returns Array of corresponding labels
+ * 
+ * @example
+ * getSkillLabels(["react", "typescript"]) // Returns ["React", "Typescript"]
+ */
+export function getSkillLabels(values: string[]): string[] {
+  return values.map(value => getSkillLabel(value));
+}

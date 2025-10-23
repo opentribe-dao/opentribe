@@ -20,26 +20,29 @@ import {
   SelectValue,
 } from '@packages/base/components/ui/select';
 import { Badge } from '@packages/base/components/ui/badge';
-import { CalendarIcon, Check, ChevronLeft, ChevronRight, Loader2, Plus, X } from 'lucide-react';
+import {
+  CalendarIcon,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Plus,
+  X,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, use } from 'react';
 import { toast } from 'sonner';
 import { Header } from '../../../components/header';
 import { env } from '@/env';
 import { MarkdownEditor } from '@packages/base/components/ui/markdown-editor';
+import SkillsOptions from '@packages/base/components/ui/skills-options';
+import { getSkillLabel } from '@packages/base/lib/skills';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
   { id: 2, name: 'Rewards', description: 'Prize distribution' },
   { id: 3, name: 'Requirements', description: 'Submission criteria' },
   { id: 4, name: 'Publish', description: 'Review and publish' },
-];
-
-const SKILLS = [
-  'Rust', 'Substrate', 'Polkadot SDK', 'Smart Contracts', 'ink!',
-  'JavaScript', 'TypeScript', 'React', 'Node.js', 'Web3.js',
-  'UI/UX Design', 'Technical Writing', 'Marketing', 'Community Management',
-  'DeFi', 'NFTs', 'Governance', 'Research', 'Data Analysis'
 ];
 
 const TOKENS = [
@@ -64,7 +67,11 @@ interface BountyFormData {
   // Step 3: Requirements
   deadline: string;
   resources: Array<{ title: string; url: string; description: string }>;
-  screening: Array<{ question: string; type: 'text' | 'url' | 'file'; optional: boolean }>;
+  screening: Array<{
+    question: string;
+    type: 'text' | 'url' | 'file';
+    optional: boolean;
+  }>;
 
   // Step 4: Publish
   visibility: 'DRAFT' | 'PUBLISHED';
@@ -132,8 +139,6 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
             amount: String(amount),
           }));
 
-    
-
         setFormData({
           title: bounty.title,
           description: bounty.description,
@@ -142,7 +147,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
           token: bounty.token,
           split: bounty.split,
           winners,
-          deadline: bounty.deadline ? new Date(bounty.deadline).toISOString().split('T')[0] : '',
+          deadline: bounty.deadline
+            ? new Date(bounty.deadline).toISOString().split('T')[0]
+            : '',
           resources: bounty.resources || [],
           screening: bounty.screening || [],
           visibility: bounty.visibility,
@@ -185,78 +192,120 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
   }
 
   const updateFormData = (field: keyof BountyFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const addSkill = (skill: string) => {
-    if (!formData.skills.includes(skill)) {
-      updateFormData('skills', [...formData.skills, skill]);
-    }
+  const addSkill = (skills: string[]) => {
+    updateFormData('skills', skills);
   };
-
   const removeSkill = (skill: string) => {
-    updateFormData('skills', formData.skills.filter(s => s !== skill));
+    updateFormData(
+      'skills',
+      formData.skills.filter((s) => s !== skill)
+    );
   };
 
   const addWinner = () => {
     const newPosition = formData.winners.length + 1;
-    updateFormData('winners', [...formData.winners, { position: newPosition, amount: '' }]);
+    updateFormData('winners', [
+      ...formData.winners,
+      { position: newPosition, amount: '' },
+    ]);
   };
 
   const removeWinner = (position: number) => {
-    updateFormData('winners', formData.winners.filter(w => w.position !== position));
+    updateFormData(
+      'winners',
+      formData.winners.filter((w) => w.position !== position)
+    );
   };
 
   const updateWinner = (position: number, amount: string) => {
-    updateFormData('winners', formData.winners.map(w => 
-      w.position === position ? { ...w, amount } : w
-    ));
+    updateFormData(
+      'winners',
+      formData.winners.map((w) =>
+        w.position === position ? { ...w, amount } : w
+      )
+    );
   };
 
   const addResource = () => {
-    updateFormData('resources', [...formData.resources, { title: '', url: '', description: '' }]);
+    updateFormData('resources', [
+      ...formData.resources,
+      { title: '', url: '', description: '' },
+    ]);
   };
 
   const removeResource = (index: number) => {
-    updateFormData('resources', formData.resources.filter((_, i) => i !== index));
+    updateFormData(
+      'resources',
+      formData.resources.filter((_, i) => i !== index)
+    );
   };
 
-  const updateResource = (index: number, field: keyof typeof formData.resources[0], value: string) => {
-    updateFormData('resources', formData.resources.map((r, i) => 
-      i === index ? { ...r, [field]: value } : r
-    ));
+  const updateResource = (
+    index: number,
+    field: keyof (typeof formData.resources)[0],
+    value: string
+  ) => {
+    updateFormData(
+      'resources',
+      formData.resources.map((r, i) =>
+        i === index ? { ...r, [field]: value } : r
+      )
+    );
   };
 
   const addScreeningQuestion = () => {
-    updateFormData('screening', [...formData.screening, { question: '', type: 'text', optional: false }]);
+    updateFormData('screening', [
+      ...formData.screening,
+      { question: '', type: 'text', optional: false },
+    ]);
   };
 
   const removeScreeningQuestion = (index: number) => {
-    updateFormData('screening', formData.screening.filter((_, i) => i !== index));
+    updateFormData(
+      'screening',
+      formData.screening.filter((_, i) => i !== index)
+    );
   };
 
-  const updateScreeningQuestion = (index: number, field: keyof typeof formData.screening[0], value: any) => {
-    updateFormData('screening', formData.screening.map((q, i) => 
-      i === index ? { ...q, [field]: value } : q
-    ));
+  const updateScreeningQuestion = (
+    index: number,
+    field: keyof (typeof formData.screening)[0],
+    value: any
+  ) => {
+    updateFormData(
+      'screening',
+      formData.screening.map((q, i) =>
+        i === index ? { ...q, [field]: value } : q
+      )
+    );
   };
 
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        if (!formData.title || !formData.description || formData.skills.length === 0) {
+        if (
+          !formData.title ||
+          !formData.description ||
+          formData.skills.length === 0
+        ) {
           toast.error('Please fill in all required fields');
           return false;
         }
         return true;
       case 2:
-        if (!formData.totalAmount || formData.winners.some(w => !w.amount)) {
+        if (!formData.totalAmount || formData.winners.some((w) => !w.amount)) {
           toast.error('Please specify all reward amounts');
           return false;
         }
         // Check if winner amounts add up to total
         const total = parseFloat(formData.totalAmount);
-        const winnersTotal = formData.winners.reduce((sum, w) => sum + parseFloat(w.amount || '0'), 0);
+        const winnersTotal = formData.winners.reduce(
+          (sum, w) => sum + parseFloat(w.amount || '0'),
+          0
+        );
         if (Math.abs(total - winnersTotal) > 0.01) {
           toast.error('Winner rewards must add up to the total amount');
           return false;
@@ -277,12 +326,12 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4));
+      setCurrentStep((prev) => Math.min(prev + 1, 4));
     }
   };
 
   const handleBack = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = async () => {
@@ -290,33 +339,39 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
     try {
       setSubmitting(true);
-      
+
       // Prepare the bounty data for API
       const bountyData = {
         title: formData.title,
         description: formData.description,
         skills: formData.skills,
-        amount: parseFloat(formData.totalAmount),
+        amount: Number.parseFloat(formData.totalAmount),
         token: formData.token,
         split: formData.split,
-        winnings: formData.winners.reduce((acc, w) => ({
-          ...acc,
-          [w.position]: parseFloat(w.amount)
-        }), {}),
+        winnings: formData.winners.reduce(
+          (acc, w) => ({
+            ...acc,
+            [w.position]: Number.parseFloat(w.amount),
+          }),
+          {}
+        ),
         deadline: new Date(formData.deadline).toISOString(),
-        resources: formData.resources.filter(r => r.title && r.url),
-        screening: formData.screening.filter(q => q.question),
+        resources: formData.resources.filter((r) => r.title && r.url),
+        screening: formData.screening.filter((q) => q.question),
         visibility: formData.visibility,
       };
 
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(bountyData),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(bountyData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to update bounty');
@@ -342,26 +397,38 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
           {STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                  currentStep > step.id 
-                    ? 'bg-green-500 text-white' 
-                    : currentStep === step.id 
-                    ? 'bg-[#E6007A] text-white' 
-                    : 'bg-white/10 text-white/60'
-                }`}>
-                  {currentStep > step.id ? <Check className="h-5 w-5" /> : step.id}
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                    currentStep > step.id
+                      ? 'bg-green-500 text-white'
+                      : currentStep === step.id
+                        ? 'bg-[#E6007A] text-white'
+                        : 'bg-white/10 text-white/60'
+                  }`}
+                >
+                  {currentStep > step.id ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    step.id
+                  )}
                 </div>
                 <div className="mt-2 text-center">
-                  <p className={`text-sm font-medium ${
-                    currentStep >= step.id ? 'text-white' : 'text-white/60'
-                  }`}>{step.name}</p>
+                  <p
+                    className={`text-sm font-medium ${
+                      currentStep >= step.id ? 'text-white' : 'text-white/60'
+                    }`}
+                  >
+                    {step.name}
+                  </p>
                   <p className="text-xs text-white/40">{step.description}</p>
                 </div>
               </div>
               {index < STEPS.length - 1 && (
-                <div className={`h-px w-24 mx-4 ${
-                  currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
-                }`} />
+                <div
+                  className={`h-px w-24 mx-4 ${
+                    currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
+                  }`}
+                />
               )}
             </div>
           ))}
@@ -369,10 +436,6 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
         {/* Form Content */}
         <Card className="bg-zinc-900/50 border-white/10">
-          <CardHeader>
-            <CardTitle>{STEPS[currentStep - 1].name}</CardTitle>
-            <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
-          </CardHeader>
           <CardContent>
             {currentStep === 1 && (
               <div className="space-y-6">
@@ -390,45 +453,23 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 <div className="space-y-2">
                   <Label htmlFor="description">Description *</Label>
                   <MarkdownEditor
-                  value={formData.description}
-                  onChange={(value) => updateFormData('description', value)}
-                  placeholder="Provide a detailed description of what you're looking for..."
-                  height={400}
-                />
+                    value={formData.description}
+                    onChange={(value) => updateFormData('description', value)}
+                    placeholder="Provide a detailed description of what you're looking for..."
+                    height={400}
+                  />
                 </div>
 
                 <div>
                   <Label>Required Skills *</Label>
                   <div className="mt-2 space-y-3">
                     <div className="flex flex-wrap gap-2">
-                      {formData.skills.map(skill => (
-                        <Badge 
-                          key={skill}
-                          variant="secondary" 
-                          className="bg-[#E6007A]/20 text-[#E6007A] border-0"
-                        >
-                          {skill}
-                          <button
-                            onClick={() => removeSkill(skill)}
-                            className="ml-2 hover:text-white"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {SKILLS.filter(s => !formData.skills.includes(s)).map(skill => (
-                        <Badge
-                          key={skill}
-                          variant="outline"
-                          className="cursor-pointer border-white/20 text-white/60 hover:bg-white/10 hover:text-white"
-                          onClick={() => addSkill(skill)}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          {skill}
-                        </Badge>
-                      ))}
+                      <SkillsOptions
+                        value={formData.skills ?? []}
+                        onChange={(skills) => {
+                          addSkill(skills);
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -444,20 +485,29 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       id="totalAmount"
                       type="number"
                       value={formData.totalAmount}
-                      onChange={(e) => updateFormData('totalAmount', e.target.value)}
+                      onChange={(e) =>
+                        updateFormData('totalAmount', e.target.value)
+                      }
                       placeholder="1000"
                       className="bg-white/5 border-white/10 text-white"
                     />
                   </div>
                   <div>
                     <Label htmlFor="token">Token *</Label>
-                    <Select value={formData.token} onValueChange={(value) => updateFormData('token', value)}>
+                    <Select
+                      value={formData.token}
+                      onValueChange={(value) => updateFormData('token', value)}
+                    >
                       <SelectTrigger className="bg-white/5 border-white/10 text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-white/10">
-                        {TOKENS.map(token => (
-                          <SelectItem key={token.value} value={token.value} className="text-white">
+                        {TOKENS.map((token) => (
+                          <SelectItem
+                            key={token.value}
+                            value={token.value}
+                            className="text-white"
+                          >
                             {token.label}
                           </SelectItem>
                         ))}
@@ -473,14 +523,25 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   </p>
                   <div className="space-y-3">
                     {formData.winners.map((winner, index) => (
-                      <div key={winner.position} className="flex items-center gap-3">
+                      <div
+                        key={winner.position}
+                        className="flex items-center gap-3"
+                      >
                         <span className="text-sm text-white/60 w-20">
-                          {index === 0 ? '1st Place' : index === 1 ? '2nd Place' : index === 2 ? '3rd Place' : `${winner.position}th Place`}
+                          {index === 0
+                            ? '1st Place'
+                            : index === 1
+                              ? '2nd Place'
+                              : index === 2
+                                ? '3rd Place'
+                                : `${winner.position}th Place`}
                         </span>
                         <Input
                           type="number"
                           value={winner.amount}
-                          onChange={(e) => updateWinner(winner.position, e.target.value)}
+                          onChange={(e) =>
+                            updateWinner(winner.position, e.target.value)
+                          }
                           placeholder="Amount"
                           className="bg-white/5 border-white/10 text-white flex-1"
                         />
@@ -520,7 +581,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       id="deadline"
                       type="date"
                       value={formData.deadline}
-                      onChange={(e) => updateFormData('deadline', e.target.value)}
+                      onChange={(e) =>
+                        updateFormData('deadline', e.target.value)
+                      }
                       min={new Date().toISOString().split('T')[0]}
                       className="bg-white/5 border-white/10 text-white"
                     />
@@ -544,24 +607,37 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   {formData.resources.length > 0 ? (
                     <div className="space-y-3">
                       {formData.resources.map((resource, index) => (
-                        <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
+                        <div
+                          key={index}
+                          className="bg-white/5 rounded-lg p-4 space-y-3"
+                        >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
                               <Input
                                 value={resource.title}
-                                onChange={(e) => updateResource(index, 'title', e.target.value)}
+                                onChange={(e) =>
+                                  updateResource(index, 'title', e.target.value)
+                                }
                                 placeholder="Resource title"
                                 className="bg-white/5 border-white/10 text-white"
                               />
                               <Input
                                 value={resource.url}
-                                onChange={(e) => updateResource(index, 'url', e.target.value)}
+                                onChange={(e) =>
+                                  updateResource(index, 'url', e.target.value)
+                                }
                                 placeholder="https://..."
                                 className="bg-white/5 border-white/10 text-white"
                               />
                               <Input
                                 value={resource.description}
-                                onChange={(e) => updateResource(index, 'description', e.target.value)}
+                                onChange={(e) =>
+                                  updateResource(
+                                    index,
+                                    'description',
+                                    e.target.value
+                                  )
+                                }
                                 placeholder="Brief description (optional)"
                                 className="bg-white/5 border-white/10 text-white"
                               />
@@ -579,7 +655,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/40">No resources added yet</p>
+                    <p className="text-sm text-white/40">
+                      No resources added yet
+                    </p>
                   )}
                 </div>
 
@@ -599,34 +677,70 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   {formData.screening.length > 0 ? (
                     <div className="space-y-3">
                       {formData.screening.map((question, index) => (
-                        <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3">
+                        <div
+                          key={index}
+                          className="bg-white/5 rounded-lg p-4 space-y-3"
+                        >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
                               <Input
                                 value={question.question}
-                                onChange={(e) => updateScreeningQuestion(index, 'question', e.target.value)}
+                                onChange={(e) =>
+                                  updateScreeningQuestion(
+                                    index,
+                                    'question',
+                                    e.target.value
+                                  )
+                                }
                                 placeholder="Enter your question"
                                 className="bg-white/5 border-white/10 text-white"
                               />
                               <div className="flex items-center gap-3">
                                 <Select
                                   value={question.type}
-                                  onValueChange={(value) => updateScreeningQuestion(index, 'type', value)}
+                                  onValueChange={(value) =>
+                                    updateScreeningQuestion(
+                                      index,
+                                      'type',
+                                      value
+                                    )
+                                  }
                                 >
                                   <SelectTrigger className="bg-white/5 border-white/10 text-white w-32">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent className="bg-zinc-900 border-white/10">
-                                    <SelectItem value="text" className="text-white">Text</SelectItem>
-                                    <SelectItem value="url" className="text-white">URL</SelectItem>
-                                    <SelectItem value="file" className="text-white">File</SelectItem>
+                                    <SelectItem
+                                      value="text"
+                                      className="text-white"
+                                    >
+                                      Text
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="url"
+                                      className="text-white"
+                                    >
+                                      URL
+                                    </SelectItem>
+                                    <SelectItem
+                                      value="file"
+                                      className="text-white"
+                                    >
+                                      File
+                                    </SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <label className="flex items-center gap-2 text-sm text-white/60">
                                   <input
                                     type="checkbox"
                                     checked={question.optional}
-                                    onChange={(e) => updateScreeningQuestion(index, 'optional', e.target.checked)}
+                                    onChange={(e) =>
+                                      updateScreeningQuestion(
+                                        index,
+                                        'optional',
+                                        e.target.checked
+                                      )
+                                    }
                                     className="rounded border-white/20"
                                   />
                                   Optional
@@ -646,7 +760,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/40">No screening questions added yet</p>
+                    <p className="text-sm text-white/40">
+                      No screening questions added yet
+                    </p>
                   )}
                 </div>
               </div>
@@ -655,8 +771,10 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
             {currentStep === 4 && (
               <div className="space-y-6">
                 <div className="bg-white/5 rounded-lg p-6 space-y-4">
-                  <h3 className="text-lg font-medium text-white">Review Your Bounty</h3>
-                  
+                  <h3 className="text-lg font-medium text-white">
+                    Review Your Bounty
+                  </h3>
+
                   <div>
                     <p className="text-sm text-white/60">Title</p>
                     <p className="text-white">{formData.title}</p>
@@ -664,15 +782,21 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
                   <div>
                     <p className="text-sm text-white/60">Description</p>
-                    <p className="text-white whitespace-pre-wrap">{formData.description}</p>
+                    <p className="text-white whitespace-pre-wrap">
+                      {formData.description}
+                    </p>
                   </div>
 
                   <div>
                     <p className="text-sm text-white/60">Skills Required</p>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {formData.skills.map(skill => (
-                        <Badge key={skill} variant="secondary" className="bg-white/10 text-white border-0">
-                          {skill}
+                      {formData.skills.map((skill) => (
+                        <Badge
+                          key={skill}
+                          variant="secondary"
+                          className="bg-white/10 text-white border-0"
+                        >
+                          {getSkillLabel(skill)}
                         </Badge>
                       ))}
                     </div>
@@ -680,7 +804,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
                   <div>
                     <p className="text-sm text-white/60">Total Reward</p>
-                    <p className="text-white">{formData.totalAmount} {formData.token}</p>
+                    <p className="text-white">
+                      {formData.totalAmount} {formData.token}
+                    </p>
                   </div>
 
                   <div>
@@ -688,7 +814,14 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     <div className="space-y-1 mt-1">
                       {formData.winners.map((winner, index) => (
                         <p key={winner.position} className="text-white">
-                          {index === 0 ? '1st' : index === 1 ? '2nd' : index === 2 ? '3rd' : `${winner.position}th`} Place: {winner.amount} {formData.token}
+                          {index === 0
+                            ? '1st'
+                            : index === 1
+                              ? '2nd'
+                              : index === 2
+                                ? '3rd'
+                                : `${winner.position}th`}{' '}
+                          Place: {winner.amount} {formData.token}
                         </p>
                       ))}
                     </div>
@@ -696,7 +829,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
                   <div>
                     <p className="text-sm text-white/60">Deadline</p>
-                    <p className="text-white">{new Date(formData.deadline).toLocaleDateString()}</p>
+                    <p className="text-white">
+                      {new Date(formData.deadline).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
 
@@ -709,7 +844,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         name="visibility"
                         value="DRAFT"
                         checked={formData.visibility === 'DRAFT'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
+                        onChange={(e) =>
+                          updateFormData('visibility', e.target.value)
+                        }
                         className="text-[#E6007A]"
                       />
                       <span className="text-white">Save as Draft</span>
@@ -720,7 +857,9 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         name="visibility"
                         value="PUBLISHED"
                         checked={formData.visibility === 'PUBLISHED'}
-                        onChange={(e) => updateFormData('visibility', e.target.value)}
+                        onChange={(e) =>
+                          updateFormData('visibility', e.target.value)
+                        }
                         className="text-[#E6007A]"
                       />
                       <span className="text-white">Publish Now</span>

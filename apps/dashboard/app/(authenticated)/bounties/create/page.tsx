@@ -57,8 +57,6 @@ const CreateBountyPage = () => {
     removeSkill,
   } = useBountyForm();
 
-  const { data: SKILLS = [] } = useBountySkills();
-
   useEffect(() => {
     if (!sessionLoading && !session?.user) {
       router.push('/sign-in');
@@ -179,7 +177,6 @@ const CreateBountyPage = () => {
                   updateFormData={updateFormData}
                   addSkill={addSkill}
                   removeSkill={removeSkill}
-                  skills={SKILLS}
                 />
               ),
               rewards: () => (

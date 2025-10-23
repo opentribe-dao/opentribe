@@ -16,13 +16,7 @@
     },
     {
       "path": "/cron/update-usd-amount",
-      "schedule": "*/20 * * * *",
-      "headers": [
-        {
-          "key": "Authorization",
-          "value": "Bearer ${env.CRON_SECRET}"
-        }
-      ]
+      "schedule": "*/20 * * * *"
     },
     {
       "path": "/cron/winner-announcement-reminder",

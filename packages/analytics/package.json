@@ -11,7 +11,7 @@
     "@t3-oss/env-nextjs": "^0.13.4",
     "@vercel/analytics": "^1.5.0",
     "posthog-js": "^1.246.0",
-    "posthog-node": "^4.17.2",
+    "posthog-node": "^5.10.3",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-email": "^4.2.6",

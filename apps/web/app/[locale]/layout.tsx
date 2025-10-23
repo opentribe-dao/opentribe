@@ -1,6 +1,6 @@
 import "./styles.css";
-import { AuthProvider } from "@packages/auth/provider";
-import { BaseProvider, Background } from "@packages/base";
+import { BaseProvider } from "@packages/base";
+import { Background } from "@packages/base/components/background";
 import { fonts } from "@packages/base/lib/fonts";
 import { cn } from "@packages/base/lib/utils";
 import { Toolbar } from "@packages/feature-flags/components/toolbar";
@@ -11,6 +11,9 @@ import { cookies } from "next/headers";
 import CookieBanner from "./legal/components/cookie-banner";
 import { SiteLayout } from "./components/site-layout";
 import Providers from "./components/providers";
+import { AnalyticsProvider } from "@packages/analytics";
+import { createSiteMetadata } from "@packages/seo/meta";
+import { defaultDescription, defaultKeywords } from "@packages/seo/config";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -31,23 +34,27 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
       suppressHydrationWarning
     >
       <body>
-        <Background />
-        <BaseProvider>
-          <AuthProvider>
-          <Providers>
-            <SiteLayout dictionary={dictionary}>
-              {children}
-            </SiteLayout>
-            <Toaster />
-            {!consent && <CookieBanner />}
-          </Providers>
-          </AuthProvider>
-        </BaseProvider>
-        <Toolbar />
-        {/*<CMSToolbar />*/}
+        <AnalyticsProvider>
+          <Background />
+          <BaseProvider>
+            <Providers>
+              <SiteLayout dictionary={dictionary}>{children}</SiteLayout>
+              <Toaster />
+              {!consent && <CookieBanner />}
+            </Providers>
+          </BaseProvider>
+          <Toolbar />
+          {/*<CMSToolbar />*/}
+        </AnalyticsProvider>
       </body>
     </html>
   );
 };
 
 export default RootLayout;
+
+export const metadata = createSiteMetadata({
+  title: "Opentribe",
+  description: defaultDescription,
+  keywords: defaultKeywords,
+});

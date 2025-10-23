@@ -42,7 +42,7 @@ describe("Bounty Stats API", () => {
       vi.mocked(database.bounty.count).mockResolvedValue(mockBountiesCount);
       vi.mocked(database.bounty.aggregate).mockResolvedValue({
         _sum: {
-          amount: new Prisma.Decimal(mockRewardsSum),
+          amountUSD: new Prisma.Decimal(mockRewardsSum),
         },
         _avg: {},
         _count: {},
@@ -61,7 +61,7 @@ describe("Bounty Stats API", () => {
       expect(response.status).toBe(200);
       expect(data).toEqual({
         total_bounties_count: 42,
-        total_rewards_earned: 150000,
+        total_rewards: 150000,
       });
 
       // Verify cache was checked and set
@@ -70,7 +70,7 @@ describe("Bounty Stats API", () => {
         "bounties:stats",
         JSON.stringify({
           total_bounties_count: 42,
-          total_rewards_earned: 150000,
+          total_rewards: 150000,
         }),
         { ex: 600 }
       );
@@ -84,10 +84,12 @@ describe("Bounty Stats API", () => {
       expect(database.bounty.aggregate).toHaveBeenCalledWith({
         where: {
           visibility: "PUBLISHED",
-          status: "COMPLETED",
+          status: {
+            in: ["COMPLETED", "OPEN", "REVIEWING"],
+          },
         },
         _sum: {
-          amount: true,
+          amountUSD: true,
         },
       });
     });
@@ -96,7 +98,7 @@ describe("Bounty Stats API", () => {
       // Arrange
       const cachedData = {
         total_bounties_count: 42,
-        total_rewards_earned: 150000,
+        total_rewards: 150000,
       };
 
       vi.mocked(redis.get).mockResolvedValue(JSON.stringify(cachedData));
@@ -147,7 +149,7 @@ describe("Bounty Stats API", () => {
       expect(response.status).toBe(200);
       expect(data).toEqual({
         total_bounties_count: 10,
-        total_rewards_earned: 0,
+        total_rewards: 0,
       });
     });
 
@@ -158,7 +160,7 @@ describe("Bounty Stats API", () => {
       vi.mocked(database.bounty.count).mockResolvedValue(0);
       vi.mocked(database.bounty.aggregate).mockResolvedValue({
         _sum: {
-          amount: null,
+          amountUSD: null,
         },
         _avg: {},
         _count: {},
@@ -177,7 +179,7 @@ describe("Bounty Stats API", () => {
       expect(response.status).toBe(200);
       expect(data).toEqual({
         total_bounties_count: 0,
-        total_rewards_earned: 0,
+        total_rewards: 0,
       });
     });
 
@@ -188,7 +190,7 @@ describe("Bounty Stats API", () => {
       vi.mocked(database.bounty.count).mockResolvedValue(5);
       vi.mocked(database.bounty.aggregate).mockResolvedValue({
         _sum: {
-          amount: new Prisma.Decimal(10000),
+          amountUSD: new Prisma.Decimal(10000),
         },
         _avg: {},
         _count: {},
@@ -216,7 +218,7 @@ describe("Bounty Stats API", () => {
       vi.mocked(database.bounty.count).mockResolvedValue(5);
       vi.mocked(database.bounty.aggregate).mockResolvedValue({
         _sum: {
-          amount: new Prisma.Decimal(10000),
+          amountUSD: new Prisma.Decimal(10000),
         },
         _avg: {},
         _count: {},
@@ -310,7 +312,7 @@ describe("Bounty Stats API", () => {
       vi.mocked(database.bounty.count).mockResolvedValue(mockBountiesCount);
       vi.mocked(database.bounty.aggregate).mockResolvedValue({
         _sum: {
-          amount: new Prisma.Decimal(mockRewardsSum),
+          amountUSD: new Prisma.Decimal(mockRewardsSum),
         },
         _avg: {},
         _count: {},
@@ -328,7 +330,7 @@ describe("Bounty Stats API", () => {
       // Assert
       expect(response.status).toBe(200);
       expect(data.total_bounties_count).toBe(100);
-      expect(data.total_rewards_earned).toBe(999999999.99);
+      expect(data.total_rewards).toBe(999999999.99);
     });
   });
 });

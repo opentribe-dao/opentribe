@@ -309,6 +309,7 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
         skills: ["Solidity", "Web3.js", "Cross-chain", "DeFi", "NFTs"],
         minAmount: 5000,
         maxAmount: 50000,
+        totalFunds: 10000000,
         token: "GLMR",
         status: "OPEN",
         visibility: "PUBLISHED",

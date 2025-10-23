@@ -82,7 +82,10 @@ const authOptions = {
     crossSubDomainCookies: {
       enabled: true,
       domain:
-        process.env.NODE_ENV === "production" ? ".opentribe.io" : "localhost",
+        process.env.VERCEL_TARGET_ENV === "production" ||
+        process.env.VERCEL_TARGET_ENV === "dev"
+          ? ".opentribe.io"
+          : "localhost",
     },
     defaultCookieAttributes: {
       secure: true,

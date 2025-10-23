@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
 
     // Development mode: Accept test transactions
     if (
-      process.env.NODE_ENV === "development" &&
+      (process.env.NODE_ENV === "development" ||
+        process.env.VERCEL_TARGET_ENV === "dev") &&
       validatedData.extrinsicHash.startsWith("0xtest")
     ) {
       return NextResponse.json({

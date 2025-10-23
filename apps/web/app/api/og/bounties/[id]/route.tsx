@@ -1,29 +1,13 @@
 import { ImageResponse } from "next/og";
 import { siteName } from "@packages/seo/config";
 import { env } from "@/env";
-import fs from "node:fs/promises";
-import { createRequire } from "node:module";
+import type { Bounty } from "@/hooks/use-bounties-data";
+import { loadOgAssets } from "@packages/seo/og-assets";
 
 export const runtime = "nodejs";
-const require = createRequire(import.meta.url);
 
-const fontChakra700 = fs.readFile(
-  require.resolve("@packages/base/fonts/ChakraPetch-Bold.ttf")
-);
-const fontChakra500 = fs.readFile(
-  require.resolve("@packages/base/fonts/ChakraPetch-Medium.ttf")
-);
-const fontSatoshi400 = fs.readFile(
-  require.resolve("@packages/base/fonts/Satoshi-Regular.otf")
-);
-const fontSatoshi500 = fs.readFile(
-  require.resolve("@packages/base/fonts/Satoshi-Medium.otf")
-);
-
-// Local background image (public/images/og-background.png)
-const bgImage = fs.readFile(
-  new URL("../../../../../public/images/og-background.png", import.meta.url)
-);
+// Shared OG assets (fonts + background)
+const ogAssets = loadOgAssets();
 
 async function getBounty(id: string) {
   try {
@@ -48,13 +32,13 @@ export async function GET(
   const bounty = await getBounty(id);
   const title = bounty?.title ?? "Bounty";
   const org = bounty?.organization?.name ?? siteName;
-  const orgLogo = (bounty as any)?.organization?.logo || null;
+  const orgLogo = (bounty as Bounty)?.organization?.logo || null;
 
   // Derive total prize directly from bounty.amount and bounty.token
   const totalPrize = (() => {
     try {
-      const amountRaw = (bounty as any)?.amount;
-      const token = (bounty as any)?.token || "DOT";
+      const amountRaw = (bounty as Bounty)?.amount;
+      const token = (bounty as Bounty)?.token || "DOT";
       const amount = amountRaw != null ? Number(amountRaw) : 0;
       if (!amount || Number.isNaN(amount)) return null;
       const short =
@@ -69,13 +53,9 @@ export async function GET(
   const tLen = title.length;
   const titleSize = tLen > 60 ? 44 : tLen > 40 ? 52 : 60;
 
-  const [chakra700, chakra500, satoshi400, satoshi500] = await Promise.all([
-    fontChakra700,
-    fontChakra500,
-    fontSatoshi400,
-    fontSatoshi500,
-  ]);
-  const bgBuffer = await bgImage.catch(() => null);
+  const { chakra700, chakra500, satoshi400, satoshi500, background } =
+    await ogAssets;
+  const bgBuffer = background ?? null;
   const bgDataUrl = bgBuffer
     ? `url(data:image/png;base64,${Buffer.from(bgBuffer).toString("base64")})`
     : undefined;
@@ -124,6 +104,7 @@ export async function GET(
                 src={orgLogo}
                 width={140}
                 height={140}
+                alt={orgLogo}
                 style={{ borderRadius: 9999 }}
               />
             ) : (

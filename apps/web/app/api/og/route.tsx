@@ -1,23 +1,12 @@
 import { ImageResponse } from "next/og";
-import { siteName, defaultDescription } from "@packages/seo/config";
+import { siteName } from "@packages/seo/config";
 import fs from "node:fs/promises";
-import { createRequire } from "node:module";
+import { loadOgAssets } from "@packages/seo/og-assets";
 
 export const runtime = "nodejs";
-const require = createRequire(import.meta.url);
 
-const fontChakra700 = fs.readFile(
-  require.resolve("@packages/base/fonts/ChakraPetch-Bold.ttf")
-);
-const fontChakra500 = fs.readFile(
-  require.resolve("@packages/base/fonts/ChakraPetch-Medium.ttf")
-);
-const fontSatoshi400 = fs.readFile(
-  require.resolve("@packages/base/fonts/Satoshi-Regular.otf")
-);
-const fontSatoshi500 = fs.readFile(
-  require.resolve("@packages/base/fonts/Satoshi-Medium.otf")
-);
+// Load shared fonts/background from seo package
+const ogAssets = loadOgAssets();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -26,12 +15,22 @@ export async function GET(request: Request) {
     ? (searchParams.get("title") || "").slice(0, 100)
     : siteName;
 
-  const [chakra700, chakra500, satoshi400, satoshi500] = await Promise.all([
-    fontChakra700,
-    fontChakra500,
-    fontSatoshi400,
-    fontSatoshi500,
-  ]);
+  const {
+    chakra700,
+    chakra500,
+    satoshi400,
+    satoshi500,
+    satoshi700,
+    background,
+    builderIllustration,
+  } = await ogAssets;
+  const bgBuffer = background ?? null;
+  const bgDataUrl = bgBuffer
+    ? `url(data:image/png;base64,${Buffer.from(bgBuffer).toString("base64")})`
+    : undefined;
+  const builderSrc = builderIllustration
+    ? `data:image/png;base64,${Buffer.from(builderIllustration).toString("base64")}`
+    : undefined;
 
   return new ImageResponse(
     (
@@ -40,67 +39,91 @@ export async function GET(request: Request) {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          background: "#0a0a0a",
-          position: "relative",
+          backgroundImage: bgDataUrl,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
+        {/* Frame */}
         <div
           style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(60% 60% at 20% 10%, rgba(230,0,122,0.35) 0%, rgba(230,0,122,0) 70%), radial-gradient(50% 50% at 80% 90%, rgba(59,130,246,0.25) 0%, rgba(59,130,246,0) 70%)",
-          }}
-        />
-
-        <div
-          style={{
+            width: 1100,
+            height: 520,
             display: "flex",
-            flexDirection: "column",
-            gap: 18,
-            padding: 80,
-            textAlign: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          {/* Wordmark */}
-          <div
-            style={{
-              fontFamily: "Chakra Petch",
-              fontWeight: 700,
-              fontSize: 28,
-              color: "#fff",
-              letterSpacing: 4,
-            }}
-          >
-            OPENTRIBE
+          {/* Left text block */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
+            {/* Wordmark */}
+            <div
+              style={{
+                fontFamily: "Chakra Petch",
+                fontWeight: 700,
+                fontSize: 28,
+                color: "#fff",
+                letterSpacing: 4,
+              }}
+            >
+              OPENTRIBE
+            </div>
+            {/* Headline (Satoshi bold) */}
+            <div
+              style={{
+                fontFamily: "Satoshi",
+                fontWeight: 700,
+                fontSize: 52,
+                color: "#fff",
+                lineHeight: 1.18,
+                maxWidth: 600,
+              }}
+            >
+              Enabling builders anywhere to get paid on-chain!
+            </div>
+            {/* CTA chip */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 420,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: "rgba(255,255,255,0.12)",
+                border: "1px solid rgba(255,255,255,0.18)",
+                fontFamily: "Chakra Petch",
+                fontWeight: 700,
+                fontSize: 24,
+                color: "#fff",
+              }}
+            >
+              https://opentribe.io
+            </div>
           </div>
-
-          {/* Title */}
+          {/* Right illustration */}
           <div
             style={{
-              fontFamily: "Chakra Petch",
-              fontWeight: 700,
-              fontSize: 80,
-              color: "#fff",
-              lineHeight: 1.08,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 420,
+              height: 420,
             }}
           >
-            {title}
-          </div>
-          {/* Subline */}
-          <div
-            style={{
-              fontFamily: "Satoshi",
-              fontWeight: 500,
-              fontSize: 36,
-              color: "rgba(255,255,255,0.85)",
-              maxWidth: 1000,
-            }}
-          >
-            {defaultDescription}
+            {builderSrc && (
+              <img
+                src={builderSrc}
+                width={420}
+                height={420}
+                alt="Builder"
+                style={{ objectFit: "contain" }}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -115,8 +138,9 @@ export async function GET(request: Request) {
       fonts: [
         { name: "Chakra Petch", data: chakra700, style: "normal", weight: 700 },
         { name: "Chakra Petch", data: chakra500, style: "normal", weight: 500 },
-        { name: "Satoshi", data: satoshi400, style: "normal", weight: 400 },
+        { name: "Satoshi", data: satoshi700, style: "normal", weight: 700 },
         { name: "Satoshi", data: satoshi500, style: "normal", weight: 500 },
+        { name: "Satoshi", data: satoshi400, style: "normal", weight: 400 },
       ],
     }
   );

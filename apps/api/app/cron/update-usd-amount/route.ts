@@ -1,4 +1,3 @@
-import { env } from "@/env";
 import { database } from "@packages/db";
 import { exchangeRateService } from "@packages/polkadot";
 import { NextResponse } from "next/server";

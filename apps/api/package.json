@@ -20,7 +20,7 @@
     "@packages/logging": "workspace:*",
     "@packages/storage": "workspace:*",
     "@packages/testing": "workspace:*",
-    "@sentry/nextjs": "^9.22.0",
+    "@sentry/nextjs": "^10.21.0",
     "@t3-oss/env-nextjs": "^0.13.4",
     "@tooling/next-config": "workspace:*",
     "date-fns": "^4.1.0",

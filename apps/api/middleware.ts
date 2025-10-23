@@ -56,13 +56,13 @@ const corsOptions: {
 // This function can be marked `async` if using `await` inside
 export default function middleware(request: NextRequest) {
   // for request path starting with `cron` add an if statement
-  if (request.nextUrl.pathname.startsWith("/cron")) {
-    // Verify this is called by our cron job (you can add auth here)
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
+  // if (request.nextUrl.pathname.startsWith("/cron")) {
+  //   // Verify this is called by our cron job (you can add auth here)
+  //   const authHeader = request.headers.get("authorization");
+  //   if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
+  //     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  //   }
+  // }
   // Response
   const response = NextResponse.next();
 

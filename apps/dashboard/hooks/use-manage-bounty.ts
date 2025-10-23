@@ -304,10 +304,8 @@ export function useBountyForm() {
     [formData.winnings, updateFormData]
   );
 
-  const addSkill = (skill: string) => {
-    if (formData.skills && !formData.skills.includes(skill)) {
-      updateFormData('skills', [...formData.skills, skill]);
-    }
+  const addSkill = (skills: string[]) => {
+    updateFormData('skills', skills);
   };
 
   const removeSkill = (skill: string) => {
@@ -317,59 +315,7 @@ export function useBountyForm() {
     );
   };
 
-  const addResource = () => {
-    updateFormData('resources', [
-      ...(formData.resources ?? []),
-      { title: '', url: '', description: '' },
-    ]);
-  };
 
-  const removeResource = (index: number) => {
-    updateFormData(
-      'resources',
-      (formData.resources ?? []).filter((_, i) => i !== index)
-    );
-  };
-
-  const updateResource = (
-    index: number,
-    field: keyof NonNullable<BountyDetails['resources']>[number],
-    value: string
-  ) => {
-    updateFormData(
-      'resources',
-      (formData.resources ?? []).map((r, i) =>
-        i === index ? { ...r, [field]: value } : r
-      )
-    );
-  };
-
-  const addScreeningQuestion = () => {
-    updateFormData('screening', [
-      ...(formData.screening ?? []),
-      { question: '', type: 'text', optional: false },
-    ]);
-  };
-
-  const removeScreeningQuestion = (index: number) => {
-    updateFormData(
-      'screening',
-      (formData.screening ?? []).filter((_, i) => i !== index)
-    );
-  };
-
-  const updateScreeningQuestion = (
-    index: number,
-    field: keyof NonNullable<typeof formData.screening>[number],
-    value: string | boolean
-  ) => {
-    updateFormData(
-      'screening',
-      (formData.screening ?? []).map((q, i) =>
-        i === index ? { ...q, [field]: value } : q
-      )
-    );
-  };
 
   // Split validation logic into smaller helpers to reduce complexity
   function validateStep1(formData: Partial<BountyDetails>): boolean {
@@ -435,7 +381,6 @@ export function useBountyForm() {
         return false;
     }
   };
-
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
@@ -522,12 +467,6 @@ export function useBountyForm() {
     handleSubmit,
     updateWinnings,
     error,
-    addScreeningQuestion,
-    removeScreeningQuestion,
-    updateScreeningQuestion,
-    addResource,
-    removeResource,
-    updateResource,
     addSkill,
     removeSkill,
   };

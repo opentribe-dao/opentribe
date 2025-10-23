@@ -60,7 +60,10 @@ nextConfig.images?.remotePatterns?.push(
   }
 );
 
-if (process.env.NODE_ENV === "production") {
+if (
+  process.env.VERCEL_TARGET_ENV === "production" ||
+  process.env.VERCEL_TARGET_ENV === "dev"
+) {
   const redirects: NextConfig["redirects"] = async () => [
     {
       source: "/legal",

@@ -452,7 +452,7 @@ NEXT_PUBLIC_API_URL = "https://api.example.com";
 
 ```typescript
 // Debug all loaded environment variables (dev only!)
-if (process.env.NODE_ENV === "development") {
+if (process.env.VERCEL_TARGET_ENV === "dev") {
   console.log("Loaded env:", env);
 }
 ```

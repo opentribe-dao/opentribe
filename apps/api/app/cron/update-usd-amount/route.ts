@@ -6,11 +6,6 @@ import type { NextRequest } from "next/server";
 
 // GET /cron/update-usd-amount - Update USD amounts for bounties and grants based on current exchange rates
 export const GET = async (request: NextRequest) => {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     const { searchParams } = new URL(request.url);
     const refresh = searchParams.get("refresh") === "true";

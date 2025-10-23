@@ -13,6 +13,7 @@ export const keys = () =>
       GOOGLE_CLIENT_SECRET: z.string().optional(),
       GITHUB_CLIENT_ID: z.string().optional(),
       GITHUB_CLIENT_SECRET: z.string().optional(),
+      CRON_SECRET: z.string().optional(),
     },
     client: {
       NEXT_PUBLIC_BETTER_AUTH_URL: z.url().optional(),
@@ -26,5 +27,6 @@ export const keys = () =>
       GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
       GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
       GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+      CRON_SECRET: process.env.CRON_SECRET,
     },
   });

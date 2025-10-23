@@ -9,12 +9,6 @@ export const maxDuration = 300; // 5 minutes max
 // GET /cron/skill-match-notifications - Send skill match notifications for new bounties
 export async function GET(request: Request) {
   try {
-    // Verify this is called by our cron job (you can add auth here)
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const now = new Date();
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
@@ -101,8 +95,8 @@ export async function GET(request: Request) {
 
         // Send only the best match (highest prize)
         const bestMatch = matchingBounties.sort((a, b) => {
-          const aAmount = Number(a.amount) || 0;
-          const bAmount = Number(b.amount) || 0;
+          const aAmount = Number(a.amountUSD) || 0;
+          const bAmount = Number(b.amountUSD) || 0;
           return bAmount - aAmount;
         })[0];
 

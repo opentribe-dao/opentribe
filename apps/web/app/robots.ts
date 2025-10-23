@@ -2,9 +2,7 @@ import { env } from "@/env";
 import type { MetadataRoute } from "next";
 import languine from "@packages/i18n/languine.json";
 
-const url = new URL(
-  env.VERCEL_PROJECT_PRODUCTION_URL || "https://opentribe.io"
-);
+const url = new URL(env.NEXT_PUBLIC_WEB_URL);
 
 const baseDisallow = [
   "/sign-in",

@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 
 export type OgAssets = {
   chakra700: Buffer;
@@ -15,27 +16,16 @@ export type OgAssets = {
  * Uses file URLs relative to this module so bundlers don't attempt to parse binary files.
  */
 export async function loadOgAssets(): Promise<OgAssets> {
-  const chakra700 = fs.readFile(
-    new URL("../base/fonts/ChakraPetch-Bold.ttf", import.meta.url)
-  );
-  const chakra500 = fs.readFile(
-    new URL("../base/fonts/ChakraPetch-Medium.ttf", import.meta.url)
-  );
-  const satoshi400 = fs.readFile(
-    new URL("../base/fonts/Satoshi-Regular.otf", import.meta.url)
-  );
-  const satoshi500 = fs.readFile(
-    new URL("../base/fonts/Satoshi-Medium.otf", import.meta.url)
-  );
-  const satoshi700 = fs.readFile(
-    new URL("../base/fonts/Satoshi-Bold.otf", import.meta.url)
-  );
-  const bg = fs
-    .readFile(new URL("./assets/og-background.png", import.meta.url))
-    .catch(() => null);
-  const builder = fs
-    .readFile(new URL("./assets/builder-illustration.png", import.meta.url))
-    .catch(() => null);
+  const read = (rel: string) =>
+    fs.readFile(fileURLToPath(new URL(rel, import.meta.url)));
+
+  const chakra700 = read("../base/fonts/ChakraPetch-Bold.ttf");
+  const chakra500 = read("../base/fonts/ChakraPetch-Medium.ttf");
+  const satoshi400 = read("../base/fonts/Satoshi-Regular.otf");
+  const satoshi500 = read("../base/fonts/Satoshi-Medium.otf");
+  const satoshi700 = read("../base/fonts/Satoshi-Bold.otf");
+  const bg = read("./assets/og-background.png").catch(() => null);
+  const builder = read("./assets/builder-illustration.png").catch(() => null);
 
   const [c700, c500, s400, s500, s700, bgBuf, builderBuf] = await Promise.all([
     chakra700,

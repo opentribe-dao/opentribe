@@ -97,11 +97,24 @@ export const GET = async () => {
       }),
     ]);
 
-    // Calculate total prize pool (simplified - in production would need proper currency handling)
-    const totalPrizePool = await database.bounty.aggregate({
-      where: { status: "OPEN", visibility: "PUBLISHED" },
-      _sum: { amount: true },
-    });
+    const [bountyAgg, grantsAgg] = await Promise.all([
+      database.bounty.aggregate({
+        _sum: { amountUSD: true },
+        where: {
+          winnersAnnouncedAt: { not: null },
+          visibility: "PUBLISHED",
+          status: { in: ["OPEN", "COMPLETED", "REVIEWING"] },
+        },
+      }),
+      database.grant.aggregate({
+        _sum: { totalFundsUSD: true },
+        where: { visibility: "PUBLISHED", status: "OPEN" },
+      }),
+    ]);
+
+    const totalPrizePool =
+      Number(bountyAgg?._sum?.amountUSD ?? 0) +
+      Number(grantsAgg?._sum?.totalFundsUSD ?? 0);
 
     let emailsSent = 0;
     const errors = [];
@@ -169,9 +182,7 @@ export const GET = async () => {
             applicationUpdates,
             platformStats: {
               totalOpportunities,
-              totalPrizePool: `$${(
-                totalPrizePool._sum.amount || 0
-              ).toLocaleString()}`,
+              totalPrizePool: totalPrizePool.toLocaleString(),
               activeBuilders,
             },
           }

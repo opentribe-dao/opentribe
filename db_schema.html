@@ -430,7 +430,7 @@
                 modifiers: ["@default([])"],
               },
               { name: "location", type: "String?", modifiers: [] },
-              { name: "skills", type: "Json?", modifiers: [] },
+              { name: "skills", type: "String[]", modifiers: ["@default([])"] },
               {
                 name: "walletAddress",
                 type: "String?",
@@ -824,8 +824,11 @@
               { name: "skills", type: "String[]", modifiers: ["@default([])"] },
               { name: "organizationId", type: "String", modifiers: [] },
               { name: "minAmount", type: "Decimal?", modifiers: [] },
+              { name: "minAmountUSD", type: "Decimal?", modifiers: [] },
               { name: "maxAmount", type: "Decimal?", modifiers: [] },
+              { name: "maxAmountUSD", type: "Decimal?", modifiers: [] },
               { name: "totalFunds", type: "Decimal?", modifiers: [] },
+              { name: "totalFundsUSD", type: "Decimal?", modifiers: [] },
               {
                 name: "status",
                 type: "GrantStatus",

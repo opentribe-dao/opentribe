@@ -18,6 +18,7 @@ import { useBountyContext } from '../../components/bounty-provider';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import { Badge } from '@packages/base/components/ui/badge';
+import { getSkillLabel } from '@packages/base/lib/skills';
 
 export default function BountyOverviewPage() {
   const { bounty, bountyLoading, bountyError } = useBountyContext();
@@ -168,7 +169,7 @@ export default function BountyOverviewPage() {
                   variant="secondary"
                   className="border-0 bg-white/10 text-white"
                 >
-                  {skill}
+                  {getSkillLabel(skill)}
                 </Badge>
               ))}
             </div>

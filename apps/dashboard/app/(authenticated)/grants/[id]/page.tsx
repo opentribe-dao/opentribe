@@ -30,6 +30,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Header } from "../../components/header";
 import { env } from "@/env";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 interface Grant {
   id: string;
@@ -397,7 +398,7 @@ const GrantDetailPage = () => {
                           variant="secondary"
                           className="bg-white/10 text-white border-0"
                         >
-                          {skill}
+                          {getSkillLabel(skill)}
                         </Badge>
                       ))}
                     </div>

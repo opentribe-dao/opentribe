@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { useCountdown } from "@packages/base/hooks/use-countdown";
 import { formatCurrency } from "@packages/base/lib/utils";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -297,7 +298,7 @@ export default function BountyDetailPage({
                       key={skill}
                       className="rounded-full bg-white/10 px-3 py-1 font-medium text-xs"
                     >
-                      {skill}
+                      {getSkillLabel(skill)}
                     </span>
                   ))}
                 </div>

@@ -5,6 +5,22 @@
     {
       "path": "/cron/bounty-deadline-passed",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/cron/bounty-deadline-reminder",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/cron/refresh-homepage-stats",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/cron/update-usd-amount",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/cron/winner-announcement-reminder",
+      "schedule": "0 0 * * *"
     }
   ]
 }

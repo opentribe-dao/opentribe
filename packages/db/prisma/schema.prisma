@@ -187,8 +187,11 @@ model Grant {
   skills           String[]               @default([])
   organizationId   String
   minAmount        Decimal?
+  minAmountUSD     Decimal?
   maxAmount        Decimal?
+  maxAmountUSD     Decimal?
   totalFunds       Decimal?
+  totalFundsUSD    Decimal?
   status           GrantStatus            @default(OPEN)
   visibility       GrantVisibilityStatus? @default(DRAFT)
   source           GrantSource            @default(NATIVE)

@@ -1,4 +1,15 @@
 import { database as prisma } from "./index";
+import { skillsOptions } from "@packages/base";
+
+// Helper function to get specific skills by category
+function getSkillsByCategory(categories: string[], count = 5) {
+  const categorySkills = skillsOptions
+    .filter((category) => categories.includes(category.heading))
+    .flatMap((category) => category.options.map((skill) => skill.value));
+
+  const shuffled = [...categorySkills].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
 
 async function main() {
   console.log("🌱 Starting database seed...");
@@ -202,14 +213,7 @@ We're looking for projects that:
             description: "Frequently asked questions",
           },
         ],
-        skills: [
-          "Rust",
-          "Substrate",
-          "Smart Contracts",
-          "Infrastructure",
-          "DeFi",
-          "Tooling",
-        ],
+        skills: getSkillsByCategory(["Blockchain", "Backend", "Frontend"], 6),
         minAmount: 50000,
         maxAmount: 500000,
         totalFunds: 45000000,
@@ -262,13 +266,7 @@ Focus areas include:
             url: "https://grants.web3.foundation/docs/Process/how-to-apply",
           },
         ],
-        skills: [
-          "Rust",
-          "TypeScript",
-          "Documentation",
-          "Testing",
-          "Open Source",
-        ],
+        skills: getSkillsByCategory(["Blockchain", "Backend", "Content"], 5),
         minAmount: 10000,
         maxAmount: 100000,
         totalFunds: 10000000,
@@ -306,9 +304,10 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
 - Development roadmap
 - Budget breakdown
 - How you'll leverage Moonbeam's unique features`,
-        skills: ["Solidity", "Web3.js", "Cross-chain", "DeFi", "NFTs"],
+        skills: getSkillsByCategory(["Blockchain", "Frontend"], 5),
         minAmount: 5000,
         maxAmount: 50000,
+        totalFunds: 10000000,
         token: "GLMR",
         status: "OPEN",
         visibility: "PUBLISHED",
@@ -349,7 +348,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         publishedAt: daysFromNow(-8),
         viewCount: 412,
         applicationCount: 0,
-        skills: ["DeFi", "Rust", "Solidity", "Cross-chain", "Stablecoins"],
+        skills: getSkillsByCategory(["Blockchain", "Backend"], 5),
       },
     }),
   ]);
@@ -394,7 +393,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
             description: "Polkadot brand assets",
           },
         ],
-        skills: ["UI/UX Design", "React", "TypeScript", "Browser Extensions"],
+        skills: getSkillsByCategory(["Design", "Frontend"], 4),
         amount: 15000,
         token: "DOT",
         winnings: { "1": 8000, "2": 5000, "3": 2000 },
@@ -433,7 +432,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
 - Working code examples
 - Best practices and common pitfalls
 - Real-world use cases`,
-        skills: ["Technical Writing", "Rust", "Substrate", "Documentation"],
+        skills: getSkillsByCategory(["Content", "Blockchain"], 4),
         amount: 10000,
         token: "DOT",
         split: "EQUAL_SPLIT",
@@ -464,7 +463,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
 - Technical architecture proposal
 - Proof of concept code (optional)
 - Presentation slides`,
-        skills: ["DeFi", "Research", "Cross-chain", "Technical Writing"],
+        skills: getSkillsByCategory(["Content", "Blockchain"], 4),
         amount: 7500,
         token: "DOT",
         winnings: { "1": 5000, "2": 2500 },

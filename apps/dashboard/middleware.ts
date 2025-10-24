@@ -15,10 +15,12 @@ export default async function middleware(request: NextRequest) {
   try {
     securityHeaders();
     const authResponse = await authMiddleware(request);
+    console.log("[Dashboard] Auth response:", authResponse);
     if (!authResponse) {
-      return NextResponse.redirect(
-        new URL("/sign-in", env.NEXT_PUBLIC_WEB_URL)
-      );
+      const loginUrl = new URL("/sign-in", env.NEXT_PUBLIC_WEB_URL);
+      // Preserve return path back to dashboard after login
+      loginUrl.searchParams.set("redirect", request.nextUrl.href);
+      return NextResponse.redirect(loginUrl);
     }
   } catch (error) {
     console.error("Error in dashboard middleware", error);

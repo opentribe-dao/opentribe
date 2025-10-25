@@ -4,10 +4,10 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "lib": ["ES2022"],
-    "module": "NodeNext",
+    "module": "ESNext",
     "target": "ES2022"
   },
   "include": ["./*.ts", "./src/**/*.ts"],

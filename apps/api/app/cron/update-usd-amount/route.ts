@@ -1,5 +1,5 @@
 import { database } from "@packages/db";
-import { exchangeRateService } from "@packages/polkadot";
+import { exchangeRateService } from "@packages/polkadot/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 

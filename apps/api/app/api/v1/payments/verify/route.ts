@@ -1,6 +1,6 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
-import { PaymentService } from "@packages/polkadot";
+import { PaymentService } from "@packages/polkadot/server";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";

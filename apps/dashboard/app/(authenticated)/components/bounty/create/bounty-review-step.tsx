@@ -2,6 +2,7 @@ import type { BountyDetails } from '@/hooks/use-bounty';
 import { Badge } from '@packages/base/components/ui/badge';
 import { Label } from '@packages/base/components/ui/label';
 import { getSkillLabel } from '@packages/base/lib/skills';
+import { ExternalLink } from 'lucide-react';
 
 interface BountyReviewProps {
   formData: Partial<BountyDetails>;
@@ -80,6 +81,78 @@ export const BountyReviewStepComponent: React.FC<BountyReviewProps> = ({
           <p className="text-white">
             {formData.deadline &&
               new Date(formData.deadline).toLocaleDateString()}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-white/60">Resources</p>
+          <p className="text-white">
+            {formData.resources?.map((resource, index) => (
+              <div key={index} className="flex items-start justify-between">
+                <div>
+                  <a
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-white transition-colors hover:text-[#E6007A]"
+                  >
+                    {resource.title}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  {resource.description && (
+                    <p className="mt-1 text-sm text-white/60">
+                      {resource.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-sm text-white/60">Screening Questions</p>
+          <p className="text-white">
+            {formData.screening?.map((question, index) => (
+              <div key={index} className="rounded-lg bg-white/5 p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="font-medium text-sm text-white">
+                        Question {index + 1}
+                      </span>
+                      {question.optional && (
+                        <Badge
+                          variant="outline"
+                          className="border-white/20 text-white/60 text-xs"
+                        >
+                          Optional
+                        </Badge>
+                      )}
+                      <Badge
+                        variant="secondary"
+                        className="border-0 bg-white/10 text-white/80 text-xs"
+                      >
+                        {question.type.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <p className="mb-3 text-sm text-white/80">
+                      {question.question}
+                    </p>
+                    <div className="text-white/60 text-xs">
+                      {question.type === 'text' && (
+                        <span>Text response required</span>
+                      )}
+                      {question.type === 'url' && (
+                        <span>URL/website link required</span>
+                      )}
+                      {question.type === 'file' && (
+                        <span>File upload required</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </p>
         </div>
       </div>

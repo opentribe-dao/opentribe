@@ -11,13 +11,13 @@ import {
   createContact,
 } from "@packages/email";
 
-const trustedOrigins = [
+export const trustedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:3002",
   "https://opentribe.io",
-  "https://admin.opentribe.io",
   "https://api.opentribe.io",
+  "https://dashboard.opentribe.io",
   "https://dev.opentribe.io",
   "https://api.dev.opentribe.io",
   "https://dashboard.dev.opentribe.io",

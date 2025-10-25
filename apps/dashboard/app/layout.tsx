@@ -1,10 +1,11 @@
-import './styles.css';
-import { BaseProvider, Background } from '@packages/base';
-import { fonts } from '@packages/base/lib/fonts';
-import { cn } from '@packages/base/lib/utils';
-import { Toolbar } from '@packages/feature-flags/components/toolbar';
-import type { ReactNode } from 'react';
-import ReactQueryProvider from '../components/react-query-provider';
+import "./styles.css";
+import { BaseProvider, Background } from "@packages/base";
+import { fonts } from "@packages/base/lib/fonts";
+import { cn } from "@packages/base/lib/utils";
+import { Toolbar } from "@packages/feature-flags/components/toolbar";
+import { AnalyticsProvider } from "@packages/analytics";
+import type { ReactNode } from "react";
+import ReactQueryProvider from "../components/react-query-provider";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -13,16 +14,17 @@ type RootLayoutProperties = {
 const RootLayout = ({ children }: RootLayoutProperties) => (
   <html
     lang="en"
-    className={cn(fonts, 'dark scroll-smooth')}
+    className={cn(fonts, "dark scroll-smooth")}
     suppressHydrationWarning
   >
     <body className="min-h-screen">
-      <Background />
-
-      <BaseProvider>
-        <ReactQueryProvider>{children} </ReactQueryProvider>
-      </BaseProvider>
-      <Toolbar />
+      <AnalyticsProvider>
+        <Background />
+        <BaseProvider>
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </BaseProvider>
+        <Toolbar />
+      </AnalyticsProvider>
     </body>
   </html>
 );

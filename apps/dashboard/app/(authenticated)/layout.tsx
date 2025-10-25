@@ -18,6 +18,8 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
     headers: await headers(),
   });
 
+  console.log("[Dashboard] Session:", session);
+
   const betaFeature = await showBetaFeature();
 
   if (!session?.user) {

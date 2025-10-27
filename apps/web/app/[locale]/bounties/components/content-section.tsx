@@ -6,6 +6,7 @@ import { Skeleton } from "@packages/base/components/ui/skeleton"
 import { BountyCard } from "../../components/cards/bounty-card"
 import { HowItWorksCard } from "./how-it-works"
 import type { Bounty } from '@/hooks/use-bounties-data'
+import { getSkillLabel } from '@packages/base/lib/skills'
 
 interface BountyFilters {
   status: string[]
@@ -69,7 +70,7 @@ function BountiesContentSectionComponent({
                         : 'border-white/20 bg-white/10 text-white/70 hover:border-pink-400/50 hover:bg-white/20'
                     }`}
                   >
-                    {skill}
+                    {getSkillLabel(skill)}
                   </button>
                 ))}
           </div>
@@ -130,6 +131,7 @@ function BountiesContentSectionComponent({
                 <BountyCard
                   key={bounty.id}
                   id={bounty.id}
+                  slug={bounty.slug}
                   title={bounty.title || "Untitled Bounty"}
                   organization={
                     bounty.organization

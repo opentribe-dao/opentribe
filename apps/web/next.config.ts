@@ -60,7 +60,10 @@ nextConfig.images?.remotePatterns?.push(
   }
 );
 
-if (process.env.NODE_ENV === "production") {
+if (
+  process.env.VERCEL_TARGET_ENV === "production" ||
+  process.env.VERCEL_TARGET_ENV === "dev"
+) {
   const redirects: NextConfig["redirects"] = async () => [
     {
       source: "/legal",
@@ -72,9 +75,7 @@ if (process.env.NODE_ENV === "production") {
   nextConfig.redirects = redirects;
 }
 
-if (env.VERCEL) {
-  nextConfig = withSentry(nextConfig);
-}
+nextConfig = withSentry(nextConfig);
 
 if (env.ANALYZE === "true") {
   nextConfig = withAnalyzer(nextConfig);

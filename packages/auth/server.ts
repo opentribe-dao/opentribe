@@ -8,15 +8,16 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
   sendWelcomeEmail,
+  createContact,
 } from "@packages/email";
 
-const trustedOrigins = [
+export const trustedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:3002",
   "https://opentribe.io",
-  "https://admin.opentribe.io",
   "https://api.opentribe.io",
+  "https://dashboard.opentribe.io",
   "https://dev.opentribe.io",
   "https://api.dev.opentribe.io",
   "https://dashboard.dev.opentribe.io",
@@ -81,7 +82,10 @@ const authOptions = {
     crossSubDomainCookies: {
       enabled: true,
       domain:
-        process.env.NODE_ENV === "production" ? ".opentribe.io" : "localhost",
+        process.env.VERCEL_TARGET_ENV === "production" ||
+        process.env.VERCEL_TARGET_ENV === "dev"
+          ? ".opentribe.io"
+          : "localhost",
     },
     defaultCookieAttributes: {
       secure: true,
@@ -152,6 +156,42 @@ const authOptions = {
         console.error("Failed to send welcome email:", error);
         // Don't throw here - email verification was successful
       }
+      try {
+        await createContact({
+          email: user.email,
+          firstName: user.name || undefined,
+          lastName: user.name || undefined,
+        });
+      } catch (error) {
+        console.error("Failed to subscribe to newsletter:", error);
+        // Don't throw here - email verification was successful
+      }
+    },
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          console.log(
+            "After user create hook:",
+            user.createdAt,
+            user.email,
+            user.emailVerified
+          );
+          if (user.emailVerified) {
+            try {
+              await createContact({
+                email: user.email,
+                firstName: user.name || undefined,
+                lastName: user.name || undefined,
+              });
+            } catch (error) {
+              console.error("Failed to subscribe to newsletter:", error);
+            }
+          }
+        },
+      },
     },
   },
 

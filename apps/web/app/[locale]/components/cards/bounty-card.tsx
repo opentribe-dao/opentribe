@@ -3,10 +3,12 @@ import { Calendar, Users, Clock } from "lucide-react";
 import Image from "next/image";
 import { formatCurrency, getDeadlineInfo } from "@packages/base/lib/utils";
 import { Separator } from "@packages/base/components/ui/separator";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 interface BountyCardProps {
   id: string;
   title: string;
+  slug: string;
   organization: {
     id: string;
     name: string;
@@ -29,6 +31,7 @@ interface BountyCardProps {
 export function BountyCard({
   id,
   title,
+  slug,
   organization,
   amount,
   token,
@@ -92,7 +95,7 @@ export function BountyCard({
       : "Unknown Organization";
 
   return (
-    <Link href={`/bounties/${id}`} className="group block h-full">
+    <Link href={`/bounties/${slug || id}`} className="group block h-full">
       {/* TODO: @neeraj removed card-bg, as it was causing issues with the border */}
       <div className='flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10'>
         {/* Header */}
@@ -169,7 +172,7 @@ export function BountyCard({
                 key={index}
                 className="rounded-md bg-pink-500/20 px-2 py-1 text-pink-300 text-xs"
               >
-                {skill}
+                {getSkillLabel(skill)}
               </span>
             ))}
             {safeSkills.length > 5 && (

@@ -33,18 +33,26 @@ import {
   AccordionTrigger,
 } from "@packages/base/components/ui/accordion";
 import { formatCurrency } from "@packages/base/lib/utils";
+import { GrantCard } from "@/app/[locale]/components/cards/grant-card";
 
 interface Grant {
   id: string;
+  slug: string;
   title: string;
   description: string;
   instructions?: string;
   status: string;
   visibility: string;
   source: string;
-  minAmount?: number;
-  maxAmount?: number;
+  bannerUrl: string | null;
+  minAmount: string | null;
+  maxAmount: string | null;
+  applicationCount: number;
   token: string;
+  skills: string[];
+  summary: string;
+  createdAt: string;
+
   screening?: Array<{
     question: string;
     type: "text" | "url" | "file";
@@ -53,7 +61,8 @@ interface Grant {
   organization: {
     id: string;
     name: string;
-    logo?: string;
+    slug: string;
+    logo: string | null;
   };
   rfps: Array<{
     id: string;
@@ -121,7 +130,7 @@ const GrantApplicationPage = () => {
           data.grant.status !== "OPEN"
         ) {
           toast.error("This grant is not accepting applications");
-          router.push(`/grants/${params.id}`);
+          router.push(`/grants/${grant?.slug || params.id}`);
           return;
         }
 
@@ -162,14 +171,16 @@ const GrantApplicationPage = () => {
     // Validate budget if provided
     if (formData.budget && grant) {
       const budget = Number.parseFloat(formData.budget);
-      if (grant.minAmount && budget < grant.minAmount) {
+      const minAmount = Number.parseFloat(grant.minAmount || "0");
+      const maxAmount = Number.parseFloat(grant.maxAmount || "0");
+      if (minAmount && budget < minAmount) {
         toast.error(
-          `Budget must be at least ${grant.minAmount} ${grant.token}`
+          `Budget must be at least ${minAmount} ${grant.token}`
         );
         return;
       }
-      if (grant.maxAmount && budget > grant.maxAmount) {
-        toast.error(`Budget cannot exceed ${grant.maxAmount} ${grant.token}`);
+      if (maxAmount && budget > maxAmount) {
+        toast.error(`Budget cannot exceed ${maxAmount} ${grant.token}`);
         return;
       }
     }
@@ -226,7 +237,7 @@ const GrantApplicationPage = () => {
       }
 
       toast.success("Application submitted successfully!");
-      router.push(`/grants/${params.id}`);
+      router.push(`/grants/${grant?.slug || params.id}`);
     } catch (error: any) {
       console.error("Application error:", error);
       toast.error(
@@ -347,13 +358,13 @@ const GrantApplicationPage = () => {
     return null;
   }
 
-  const hasMinAmount = typeof grant.minAmount === "number";
-  const hasMaxAmount = typeof grant.maxAmount === "number";
+  const hasMinAmount = grant.minAmount !== null;
+  const hasMaxAmount = grant.maxAmount !== null;
   const minAmountStr = hasMinAmount
-    ? formatCurrency(grant.minAmount as number, grant.token)
+    ? formatCurrency(Number.parseFloat(grant.minAmount || "0"), grant.token)
     : null;
   const maxAmountStr = hasMaxAmount
-    ? formatCurrency(grant.maxAmount as number, grant.token)
+    ? formatCurrency(Number.parseFloat(grant.maxAmount || "0"), grant.token)
     : null;
   const budgetPlaceholder = hasMinAmount && hasMaxAmount
     ? `${minAmountStr} - ${maxAmountStr}`
@@ -388,7 +399,7 @@ const GrantApplicationPage = () => {
             </div>
 
             {/* Grant Info Card */}
-            <Card className='mb-8 border-white/10 bg-white/5 backdrop-blur-md'>
+            {/* <Card className='mb-8 border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
                 <h2 className='font-semibold text-white text-xl'>
                   {grant.title}
@@ -415,7 +426,29 @@ const GrantApplicationPage = () => {
                   )}
                 </div>
               </CardHeader>
-            </Card>
+            </Card> */}
+
+            {/* Grant card */}
+            <GrantCard
+              key={grant.id}
+              id={grant.id}
+              slug={grant.slug}
+              title={grant.title}
+              organization={grant.organization}
+              bannerUrl={grant.bannerUrl}
+              minAmount={grant.minAmount}
+              maxAmount={grant.maxAmount}
+              token={grant.token}
+              rfpCount={grant.rfps.length}
+              applicationCount={grant.applicationCount}
+              status={grant.status}
+              summary={grant.summary}
+              skills={grant.skills}
+              createdAt={grant.createdAt}
+            />
+
+            <div className='mb-8'>
+            </div>
 
             {/* Application Form */}
             <form onSubmit={handleSubmit}>
@@ -872,7 +905,7 @@ const GrantApplicationPage = () => {
         <AuthModal
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
-          redirectTo={`/grants/${params.id}/apply${
+          redirectTo={`/grants/${grant?.slug || params.id}/apply${
             rfpId ? `?rfp=${rfpId}` : ""
           }`}
         />

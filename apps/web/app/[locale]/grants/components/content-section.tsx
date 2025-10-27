@@ -6,6 +6,7 @@ import { Skeleton } from "@packages/base/components/ui/skeleton"
 import { GrantCard } from "../../components/cards/grant-card"
 import { type TopRFP, TopRFPsCard } from "./top-rfps"
 import type { Grant } from '@/hooks/use-grants-data'
+import { getSkillLabel } from '@packages/base/lib/skills'
 
 interface GrantFilters {
   status: string[]
@@ -74,7 +75,7 @@ function GrantsContentSectionComponent({
                     aria-pressed={selectedSkills.includes(skill)}
                     aria-label={`Filter by ${skill} skill`}
                   >
-                    {skill}
+                    {getSkillLabel(skill)}
                   </button>
                 ))}
           </div>
@@ -151,6 +152,7 @@ function GrantsContentSectionComponent({
               <GrantCard
                 key={grant.id}
                 id={grant.id}
+                slug={grant.slug}
                 title={grant.title}
                 organization={grant.organization}
                 bannerUrl={grant.bannerUrl}

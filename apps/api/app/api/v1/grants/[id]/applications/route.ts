@@ -41,10 +41,11 @@ export async function GET(
     const grantId = (await params).id;
 
     // Check if grant exists and is published
-    const grant = await database.grant.findUnique({
-      where: { id: grantId },
+    const grant = await database.grant.findFirst({
+      where: { OR: [{ id: grantId }, { slug: { equals: grantId, mode: "insensitive" } }] },
       select: {
         id: true,
+        slug: true,
         visibility: true,
         source: true,
       },
@@ -134,10 +135,11 @@ export async function POST(
     const grantId = (await params).id;
 
     // Check if grant exists and is open
-    const grant = await database.grant.findUnique({
-      where: { id: grantId },
+    const grant = await database.grant.findFirst({
+      where: { OR: [{ id: grantId }, { slug: { equals: grantId, mode: "insensitive" } }] },
       select: {
         id: true,
+        slug: true,
         title: true,
         status: true,
         visibility: true,
@@ -171,7 +173,7 @@ export async function POST(
     // Check if user already has an application for this grant
     const existingApplication = await database.grantApplication.findFirst({
       where: {
-        grantId: grantId,
+        grantId: grant?.id,
         userId: session.user.id,
       },
     });
@@ -226,7 +228,7 @@ export async function POST(
       const rfp = await database.rFP.findUnique({
         where: {
           id: validatedData.rfpId,
-          grantId: grantId,
+          grantId: grant?.id,
         },
       });
 
@@ -238,7 +240,7 @@ export async function POST(
     // Create the application
     const application = await database.grantApplication.create({
       data: {
-        grantId: grantId,
+        grantId: grant?.id,
         userId: session.user.id,
         rfpId: validatedData.rfpId,
         title: validatedData.title,
@@ -266,7 +268,7 @@ export async function POST(
 
     // Update grant application count
     await database.grant.update({
-      where: { id: grantId },
+      where: { id: grant?.id },
       data: {
         applicationCount: {
           increment: 1,
@@ -288,13 +290,13 @@ export async function POST(
 
     // Check if this is the first application and send email notification
     const applicationCount = await database.grantApplication.count({
-      where: { grantId: grantId },
+      where: { grantId: grant?.id },
     });
 
     if (applicationCount === 1) {
       // Get grant curators
       const grantCurators = await database.curator.findMany({
-        where: { grantId: grantId },
+        where: { grantId: grant?.id },
         include: {
           user: {
             select: {

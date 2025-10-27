@@ -35,6 +35,7 @@ import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { Header } from "../../../../components/header";
 import { env } from "@/env";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 interface ApplicationDetails {
   id: string;
@@ -61,6 +62,7 @@ interface ApplicationDetails {
   }>;
   grant: {
     id: string;
+    slug: string;
     title: string;
     organizationId: string;
     token: string;
@@ -488,7 +490,7 @@ export default function ApplicationReviewPage({
                             variant="secondary"
                             className="bg-white/10 text-white border-0"
                           >
-                            {skill}
+                            {getSkillLabel(skill)}
                           </Badge>
                         ))}
                       </div>

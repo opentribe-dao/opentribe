@@ -2,7 +2,6 @@
 
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
-import { parseSkillsArray, stringifySkillsArray } from "@/lib/utils/skills-parser";
 import {
   Card,
   CardContent,
@@ -14,7 +13,6 @@ import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
 import { Textarea } from "@packages/base/components/ui/textarea";
 import { Switch } from "@packages/base/components/ui/switch";
-import { Badge } from "@packages/base/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -24,48 +22,23 @@ import {
 } from "@packages/base/components/ui/select";
 import { ImageUpload } from "@packages/base";
 import {
-  Camera,
   ChevronLeft,
   Github,
   Globe,
   Linkedin,
   Loader2,
   MapPin,
-  Plus,
   Save,
   Send,
   Twitter,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
-import Image from "next/image";
 import { validateWalletAddress } from "../../lib/validations/wallet";
-
-const SKILLS = [
-  "Rust",
-  "Substrate",
-  "Polkadot SDK",
-  "Smart Contracts",
-  "ink!",
-  "JavaScript",
-  "TypeScript",
-  "React",
-  "Node.js",
-  "Web3.js",
-  "UI/UX Design",
-  "Technical Writing",
-  "Marketing",
-  "Community Management",
-  "DeFi",
-  "NFTs",
-  "Governance",
-  "Research",
-  "Data Analysis",
-];
+import SkillsOptions from "@packages/base/components/ui/skills-options";
 
 const WORK_PREFERENCES = [
   "Full-time",
@@ -130,7 +103,7 @@ const EditProfilePage = () => {
             headline: user.headline || "",
             bio: user.bio || "",
             location: user.location || "",
-            skills: parseSkillsArray(user.skill),
+            skills: user.skills || [],
             interests: user.interests || [],
             walletAddress: user.walletAddress || "",
             twitter: user.twitter || "",
@@ -181,7 +154,7 @@ const EditProfilePage = () => {
       // Prepare the data for submission
       const submitData = {
         ...formData,
-        skills: stringifySkillsArray(formData.skills), // Convert to JSON string for API
+        skills: formData.skills,
       };
 
       const response = await fetch(
@@ -429,39 +402,16 @@ const EditProfilePage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  {formData.skills.map((skill) => (
-                    <Badge
-                      key={skill}
-                      variant="secondary"
-                      className='border-0 bg-[#E6007A]/20 text-[#FFFFFF]'
-                    >
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={() => removeSkill(skill)}
-                        className="ml-2 hover:text-white"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {SKILLS.filter((s) => !formData.skills.includes(s)).map(
-                    (skill) => (
-                      <Badge
-                        key={skill}
-                        variant="outline"
-                        className="cursor-pointer border-white/20 text-white/60 hover:bg-white/10 hover:text-white"
-                        onClick={() => addSkill(skill)}
-                      >
-                        <Plus className='mr-1 h-3 w-3' />
-                        {skill}
-                      </Badge>
-                    )
-                  )}
-                </div>
+                <SkillsOptions
+                 value={formData.skills}
+                  onChange={(skills) => {
+                    if (skills && skills.length > 0) {
+                      setFormData((prev) => ({ ...prev, skills: skills }));
+                    } else {
+                      setFormData((prev) => ({ ...prev, skills: [] }));
+                    }
+                  }}
+                />
               </div>
             </CardContent>
           </Card>

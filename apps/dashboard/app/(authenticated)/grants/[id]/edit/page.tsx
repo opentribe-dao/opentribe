@@ -22,12 +22,22 @@ import {
 } from '@packages/base/components/ui/select';
 import { Badge } from '@packages/base/components/ui/badge';
 import { ImageUpload } from '@packages/base';
-import { Check, ChevronLeft, ChevronRight, Loader2, Plus, X, Upload } from 'lucide-react';
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Plus,
+  X,
+  Upload,
+} from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Header } from '../../../components/header';
 import { env } from '@/env';
+import SkillsOptions from '@packages/base/components/ui/skills-options';
+import { getSkillLabel } from '@packages/base/lib/skills';
 import { useGrantEdit } from '@/hooks/grants/use-grant-edit';
 import { GrantDetailsForm } from '@/app/(authenticated)/components/grants/grant-detail-form';
 import { GrantFundingForm } from '@/app/(authenticated)/components/grants/grant-funding-form';
@@ -40,13 +50,6 @@ const STEPS = [
   { id: 2, name: 'Funding', description: 'Budget and amounts' },
   { id: 3, name: 'Requirements', description: 'Application criteria' },
   { id: 4, name: 'Publish', description: 'Review and publish' },
-];
-
-const SKILLS = [
-  'Rust', 'Substrate', 'Polkadot SDK', 'Smart Contracts', 'ink!',
-  'JavaScript', 'TypeScript', 'React', 'Node.js', 'Web3.js',
-  'UI/UX Design', 'Technical Writing', 'Marketing', 'Community Management',
-  'DeFi', 'NFTs', 'Governance', 'Research', 'Data Analysis'
 ];
 
 const TOKENS = [
@@ -75,7 +78,11 @@ interface GrantFormData {
   // Step 3: Requirements
   applicationUrl: string;
   resources: Array<{ title: string; url: string; description: string }>;
-  screening: Array<{ question: string; type: 'text' | 'url' | 'file'; optional: boolean }>;
+  screening: Array<{
+    question: string;
+    type: 'text' | 'url' | 'file';
+    optional: boolean;
+  }>;
 
   // Step 4: Publish
   visibility: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
@@ -156,12 +163,12 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4));
+      setCurrentStep((prev) => Math.min(prev + 1, 4));
     }
   };
 
   const handleBack = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   return (
@@ -173,26 +180,38 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
           {STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                  currentStep > step.id 
-                    ? 'bg-green-500 text-white' 
-                    : currentStep === step.id 
-                    ? 'bg-[#E6007A] text-white' 
-                    : 'bg-white/10 text-white/60'
-                }`}>
-                  {currentStep > step.id ? <Check className="h-5 w-5" /> : step.id}
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                    currentStep > step.id
+                      ? 'bg-green-500 text-white'
+                      : currentStep === step.id
+                        ? 'bg-[#E6007A] text-white'
+                        : 'bg-white/10 text-white/60'
+                  }`}
+                >
+                  {currentStep > step.id ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    step.id
+                  )}
                 </div>
                 <div className="mt-2 text-center">
-                  <p className={`text-sm font-medium ${
-                    currentStep >= step.id ? 'text-white' : 'text-white/60'
-                  }`}>{step.name}</p>
+                  <p
+                    className={`text-sm font-medium ${
+                      currentStep >= step.id ? 'text-white' : 'text-white/60'
+                    }`}
+                  >
+                    {step.name}
+                  </p>
                   <p className="text-xs text-white/40">{step.description}</p>
                 </div>
               </div>
               {index < STEPS.length - 1 && (
-                <div className={`h-px w-24 mx-4 ${
-                  currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
-                }`} />
+                <div
+                  className={`h-px w-24 mx-4 ${
+                    currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
+                  }`}
+                />
               )}
             </div>
           ))}
@@ -202,7 +221,9 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
         <Card className="bg-zinc-900/50 border-white/10">
           <CardHeader>
             <CardTitle>{STEPS[currentStep - 1].name}</CardTitle>
-            <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
+            <CardDescription>
+              {STEPS[currentStep - 1].description}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {currentStep === 1 && (

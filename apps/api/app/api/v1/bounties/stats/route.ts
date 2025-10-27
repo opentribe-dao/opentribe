@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 interface BountyStatsResponse {
   total_bounties_count: number;
-  total_rewards_earned: number;
+  total_rewards: number;
 }
 
 const CACHE_KEY = "bounties:stats";
@@ -69,20 +69,22 @@ async function getBountyStats(): Promise<BountyStatsResponse> {
     },
   });
 
-  // Get total rewards earned from Completed Bounties
-  const totalRewardsEarned = await database.bounty.aggregate({
+  // Get total rewards from Completed Bounties
+  const totalRewards = await database.bounty.aggregate({
     where: {
       visibility: "PUBLISHED",
-      status: "COMPLETED",
+      status: {
+        in: ["COMPLETED", "OPEN", "REVIEWING"],
+      },
     },
     _sum: {
-      amount: true,
+      amountUSD: true,
     },
   });
 
   return {
     total_bounties_count: totalBountiesCount,
-    total_rewards_earned: Number(totalRewardsEarned._sum.amount || 0),
+    total_rewards: Number(totalRewards._sum.amountUSD || 0),
   };
 }
 

@@ -40,6 +40,13 @@ import {
   TableRow,
 } from "@packages/base/components/ui/table";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@packages/base/components/ui/dropdown-menu";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -48,11 +55,8 @@ import {
 } from "@packages/base/components/ui/select";
 import { ImageUpload } from "@packages/base";
 import {
-  Building2,
-  Globe,
   Instagram,
   Loader2,
-  Plus,
   Settings,
   Shield,
   Trash2,
@@ -60,11 +64,13 @@ import {
   Users,
   UserPlus,
   Copy,
-  Check,
+  MoreVertical,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { env } from "@/env";
+import { z } from "zod";
+import { toast } from "sonner";
 
 interface OrganizationDetails {
   id: string;
@@ -80,7 +86,7 @@ interface OrganizationDetails {
   members: Array<{
     id: string;
     role: string;
-    joinedAt: string;
+    createdAt: string;
     user: {
       id: string;
       name: string;
@@ -90,6 +96,19 @@ interface OrganizationDetails {
   }>;
   createdAt: string;
   updatedAt: string;
+}
+
+interface PendingInvitation {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  expiresAt: string;
+  inviter: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export default function OrganizationSettingsPage({
@@ -110,7 +129,15 @@ export default function OrganizationSettingsPage({
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
   const [inviting, setInviting] = useState(false);
-  const [copiedInvite, setCopiedInvite] = useState(false);
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [pendingInvitations, setPendingInvitations] = useState<
+    PendingInvitation[]
+  >([]);
+  const [loadingInvitations, setLoadingInvitations] = useState(false);
+  const [copiedInvitationId, setCopiedInvitationId] = useState<string | null>(
+    null
+  );
 
   // Form states
   const [formData, setFormData] = useState({
@@ -124,6 +151,10 @@ export default function OrganizationSettingsPage({
     longDescription: "",
     logo: "",
   });
+
+  // Zod schema for validating email input
+  const inviteEmailSchema = z.string().email();
+  const isValidEmail = (email: string) => inviteEmailSchema.safeParse(email).success;
 
   useEffect(() => {
     const fetchOrganization = async () => {
@@ -166,6 +197,19 @@ export default function OrganizationSettingsPage({
     fetchOrganization();
   }, [orgId, router]);
 
+  useEffect(() => {
+    if (organization) {
+      const userRole = organization.members.find(
+        (member) => member.user.id === session?.user?.id
+      )?.role;
+      const canManageMembers = userRole === "owner" || userRole === "admin";
+
+      if (canManageMembers) {
+        fetchPendingInvitations();
+      }
+    }
+  }, [organization, session]);
+
   const handleUpdateOrganization = async () => {
     if (!organization) return;
 
@@ -184,13 +228,16 @@ export default function OrganizationSettingsPage({
       );
 
       if (!response.ok) {
+        toast.error("Failed to update organization");
         throw new Error("Failed to update organization");
       }
 
       const data = await response.json();
       setOrganization(data.organization);
+      toast.success("Organization updated");
     } catch (error) {
       console.error("Error updating organization:", error);
+      toast.error("An unexpected error occurred while updating");
     } finally {
       setSaving(false);
     }
@@ -198,39 +245,85 @@ export default function OrganizationSettingsPage({
 
   const handleInviteMember = async () => {
     if (!organization || !inviteEmail) return;
+    if (!isValidEmail(inviteEmail)) {
+      setInviteError("Please enter a valid email address.");
+      toast.error("Please enter a valid email address.");
+      return;
+    }
 
     try {
       setInviting(true);
-      // const response = await fetch(
-      //   `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organization.id}/invitations`,
-      //   {
-      //     method: "POST",
-      //     credentials: "include",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       email: inviteEmail,
-      //       role: inviteRole,
-      //     }),
-      //   }
-      // );
+      setInviteError(null);
+      setInviteSuccess(false);
 
-      // if (!response.ok) {
-      //   throw new Error("Failed to send invitation");
-      // }
-      const response = await authClient.organization.inviteMember({
-        email: inviteEmail, // required
-        role: "member", // required
+      // Check if user is already a member
+      const existingMember = organization.members.find(
+        (member) =>
+          member.user.email.toLowerCase() === inviteEmail.toLowerCase()
+      );
+
+      if (existingMember) {
+        setInviteError("This user is already a member of your organization.");
+        toast.error("This user is already a member of your organization.");
+        setInviting(false);
+        return;
+      }
+
+      // Check if user has a pending invitation
+      const pendingInvitation = pendingInvitations.find(
+        (invitation) =>
+          invitation.email.toLowerCase() === inviteEmail.toLowerCase()
+      );
+
+      if (pendingInvitation) {
+        setInviteError(
+          `An invitation has already been sent to ${inviteEmail}. You can copy the invitation link from the Pending Invitations section below.`
+        );
+        toast.error(
+          `An invitation has already been sent to ${inviteEmail}.`
+        );
+        setInviting(false);
+        return;
+      }
+
+      const { data, error } = await authClient.organization.inviteMember({
+        email: inviteEmail,
+        role: inviteRole as "member" | "admin",
         organizationId: organization.id,
         resend: true,
       });
 
-      setInviteEmail("");
-      setInviteRole("member");
-      // TODO: Show success message
+      if (error) {
+        // Handle specific error cases
+        let errorMessage = error.message || "Failed to send invitation";
+
+        // Check for unique constraint violation or already invited
+        if (
+          errorMessage.includes("unique") ||
+          errorMessage.includes("already") ||
+          errorMessage.includes("P2002")
+        ) {
+          errorMessage = "An invitation has already been sent to this email.";
+        }
+
+        setInviteError(errorMessage);
+        toast.error(errorMessage);
+        return;
+      }
+
+      if (data) {
+        setInviteSuccess(true);
+        toast.success(`Invitation sent to ${inviteEmail}`);
+        setInviteEmail("");
+        setInviteRole("member");
+        // Refresh pending invitations
+        fetchPendingInvitations();
+        // Hide success message after 5 seconds
+        setTimeout(() => setInviteSuccess(false), 5000);
+      }
     } catch (error) {
-      console.error("Error sending invitation:", error);
+      setInviteError("An unexpected error occurred");
+      toast.error("An unexpected error occurred");
     } finally {
       setInviting(false);
     }
@@ -251,6 +344,7 @@ export default function OrganizationSettingsPage({
       );
 
       if (!response.ok) {
+        toast.error("Failed to remove member");
         throw new Error("Failed to remove member");
       }
 
@@ -263,16 +357,75 @@ export default function OrganizationSettingsPage({
       );
       const data = await orgResponse.json();
       setOrganization(data.organization);
+      toast.success("Member removed");
     } catch (error) {
       console.error("Error removing member:", error);
+      toast.error("An unexpected error occurred while removing member");
     }
   };
 
-  const handleCopyInviteLink = () => {
-    const inviteLink = `${window.location.origin}/invite/${organization?.id}`;
-    navigator.clipboard.writeText(inviteLink);
-    setCopiedInvite(true);
-    setTimeout(() => setCopiedInvite(false), 2000);
+  const fetchPendingInvitations = async () => {
+    if (!organization) return;
+
+    try {
+      setLoadingInvitations(true);
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organization.id}/invitations`,
+        {
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch pending invitations");
+      }
+
+      const data = await response.json();
+      setPendingInvitations(data.invitations || []);
+    } catch (error) {
+      console.error("Error fetching pending invitations:", error);
+    } finally {
+      setLoadingInvitations(false);
+    }
+  };
+
+  const handleDeleteInvitation = async (invitationId: string) => {
+    if (!organization) return;
+    if (!confirm("Delete this invitation?")) return;
+
+    try {
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organization.id}/invitations`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ invitationId }),
+        }
+      );
+
+      if (!response.ok) {
+        toast.error("Failed to delete invitation");
+        return;
+      }
+
+      toast.success("Invitation deleted");
+      fetchPendingInvitations();
+    } catch (error) {
+      toast.error("An unexpected error occurred while deleting invitation");
+    }
+  };
+
+  const handleCopyInvitationLink = async (invitationId: string) => {
+    const inviteLink = `${env.NEXT_PUBLIC_WEB_URL}/org-invite?token=${invitationId}`;
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setCopiedInvitationId(invitationId);
+      toast.success("Invitation link copied");
+      setTimeout(() => setCopiedInvitationId(null), 2000);
+    } catch (error) {
+      toast.error("Failed to copy link");
+    }
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -296,7 +449,7 @@ export default function OrganizationSettingsPage({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className='flex min-h-screen items-center justify-center'>
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -309,7 +462,7 @@ export default function OrganizationSettingsPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">
+        <h1 className='mb-2 font-bold text-3xl text-white'>
           Organization Settings
         </h1>
         <p className="text-white/60">
@@ -318,32 +471,32 @@ export default function OrganizationSettingsPage({
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-white/10 border-white/20 mb-8">
+        <TabsList className='mb-8 border-white/20 bg-white/10'>
           <TabsTrigger
             value="general"
             className="data-[state=active]:bg-white/20"
           >
-            <Settings className="h-4 w-4 mr-2" />
+            <Settings className='mr-2 h-4 w-4' />
             General
           </TabsTrigger>
           <TabsTrigger
             value="members"
             className="data-[state=active]:bg-white/20"
           >
-            <Users className="h-4 w-4 mr-2" />
+            <Users className='mr-2 h-4 w-4' />
             Members
           </TabsTrigger>
           <TabsTrigger
             value="security"
             className="data-[state=active]:bg-white/20"
           >
-            <Shield className="h-4 w-4 mr-2" />
+            <Shield className='mr-2 h-4 w-4' />
             Security
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Organization Profile</CardTitle>
               <CardDescription className="text-white/60">
@@ -352,7 +505,7 @@ export default function OrganizationSettingsPage({
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label className="text-white mb-4 block">
+                <Label className='mb-4 block text-white'>
                   Organization Logo
                 </Label>
                 <ImageUpload
@@ -367,7 +520,7 @@ export default function OrganizationSettingsPage({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-white">
                     Organization Name
@@ -379,7 +532,7 @@ export default function OrganizationSettingsPage({
                       setFormData({ ...formData, name: e.target.value })
                     }
                     disabled={!canEditOrganization}
-                    className="bg-white/10 border-white/20 text-white"
+                    className='border-white/20 bg-white/10 text-white'
                   />
                 </div>
 
@@ -394,9 +547,9 @@ export default function OrganizationSettingsPage({
                       setFormData({ ...formData, slug: e.target.value })
                     }
                     disabled={!canEditOrganization}
-                    className="bg-white/10 border-white/20 text-white"
+                    className='border-white/20 bg-white/10 text-white'
                   />
-                  <p className="text-xs text-white/60">
+                  <p className='text-white/60 text-xs'>
                     opentribe.io/org/{formData.slug}
                   </p>
                 </div>
@@ -413,7 +566,7 @@ export default function OrganizationSettingsPage({
                       setFormData({ ...formData, email: e.target.value })
                     }
                     disabled={!canEditOrganization}
-                    className="bg-white/10 border-white/20 text-white"
+                    className='border-white/20 bg-white/10 text-white'
                   />
                 </div>
 
@@ -428,7 +581,7 @@ export default function OrganizationSettingsPage({
                       setFormData({ ...formData, website: e.target.value })
                     }
                     disabled={!canEditOrganization}
-                    className="bg-white/10 border-white/20 text-white"
+                    className='border-white/20 bg-white/10 text-white'
                     placeholder="https://example.com"
                   />
                 </div>
@@ -448,7 +601,7 @@ export default function OrganizationSettingsPage({
                     })
                   }
                   disabled={!canEditOrganization}
-                  className="bg-white/10 border-white/20 text-white min-h-[80px]"
+                  className='min-h-[80px] border-white/20 bg-white/10 text-white'
                   placeholder="Brief description of your organization"
                 />
               </div>
@@ -467,12 +620,12 @@ export default function OrganizationSettingsPage({
                     })
                   }
                   disabled={!canEditOrganization}
-                  className="bg-white/10 border-white/20 text-white min-h-[150px]"
+                  className='min-h-[150px] border-white/20 bg-white/10 text-white'
                   placeholder="Detailed description of your organization"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 <div className="space-y-2">
                   <Label htmlFor="twitter" className="text-white">
                     <div className="flex items-center gap-2">
@@ -487,7 +640,7 @@ export default function OrganizationSettingsPage({
                       setFormData({ ...formData, twitter: e.target.value })
                     }
                     disabled={!canEditOrganization}
-                    className="bg-white/10 border-white/20 text-white"
+                    className='border-white/20 bg-white/10 text-white'
                     placeholder="@yourhandle"
                   />
                 </div>
@@ -506,7 +659,7 @@ export default function OrganizationSettingsPage({
                       setFormData({ ...formData, instagram: e.target.value })
                     }
                     disabled={!canEditOrganization}
-                    className="bg-white/10 border-white/20 text-white"
+                    className='border-white/20 bg-white/10 text-white'
                     placeholder="@yourhandle"
                   />
                 </div>
@@ -516,11 +669,11 @@ export default function OrganizationSettingsPage({
               <Button
                 onClick={handleUpdateOrganization}
                 disabled={!canEditOrganization || saving}
-                className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+                className='bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
               >
                 {saving ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     Saving...
                   </>
                 ) : (
@@ -533,7 +686,7 @@ export default function OrganizationSettingsPage({
 
         <TabsContent value="members" className="space-y-6">
           {canManageMembers && (
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
               <CardHeader>
                 <CardTitle className="text-white">Invite Members</CardTitle>
                 <CardDescription className="text-white/60">
@@ -541,16 +694,34 @@ export default function OrganizationSettingsPage({
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {inviteSuccess && (
+                  <Alert className='border-green-500/20 bg-green-500/10'>
+                    <AlertDescription className="text-green-400">
+                      Invitation sent successfully! The user will receive an
+                      email with instructions to join your organization.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {inviteError && (
+                  <Alert className='border-red-500/20 bg-red-500/10'>
+                    <AlertDescription className="text-red-400">
+                      {inviteError}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="flex gap-4">
                   <Input
                     type="email"
                     placeholder="Email address"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    className="bg-white/10 border-white/20 text-white flex-1"
+                    aria-invalid={!!inviteEmail && !isValidEmail(inviteEmail)}
+                    className={`flex-1 border-white/20 bg-white/10 text-white ${inviteEmail && !isValidEmail(inviteEmail) ? "border-red-500/50 focus-visible:ring-red-500/60" : ""}`}
                   />
                   <Select value={inviteRole} onValueChange={setInviteRole}>
-                    <SelectTrigger className="bg-white/10 border-white/20 text-white w-[180px]">
+                    <SelectTrigger className='w-[180px] border-white/20 bg-white/10 text-white'>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -560,44 +731,15 @@ export default function OrganizationSettingsPage({
                   </Select>
                   <Button
                     onClick={handleInviteMember}
-                    disabled={!inviteEmail || inviting}
-                    className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+                    disabled={!inviteEmail || !isValidEmail(inviteEmail) || inviting}
+                    className='bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
                   >
                     {inviting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
-                        <UserPlus className="h-4 w-4 mr-2" />
+                        <UserPlus className='mr-2 h-4 w-4' />
                         Send Invite
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-                  <div>
-                    <p className="text-white text-sm font-medium">
-                      Share invite link
-                    </p>
-                    <p className="text-white/60 text-xs mt-1">
-                      Anyone with this link can request to join your
-                      organization
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
-                    onClick={handleCopyInviteLink}
-                  >
-                    {copiedInvite ? (
-                      <>
-                        <Check className="h-4 w-4 mr-2" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Link
                       </>
                     )}
                   </Button>
@@ -606,7 +748,7 @@ export default function OrganizationSettingsPage({
             </Card>
           )}
 
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Current Members</CardTitle>
               <CardDescription className="text-white/60">
@@ -615,14 +757,30 @@ export default function OrganizationSettingsPage({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
+              <Table className='w-full table-fixed'>
+                <colgroup>
+                  <col style={{ width: "40%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "15%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "12%" }} />
+                </colgroup>
                 <TableHeader>
                   <TableRow className="border-white/10">
-                    <TableHead className="text-white">Member</TableHead>
-                    <TableHead className="text-white">Role</TableHead>
-                    <TableHead className="text-white">Joined</TableHead>
+                    <TableHead className='text-left align-middle text-white'>
+                      Member
+                    </TableHead>
+                    <TableHead className='text-left align-middle text-white' />
+                    <TableHead className='text-center align-middle text-white'>
+                      Role
+                    </TableHead>
+                    <TableHead className='text-center align-middle text-white'>
+                      Joined
+                    </TableHead>
                     {canManageMembers && (
-                      <TableHead className="text-white">Actions</TableHead>
+                      <TableHead className='text-center align-middle text-white'>
+                        Actions
+                      </TableHead>
                     )}
                   </TableRow>
                 </TableHeader>
@@ -638,39 +796,42 @@ export default function OrganizationSettingsPage({
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-white font-medium">
+                            <p className='font-medium text-white'>
                               {member.user.name}
                             </p>
-                            <p className="text-white/60 text-sm">
+                            <p className='text-sm text-white/60'>
                               {member.user.email}
                             </p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="align-middle" />
+                      <TableCell className='whitespace-nowrap text-center align-middle'>
                         <Badge
                           className={`${getRoleBadgeColor(
                             member.role
-                          )} border-0`}
+                          )} border-0 px-2 py-0.5 text-xs`}
                         >
                           {member.role}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-white/60">
-                        {new Date(member.joinedAt).toLocaleDateString()}
+                      <TableCell className='text-center align-middle text-white/60'>
+                        {new Date(member.createdAt).toLocaleDateString()}
                       </TableCell>
                       {canManageMembers && (
-                        <TableCell>
+                        <TableCell className='whitespace-nowrap text-center align-middle'>
                           {member.role !== "owner" &&
-                            member.user.id !== session?.user?.id && (
+                            member.user.id !== session?.user?.id ? (
                               <Button
-                                variant="ghost"
-                                size="sm"
+                              variant="ghost"
+                              size="sm"
                                 onClick={() => handleRemoveMember(member.id)}
-                                className="text-red-400 hover:bg-red-500/20"
+                              className='whitespace-nowrap px-3 py-1.5 text-red-400 text-xs hover:bg-red-500/20 md:text-sm'
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
+                            ) : (
+                              <span className="text-white/40">-</span>
                             )}
                         </TableCell>
                       )}
@@ -680,10 +841,134 @@ export default function OrganizationSettingsPage({
               </Table>
             </CardContent>
           </Card>
+
+          {canManageMembers && (loadingInvitations || pendingInvitations.length > 0) && (
+            <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+              <CardHeader>
+                <CardTitle className="text-white">
+                  Pending Invitations
+                </CardTitle>
+                <CardDescription className="text-white/60">
+                  {pendingInvitations.length} pending invitation
+                  {pendingInvitations.length !== 1 ? "s" : ""}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingInvitations ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-[#E6007A]" />
+                  </div>
+                ) : (
+                  <Table className='w-full table-fixed'>
+                    <colgroup>
+                      <col style={{ width: "40%" }} />
+                      <col style={{ width: "20%" }} />
+                      <col style={{ width: "15%" }} />
+                      <col style={{ width: "13%" }} />
+                      <col style={{ width: "12%" }} />
+                    </colgroup>
+                    <TableHeader>
+                      <TableRow className="border-white/10">
+                        <TableHead className='text-left align-middle text-white'>
+                          Email
+                        </TableHead>
+                        <TableHead className='text-left align-middle text-white'>
+                          Invited By
+                        </TableHead>
+                        <TableHead className='text-center align-middle text-white'>
+                          Role
+                        </TableHead>
+                        <TableHead className='text-center align-middle text-white'>
+                          Expires
+                        </TableHead>
+                        <TableHead className='text-center align-middle text-white'>
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingInvitations.map((invitation) => (
+                        <TableRow
+                          key={invitation.id}
+                          className="border-white/10"
+                        >
+                          <TableCell className="align-middle">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback>
+                                  {invitation.email.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className='font-medium text-white'>
+                                  {invitation.email}
+                                </p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className='text-left align-middle text-white/60'>
+                            {invitation.inviter.name}
+                          </TableCell>
+                          <TableCell className='whitespace-nowrap text-center align-middle'>
+                            <Badge
+                              className={`${getRoleBadgeColor(
+                                invitation.role
+                              )} border-0 px-2 py-0.5 text-xs`}
+                            >
+                              {invitation.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className='whitespace-nowrap text-center align-middle text-white/60'>
+                            {new Date(
+                              invitation.expiresAt
+                            ).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className='whitespace-nowrap text-center align-middle'>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-white hover:bg-white/10"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem
+                                  className="gap-2"
+                                  onClick={() => handleCopyInvitationLink(invitation.id)}
+                                >
+                                  <Copy className="h-4 w-4" />
+                                  <span>
+                                    {copiedInvitationId === invitation.id
+                                      ? "Copied!"
+                                      : "Copy link"}
+                                  </span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="gap-2 text-red-500 focus:text-red-500"
+                                  onClick={() => handleDeleteInvitation(invitation.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  <span>Delete invite</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
-          <Card className="bg-white/5 backdrop-blur-md border-white/10">
+          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
             <CardHeader>
               <CardTitle className="text-white">Security Settings</CardTitle>
               <CardDescription className="text-white/60">
@@ -691,7 +976,7 @@ export default function OrganizationSettingsPage({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Alert className="bg-yellow-500/10 border-yellow-500/20">
+              <Alert className='border-yellow-500/20 bg-yellow-500/10'>
                 <AlertDescription className="text-yellow-400">
                   Security settings are coming soon. We're working on features
                   like two-factor authentication, API keys, and audit logs.
@@ -701,7 +986,7 @@ export default function OrganizationSettingsPage({
           </Card>
 
           {canDeleteOrganization && (
-            <Card className="bg-red-500/5 backdrop-blur-md border-red-500/20">
+            <Card className='border-red-500/20 bg-red-500/5 backdrop-blur-md'>
               <CardHeader>
                 <CardTitle className="text-red-400">Danger Zone</CardTitle>
                 <CardDescription className="text-red-400/60">
@@ -711,10 +996,10 @@ export default function OrganizationSettingsPage({
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-white font-medium mb-2">
+                    <h4 className='mb-2 font-medium text-white'>
                       Delete Organization
                     </h4>
-                    <p className="text-white/60 text-sm mb-4">
+                    <p className='mb-4 text-sm text-white/60'>
                       Once you delete an organization, there is no going back.
                       All data including bounties, grants, and submissions will
                       be permanently deleted.

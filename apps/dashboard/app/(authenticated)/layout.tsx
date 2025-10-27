@@ -1,13 +1,12 @@
-import { auth } from '@packages/auth/server';
-import { SidebarProvider } from '@packages/base/components/ui/sidebar';
-import { showBetaFeature } from '@packages/feature-flags';
-import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
-import type { ReactNode } from 'react';
-import { PostHogIdentifier } from './components/posthog-identifier';
-import { GlobalSidebar } from './components/sidebar';
-import { ErrorBoundary } from '@/components/error-boundary';
-import { env } from '@/env';
+import { auth } from "@packages/auth/server";
+import { SidebarProvider } from "@packages/base/components/ui/sidebar";
+import { showBetaFeature } from "@packages/feature-flags";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
+import { GlobalSidebar } from "./components/sidebar";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { env } from "@/env";
 
 type AppLayoutProperties = {
   readonly children: ReactNode;
@@ -19,10 +18,11 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
     headers: await headers(),
   });
 
+  console.log("[Dashboard] Session:", session);
+
   const betaFeature = await showBetaFeature();
 
   if (!session?.user) {
-
     return redirect(`${env.NEXT_PUBLIC_WEB_URL}/sign-in`);
   }
 
@@ -37,7 +37,6 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
           )}
           {children}
         </GlobalSidebar>
-        <PostHogIdentifier />
       </SidebarProvider>
     </ErrorBoundary>
   );

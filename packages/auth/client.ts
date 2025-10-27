@@ -11,7 +11,7 @@ const authClient = createAuthClient({
   baseURL:
     typeof window !== "undefined"
       ? `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/api/auth`
-      : `${process.env.BETTER_AUTH_URL}/api/auth`,
+      : `${process.env.BETTER_AUTH_URL || "http://localhost:3002"}/api/auth`,
   plugins: [
     adminClient(),
     organizationClient(),

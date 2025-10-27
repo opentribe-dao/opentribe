@@ -1,23 +1,25 @@
-import type { BountyDetails } from "@/hooks/use-bounty";
-import { MarkdownEditor } from "@packages/base";
-import { Badge } from "@packages/base/components/ui/badge";
-import { Input } from "@packages/base/components/ui/input";
-import { Label } from "@packages/base/components/ui/label";
-import { X, Plus } from "lucide-react";
+import type { BountyDetails } from '@/hooks/use-bounty';
+import { MarkdownEditor } from '@packages/base';
+import { Input } from '@packages/base/components/ui/input';
+import { Label } from '@packages/base/components/ui/label';
+import SkillsOptions from '@packages/base/components/ui/skills-options';
 
 interface BountyDetailProps {
-    formData: Partial<BountyDetails>;
-    updateFormData: <K extends keyof BountyDetails>(
-        field: K,
-        value: BountyDetails[K]
-      ) => void;
-    addSkill: (skill: string) => void;
-    removeSkill: (skill: string) => void;
-    skills: string[];
-  }
+  formData: Partial<BountyDetails>;
+  updateFormData: <K extends keyof BountyDetails>(
+    field: K,
+    value: BountyDetails[K]
+  ) => void;
+  addSkill: (skills: string[]) => void;
+  removeSkill: (skill: string) => void;
+}
 
-export const BountyDetailStepComponent: React.FC<BountyDetailProps> = ({formData, updateFormData,addSkill, removeSkill, skills}) => (
-    <div className="space-y-6">
+export const BountyDetailStepComponent: React.FC<BountyDetailProps> = ({
+  formData,
+  updateFormData,
+  addSkill,
+}) => (
+  <div className="space-y-6">
     <div>
       <Label htmlFor="title">Bounty Title *</Label>
       <div className="mt-2">
@@ -47,39 +49,14 @@ export const BountyDetailStepComponent: React.FC<BountyDetailProps> = ({formData
       <Label>Required Skills *</Label>
       <div className="mt-2 space-y-3">
         <div className="flex flex-wrap gap-2">
-          {(formData.skills ?? []).map((skill) => (
-            <Badge
-              key={skill}
-              variant="secondary"
-              className="border-0 bg-[#E6007A]/20 text-[#E6007A]"
-            >
-              {skill}
-              <button
-                type="button"
-                onClick={() => removeSkill(skill)}
-                className="ml-2 hover:text-white"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {skills.filter(
-            (s) => formData.skills && !formData.skills.includes(s)
-          ).map((skill) => (
-            <Badge
-              key={skill}
-              variant="outline"
-              className="cursor-pointer border-white/20 text-white/60 hover:bg-white/10 hover:text-white"
-              onClick={() => addSkill(skill)}
-            >
-              <Plus className="mr-1 h-3 w-3" />
-              {skill}
-            </Badge>
-          ))}
+          <SkillsOptions
+            value={formData.skills ?? []}
+            onChange={(skills) => {
+              addSkill(skills);
+            }}
+          />
         </div>
       </div>
     </div>
   </div>
-)
+);

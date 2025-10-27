@@ -1,1 +1,1 @@
-export { GoogleAnalytics } from '@next/third-parties/google';
+export { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";

@@ -117,7 +117,7 @@ export function VoteButtons({
         className={cn(
           sizeClasses[size],
           'transition-colors',
-          voteDirection === 'UP' && 'text-green-500 bg-green-500/10 hover:bg-green-500/20'
+          voteDirection === 'UP' && 'bg-green-500/10 text-green-500 hover:bg-green-500/20'
         )}
       >
         <ChevronUp className={cn(iconSizes[size], voteDirection === 'UP' && 'fill-current')} />
@@ -133,7 +133,7 @@ export function VoteButtons({
         </span>
       )}
 
-      <Button
+      {/* <Button
         variant="ghost"
         size="icon"
         onClick={() => handleVote('DOWN')}
@@ -145,7 +145,7 @@ export function VoteButtons({
         )}
       >
         <ChevronDown className={cn(iconSizes[size], voteDirection === 'DOWN' && 'fill-current')} />
-      </Button>
+      </Button> */}
     </div>
   );
 }

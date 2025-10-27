@@ -34,6 +34,7 @@ interface Submission {
   }[];
   bounty: {
     id: string;
+    slug: string;
     title: string;
     totalAmount: number;
     token: string;
@@ -116,7 +117,7 @@ export default function SubmissionDetailPage({
       <div className="border-white/10 border-b">
         <div className="container mx-auto px-6 py-4">
           <Link
-            href={`/bounties/${submission.bounty.id}`}
+            href={`/bounties/${submission.bounty.slug || submission.bounty.id}`}
             className="inline-flex items-center gap-2 text-white/60 transition-colors hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -284,7 +285,6 @@ export default function SubmissionDetailPage({
                   <span className="text-white/60">Total Prize</span>
                   <span className="font-medium">
                     {formatCurrency(Number(submission.bounty.totalAmount), String(submission.bounty.token))}
-                    {submission.bounty.token}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -301,7 +301,7 @@ export default function SubmissionDetailPage({
                 </div>
               </div>
               <Link
-                href={`/bounties/${submission.bounty.id}`}
+                href={`/bounties/${submission.bounty.slug || submission.bounty.id}`}
                 className="mt-4 block w-full"
               >
                 <Button

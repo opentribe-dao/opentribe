@@ -20,6 +20,7 @@ import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
 import { ShareButton } from "../../bounties/[id]/share-button";
 import { formatCurrency } from "@packages/base/lib/utils";
+import { ExpandableText } from "@packages/base/components/ui/expandable-text";
 
 async function getRfp(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -56,6 +57,8 @@ export default async function RFPDetailPage({
   // Resources are already parsed from the API
   const resources = rfp.resources || [];
 
+  console.log(rfp);
+
   return (
     <div className="min-h-screen">
       {/* Glass Header Card */}
@@ -90,7 +93,7 @@ export default async function RFPDetailPage({
                   <div className="flex items-center gap-4 text-white/60">
                     <span className="text-sm">Part of</span>
                     <Link
-                      href={`/en/grants/${rfp.grant.id}`}
+                      href={`/grants/${rfp.grant.slug || rfp.grant.id}`}
                       className='flex items-center gap-1 text-pink-400 transition-colors hover:text-pink-300'
                     >
                       {rfp.grant.title}
@@ -134,14 +137,16 @@ export default async function RFPDetailPage({
           <div className='space-y-8 lg:col-span-2'>
             {/* Description Section */}
             <section>
-              <h2 className='mb-4 font-bold font-heading text-2xl'>
+                <ExpandableText maxHeight={300} className="py-0">
+                <h2 className='mb-4 font-bold font-heading text-2xl'>
                 Description
-              </h2>
-              <div className='prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white'>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {rfp.description}
-                </ReactMarkdown>
-              </div>
+                </h2>
+                <div className='prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white'>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {rfp.description}
+                  </ReactMarkdown>
+                </div>
+                </ExpandableText>
             </section>
 
             {/* Acceptance Criteria */}
@@ -331,7 +336,7 @@ export default async function RFPDetailPage({
                   {relatedRfps.map((related: any) => (
                     <Link
                       key={related.id}
-                      href={`/en/rfps/${related.id}`}
+                      href={`/rfps/${related.id}`}
                       className="group"
                     >
                       <div className='h-full rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10'>
@@ -426,7 +431,7 @@ export default async function RFPDetailPage({
               </div>
 
               {rfp.grant.userApplicationId ? (
-                  <Link href={`/grants/${rfp.grant.id}/applications/${rfp.grant.userApplicationId}`}>
+                  <Link href={`/grants/${rfp.grant.slug || rfp.grant.id}/applications/${rfp.grant.userApplicationId}`}>
                     <Button
                       className="bg-pink-600 text-white hover:bg-pink-700"
                       disabled={rfp.grant.status !== "OPEN"}
@@ -452,7 +457,7 @@ export default async function RFPDetailPage({
                   Apply with this RFP
                 </Button>
               ) : (
-                <Link href={`/grants/${rfp.grant.id}/apply?rfp=${rfp.id}`}>
+                <Link href={`/grants/${rfp.grant.slug || rfp.grant.id}/apply?rfp=${rfp.id}`}>
                   <Button className='w-full bg-pink-600 text-white hover:bg-pink-700'>
                     Apply with this RFP
                   </Button>

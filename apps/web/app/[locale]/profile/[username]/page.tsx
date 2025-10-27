@@ -2,7 +2,6 @@
 
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
-import { parseSkillsArray } from "@/lib/utils/skills-parser";
 import {
   Card,
   CardContent,
@@ -37,6 +36,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { env } from "@/env";
 import Image from "next/image";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 interface UserProfile {
   id: string;
@@ -80,6 +80,7 @@ interface UserProfile {
     createdAt: string;
     grant: {
       id: string;
+      slug: string;
       title: string;
       organization: {
         name: string;
@@ -96,6 +97,7 @@ interface UserProfile {
     createdAt: string;
     bounty: {
       id: string;
+      slug: string;
       title: string;
       organization: {
         name: string;
@@ -110,6 +112,7 @@ interface UserProfile {
     winningAmount?: string;
     bounty: {
       id: string;
+      slug: string;
       title: string;
       token: string;
       organization: {
@@ -193,11 +196,6 @@ const ProfilePage = () => {
       year: "numeric",
       month: "short",
     });
-  };
-
-  const getSkillsArray = (skills: any) => {
-    const parsedSkills = parseSkillsArray(skills);
-    return parsedSkills;
   };
 
   const getStatusColor = (status: string) => {
@@ -410,7 +408,7 @@ const ProfilePage = () => {
             {/* Left Column - Skills & Organizations */}
             <div className="space-y-6">
               {/* Skills */}
-              {profile.skills && getSkillsArray(profile.skills).length > 0 && (
+              {profile.skills && profile.skills.length > 0 && (
                 <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
                   <CardHeader>
                     <CardTitle className='flex items-center gap-2 text-white'>
@@ -419,13 +417,13 @@ const ProfilePage = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {getSkillsArray(profile.skills).map((skill: string) => (
+                      {profile.skills.map((skill) => (
                         <Badge
                           key={skill}
                           variant="secondary"
                           className='border-0 bg-[#E6007A]/20 text-[#FFFFFF]'
                         >
-                          {skill}
+                          {getSkillLabel(skill)}
                         </Badge>
                       ))}
                     </div>
@@ -534,8 +532,8 @@ const ProfilePage = () => {
                               className="block"
                               href={
                                 item.type === "application"
-                                  ? `/grants/${item.grant.id}/`
-                                  : `/bounties/${item.bounty.id}/submissions/${item.id}`
+                                  ? `/grants/${item.grant.slug || item.grant.id}/applications/${item.id}`
+                                  : `/bounties/${item.bounty.slug || item.bounty.id}/submissions/${item.id}`
                               }
                             >
                               <div className="flex items-start justify-between">
@@ -582,7 +580,7 @@ const ProfilePage = () => {
                         profile.applications.map((app) => (
                           <Link
                             key={app.id}
-                            href={`/grants/${app.grant.id}/`}
+                            href={`/grants/${app.grant.slug || app.grant.id}/`}
                             className="block"
                           >
                             <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>
@@ -618,7 +616,7 @@ const ProfilePage = () => {
                         profile.submissions.map((sub) => (
                           <Link
                             key={sub.id}
-                            href={`/bounties/${sub.bounty.id}/submissions/${sub.id}`}
+                            href={`/bounties/${sub.bounty.slug || sub.bounty.id}/submissions/${sub.id}`}
                             className="block"
                           >
                             <div className='rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10'>
@@ -661,7 +659,7 @@ const ProfilePage = () => {
                         profile.wonSubmissions.map((win) => (
                           <Link
                             key={win.id}
-                            href={`/bounties/${win.bounty.id}/submissions/${win.id}`}
+                            href={`/bounties/${win.bounty.slug || win.bounty.id}/submissions/${win.id}`}
                             className="block"
                           >
                             <div className='rounded-lg border border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-green-500/10 p-4'>

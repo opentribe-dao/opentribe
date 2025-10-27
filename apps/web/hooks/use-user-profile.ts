@@ -145,34 +145,3 @@ export function useUpdateProfile() {
     },
   });
 }
-
-// Helper to parse JSON fields safely (for Json type fields in Prisma)
-export function parseJsonField<T = any>(jsonData: any, fallback: T): T {
-  if (!jsonData) return fallback;
-  // If it's already an object/array, return it
-  if (typeof jsonData === "object") return jsonData as T;
-  // If it's a string, try to parse it
-  if (typeof jsonData === "string") {
-    try {
-      return JSON.parse(jsonData);
-    } catch {
-      return fallback;
-    }
-  }
-  return fallback;
-}
-
-// Helper to get parsed profile with JSON fields converted
-// Note: interests is already string[] from Prisma, skills and preferences are Json type
-// TODO: This is a hack to get the skills and preferences parsed, we should use the skills-parser.ts 
-// or create a new interface for UserProfile that has the skills and preferences as proper arrays with object types
-export function getParsedProfile(profile: UserProfile) {
-  return {
-    ...profile,
-    // interests is already an array from Prisma
-    interests: profile.interests || [],
-    // skills and preferences are Json type in Prisma, might need parsing
-    skills: parseJsonField<Record<string, any>>(profile.skills, {}),
-    preferences: parseJsonField<Record<string, any>>(profile.preferences, {}),
-  };
-}

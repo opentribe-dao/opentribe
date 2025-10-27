@@ -1,6 +1,6 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
-import { PaymentService } from "@packages/polkadot";
+import { PaymentService } from "@packages/polkadot/server";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
 
     // Development mode: Accept test transactions
     if (
-      process.env.NODE_ENV === "development" &&
+      (process.env.NODE_ENV === "development" ||
+        process.env.VERCEL_TARGET_ENV === "dev") &&
       validatedData.extrinsicHash.startsWith("0xtest")
     ) {
       return NextResponse.json({

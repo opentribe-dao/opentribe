@@ -6,6 +6,7 @@ import Link from "next/link";
 
 interface RFPCardProps {
   id: string;
+  slug: string;
   title: string;
   grant: {
     title: string;
@@ -23,6 +24,7 @@ interface RFPCardProps {
 
 export function RFPCard({
   id,
+  slug,
   title,
   grant,
   voteCount,
@@ -35,7 +37,7 @@ export function RFPCard({
 
   if (variant === "list") {
     return (
-      <Link href={`/en/rfps/${id}`}>
+      <Link href={`/en/rfps/${slug || id}`}>
         <div className='cursor-pointer rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-all hover:bg-white/10'>
           <div className="flex items-center gap-4">
             {/* Grant Logo */}
@@ -88,7 +90,7 @@ export function RFPCard({
   }
 
   return (
-    <Link href={`/en/rfps/${id}`}>
+    <Link href={`/en/rfps/${slug || id}`}>
       <Card className='mb-4 cursor-pointer border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10'>
         <div className='mb-4 flex items-start gap-4'>
           {grant.organization.logo ? (

@@ -7,6 +7,7 @@ import { cn } from '@packages/base/lib/utils'
 
 export interface TopBounty {
   id: string
+  slug: string
   title: string
   voteCount: number
   organization: {
@@ -78,8 +79,8 @@ export function TopBountiesCard({
         <div className="space-y-3">
           {topBounties.map((bounty, index) => (
             <Link 
-              key={bounty.id} 
-              href={`/bounties/${bounty.id}`}
+              key={bounty.slug || bounty.id} 
+              href={`/bounties/${bounty.slug || bounty.id}`}
               className='flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/5'
               aria-label={`View bounty: ${bounty.title} by ${bounty.organization.name}`}
             >

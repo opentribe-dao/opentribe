@@ -44,7 +44,7 @@ describe("Grant Application System Tests", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.grant.findUnique as any).mockResolvedValue(mockGrant);
+      (database.grant.findFirst as any).mockResolvedValue(mockGrant);
       (database.grantApplication.findFirst as any).mockResolvedValue(null);
       (database.member.findMany as any).mockResolvedValue([]);
       (database.grantApplication.create as any).mockResolvedValue(
@@ -139,7 +139,7 @@ describe("Grant Application System Tests", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.grant.findUnique as any).mockResolvedValue(mockGrant);
+      (database.grant.findFirst as any).mockResolvedValue(mockGrant);
 
       // Act
       const body = JSON.stringify({
@@ -178,6 +178,7 @@ describe("Grant Application System Tests", () => {
 
       const mockGrant = {
         id: "grant-1",
+        slug: "grant-1",
         title: "Test Grant",
         status: "OPEN",
         visibility: "PUBLISHED",
@@ -198,7 +199,7 @@ describe("Grant Application System Tests", () => {
       ];
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.grant.findUnique as any).mockResolvedValue(mockGrant);
+      (database.grant.findFirst as any).mockResolvedValue(mockGrant);
       (database.grantApplication.findFirst as any).mockResolvedValue(null);
       (database.member.findMany as any).mockResolvedValue(mockMembership);
 
@@ -263,7 +264,7 @@ describe("Grant Application System Tests", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.grant.findUnique as any).mockResolvedValue(mockGrant);
+      (database.grant.findFirst as any).mockResolvedValue(mockGrant);
       (database.grantApplication.findFirst as any).mockResolvedValue(
         mockExistingApplication
       );
@@ -313,7 +314,7 @@ describe("Grant Application System Tests", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.grant.findUnique as any).mockResolvedValue(mockGrant);
+      (database.grant.findFirst as any).mockResolvedValue(mockGrant);
 
       // Act
       const body = JSON.stringify({

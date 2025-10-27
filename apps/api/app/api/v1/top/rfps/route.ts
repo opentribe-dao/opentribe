@@ -4,6 +4,7 @@ import { redis } from "@packages/security/cache";
 
 interface TopRFP {
   id: string;
+  slug: string;
   title: string;
   voteCount: number;
   grant: {
@@ -119,6 +120,7 @@ async function getAllRfps(): Promise<TopRFP[]> {
     select: {
       id: true,
       title: true,
+      slug: true,
       voteCount: true,
       grant: {
         select: {
@@ -139,6 +141,7 @@ async function getAllRfps(): Promise<TopRFP[]> {
   return rfps.map((rfp) => ({
     id: rfp.id,
     title: rfp.title,
+    slug: rfp.slug,
     voteCount: rfp.voteCount,
     grant: {
       organization: {
@@ -160,6 +163,7 @@ async function getRfpsByIds(rfpIds: string[]): Promise<TopRFP[]> {
     select: {
       id: true,
       title: true,
+      slug: true,
       voteCount: true,
       grant: {
         select: {
@@ -179,6 +183,7 @@ async function getRfpsByIds(rfpIds: string[]): Promise<TopRFP[]> {
     .map((rfp) => ({
       id: rfp.id,
       title: rfp.title,
+      slug: rfp.slug,
       voteCount: rfp.voteCount,
       grant: {
         organization: {

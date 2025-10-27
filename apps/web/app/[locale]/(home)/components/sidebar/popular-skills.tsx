@@ -10,6 +10,7 @@ import {
 } from "@packages/base/components/ui/card";
 import { Button } from "@packages/base/components/ui/button";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { getSkillLabel } from "@packages/base/lib/skills";
 
 interface PopularSkillsProps {
   skills: Array<{ skill: string; count: number }>;
@@ -43,6 +44,10 @@ export function PopularSkills({
         </CardContent>
       </Card>
     );
+  }
+
+  if (skills.length === 0) {
+    return (<div/>);
   }
 
   return (
@@ -79,7 +84,7 @@ export function PopularSkills({
                 onClick={() => onSkillToggle(skill)}
                 title={`${count} opportunities`}
               >
-                {skill}
+                {getSkillLabel(skill)}
               </Badge>
             );
           })}

@@ -10,9 +10,11 @@ import {
 import { type NextRequest, NextResponse } from "next/server";
 
 export const config = {
-  // matcher tells Next.js which routes to run the middleware on. This runs the
-  // middleware on all routes except for static assets and Posthog ingest
-  matcher: ["/((?!_next/static|_next/image|ingest|favicon.ico).*)"],
+  // matcher tells Next.js which routes to run the middleware on.
+  // Exclude static assets, Next internals, and any path with a file extension.
+  matcher: [
+    "/((?!api|_next/static|_next/image|ingest|favicon.ico|icon.png|apple-icon.png|opengraph-image.png|robots.txt|sitemap.xml|manifest.json|.*\\..*).*)",
+  ],
 };
 
 const authRequiredRouteRegex = [

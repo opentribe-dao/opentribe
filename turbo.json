@@ -15,7 +15,7 @@
       "cache": false
     },
     "build": {
-      "dependsOn": ["^build", "^db:generate", "test"],
+      "dependsOn": ["^build", "^db:generate"],
       "outputs": [
         ".next/**",
         "!.next/cache/**",
@@ -24,7 +24,7 @@
       ]
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^build", "^db:generate"]
     },
     "analyze": {
       "dependsOn": ["^analyze"]

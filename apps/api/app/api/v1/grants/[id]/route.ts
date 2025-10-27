@@ -134,7 +134,7 @@ export async function GET(
     // Try to find by ID first, then by slug
     const grant = await database.grant.findFirst({
       where: {
-        OR: [{ id: grantId }, { slug: grantId }],
+        OR: [{ id: grantId }, { slug: { equals: grantId, mode: "insensitive" } }],
       },
       include: {
         organization: {

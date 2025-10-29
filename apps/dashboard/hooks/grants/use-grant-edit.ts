@@ -80,11 +80,8 @@ export function useGrantEdit(
   }, [session, activeOrg, id]);
 
   // SKILL
-  function addSkill(skill: string) {
-    setFormData((prev) => ({
-      ...prev,
-      skills: [...prev.skills, skill],
-    }));
+  function addSkill(skill: string[]) {
+    setFormData((prev) => ({ ...prev, "SKILLS": skill }));
   }
   function removeSkill(skill: string) {
     setFormData((prev) => ({

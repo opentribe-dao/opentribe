@@ -2,7 +2,6 @@
 
 import { use } from 'react';
 import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,32 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@packages/base/components/ui/card';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
-import { Textarea } from '@packages/base/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@packages/base/components/ui/select';
-import { Badge } from '@packages/base/components/ui/badge';
-import { ImageUpload } from '@packages/base';
 import {
   Check,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
-  Plus,
-  X,
-  Upload,
 } from 'lucide-react';
-import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, } from 'react';
 import { toast } from 'sonner';
 import { Header } from '../../../components/header';
-import { env } from '@/env';
 import SkillsOptions from '@packages/base/components/ui/skills-options';
 import { getSkillLabel } from '@packages/base/lib/skills';
 import { useGrantEdit } from '@/hooks/grants/use-grant-edit';
@@ -51,45 +32,6 @@ const STEPS = [
   { id: 3, name: 'Requirements', description: 'Application criteria' },
   { id: 4, name: 'Publish', description: 'Review and publish' },
 ];
-
-const TOKENS = [
-  { value: 'DOT', label: 'DOT' },
-  { value: 'KSM', label: 'KSM' },
-  { value: 'USDC', label: 'USDC' },
-  { value: 'USDT', label: 'USDT' },
-];
-
-interface GrantFormData {
-  // Step 1: Details
-  title: string;
-  description: string;
-  summary: string;
-  instructions: string;
-  logoUrl: string;
-  bannerUrl: string;
-  skills: string[];
-
-  // Step 2: Funding
-  minAmount: string;
-  maxAmount: string;
-  totalFunds: string;
-  token: string;
-
-  // Step 3: Requirements
-  applicationUrl: string;
-  resources: Array<{ title: string; url: string; description: string }>;
-  screening: Array<{
-    question: string;
-    type: 'text' | 'url' | 'file';
-    optional: boolean;
-  }>;
-
-  // Step 4: Publish
-  visibility: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-  source: 'NATIVE' | 'EXTERNAL';
-  status: 'OPEN' | 'PAUSED' | 'CLOSED';
-}
-
 const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const { data: session, isPending: sessionLoading } = useSession();
   const { data: activeOrg, isPending: orgLoading } = useActiveOrganization();

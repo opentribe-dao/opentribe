@@ -3,6 +3,7 @@ import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { ViewManager } from "@/lib/views";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -14,10 +15,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string; submissionId: string }> }
 ) {
   try {
-
     const bounty = await database.bounty.findFirst({
       where: {
-        OR: [{ id: (await params).id }, { slug: { equals: (await params).id, mode: "insensitive" } }],
+        OR: [
+          { id: (await params).id },
+          { slug: { equals: (await params).id, mode: "insensitive" } },
+        ],
       },
     });
 
@@ -81,13 +84,13 @@ export async function GET(
     // Check if this is a public submission (winners announced)
     const isPublic = submission.bounty.winnersAnnouncedAt !== null;
 
-    if (!isPublic) {
-      // For non-public submissions, require authentication
-      const authHeaders = await headers();
-      const sessionData = await auth.api.getSession({
-        headers: authHeaders,
-      });
+    // For non-public submissions, require authentication
+    const authHeaders = await headers();
+    const sessionData = await auth.api.getSession({
+      headers: authHeaders,
+    });
 
+    if (!isPublic) {
       if (!sessionData?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
@@ -189,6 +192,20 @@ export async function GET(
         website: submission.submitter.website,
       },
     };
+
+    // Record view using ViewManager (userId preferred, else ip)
+    const ip = ViewManager.extractClientIp(request as any);
+    // If submission is non-public, we might have sessionData from above; otherwise no session
+    const userId = sessionData?.user?.id ?? undefined;
+
+    const vm = userId
+      ? new ViewManager({ userId })
+      : ip
+        ? new ViewManager({ userIp: ip })
+        : null;
+    if (vm) {
+      await vm.recordViewForEntity(`submission:${submission.id}`);
+    }
 
     return NextResponse.json({ submission: transformedSubmission });
   } catch (error) {

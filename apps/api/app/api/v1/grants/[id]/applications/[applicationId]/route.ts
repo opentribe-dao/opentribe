@@ -3,6 +3,7 @@ import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { ViewManager } from "@/lib/views";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -31,7 +32,7 @@ export async function GET(
         ],
       },
     });
-    
+
     if (!grant) {
       return NextResponse.json({ error: "Grant not found" }, { status: 404 });
     }
@@ -116,6 +117,17 @@ export async function GET(
           : (application.applicant.skills as string[] | null) || [],
       },
     };
+
+    // Record view using ViewManager (userId preferred, else ip)
+    const ip = ViewManager.extractClientIp(request as any);
+    const vm = sessionData?.user?.id
+      ? new ViewManager({ userId: sessionData.user.id })
+      : ip
+        ? new ViewManager({ userIp: ip })
+        : null;
+    if (vm) {
+      await vm.recordViewForEntity(`application:${application.id}`);
+    }
 
     return NextResponse.json({ application: transformedApplication });
   } catch (error) {

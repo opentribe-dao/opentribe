@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import type { Prisma } from "@packages/db";
+import { ViewManager } from "@/lib/views";
 
 // Type for GET API response
 type BountyWithRelations = Prisma.BountyGetPayload<{
@@ -231,11 +232,16 @@ export async function GET(
       );
     }
 
-    // Increment view count
-    await database.bounty.update({
-      where: { id: bounty.id },
-      data: { viewCount: { increment: 1 } },
-    });
+    // Record view using ViewManager (userId preferred, else ip)
+    const ip = ViewManager.extractClientIp(request as any);
+    const vm = session?.user?.id
+      ? new ViewManager({ userId: session.user.id })
+      : ip
+        ? new ViewManager({ userIp: ip })
+        : null;
+    if (vm) {
+      await vm.recordViewForEntity(`bounty:${bounty.id}`);
+    }
 
     // Show all submissions after deadline has passed
     // Before deadline, submissions are private and mutable
@@ -317,7 +323,10 @@ export async function PATCH(
     // Try to find by ID first, then by slug
     const bounty = await database.bounty.findFirst({
       where: {
-        OR: [{ id: bountyId }, { slug: { equals: bountyId, mode: "insensitive" } }],
+        OR: [
+          { id: bountyId },
+          { slug: { equals: bountyId, mode: "insensitive" } },
+        ],
       },
       include: {
         organization: {

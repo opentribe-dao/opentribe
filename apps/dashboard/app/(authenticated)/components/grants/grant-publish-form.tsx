@@ -1,20 +1,22 @@
-import type { GrantFormData } from "@/type";
-import { Badge } from "@packages/base/components/ui/badge";
-import { Label } from "@packages/base/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@packages/base/components/ui/select";
+import { Badge } from '@packages/base/components/ui/badge';
+import { Label } from '@packages/base/components/ui/label';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@packages/base/components/ui/select';
+import { useFormContext } from 'react-hook-form';
 
+export function GrantPublishForm() {
+  const { register, setValue, watch } = useFormContext();
+  const formData = watch();
 
-export function GrantPublishForm({
-  formData,
-  setFormData,
-}: {
-  formData: GrantFormData;
-  setFormData: (cb: (prev: GrantFormData) => GrantFormData) => void;
-}) {
   return (
     <div className="space-y-6">
-      <div className="bg-white/5 rounded-lg p-6 space-y-4">
-        <h3 className="text-lg font-medium text-white">Review Your Grant</h3>
+      <div className="space-y-4 rounded-lg bg-white/5 p-6">
+        <h3 className="font-medium text-lg text-white">Review Your Grant</h3>
         <div>
           <p className="text-sm text-white/60">Title</p>
           <p className="text-white">{formData.title}</p>
@@ -27,17 +29,19 @@ export function GrantPublishForm({
         )}
         <div>
           <p className="text-sm text-white/60">Description</p>
-          <p className="text-white whitespace-pre-wrap">{formData.description}</p>
+          <p className="whitespace-pre-wrap text-white">
+            {formData.description}
+          </p>
         </div>
         {formData.skills?.length > 0 && (
           <div>
             <p className="text-sm text-white/60">Skills</p>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {formData.skills.map((skill) => (
+            <div className="mt-1 flex flex-wrap gap-2">
+              {formData.skills.map((skill: string) => (
                 <Badge
                   key={skill}
                   variant="secondary"
-                  className="bg-white/10 text-white border-0"
+                  className="border-0 bg-white/10 text-white"
                 >
                   {skill}
                 </Badge>
@@ -48,10 +52,11 @@ export function GrantPublishForm({
         {(formData.minAmount || formData.maxAmount || formData.totalFunds) && (
           <div>
             <p className="text-sm text-white/60">Funding</p>
-            <div className="space-y-1 mt-1">
+            <div className="mt-1 space-y-1">
               {formData.minAmount && formData.maxAmount && (
                 <p className="text-white">
-                  Range: {formData.minAmount} - {formData.maxAmount} {formData.token}
+                  Range: {formData.minAmount} - {formData.maxAmount}{' '}
+                  {formData.token}
                 </p>
               )}
               {formData.totalFunds && (
@@ -66,14 +71,14 @@ export function GrantPublishForm({
 
       <div>
         <Label>Grant Type</Label>
-        <div className="flex gap-4 mt-2">
+        <div className="mt-2 flex gap-4">
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              name="source"
+              {...register('source')}
               value="NATIVE"
-              checked={formData.source === "NATIVE"}
-              onChange={(e) => setFormData(f => ({ ...f, source: e.target.value as GrantFormData['source'] }))}
+              checked={formData.source === 'NATIVE'}
+              onChange={() => setValue('source', 'NATIVE')}
               className="text-[#E6007A]"
             />
             <span className="text-white">Native (managed in Opentribe)</span>
@@ -81,10 +86,10 @@ export function GrantPublishForm({
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              name="source"
+              {...register('source')}
               value="EXTERNAL"
-              checked={formData.source === "EXTERNAL"}
-              onChange={(e) => setFormData(f => ({ ...f, source: e.target.value as GrantFormData['source'] }))}
+              checked={formData.source === 'EXTERNAL'}
+              onChange={() => setValue('source', 'EXTERNAL')}
               className="text-[#E6007A]"
             />
             <span className="text-white">External (managed externally)</span>
@@ -94,27 +99,36 @@ export function GrantPublishForm({
 
       <div>
         <Label>Grant Status</Label>
-        <Select value={formData.status} onValueChange={value => setFormData(f => ({ ...f, status: value as GrantFormData['status'] }))}>
-          <SelectTrigger className="bg-white/5 border-white/10 text-white">
+        <Select
+          value={formData.status}
+          onValueChange={(value) => setValue('status', value)}
+        >
+          <SelectTrigger className="border-white/10 bg-white/5 text-white">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-zinc-900 border-white/10">
-            <SelectItem value="OPEN" className="text-white">Open</SelectItem>
-            <SelectItem value="PAUSED" className="text-white">Paused</SelectItem>
-            <SelectItem value="CLOSED" className="text-white">Closed</SelectItem>
+          <SelectContent className="border-white/10 bg-zinc-900">
+            <SelectItem value="OPEN" className="text-white">
+              Open
+            </SelectItem>
+            <SelectItem value="PAUSED" className="text-white">
+              Paused
+            </SelectItem>
+            <SelectItem value="CLOSED" className="text-white">
+              Closed
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div>
         <Label>Visibility</Label>
-        <div className="flex gap-4 mt-2">
+        <div className="mt-2 flex gap-4">
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              name="visibility"
+              {...register('visibility')}
               value="DRAFT"
-              checked={formData.visibility === "DRAFT"}
-              onChange={(e) => setFormData(f => ({ ...f, visibility: e.target.value as GrantFormData['visibility'] }))}
+              checked={formData.visibility === 'DRAFT'}
+              onChange={() => setValue('visibility', 'DRAFT')}
               className="text-[#E6007A]"
             />
             <span className="text-white">Draft</span>
@@ -122,10 +136,10 @@ export function GrantPublishForm({
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              name="visibility"
+              {...register('visibility')}
               value="PUBLISHED"
-              checked={formData.visibility === "PUBLISHED"}
-              onChange={(e) => setFormData(f => ({ ...f, visibility: e.target.value as GrantFormData['visibility'] }))}
+              checked={formData.visibility === 'PUBLISHED'}
+              onChange={() => setValue('visibility', 'PUBLISHED')}
               className="text-[#E6007A]"
             />
             <span className="text-white">Published</span>
@@ -133,10 +147,10 @@ export function GrantPublishForm({
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              name="visibility"
+              {...register('visibility')}
               value="ARCHIVED"
-              checked={formData.visibility === "ARCHIVED"}
-              onChange={(e) => setFormData(f => ({ ...f, visibility: e.target.value as GrantFormData['visibility'] }))}
+              checked={formData.visibility === 'ARCHIVED'}
+              onChange={() => setValue('visibility', 'ARCHIVED')}
               className="text-[#E6007A]"
             />
             <span className="text-white">Archived</span>

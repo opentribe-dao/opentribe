@@ -1,9 +1,22 @@
+import { Grant } from "@packages/db";
+
 export interface UserSession {
     user: { id: string; name?: string; email?: string; image?: string };
   }
   
   export interface AppRouter {
     push: (url: string) => void;
+  }
+
+  export interface GrantFormDataResource {
+    title: string;
+    url: string;
+    description: string;
+  }
+  export interface GrantFormDataScreening {
+    question: string;
+    type: 'text' | 'url' | 'file';
+    optional: boolean;
   }
 
 export interface GrantFormData {
@@ -24,8 +37,8 @@ export interface GrantFormData {
   
     // Step 3
     applicationUrl: string;
-    resources: Array<{ title: string; url: string; description: string }>;
-    screening: Array<{ question: string; type: 'text' | 'url' | 'file'; optional: boolean }>;
+    resources: GrantFormDataResource[];
+    screening: GrantFormDataScreening[];
   
     // Step 4
     visibility: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
@@ -41,7 +54,7 @@ export interface GrantFormData {
     submitting: boolean;
     setSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
     handleSubmit: (opts: { setSubmitting: React.Dispatch<React.SetStateAction<boolean>>; router: AppRouter; toast: typeof import("sonner").toast }) => Promise<void>;
-    addSkill: (skill: string) => void;
+    addSkill: (skill: string[]) => void;
     removeSkill: (skill: string) => void;
     addResource: () => void;
     removeResource: (index: number) => void;

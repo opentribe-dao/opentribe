@@ -1,4 +1,3 @@
-import type { GrantFormData } from '@/type';
 import { Input } from '@packages/base/components/ui/input';
 import { Label } from '@packages/base/components/ui/label';
 import {
@@ -8,6 +7,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@packages/base/components/ui/select';
+import { useFormContext } from 'react-hook-form';
 
 const TOKENS = [
   { value: 'DOT', label: 'DOT' },
@@ -16,17 +16,14 @@ const TOKENS = [
   { value: 'USDT', label: 'USDT' },
 ];
 
-export function GrantFundingForm({
-  formData,
-  setFormData,
-}: {
-  formData: GrantFormData;
-  setFormData: (cb: (prev: GrantFormData) => GrantFormData) => void;
-}) {
+export function GrantFundingForm() {
+  const { register, setValue, watch } = useFormContext();
+  const token = watch('token');
+
   return (
     <div className="space-y-6">
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-        <p className="text-sm text-blue-400">
+      <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4">
+        <p className="text-blue-400 text-sm">
           Funding information is optional. Leave blank if funding amounts are
           not predetermined.
         </p>
@@ -37,11 +34,8 @@ export function GrantFundingForm({
           <Input
             id="minAmount"
             type="number"
-            value={formData.minAmount}
-            onChange={(e) =>
-              setFormData((f) => ({ ...f, minAmount: e.target.value }))
-            }
-            className="bg-white/5 border-white/10 text-white"
+            {...register('minAmount')}
+            className="border-white/10 bg-white/5 text-white"
           />
         </div>
         <div>
@@ -49,11 +43,8 @@ export function GrantFundingForm({
           <Input
             id="maxAmount"
             type="number"
-            value={formData.maxAmount}
-            onChange={(e) =>
-              setFormData((f) => ({ ...f, maxAmount: e.target.value }))
-            }
-            className="bg-white/5 border-white/10 text-white"
+            {...register('maxAmount')}
+            className="border-white/10 bg-white/5 text-white"
           />
         </div>
       </div>
@@ -63,25 +54,20 @@ export function GrantFundingForm({
           <Input
             id="totalFunds"
             type="number"
-            value={formData.totalFunds}
-            onChange={(e) =>
-              setFormData((f) => ({ ...f, totalFunds: e.target.value }))
-            }
-            className="bg-white/5 border-white/10 text-white"
+            {...register('totalFunds')}
+            className="border-white/10 bg-white/5 text-white"
           />
         </div>
         <div>
           <Label htmlFor="token">Token</Label>
           <Select
-            value={formData.token}
-            onValueChange={(value) =>
-              setFormData((f) => ({ ...f, token: value }))
-            }
+            value={token}
+            onValueChange={(value) => setValue('token', value)}
           >
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="border-white/10 bg-white/5 text-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-white/10">
+            <SelectContent className="border-white/10 bg-zinc-900">
               {TOKENS.map((token) => (
                 <SelectItem
                   key={token.value}

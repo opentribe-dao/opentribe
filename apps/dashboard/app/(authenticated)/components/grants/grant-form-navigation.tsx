@@ -21,29 +21,32 @@ export function FormNavigation({
       <Button
         variant="outline"
         onClick={onBack}
+        type="button"
         className="border-white/20 text-white hover:bg-white/10"
       >
-        <ChevronLeft className="h-4 w-4 mr-2" />
+        <ChevronLeft className="mr-2 h-4 w-4" />
         {currentStep > 1 ? "Back" : "Cancel"}
       </Button>
 
       {currentStep < maxStep ? (
         <Button
           onClick={onNext}
-          className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+          type ="button"
+          className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
         >
           Next
-          <ChevronRight className="h-4 w-4 ml-2" />
+          <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       ) : (
         <Button
           onClick={onSubmit}
+          type="button"
           disabled={submitting}
-          className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+          className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
         >
           {submitting ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Updating...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...
             </>
           ) : (
             "Update Grant"

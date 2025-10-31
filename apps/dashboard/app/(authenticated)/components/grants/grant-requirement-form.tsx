@@ -1,78 +1,90 @@
+import { Button } from '@packages/base/components/ui/button';
+import { Input } from '@packages/base/components/ui/input';
+import { Label } from '@packages/base/components/ui/label';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@packages/base/components/ui/select';
+import { Plus, X } from 'lucide-react';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 
-import type { GrantFormData } from "@/type";
-import { Button } from "@packages/base/components/ui/button";
-import { Input } from "@packages/base/components/ui/input";
-import { Label } from "@packages/base/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@packages/base/components/ui/select";
-import { Plus, X } from "lucide-react";
+export function GrantRequirementsForm() {
+  const { register, control, setValue, watch } = useFormContext();
+  const {
+    fields: resourceFields,
+    append: appendResource,
+    remove: removeResource,
+    update: updateResource,
+  } = useFieldArray({
+    control,
+    name: 'resources',
+  });
+  const {
+    fields: screeningFields,
+    append: appendScreening,
+    remove: removeScreening,
+    update: updateScreening,
+  } = useFieldArray({
+    control,
+    name: 'screening',
+  });
 
-export function GrantRequirementsForm({
-  formData,
-  setFormData,
-  addResource,
-  removeResource,
-  updateResource,
-  addScreeningQuestion,
-  removeScreeningQuestion,
-  updateScreeningQuestion,
-}: {
-  formData: GrantFormData;
-  setFormData: any;
-  addResource: () => void;
-  removeResource: (idx: number) => void;
-  updateResource: (idx: number, field: keyof GrantFormData["resources"][0], val: string) => void;
-  addScreeningQuestion: () => void;
-  removeScreeningQuestion: (idx: number) => void;
-  updateScreeningQuestion: (idx: number, field: keyof GrantFormData["screening"][0], val: any) => void;
-}) {
+  const applicationUrl = watch('applicationUrl');
+
   return (
     <div className="space-y-6">
       <div>
         <Label>External Application URL</Label>
         <Input
-          value={formData.applicationUrl}
-          onChange={(e) => setFormData(f => ({ ...f, applicationUrl: e.target.value }))}
+          {...register('applicationUrl')}
           placeholder="https://..."
-          className="bg-white/5 border-white/10 text-white"
+          className="border-white/10 bg-white/5 text-white"
         />
-        <p className="text-sm text-white/40 mt-1">If you have an external application form, provide the URL here.</p>
+        <p className="mt-1 text-sm text-white/40">
+          If you have an external application form, provide the URL here.
+        </p>
       </div>
 
       {/* Resources */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <Label>Resources</Label>
           <Button
             variant="outline"
             size="sm"
-            onClick={addResource}
+            onClick={() =>
+              appendResource({ title: '', url: '', description: '' })
+            }
             className="border-white/20 text-white hover:bg-white/10"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Add Resource
           </Button>
         </div>
-        {formData.resources.length > 0 ? (
+        {resourceFields.length > 0 ? (
           <div className="space-y-3">
-            {formData.resources.map((resource, index) => (
-              <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3 flex flex-col">
+            {resourceFields.map((field, index) => (
+              <div
+                key={index}
+                className="flex flex-col space-y-3 rounded-lg bg-white/5 p-4"
+              >
                 <Input
-                  value={resource.title}
-                  onChange={(e) => updateResource(index, "title", e.target.value)}
+                  {...register(`resources.${index}.title`)}
                   placeholder="Resource title"
-                  className="bg-white/5 border-white/10 text-white"
+                  className="border-white/10 bg-white/5 text-white"
                 />
                 <Input
-                  value={resource.url}
-                  onChange={(e) => updateResource(index, "url", e.target.value)}
+                  {...register(`resources.${index}.url`)}
                   placeholder="https://..."
-                  className="bg-white/5 border-white/10 text-white"
+                  className="border-white/10 bg-white/5 text-white"
                 />
                 <Input
-                  value={resource.description}
-                  onChange={(e) => updateResource(index, "description", e.target.value)}
+                  {...register(`resources.${index}.description`)}
                   placeholder="Brief description (optional)"
-                  className="bg-white/5 border-white/10 text-white"
+                  className="border-white/10 bg-white/5 text-white"
                 />
                 <Button
                   variant="ghost"
@@ -92,47 +104,64 @@ export function GrantRequirementsForm({
 
       {/* Screening Qs */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <Label>Screening Questions</Label>
           <Button
             variant="outline"
             size="sm"
-            onClick={addScreeningQuestion}
+            onClick={() =>
+              appendScreening({ question: '', type: 'text', optional: false })
+            }
             className="border-white/20 text-white hover:bg-white/10"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Add Question
           </Button>
         </div>
-        {formData.screening.length > 0 ? (
+        {screeningFields.length > 0 ? (
           <div className="space-y-3">
-            {formData.screening.map((question, index) => (
-              <div key={index} className="bg-white/5 rounded-lg p-4 space-y-3 flex flex-col">
+            {screeningFields.map((question, index) => (
+              <div
+                key={index}
+                className="flex flex-col space-y-3 rounded-lg bg-white/5 p-4"
+              >
                 <Input
-                  value={question.question}
-                  onChange={(e) => updateScreeningQuestion(index, "question", e.target.value)}
+                  {...register(`screening.${index}.question`)}
                   placeholder="Enter your question"
-                  className="bg-white/5 border-white/10 text-white"
+                  className="border-white/10 bg-white/5 text-white"
                 />
                 <div className="flex items-center gap-3">
                   <Select
-                    value={question.type}
-                    onValueChange={(value) => updateScreeningQuestion(index, "type", value)}
+                    value={watch(`screening.${index}.type`)}
+                    onValueChange={(value) =>
+                      setValue(`screening.${index}.type`, value)
+                    }
                   >
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white w-32">
+                    <SelectTrigger className="w-32 border-white/10 bg-white/5 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/10">
-                      <SelectItem value="text" className="text-white">Text</SelectItem>
-                      <SelectItem value="url" className="text-white">URL</SelectItem>
-                      <SelectItem value="file" className="text-white">File</SelectItem>
+                    <SelectContent className="border-white/10 bg-zinc-900">
+                      <SelectItem value="text" className="text-white">
+                        Text
+                      </SelectItem>
+                      <SelectItem value="url" className="text-white">
+                        URL
+                      </SelectItem>
+                      <SelectItem value="file" className="text-white">
+                        File
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <label className="flex items-center gap-2 text-sm text-white/60">
                     <input
                       type="checkbox"
-                      checked={question.optional}
-                      onChange={(e) => updateScreeningQuestion(index, "optional", e.target.checked)}
+                      checked={watch(`screening.${index}.optional`)}
+                      onChange={(e) =>
+                        setValue(
+                          `screening.${index}.optional`,
+                          e.target.checked
+                        )
+                      }
                       className="rounded border-white/20"
                     />
                     Optional
@@ -140,8 +169,8 @@ export function GrantRequirementsForm({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => removeScreeningQuestion(index)}
-                    className="text-white/60 hover:text-white ml-2"
+                    onClick={() => removeScreening(index)}
+                    className="ml-2 text-white/60 hover:text-white"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -150,7 +179,9 @@ export function GrantRequirementsForm({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-white/40">No screening questions added yet</p>
+          <p className="text-sm text-white/40">
+            No screening questions added yet
+          </p>
         )}
       </div>
     </div>

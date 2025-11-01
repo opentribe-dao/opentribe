@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@packages/base/components/ui/select';
-import { Badge } from '@packages/base/components/ui/badge';
 import { ImageUpload, FileUpload } from '@packages/base';
 import {
   Check,
@@ -31,14 +30,13 @@ import {
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import { Header } from '../../components/header';
 import { env } from '@/env';
 import SkillsOptions from '@packages/base/components/ui/skills-options';
-import { getSkillLabel } from '@packages/base/lib/skills';
 import { useEffect } from 'react';
 import { useGrantForm } from '@/hooks/grants/use-manage-grant';
-import { on } from 'events';
+import { Badge } from '@packages/base/components/ui/badge';
+import { getSkillLabel } from '@packages/base/lib/skills';
 
 const STEPS = [
   { id: 1, name: 'Details', description: 'Basic information' },
@@ -87,7 +85,7 @@ const CreateGrantPage = () => {
 
   if (sessionLoading || orgLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -99,7 +97,7 @@ const CreateGrantPage = () => {
 
   if (!activeOrg) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -135,18 +133,18 @@ const CreateGrantPage = () => {
                 </div>
                 <div className="mt-2 text-center">
                   <p
-                    className={`text-sm font-medium ${
+                    className={`font-medium text-sm ${
                       currentStep >= step.id ? 'text-white' : 'text-white/60'
                     }`}
                   >
                     {step.name}
                   </p>
-                  <p className="text-xs text-white/40">{step.description}</p>
+                  <p className="text-white/40 text-xs">{step.description}</p>
                 </div>
               </div>
               {index < STEPS.length - 1 && (
                 <div
-                  className={`h-px w-24 mx-4 ${
+                  className={`mx-4 h-px w-24 ${
                     currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
                   }`}
                 />
@@ -155,7 +153,7 @@ const CreateGrantPage = () => {
           ))}
         </div>
 
-        <Card className="bg-white/10 backdrop-blur-[10px] border border-white/20 rounded-lg">
+        <Card className="rounded-lg border border-white/20 bg-white/10 backdrop-blur-[10px]">
           <CardHeader>
             <CardTitle className="font-heading">
               {STEPS[currentStep - 1].name}
@@ -174,7 +172,7 @@ const CreateGrantPage = () => {
                     {...formMethods.register('title', { required: true })}
                     id="title"
                     placeholder="e.g., Polkadot Ecosystem Development Grant"
-                    className="bg-white/5 border-white/10 text-white"
+                    className="border-white/10 bg-white/5 text-white"
                   />
                 </div>
 
@@ -185,7 +183,7 @@ const CreateGrantPage = () => {
                     id="summary"
                     placeholder="A brief summary of your grant program..."
                     rows={3}
-                    className="bg-white/5 border-white/10 text-white"
+                    className="border-white/10 bg-white/5 text-white"
                   />
                 </div>
 
@@ -214,7 +212,7 @@ const CreateGrantPage = () => {
                 </div>
 
                 <div>
-                  <Label className="text-white mb-4 block">Grant Logo</Label>
+                  <Label className="mb-4 block text-white">Grant Logo</Label>
                   <ImageUpload
                     currentImageUrl={formData.logoUrl}
                     onImageChange={(url) => setValue('logoUrl', url || '')}
@@ -225,7 +223,7 @@ const CreateGrantPage = () => {
                 </div>
 
                 <div>
-                  <Label className="text-white mb-4 block">Grant Banner</Label>
+                  <Label className="mb-4 block text-white">Grant Banner</Label>
                   <ImageUpload
                     currentImageUrl={formData.bannerUrl}
                     onImageChange={(url) => setValue('bannerUrl', url || '')}
@@ -253,8 +251,8 @@ const CreateGrantPage = () => {
             {/* --- STEP 2: FUNDING --- */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <p className="text-sm text-blue-400">
+                <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4">
+                  <p className="text-blue-400 text-sm">
                     Funding information is optional. Leave blank if funding
                     amounts are not predetermined.
                   </p>
@@ -267,7 +265,7 @@ const CreateGrantPage = () => {
                       id="minAmount"
                       type="number"
                       placeholder="0"
-                      className="bg-white/5 border-white/10 text-white"
+                      className="border-white/10 bg-white/5 text-white"
                     />
                   </div>
                   <div>
@@ -277,7 +275,7 @@ const CreateGrantPage = () => {
                       id="maxAmount"
                       type="number"
                       placeholder="0"
-                      className="bg-white/5 border-white/10 text-white"
+                      className="border-white/10 bg-white/5 text-white"
                     />
                   </div>
                 </div>
@@ -289,7 +287,7 @@ const CreateGrantPage = () => {
                       id="totalFunds"
                       type="number"
                       placeholder="0"
-                      className="bg-white/5 border-white/10 text-white"
+                      className="border-white/10 bg-white/5 text-white"
                     />
                   </div>
                   <div>
@@ -298,10 +296,10 @@ const CreateGrantPage = () => {
                       value={formData.token}
                       onValueChange={(val) => setValue('token', val)}
                     >
-                      <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                      <SelectTrigger className="border-white/10 bg-white/5 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-white/10">
+                      <SelectContent className="border-white/10 bg-zinc-900">
                         {TOKENS.map((token) => (
                           <SelectItem
                             key={token.value}
@@ -330,15 +328,15 @@ const CreateGrantPage = () => {
                     id="applicationUrl"
                     type="url"
                     placeholder="https://..."
-                    className="bg-white/5 border-white/10 text-white"
+                    className="border-white/10 bg-white/5 text-white"
                   />
-                  <p className="text-sm text-white/40 mt-1">
+                  <p className="mt-1 text-sm text-white/40">
                     If you have an external application form, provide the URL
                     here.
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="mb-3 flex items-center justify-between">
                     <Label>Resources</Label>
                     <Button
                       variant="outline"
@@ -346,7 +344,7 @@ const CreateGrantPage = () => {
                       onClick={addResource}
                       className="border-white/20 text-white hover:bg-white/10"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="mr-2 h-4 w-4" />
                       Add Resource
                     </Button>
                   </div>
@@ -355,7 +353,7 @@ const CreateGrantPage = () => {
                       {formData.resources.map((resource, index) => (
                         <div
                           key={index}
-                          className="bg-white/5 rounded-lg p-4 space-y-3"
+                          className="space-y-3 rounded-lg bg-white/5 p-4"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
@@ -365,7 +363,7 @@ const CreateGrantPage = () => {
                                   updateResource(index, 'title', e.target.value)
                                 }
                                 placeholder="Resource title"
-                                className="bg-white/5 border-white/10 text-white"
+                                className="border-white/10 bg-white/5 text-white"
                               />
                               <Input
                                 value={resource.url}
@@ -373,7 +371,7 @@ const CreateGrantPage = () => {
                                   updateResource(index, 'url', e.target.value)
                                 }
                                 placeholder="https://..."
-                                className="bg-white/5 border-white/10 text-white"
+                                className="border-white/10 bg-white/5 text-white"
                               />
                               <Input
                                 value={resource.description}
@@ -385,14 +383,14 @@ const CreateGrantPage = () => {
                                   )
                                 }
                                 placeholder="Brief description (optional)"
-                                className="bg-white/5 border-white/10 text-white"
+                                className="border-white/10 bg-white/5 text-white"
                               />
                             </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => removeResource(index)}
-                              className="text-white/60 hover:text-white ml-2"
+                              className="ml-2 text-white/60 hover:text-white"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -408,7 +406,7 @@ const CreateGrantPage = () => {
                 </div>
                 <div>
                   <Label>Resource Files</Label>
-                  <p className="text-sm text-white/40 mb-3">
+                  <p className="mb-3 text-sm text-white/40">
                     Upload PDF documents, images, or other files as resources
                     for applicants
                   </p>
@@ -421,7 +419,7 @@ const CreateGrantPage = () => {
                   />
                 </div>
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="mb-3 flex items-center justify-between">
                     <Label>Screening Questions</Label>
                     <Button
                       variant="outline"
@@ -429,7 +427,7 @@ const CreateGrantPage = () => {
                       onClick={addScreeningQuestion}
                       className="border-white/20 text-white hover:bg-white/10"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="mr-2 h-4 w-4" />
                       Add Question
                     </Button>
                   </div>
@@ -438,7 +436,7 @@ const CreateGrantPage = () => {
                       {formData.screening.map((question, index) => (
                         <div
                           key={index}
-                          className="bg-white/5 rounded-lg p-4 space-y-3"
+                          className="space-y-3 rounded-lg bg-white/5 p-4"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-3">
@@ -452,7 +450,7 @@ const CreateGrantPage = () => {
                                   )
                                 }
                                 placeholder="Enter your question"
-                                className="bg-white/5 border-white/10 text-white"
+                                className="border-white/10 bg-white/5 text-white"
                               />
                               <div className="flex items-center gap-3">
                                 <Select
@@ -465,10 +463,10 @@ const CreateGrantPage = () => {
                                     )
                                   }
                                 >
-                                  <SelectTrigger className="bg-white/5 border-white/10 text-white w-32">
+                                  <SelectTrigger className="w-32 border-white/10 bg-white/5 text-white">
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent className="bg-zinc-900 border-white/10">
+                                  <SelectContent className="border-white/10 bg-zinc-900">
                                     <SelectItem
                                       value="text"
                                       className="text-white"
@@ -510,7 +508,7 @@ const CreateGrantPage = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => removeScreeningQuestion(index)}
-                              className="text-white/60 hover:text-white ml-2"
+                              className="ml-2 text-white/60 hover:text-white"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -530,8 +528,8 @@ const CreateGrantPage = () => {
             {/* --- STEP 4: PUBLISH --- */}
             {currentStep === 4 && (
               <div className="space-y-6">
-                {/* <div className="bg-white/5 rounded-lg p-6 space-y-4">
-                  <h3 className="text-lg font-medium text-white font-heading">
+                <div className="space-y-4 rounded-lg bg-white/5 p-6">
+                  <h3 className="font-heading font-medium text-lg text-white">
                     Review Your Grant
                   </h3>
                   <div>
@@ -546,19 +544,19 @@ const CreateGrantPage = () => {
                   )}
                   <div>
                     <p className="text-sm text-white/60">Description</p>
-                    <p className="text-white whitespace-pre-wrap">
+                    <p className="whitespace-pre-wrap text-white">
                       {formData.description}
                     </p>
                   </div>
-                  {(formData.skills.length > 0) && (
+                  {formData.skills.length > 0 && (
                     <div>
                       <p className="text-sm text-white/60">Skills</p>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {formData.skills.map(skill => (
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {formData.skills.map((skill) => (
                           <Badge
                             key={skill}
                             variant="secondary"
-                            className="bg-white/10 text-white border-0"
+                            className="border-0 bg-white/10 text-white"
                           >
                             {getSkillLabel(skill)}
                           </Badge>
@@ -566,12 +564,13 @@ const CreateGrantPage = () => {
                       </div>
                     </div>
                   )}
-                  {(formData.minAmount || formData.maxAmount ||
+                  {(formData.minAmount ||
+                    formData.maxAmount ||
                     formData.totalFunds) && (
                     <div>
                       <p className="text-sm text-white/60">Funding</p>
-                      <div className="space-y-1 mt-1">
-                        {(formData.minAmount && formData.maxAmount) && (
+                      <div className="mt-1 space-y-1">
+                        {formData.minAmount && formData.maxAmount && (
                           <p className="text-white">
                             Range: {formData.minAmount} - {formData.maxAmount}{' '}
                             {formData.token}
@@ -588,7 +587,7 @@ const CreateGrantPage = () => {
                 </div>
                 <div>
                   <Label>Grant Type</Label>
-                  <div className="flex gap-4 mt-2">
+                  <div className="mt-2 flex gap-4">
                     <label className="flex items-center gap-2">
                       <input
                         type="radio"
@@ -597,7 +596,7 @@ const CreateGrantPage = () => {
                         checked={formData.source === 'NATIVE'}
                         className="text-[#E6007A]"
                       />
-                      <span className="text-white font-sans">
+                      <span className="font-sans text-white">
                         Native (managed in Opentribe)
                       </span>
                     </label>
@@ -609,7 +608,7 @@ const CreateGrantPage = () => {
                         checked={formData.source === 'EXTERNAL'}
                         className="text-[#E6007A]"
                       />
-                      <span className="text-white font-sans">
+                      <span className="font-sans text-white">
                         External (managed externally)
                       </span>
                     </label>
@@ -617,7 +616,7 @@ const CreateGrantPage = () => {
                 </div>
                 <div>
                   <Label>Visibility</Label>
-                  <div className="flex gap-4 mt-2">
+                  <div className="mt-2 flex gap-4">
                     <label className="flex items-center gap-2">
                       <input
                         type="radio"
@@ -639,7 +638,7 @@ const CreateGrantPage = () => {
                       <span className="text-white">Publish Now</span>
                     </label>
                   </div>
-                </div> */}
+                </div>
               </div>
             )}
           </CardContent>
@@ -651,17 +650,17 @@ const CreateGrantPage = () => {
             className="border-white/20 text-white hover:bg-white/10"
             type="button"
           >
-            <ChevronLeft className="h-4 w-4 mr-2" />
+            <ChevronLeft className="mr-2 h-4 w-4" />
             {canGoBack ? 'Back' : 'Cancel'}
           </Button>
           {canGoNext ? (
             <Button
               onClick={handleNext}
-              className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
+              className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
               type="button"
             >
               Next
-              <ChevronRight className="h-4 w-4 ml-2" />
+              <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
             <Button
@@ -672,7 +671,7 @@ const CreateGrantPage = () => {
             >
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Creating...
                 </>
               ) : formData.visibility === 'PUBLISHED' ? (

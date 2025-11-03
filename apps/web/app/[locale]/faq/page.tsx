@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from '@packages/base/components/ui/accordion';
 import { getDictionary } from '@packages/i18n';
-import { createMetadata } from '@packages/seo/metadata';
+import { createSiteMetadata } from '@packages/seo/meta';
 import type { Metadata } from 'next';
 
 // Builder-specific FAQs
@@ -138,11 +138,12 @@ export const generateMetadata = async ({
   params,
 }: FaqProps): Promise<Metadata> => {
   const { locale } = await params;
-  await getDictionary(locale);
+  const dictionary = await getDictionary(locale);
 
-  return createMetadata({
-    title: 'FAQ - Opentribe',
-    description: 'Find answers to frequently asked questions about Opentribe platform.',
+  return createSiteMetadata({
+    title: dictionary.seo.faq.title,
+    description: dictionary.seo.faq.description,
+    keywords: dictionary.seo.faq.keywords,
   });
 };
 

@@ -4,7 +4,7 @@ import { cn } from '@packages/base/lib/utils';
 import { getDictionary } from '@packages/i18n';
 import type { Blog, WithContext } from '@packages/seo/json-ld';
 import { JsonLd } from '@packages/seo/json-ld';
-import { createMetadata } from '@packages/seo/metadata';
+import { createSiteMetadata } from '@packages/seo/meta';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -20,7 +20,11 @@ export const generateMetadata = async ({
   const { locale } = await params;
   const dictionary = await getDictionary(locale);
 
-  return createMetadata(dictionary.web.blog.meta);
+  return createSiteMetadata({
+    title: dictionary.seo.blog.title,
+    description: dictionary.seo.blog.description,
+    keywords: dictionary.seo.blog.keywords,
+  });
 };
 
 const BlogIndex = async ({ params }: BlogProps) => {

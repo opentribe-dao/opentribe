@@ -13,10 +13,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type React from 'react';
 
-const protocol = env.VERCEL_PROJECT_PRODUCTION_URL?.startsWith('https')
-  ? 'https'
-  : 'http';
-const url = new URL(`${protocol}://${env.VERCEL_PROJECT_PRODUCTION_URL}`);
+const getBaseUrl = () => {
+  if (env.VERCEL_PROJECT_PRODUCTION_URL) {
+    const protocol = env.VERCEL_PROJECT_PRODUCTION_URL.startsWith('https')
+      ? 'https'
+      : 'http';
+    return `${protocol}://${env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  return 'https://opentribe.io';
+};
 
 type BlogPostProperties = {
   readonly params: Promise<{
@@ -41,9 +46,12 @@ export const generateMetadata = async ({
   });
 };
 
-export const generateStaticParams = (): { slug: string }[] => {
+export const generateStaticParams = () => {
   const posts = blog.getPosts();
-  return posts.map(({ _slug }: Post) => ({ slug: _slug }));
+  return posts.map(({ _slug }: Post) => ({
+    locale: 'en',
+    slug: _slug,
+  }));
 };
 
 const BlogPost = async ({ params }: BlogPostProperties) => {
@@ -64,7 +72,7 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
           description: page.description,
           mainEntityOfPage: {
             '@type': 'WebPage',
-            '@id': new URL(`/blog/${page._slug}`, url).toString(),
+            '@id': `${getBaseUrl()}/blog/${page._slug}`,
           },
           headline: page._title,
           image: page.image,

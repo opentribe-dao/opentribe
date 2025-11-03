@@ -26,9 +26,12 @@ export const generateMetadata = async ({
   });
 };
 
-export const generateStaticParams = (): { slug: string }[] => {
+export const generateStaticParams = () => {
   const posts = legal.getPosts();
-  return posts.map(({ _slug }: Legal) => ({ slug: _slug }));
+  return posts.map(({ _slug }: Legal) => ({
+    locale: 'en',
+    slug: _slug,
+  }));
 };
 
 const LegalPage = async ({ params }: LegalPageProperties) => {

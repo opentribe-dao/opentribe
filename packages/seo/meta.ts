@@ -34,6 +34,7 @@ export function createSiteMetadata(
     description: string;
     keywords?: string[];
     robots?: { index?: boolean; follow?: boolean };
+    image?: string;
   }
 ): Metadata {
   const baseUrl = getSiteUrl();
@@ -60,10 +61,14 @@ export function createSiteMetadata(
       type: "website",
       siteName,
       locale: "en_US",
+      images: partial.image
+        ? [{ url: partial.image, width: 1200, height: 630, alt: partial.title }]
+        : undefined,
     },
     twitter: {
       card: "summary_large_image",
       creator: twitterHandle,
+      images: partial.image ? [partial.image] : undefined,
     },
     alternates: {
       languages: Object.fromEntries(

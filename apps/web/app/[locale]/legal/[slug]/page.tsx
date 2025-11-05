@@ -37,10 +37,19 @@ export const generateMetadata = async ({
   const seoKey = getLegalSeoKey(slug);
   const seoContent = seoKey ? dictionary.seo.legal[seoKey] : null;
 
+  // Generate OG image title based on slug
+  const ogTitles: Record<string, string> = {
+    'cookie-policy': 'Cookie Policy',
+    'privacy-policy': 'Privacy Policy',
+    'terms-of-service': 'Terms of Service',
+  };
+  const ogTitle = ogTitles[slug] || 'Legal';
+
   return createSiteMetadata({
     title: seoContent?.title || post._title,
     description: seoContent?.description || post.description,
     keywords: seoContent?.keywords,
+    image: `/api/og?title=${encodeURIComponent(ogTitle)}`,
   });
 };
 

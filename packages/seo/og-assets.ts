@@ -9,6 +9,7 @@ export type OgAssets = {
   satoshi700: Buffer;
   background?: Buffer | null;
   builderIllustration?: Buffer | null;
+  organizationIllustration?: Buffer | null;
 };
 
 /**
@@ -26,8 +27,9 @@ export async function loadOgAssets(): Promise<OgAssets> {
   const satoshi700 = read("../base/fonts/Satoshi-Bold.otf");
   const bg = read("./assets/og-background.png").catch(() => null);
   const builder = read("./assets/builder-illustration.png").catch(() => null);
+  const organization = read("./assets/organization-illustration.png").catch(() => null);
 
-  const [c700, c500, s400, s500, s700, bgBuf, builderBuf] = await Promise.all([
+  const [c700, c500, s400, s500, s700, bgBuf, builderBuf, orgBuf] = await Promise.all([
     chakra700,
     chakra500,
     satoshi400,
@@ -35,6 +37,7 @@ export async function loadOgAssets(): Promise<OgAssets> {
     satoshi700,
     bg,
     builder,
+    organization,
   ]);
 
   return {
@@ -45,5 +48,6 @@ export async function loadOgAssets(): Promise<OgAssets> {
     satoshi700: s700,
     background: bgBuf,
     builderIllustration: builderBuf,
+    organizationIllustration: orgBuf,
   };
 }

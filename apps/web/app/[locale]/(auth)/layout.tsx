@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 type AuthLayoutProps = {
@@ -11,3 +12,10 @@ const AuthLayout = ({ children }: AuthLayoutProps) => (
 );
 
 export default AuthLayout;
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

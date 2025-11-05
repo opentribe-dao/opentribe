@@ -6,6 +6,7 @@ import { Toolbar } from "@packages/feature-flags/components/toolbar";
 import { AnalyticsProvider } from "@packages/analytics";
 import type { ReactNode } from "react";
 import ReactQueryProvider from "../components/react-query-provider";
+import type { Metadata, Viewport } from "next";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -30,3 +31,16 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
 );
 
 export default RootLayout;
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#E6007A",
+};

@@ -24,6 +24,7 @@ export const generateMetadata = async ({
     title: dictionary.seo.blog.title,
     description: dictionary.seo.blog.description,
     keywords: dictionary.seo.blog.keywords,
+    image: '/api/og/blog',
   });
 };
 
@@ -35,6 +36,19 @@ const BlogIndex = async ({ params }: BlogProps) => {
   const jsonLd: WithContext<Blog> = {
     '@type': 'Blog',
     '@context': 'https://schema.org',
+    name: dictionary.seo.blog.title,
+    description: dictionary.seo.blog.description,
+    blogPost: posts.slice(0, 10).map((post: Post) => ({
+      '@type': 'BlogPosting',
+      headline: post._title,
+      description: post.description,
+      datePublished: post.date,
+      author: {
+        '@type': 'Person',
+        name: post.authors?.[0] || 'Opentribe',
+      },
+      url: `/blog/${post._slug}`,
+    })),
   };
 
   return (

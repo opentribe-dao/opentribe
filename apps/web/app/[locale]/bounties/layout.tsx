@@ -1,4 +1,7 @@
 import { getDictionary } from "@packages/i18n";
+import { getSiteUrl } from "@packages/seo/config";
+import type { ItemList, WithContext } from "@packages/seo/json-ld";
+import { JsonLd } from "@packages/seo/json-ld";
 import { createSiteMetadata } from "@packages/seo/meta";
 import type { ReactNode } from "react";
 
@@ -15,9 +18,27 @@ export const generateMetadata = async ({ params }: BountiesLayoutProps) => {
     title: dictionary.seo.bounties.title,
     description: dictionary.seo.bounties.description,
     keywords: dictionary.seo.bounties.keywords,
+    image: '/api/og/bounties',
   });
 };
 
-const BountiesLayout = ({ children }: BountiesLayoutProps) => <>{children}</>;
+const BountiesLayout = ({ children }: BountiesLayoutProps) => {
+  const siteUrl = getSiteUrl();
+
+  const itemListSchema: WithContext<ItemList> = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Polkadot Bounties",
+    description: "Open bounties from top Polkadot projects",
+    url: `${siteUrl.href}/bounties`,
+  };
+
+  return (
+    <>
+      <JsonLd code={itemListSchema} />
+      {children}
+    </>
+  );
+};
 
 export default BountiesLayout;

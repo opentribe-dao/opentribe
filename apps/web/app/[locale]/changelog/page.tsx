@@ -58,6 +58,7 @@ export const generateMetadata = async ({
     title: dictionary.seo.changelog.title,
     description: dictionary.seo.changelog.description,
     keywords: dictionary.seo.changelog.keywords,
+    image: '/api/og?title=Changelog',
   });
 };
 

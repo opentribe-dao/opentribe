@@ -6,7 +6,7 @@ import { CodeBlock } from '@packages/cms/components/code-block';
 import { Image } from '@packages/cms/components/image';
 import { TableOfContents } from '@packages/cms/components/toc';
 import { JsonLd } from '@packages/seo/json-ld';
-import { createMetadata } from '@packages/seo/metadata';
+import { createDetailMetadata } from '@packages/seo/meta';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -39,10 +39,11 @@ export const generateMetadata = async ({
     return {};
   }
 
-  return createMetadata({
+  return createDetailMetadata({
     title: post._title,
     description: post.description,
-    image: post.image,
+    path: `/blog/${slug}`,
+    image: `/api/og/blog/${slug}`,
   });
 };
 

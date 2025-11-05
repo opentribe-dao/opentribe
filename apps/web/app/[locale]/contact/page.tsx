@@ -19,6 +19,7 @@ export const generateMetadata = async ({
     title: dictionary.seo.contact.title,
     description: dictionary.seo.contact.description,
     keywords: dictionary.seo.contact.keywords,
+    image: '/api/og?title=Contact Us',
   });
 };
 

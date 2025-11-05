@@ -6,6 +6,8 @@ import {
 } from "@packages/seo/meta";
 import { env } from "@/env";
 import type { ReactNode } from "react";
+import { createBreadcrumbSchema } from "@packages/seo/breadcrumbs";
+import { JsonLd } from "@packages/seo/json-ld";
 
 async function getBounty(id: string) {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}`, {
@@ -63,6 +65,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return createDetailMetadata({ title, description, path, image });
 }
 
-export default function BountyLayout({ children }: { children: ReactNode }) {
-  return children;
+export default async function BountyLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Bounties", path: "/bounties" },
+    { name: "Bounty Details", path: `/bounties/${id}` },
+  ]);
+
+  return (
+    <>
+      <JsonLd code={breadcrumbSchema} />
+      {children}
+    </>
+  );
 }

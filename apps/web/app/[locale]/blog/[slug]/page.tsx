@@ -5,6 +5,7 @@ import { Body } from '@packages/cms/components/body';
 import { CodeBlock } from '@packages/cms/components/code-block';
 import { Image } from '@packages/cms/components/image';
 import { TableOfContents } from '@packages/cms/components/toc';
+import { createBreadcrumbSchema } from '@packages/seo/breadcrumbs';
 import { JsonLd } from '@packages/seo/json-ld';
 import { createDetailMetadata } from '@packages/seo/meta';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
@@ -63,6 +64,17 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
     notFound();
   }
 
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Blog', path: '/blog' },
+    { name: page._title, path: `/blog/${page._slug}` },
+  ]);
+
+  // Calculate word count from body content
+  const wordCount = page.body
+    ? page.body.split(/\s+/).filter((word: string) => word.length > 0).length
+    : 0;
+
   return (
     <>
       <JsonLd
@@ -80,8 +92,18 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
           dateModified: page.date,
           author: page.authors?.at(0),
           isAccessibleForFree: true,
+          wordCount,
+          publisher: {
+            '@type': 'Organization',
+            name: 'Opentribe',
+            logo: {
+              '@type': 'ImageObject',
+              url: `${getBaseUrl()}/images/opentribe-logo.png`,
+            },
+          },
         }}
       />
+      <JsonLd code={breadcrumbSchema} />
       <div className="container mx-auto py-16">
         <Link
           className="mb-4 inline-flex items-center gap-1 text-muted-foreground text-sm focus:underline focus:outline-none"

@@ -4,7 +4,7 @@ import { cn } from '@packages/base/lib/utils';
 import { getDictionary } from '@packages/i18n';
 import type { Blog, WithContext } from '@packages/seo/json-ld';
 import { JsonLd } from '@packages/seo/json-ld';
-import { createMetadata } from '@packages/seo/metadata';
+import { createSiteMetadata } from '@packages/seo/meta';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -20,7 +20,12 @@ export const generateMetadata = async ({
   const { locale } = await params;
   const dictionary = await getDictionary(locale);
 
-  return createMetadata(dictionary.web.blog.meta);
+  return createSiteMetadata({
+    title: dictionary.seo.blog.title,
+    description: dictionary.seo.blog.description,
+    keywords: dictionary.seo.blog.keywords,
+    image: '/api/og/blog',
+  });
 };
 
 const BlogIndex = async ({ params }: BlogProps) => {
@@ -31,6 +36,19 @@ const BlogIndex = async ({ params }: BlogProps) => {
   const jsonLd: WithContext<Blog> = {
     '@type': 'Blog',
     '@context': 'https://schema.org',
+    name: dictionary.seo.blog.title,
+    description: dictionary.seo.blog.description,
+    blogPost: posts.slice(0, 10).map((post: Post) => ({
+      '@type': 'BlogPosting',
+      headline: post._title,
+      description: post.description,
+      datePublished: post.date,
+      author: {
+        '@type': 'Person',
+        name: post.authors?.[0] || 'Opentribe',
+      },
+      url: `/blog/${post._slug}`,
+    })),
   };
 
   return (

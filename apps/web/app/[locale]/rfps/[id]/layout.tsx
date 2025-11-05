@@ -6,6 +6,8 @@ import {
 } from "@packages/seo/meta";
 import { env } from "@/env";
 import type { ReactNode } from "react";
+import { createBreadcrumbSchema } from "@packages/seo/breadcrumbs";
+import { JsonLd } from "@packages/seo/json-ld";
 
 async function getRfp(id: string) {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`, {
@@ -45,6 +47,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return createDetailMetadata({ title, description, path, image });
 }
 
-export default function RfpLayout({ children }: { children: ReactNode }) {
-  return children;
+export default async function RfpLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "RFPs", path: "/rfps" },
+    { name: "RFP Details", path: `/rfps/${id}` },
+  ]);
+
+  return (
+    <>
+      <JsonLd code={breadcrumbSchema} />
+      {children}
+    </>
+  );
 }

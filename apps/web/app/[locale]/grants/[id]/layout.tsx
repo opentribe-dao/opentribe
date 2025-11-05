@@ -6,6 +6,8 @@ import {
 } from "@packages/seo/meta";
 import { env } from "@/env";
 import type { ReactNode } from "react";
+import { createBreadcrumbSchema } from "@packages/seo/breadcrumbs";
+import { JsonLd } from "@packages/seo/json-ld";
 
 async function getGrant(id: string) {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`, {
@@ -45,6 +47,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return createDetailMetadata({ title, description, path, image });
 }
 
-export default function GrantLayout({ children }: { children: ReactNode }) {
-  return children;
+export default async function GrantLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Grants", path: "/grants" },
+    { name: "Grant Details", path: `/grants/${id}` },
+  ]);
+
+  return (
+    <>
+      <JsonLd code={breadcrumbSchema} />
+      {children}
+    </>
+  );
 }

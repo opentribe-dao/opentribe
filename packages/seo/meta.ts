@@ -33,6 +33,8 @@ export function createSiteMetadata(
     title: string;
     description: string;
     keywords?: string[];
+    robots?: { index?: boolean; follow?: boolean };
+    image?: string;
   }
 ): Metadata {
   const baseUrl = getSiteUrl();
@@ -47,16 +49,26 @@ export function createSiteMetadata(
     creator: author.name,
     publisher,
     keywords: partial.keywords ?? defaultKeywords,
+    robots: partial.robots
+      ? {
+          index: partial.robots.index ?? true,
+          follow: partial.robots.follow ?? true,
+        }
+      : undefined,
     openGraph: {
       title: parsedTitle,
       description: clampDescription(partial.description || defaultDescription),
       type: "website",
       siteName,
       locale: "en_US",
+      images: partial.image
+        ? [{ url: partial.image, width: 1200, height: 630, alt: partial.title }]
+        : undefined,
     },
     twitter: {
       card: "summary_large_image",
       creator: twitterHandle,
+      images: partial.image ? [partial.image] : undefined,
     },
     alternates: {
       languages: Object.fromEntries(
@@ -73,11 +85,15 @@ export function createDetailMetadata({
   description,
   path,
   image,
+  keywords,
+  robots,
 }: {
   title: string;
   description: string;
   path: string;
   image?: string;
+  keywords?: string[];
+  robots?: { index?: boolean; follow?: boolean };
 }): Metadata {
   const baseUrl = getSiteUrl();
   const pageUrl = new URL(path, baseUrl).href;
@@ -87,7 +103,14 @@ export function createDetailMetadata({
     title: parsedTitle,
     description: clampDescription(description || defaultDescription),
     metadataBase: baseUrl,
+    keywords: keywords ?? defaultKeywords,
     alternates: { canonical: pageUrl },
+    robots: robots
+      ? {
+          index: robots.index ?? true,
+          follow: robots.follow ?? true,
+        }
+      : undefined,
     openGraph: {
       title: parsedTitle,
       description: clampDescription(description || defaultDescription),

@@ -13,6 +13,7 @@ import Providers from "./components/providers";
 import { AnalyticsProvider } from "@packages/analytics";
 import { createSiteMetadata } from "@packages/seo/meta";
 import { defaultDescription, defaultKeywords } from "@packages/seo/config";
+import type { Viewport } from "next";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -56,3 +57,9 @@ export const metadata = createSiteMetadata({
   description: defaultDescription,
   keywords: defaultKeywords,
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#E6007A",
+};

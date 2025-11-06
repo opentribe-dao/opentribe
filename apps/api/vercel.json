@@ -21,6 +21,10 @@
     {
       "path": "/cron/winner-announcement-reminder",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/cron/cleanup-expired-views",
+      "schedule": "*/6 * * * *"
     }
   ]
 }

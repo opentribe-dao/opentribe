@@ -3,6 +3,7 @@ import { auth } from "@packages/auth/server";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import type { Prisma } from "@packages/db";
+import { ViewManager } from "@/lib/views";
 
 // Type for GET API response
 type RFPWithRelations = Prisma.RFPGetPayload<{
@@ -224,11 +225,16 @@ export async function GET(
       },
     });
 
-    // Increment view count
-    await database.rFP.update({
-      where: { id: rfp.id },
-      data: { viewCount: { increment: 1 } },
-    });
+    // Record view using ViewManager (userId preferred, else ip)
+    const ip = ViewManager.extractClientIp(request as any);
+    const vm = session?.user?.id
+      ? new ViewManager({ userId: session.user.id })
+      : ip
+        ? new ViewManager({ userIp: ip })
+        : null;
+    if (vm) {
+      await vm.recordViewForEntity(`rfp:${rfp.id}`);
+    }
 
     const response: GetRFPResponse = {
       rfp: {

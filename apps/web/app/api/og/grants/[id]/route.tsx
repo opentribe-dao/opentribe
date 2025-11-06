@@ -7,7 +7,7 @@ import { loadOgAssets } from "@packages/seo/og-assets";
 
 export const runtime = "nodejs";
 
-const ogAssets = loadOgAssets();
+const ogAssets = loadOgAssets(import.meta.url);
 
 async function getGrant(id: string) {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`, {

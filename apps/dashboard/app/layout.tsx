@@ -7,6 +7,7 @@ import { AnalyticsProvider } from "@packages/analytics";
 import type { ReactNode } from "react";
 import ReactQueryProvider from "../components/react-query-provider";
 import type { Metadata, Viewport } from "next";
+import { getSiteUrl } from "@packages/seo/config";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -32,7 +33,10 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
 
 export default RootLayout;
 
+const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || "https://dashboard.opentribe.io";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(dashboardUrl),
   title: "Opentribe Dashboard | Empower Polkadot Builders",
   description: "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
   robots: {
@@ -42,6 +46,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Opentribe Dashboard | Empower Polkadot Builders",
     description: "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
+    url: dashboardUrl,
     type: "website",
     siteName: "Opentribe Dashboard",
     images: [

@@ -71,6 +71,8 @@ export function createSiteMetadata(
     },
     twitter: {
       card: "summary_large_image",
+      title: parsedTitle,
+      description: clampDescription(partial.description || defaultDescription),
       creator: twitterHandle,
       images: partial.image ? [partial.image] : undefined,
     },

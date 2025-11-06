@@ -7,12 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@packages/base/components/ui/card';
-import {
-  CalendarIcon,
-  CoinsIcon,
-  ExternalLink,
-  Trophy,
-} from 'lucide-react';
+import { CalendarIcon, CoinsIcon, ExternalLink, Trophy } from 'lucide-react';
 
 import { useBountyContext } from '../../components/bounty-provider';
 import remarkGfm from 'remark-gfm';
@@ -201,6 +196,60 @@ export default function BountyOverviewPage() {
                           {resource.description}
                         </p>
                       )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Screening Questions */}
+        {bounty.screening && bounty.screening.length > 0 && (
+          <Card className="border-white/10 bg-zinc-900/50">
+            <CardHeader>
+              <CardTitle>Screening Questions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {bounty.screening.map((question, index) => (
+                  <div key={index} className="rounded-lg bg-white/5 p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="font-medium text-sm text-white">
+                            Question {index + 1}
+                          </span>
+                          {question.optional && (
+                            <Badge
+                              variant="outline"
+                              className="border-white/20 text-white/60 text-xs"
+                            >
+                              Optional
+                            </Badge>
+                          )}
+                          <Badge
+                            variant="secondary"
+                            className="border-0 bg-white/10 text-white/80 text-xs"
+                          >
+                            {question.type.toUpperCase()}
+                          </Badge>
+                        </div>
+                        <p className="mb-3 text-sm text-white/80">
+                          {question.question}
+                        </p>
+                        <div className="text-white/60 text-xs">
+                          {question.type === 'text' && (
+                            <span>Text response required</span>
+                          )}
+                          {question.type === 'url' && (
+                            <span>URL/website link required</span>
+                          )}
+                          {question.type === 'file' && (
+                            <span>File upload required</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}

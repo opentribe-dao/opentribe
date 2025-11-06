@@ -1,7 +1,15 @@
 "use client";
 
+import type React from "react";
 import Link from "next/link";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@packages/base/components/ui/empty";
 import { BountyCard } from "../../components/cards/bounty-card";
 import { GrantCard } from "../../components/cards/grant-card";
 import { RFPCard } from "../../components/cards/rfp-card";
@@ -87,11 +95,7 @@ function ContentBlock({
                   />
                 ))}
         </div>
-      ) : items.length === 0 ? (
-        <div className='rounded-lg border border-white/10 bg-white/5 p-6'>
-          <p className='text-center text-white/60'>{emptyMessage}</p>
-        </div>
-      ) : (
+      ) : items.length === 0 ? null : (
         <div className={gridClassName}>{items.map(renderItem)}</div>
       )}
     </div>
@@ -105,8 +109,23 @@ export function ContentSection({
   loading,
   error,
 }: ContentSectionProps) {
+  const allEmpty =
+    bounties.length === 0 && grants.length === 0 && rfps.length === 0;
+
   return (
     <div className="space-y-12">
+      {allEmpty ? (
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyTitle>No results</EmptyTitle>
+            <EmptyDescription>
+              There are no bounties, grants, or RFPs to show right now.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent />
+        </Empty>
+      ) : (
+        <>
       {/* Bounties Section */}
       {bounties.length > 0 || loading.bounties || error.bounties ? (
         <ContentBlock
@@ -199,6 +218,8 @@ export function ContentSection({
           emptyMessage="No RFPs available"
         />
       ) : null}
+        </>
+      )}
     </div>
   );
 }

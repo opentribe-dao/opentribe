@@ -31,7 +31,7 @@ const RfpsLayout = ({ children }: RfpsLayoutProps) => {
     "@type": "ItemList",
     name: "Polkadot RFPs",
     description: "Open RFPs and project proposals in the Polkadot ecosystem",
-    url: `${siteUrl.href}/rfps`,
+    url: new URL('/rfps', siteUrl).href,
   };
 
   return (

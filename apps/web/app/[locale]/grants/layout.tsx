@@ -31,7 +31,7 @@ const GrantsLayout = ({ children }: GrantsLayoutProps) => {
     "@type": "ItemList",
     name: "Polkadot Grants",
     description: "Official Polkadot grants and funding programs",
-    url: `${siteUrl.href}/grants`,
+    url: new URL('/grants', siteUrl).href,
   };
 
   return (

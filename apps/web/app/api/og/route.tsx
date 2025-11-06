@@ -6,7 +6,7 @@ import { loadOgAssets } from "@packages/seo/og-assets";
 export const runtime = "nodejs";
 
 // Load shared fonts/background from co-located assets
-const ogAssets = loadOgAssets(import.meta.url);
+const ogAssets = loadOgAssets();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

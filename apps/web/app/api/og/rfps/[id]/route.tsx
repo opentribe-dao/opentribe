@@ -6,7 +6,7 @@ import type { RFP } from "@/hooks/use-rfps-data";
 
 export const runtime = "nodejs";
 
-const ogAssets = loadOgAssets(import.meta.url);
+const ogAssets = loadOgAssets();
 
 async function getRfp(id: string) {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`, {

@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import type { Prisma } from "@packages/db";
+import { ViewManager } from "@/lib/views";
 
 // Type for GET API response
 type GrantWithRelations = Prisma.GrantGetPayload<{
@@ -134,7 +135,10 @@ export async function GET(
     // Try to find by ID first, then by slug
     const grant = await database.grant.findFirst({
       where: {
-        OR: [{ id: grantId }, { slug: { equals: grantId, mode: "insensitive" } }],
+        OR: [
+          { id: grantId },
+          { slug: { equals: grantId, mode: "insensitive" } },
+        ],
       },
       include: {
         organization: {
@@ -229,11 +233,16 @@ export async function GET(
       );
     }
 
-    // Increment view count
-    await database.grant.update({
-      where: { id: grant.id },
-      data: { viewCount: { increment: 1 } },
-    });
+    // Record view using ViewManager (userId preferred, else ip)
+    const ip = ViewManager.extractClientIp(request as any);
+    const vm = session?.user?.id
+      ? new ViewManager({ userId: session.user.id })
+      : ip
+        ? new ViewManager({ userIp: ip })
+        : null;
+    if (vm) {
+      await vm.recordViewForEntity(`grant:${grant.id}`);
+    }
 
     const response: GetGrantResponse = {
       grant: {

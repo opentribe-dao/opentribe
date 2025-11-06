@@ -11,6 +11,11 @@ vi.mock("@packages/db", () => ({
       findFirst: vi.fn(),
       update: vi.fn(),
     },
+    view: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      deleteMany: vi.fn(),
+    },
     member: {
       count: vi.fn(),
     },

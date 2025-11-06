@@ -12,6 +12,11 @@ const securityHeaders = env.FLAGS_SECRET
   : noseconeMiddleware(noseconeOptions);
 
 export default async function middleware(request: NextRequest) {
+  // Allow public access to OG image routes (needed for social media crawlers)
+  if (request.nextUrl.pathname.startsWith("/api/og")) {
+    return NextResponse.next();
+  }
+
   try {
     securityHeaders();
     const authResponse = await authMiddleware(request);

@@ -19,6 +19,7 @@ export const generateMetadata = async ({ params }: HomeLayoutProps) => {
     description: dictionary.seo.homepage.description,
     keywords: dictionary.seo.homepage.keywords,
     image: '/api/og',
+    path: '/',
   });
 };
 
@@ -30,7 +31,7 @@ const HomeLayout = ({ children }: HomeLayoutProps) => {
     "@type": "Organization",
     name: "Opentribe",
     url: siteUrl.href,
-    logo: `${siteUrl.href}/icon.png`,
+    logo: new URL('/icon.png', siteUrl).href,
     description: "The centralized talent marketplace for the Polkadot ecosystem, connecting organizations with skilled contributors through grants, bounties, and RFPs.",
     sameAs: [
       "https://twitter.com/opentribe_io",
@@ -38,7 +39,7 @@ const HomeLayout = ({ children }: HomeLayoutProps) => {
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Customer Support",
-      url: `${siteUrl.href}/contact`,
+      url: new URL('/contact', siteUrl).href,
     },
   };
 

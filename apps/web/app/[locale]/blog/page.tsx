@@ -25,6 +25,7 @@ export const generateMetadata = async ({
     description: dictionary.seo.blog.description,
     keywords: dictionary.seo.blog.keywords,
     image: '/api/og/blog',
+    path: '/blog',
   });
 };
 

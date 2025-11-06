@@ -171,6 +171,13 @@ export default function GrantDetailPage({
                       View Application
                     </Button>
                   </Link>
+                ) : grant.canApply === false ? (
+                  <Button
+                    className="bg-pink-600 text-white hover:bg-pink-700"
+                    disabled={true}
+                  >
+                    Application Closed
+                  </Button>
                 ) : grant.source === "EXTERNAL" && grant.applicationUrl ? (
                   <a
                     href={grant.applicationUrl}
@@ -181,16 +188,9 @@ export default function GrantDetailPage({
                       className="bg-pink-600 text-white hover:bg-pink-700"
                       disabled={grant.status !== "OPEN"}
                     >
-                      Apply Externally
+                      Apply Now
                     </Button>
                   </a>
-                ) : grant.canApply === false ? (
-                  <Button
-                    className="bg-pink-600 text-white hover:bg-pink-700"
-                    disabled={true}
-                  >
-                    Application Closed
-                  </Button>
                 ) : (
                    <Link href={`/grants/${grantId}/apply`}>
                     <Button

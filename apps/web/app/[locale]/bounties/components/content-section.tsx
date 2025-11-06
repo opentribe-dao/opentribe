@@ -3,6 +3,7 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Skeleton } from "@packages/base/components/ui/skeleton"
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@packages/base/components/ui/empty"
 import { BountyCard } from "../../components/cards/bounty-card"
 import { HowItWorksCard } from "./how-it-works"
 import type { Bounty } from '@/hooks/use-bounties-data'
@@ -38,7 +39,6 @@ function BountiesContentSectionComponent({
   error,
   selectedSkills,
   skillsOptions,
-  filters,
   hasMore,
   isLoadingMore,
   activeFiltersCount,
@@ -51,7 +51,7 @@ function BountiesContentSectionComponent({
     <div className="lg:col-span-3">
       <div className="mb-4">
         <div className="relative">
-          <div className='scrollbar-hide flex gap-2 overflow-x-auto py-2'>
+          <div className={`scrollbar-hide flex gap-2 overflow-x-auto${bounties.length === 0 ? '' : ' py-2'}`}>
             {loading && skillsOptions.length === 0
               ? Array.from({ length: 8 }).map((_, i) => (
                   <div
@@ -180,24 +180,17 @@ function BountiesContentSectionComponent({
           <HowItWorksCard className='mt-6 lg:hidden'/>
         </>
       ) : !loading ? (
-        <div className="py-12 text-center">
-          <div className='mb-4 font-medium text-lg text-white/60'>No bounties found</div>
-          <div className="mx-auto mb-6 max-w-md text-sm text-white/40">
-            {activeFiltersCount > 0 
-              ? "No bounties match your current filters. Try adjusting your search terms or clearing some filters."
-              : "There are currently no bounties available. Check back later for new opportunities."
-            }
-          </div>
-          {activeFiltersCount > 0 && (
-            <Button
-              onClick={onClearAllFilters}
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/10"
-            >
-              Clear All Filters
-            </Button>
-          )}
-        </div>
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyTitle>No bounties found</EmptyTitle>
+            <EmptyDescription>
+              {activeFiltersCount > 0 
+                ? "Try adjusting your filters to see more bounties."
+                : "There are no bounties available at the moment."
+              }
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : null}
     </div>
   )

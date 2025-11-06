@@ -19,6 +19,7 @@ export const generateMetadata = async ({ params }: HomeLayoutProps) => {
     description: dictionary.seo.homepage.description,
     keywords: dictionary.seo.homepage.keywords,
     image: '/api/og',
+    path: '/',
   });
 };
 

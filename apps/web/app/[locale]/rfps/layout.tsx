@@ -19,6 +19,7 @@ export const generateMetadata = async ({ params }: RfpsLayoutProps) => {
     description: dictionary.seo.rfps.description,
     keywords: dictionary.seo.rfps.keywords,
     image: '/api/og/rfps',
+    path: '/rfps',
   });
 };
 

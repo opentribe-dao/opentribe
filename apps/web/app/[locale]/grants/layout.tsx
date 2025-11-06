@@ -19,6 +19,7 @@ export const generateMetadata = async ({ params }: GrantsLayoutProps) => {
     description: dictionary.seo.grants.description,
     keywords: dictionary.seo.grants.keywords,
     image: '/api/og/grants',
+    path: '/grants',
   });
 };
 

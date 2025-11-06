@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 import { siteName } from "@packages/seo/config";
-import fs from "node:fs/promises";
 import { loadOgAssets } from "@packages/seo/og-assets";
 
 export const runtime = "nodejs";
@@ -13,7 +12,7 @@ export async function GET(request: Request) {
   const hasTitle = searchParams.has("title");
   const title = hasTitle
     ? (searchParams.get("title") || "").slice(0, 100)
-    : siteName;
+    : "Empower Polkadot Builders & Drive Impact";
 
   const {
     chakra700,
@@ -22,14 +21,14 @@ export async function GET(request: Request) {
     satoshi500,
     satoshi700,
     background,
-    builderIllustration,
+    organizationIllustration,
   } = await ogAssets;
   const bgBuffer = background ?? null;
   const bgDataUrl = bgBuffer
     ? `url(data:image/png;base64,${Buffer.from(bgBuffer).toString("base64")})`
     : undefined;
-  const builderSrc = builderIllustration
-    ? `data:image/png;base64,${Buffer.from(builderIllustration).toString("base64")}`
+  const orgSrc = organizationIllustration
+    ? `data:image/png;base64,${Buffer.from(organizationIllustration).toString("base64")}`
     : undefined;
 
   return new ImageResponse(
@@ -83,7 +82,7 @@ export async function GET(request: Request) {
                 maxWidth: 600,
               }}
             >
-              Enabling builders anywhere to get paid on-chain!
+              {title}
             </div>
             {/* CTA chip */}
             <div
@@ -102,7 +101,7 @@ export async function GET(request: Request) {
                 color: "#fff",
               }}
             >
-              https://opentribe.io
+              https://dashboard.opentribe.io
             </div>
           </div>
           {/* Right illustration */}
@@ -115,12 +114,12 @@ export async function GET(request: Request) {
               height: 420,
             }}
           >
-            {builderSrc && (
+            {orgSrc && (
               <img
-                src={builderSrc}
+                src={orgSrc}
                 width={420}
                 height={420}
-                alt="Builder"
+                alt="Organization"
                 style={{ objectFit: "contain" }}
               />
             )}

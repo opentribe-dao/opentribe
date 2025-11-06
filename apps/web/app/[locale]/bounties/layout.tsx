@@ -19,6 +19,7 @@ export const generateMetadata = async ({ params }: BountiesLayoutProps) => {
     description: dictionary.seo.bounties.description,
     keywords: dictionary.seo.bounties.keywords,
     image: '/api/og/bounties',
+    path: '/bounties',
   });
 };
 
@@ -30,7 +31,7 @@ const BountiesLayout = ({ children }: BountiesLayoutProps) => {
     "@type": "ItemList",
     name: "Polkadot Bounties",
     description: "Open bounties from top Polkadot projects",
-    url: `${siteUrl.href}/bounties`,
+    url: new URL('/bounties', siteUrl).href,
   };
 
   return (

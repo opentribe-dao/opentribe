@@ -4,6 +4,7 @@ import {
   author,
   defaultDescription,
   defaultKeywords,
+  facebookAppId,
   getSiteUrl,
   locales,
   publisher,
@@ -35,10 +36,12 @@ export function createSiteMetadata(
     keywords?: string[];
     robots?: { index?: boolean; follow?: boolean };
     image?: string;
+    path?: string;
   }
 ): Metadata {
   const baseUrl = getSiteUrl();
   const parsedTitle = `${clampTitle(partial.title)} | ${siteName}`;
+  const pageUrl = partial.path ? new URL(partial.path, baseUrl).href : baseUrl.href;
 
   const defaults: Metadata = {
     title: parsedTitle,
@@ -58,6 +61,7 @@ export function createSiteMetadata(
     openGraph: {
       title: parsedTitle,
       description: clampDescription(partial.description || defaultDescription),
+      url: pageUrl,
       type: "website",
       siteName,
       locale: "en_US",
@@ -67,6 +71,8 @@ export function createSiteMetadata(
     },
     twitter: {
       card: "summary_large_image",
+      title: parsedTitle,
+      description: clampDescription(partial.description || defaultDescription),
       creator: twitterHandle,
       images: partial.image ? [partial.image] : undefined,
     },
@@ -75,6 +81,7 @@ export function createSiteMetadata(
         locales.map((l) => [l, new URL(`/${l}`, baseUrl).href])
       ),
     },
+    other: facebookAppId ? { "fb:app_id": facebookAppId } : undefined,
   };
 
   return merge(defaults, partial);
@@ -128,6 +135,7 @@ export function createDetailMetadata({
       description: clampDescription(description || defaultDescription),
       images: image ? [image] : undefined,
     },
+    other: facebookAppId ? { "fb:app_id": facebookAppId } : undefined,
   };
 
   return meta;

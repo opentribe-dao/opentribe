@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 export type OgAssets = {
   chakra700: Buffer;
@@ -13,21 +14,21 @@ export type OgAssets = {
 };
 
 /**
- * Loads shared OG fonts and background image from the seo package at runtime.
- * Uses file URLs relative to this module so bundlers don't attempt to parse binary files.
+ * Loads OG fonts and images from the public directory.
+ * Assets in public/ are included in Vercel's build output.
  */
 export async function loadOgAssets(): Promise<OgAssets> {
-  const read = (rel: string) =>
-    fs.readFile(fileURLToPath(new URL(rel, import.meta.url)));
+  const publicDir = path.join(process.cwd(), 'public');
+  const read = (rel: string) => fs.readFile(path.join(publicDir, rel));
 
-  const chakra700 = read("../base/fonts/ChakraPetch-Bold.ttf");
-  const chakra500 = read("../base/fonts/ChakraPetch-Medium.ttf");
-  const satoshi400 = read("../base/fonts/Satoshi-Regular.otf");
-  const satoshi500 = read("../base/fonts/Satoshi-Medium.otf");
-  const satoshi700 = read("../base/fonts/Satoshi-Bold.otf");
-  const bg = read("./assets/og-background.png").catch(() => null);
-  const builder = read("./assets/builder-illustration.png").catch(() => null);
-  const organization = read("./assets/organization-illustration.png").catch(() => null);
+  const chakra700 = read("og-fonts/ChakraPetch-Bold.ttf");
+  const chakra500 = read("og-fonts/ChakraPetch-Medium.ttf");
+  const satoshi400 = read("og-fonts/Satoshi-Regular.otf");
+  const satoshi500 = read("og-fonts/Satoshi-Medium.otf");
+  const satoshi700 = read("og-fonts/Satoshi-Bold.otf");
+  const bg = read("og-assets/og-background.png").catch(() => null);
+  const builder = read("og-assets/builder-illustration.png").catch(() => null);
+  const organization = read("og-assets/organization-illustration.png").catch(() => null);
 
   const [c700, c500, s400, s500, s700, bgBuf, builderBuf, orgBuf] = await Promise.all([
     chakra700,

@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 export type OgAssets = {
@@ -13,21 +14,31 @@ export type OgAssets = {
 };
 
 /**
- * Loads shared OG fonts and background image from the seo package at runtime.
- * Uses process.cwd() for reliable path resolution in both dev and production.
+ * Loads OG fonts and images from the web app's api/og directory.
+ * Assets are co-located in /api/og/ for reliable bundling in Vercel.
+ * Works from any nested route by navigating up to the og directory.
  */
-export async function loadOgAssets(): Promise<OgAssets> {
-  const read = (rel: string) =>
-    fs.readFile(path.join(process.cwd(), rel));
+export async function loadOgAssets(routeFileUrl: string): Promise<OgAssets> {
+  const routeDir = path.dirname(fileURLToPath(routeFileUrl));
 
-  const chakra700 = read("../../packages/base/fonts/ChakraPetch-Bold.ttf");
-  const chakra500 = read("../../packages/base/fonts/ChakraPetch-Medium.ttf");
-  const satoshi400 = read("../../packages/base/fonts/Satoshi-Regular.otf");
-  const satoshi500 = read("../../packages/base/fonts/Satoshi-Medium.otf");
-  const satoshi700 = read("../../packages/base/fonts/Satoshi-Bold.otf");
-  const bg = read("../../packages/seo/assets/og-background.png").catch(() => null);
-  const builder = read("../../packages/seo/assets/builder-illustration.png").catch(() => null);
-  const organization = read("../../packages/seo/assets/organization-illustration.png").catch(() => null);
+  // Find the 'og' directory by checking if fonts exist in current dir or parent dirs
+  let ogDir = routeDir;
+  while (!ogDir.endsWith('/og') && !ogDir.endsWith('/og/')) {
+    const parentDir = path.dirname(ogDir);
+    if (parentDir === ogDir) break; // reached root
+    ogDir = parentDir;
+  }
+
+  const read = (rel: string) => fs.readFile(path.join(ogDir, rel));
+
+  const chakra700 = read("./fonts/ChakraPetch-Bold.ttf");
+  const chakra500 = read("./fonts/ChakraPetch-Medium.ttf");
+  const satoshi400 = read("./fonts/Satoshi-Regular.otf");
+  const satoshi500 = read("./fonts/Satoshi-Medium.otf");
+  const satoshi700 = read("./fonts/Satoshi-Bold.otf");
+  const bg = read("./assets/og-background.png").catch(() => null);
+  const builder = read("./assets/builder-illustration.png").catch(() => null);
+  const organization = read("./assets/organization-illustration.png").catch(() => null);
 
   const [c700, c500, s400, s500, s700, bgBuf, builderBuf, orgBuf] = await Promise.all([
     chakra700,

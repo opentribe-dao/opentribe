@@ -18,7 +18,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
-import { ShareButton } from "../../bounties/[id]/share-button";
+import { ShareButton } from "@packages/base/components/ui/share-button";
 import { formatCurrency } from "@packages/base/lib/utils";
 import { ExpandableText } from "@packages/base/components/ui/expandable-text";
 

@@ -14,7 +14,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BountyContent } from "./bounty-content";
 import { CommentSection } from "./comment-section";
-import { ShareButton } from "./share-button";
+import { ShareButton } from "@packages/base/components/ui/share-button";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { useCountdown } from "@packages/base/hooks/use-countdown";

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Award, Loader2 } from 'lucide-react';
+import { Award, Edit, Edit2, Loader2 } from 'lucide-react';
 import { Button } from '@packages/base/components/ui/button';
 import router from 'next/router';
 import { Header } from '../../components/header';
@@ -15,6 +15,7 @@ import { use } from 'react';
 import { PaymentModal } from './payment-modal';
 import { env } from '@/env';
 import { Badge } from '@packages/base/components/ui/badge';
+import { ShareButton } from '@packages/base/components/ui/share-button';
 
 const BOUNTY_REGEX = /^\/bounties\/[^/]+\/submissions\/[^/]+$/;
 
@@ -128,17 +129,16 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge className={getStatusColor(bounty.status)}>
-              {getStatusLabel(bounty.status)}
-            </Badge>
+            
             <Button
               variant="outline"
               size="sm"
               className="border-white/20 text-white hover:bg-white/10"
               asChild
             >
-              <Link href={`/bounties/${bounty.id}/edit`}>Edit Bounty</Link>
+             <Link href={`/bounties/${bounty.id}/edit`}> <Edit2 className="h-4 w-4" />Edit Bounty</Link>
             </Button>
+            <ShareButton url={`/bounties/${bounty.id}`} size="sm" />
           </div>
         </div>
         {/* Tab Navigation */}

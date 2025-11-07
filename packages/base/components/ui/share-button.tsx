@@ -6,10 +6,11 @@ import { toast } from "sonner";
 
 interface ShareButtonProps {
   url: string;
+  size?: "sm" | "lg" | "default";
   className?: string;
 }
 
-export function ShareButton({ url, className }: ShareButtonProps) {
+export function ShareButton({ url, size = "default", className }: ShareButtonProps) {
   const handleShare = async () => {
     try {
       // Convert relative URL to absolute URL
@@ -27,7 +28,7 @@ export function ShareButton({ url, className }: ShareButtonProps) {
   return (
     <Button
       variant="outline"
-      // size="icon"
+      size={size}
       className={className || "border-white/20 text-white hover:bg-white/10"}
       onClick={handleShare}
     >
@@ -35,3 +36,4 @@ export function ShareButton({ url, className }: ShareButtonProps) {
     </Button>
   );
 }
+

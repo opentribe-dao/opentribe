@@ -18,7 +18,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
-import { ShareButton } from "../../bounties/[id]/share-button";
+import { ShareButton } from "@packages/base/components/ui/share-button";
 import { formatCurrency } from "@packages/base/lib/utils";
 import { ExpandableText } from "@packages/base/components/ui/expandable-text";
 

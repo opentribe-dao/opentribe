@@ -57,7 +57,64 @@ export default async function RFPDetailPage({
   // Resources are already parsed from the API
   const resources = rfp.resources || [];
 
-  console.log(rfp);
+  const renderApplyButton = () => {
+    switch (true) {
+      case !!rfp.userApplicationId:
+        return (
+          <Link
+            href={`/grants/${rfp.grant.slug || rfp.grant.id}/applications/${
+              rfp.grant.userApplicationId
+            }`}
+          >
+            <Button
+              className="bg-pink-600 text-white hover:bg-pink-700"
+              disabled={false}
+            >
+              View Application
+            </Button>
+          </Link>
+        );
+      case rfp.status !== "OPEN" || rfp.grant.status !== "OPEN":
+        return (
+          <Button
+            className="bg-pink-600 text-white hover:bg-pink-700"
+            disabled={true}
+          >
+            Application Closed
+          </Button>
+        );
+      case rfp.grant.source === "EXTERNAL" && rfp.grant.applicationUrl:
+        return (
+          <a
+            href={rfp.grant.applicationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              className="w-full bg-pink-600 text-white hover:bg-pink-700"
+              disabled={rfp.canApply === false}
+            >
+              Apply Externally
+            </Button>
+          </a>
+        );
+      default:
+        return (
+          <Link
+            href={`/grants/${rfp.grant.slug || rfp.grant.id}/apply?rfp=${
+              rfp.id
+            }`}
+          >
+            <Button
+              className="w-full bg-pink-600 text-white hover:bg-pink-700"
+              disabled={rfp.canApply === false}
+            >
+              Apply with this RFP
+            </Button>
+          </Link>
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -433,48 +490,7 @@ export default async function RFPDetailPage({
                 </div>
               </div>
 
-              {rfp.grant.userApplicationId ? (
-                <Link
-                  href={`/grants/${
-                    rfp.grant.slug || rfp.grant.id
-                  }/applications/${rfp.grant.userApplicationId}`}
-                >
-                  <Button
-                    className="bg-pink-600 text-white hover:bg-pink-700"
-                    disabled={rfp.grant.status !== "OPEN"}
-                  >
-                    View Application
-                  </Button>
-                </Link>
-              ) : rfp.grant.source === "EXTERNAL" &&
-                rfp.grant.applicationUrl ? (
-                <a
-                  href={rfp.grant.applicationUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button className="w-full bg-pink-600 text-white hover:bg-pink-700">
-                    Apply Externally
-                  </Button>
-                </a>
-              ) : rfp.grant.canApply === false ? (
-                <Button
-                  className="bg-pink-600 text-white hover:bg-pink-700"
-                  disabled={true}
-                >
-                  Apply with this RFP
-                </Button>
-              ) : (
-                <Link
-                  href={`/grants/${rfp.grant.slug || rfp.grant.id}/apply?rfp=${
-                    rfp.id
-                  }`}
-                >
-                  <Button className="w-full bg-pink-600 text-white hover:bg-pink-700">
-                    Apply with this RFP
-                  </Button>
-                </Link>
-              )}
+              {renderApplyButton()}
             </div>
 
             {/* Vote Stats */}

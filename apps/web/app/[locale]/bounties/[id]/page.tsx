@@ -109,6 +109,60 @@ export default function BountyDetailPage({
     Number(bounty.amount) ||
     0;
 
+  const renderActionButton = () => {
+    if (!bounty) {
+      return null;
+    }
+
+    const hasDeadlineExpired = bounty.deadline
+      ? new Date() > new Date(bounty.deadline)
+      : false;
+
+    switch (true) {
+      case !!bounty.userSubmissionId:
+        return (
+          <Link href={`/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`}>
+            <Button
+              className='w-full bg-pink-600 text-white hover:bg-pink-700'
+              disabled={false}
+            >
+              View Submission
+            </Button>
+          </Link>
+        );
+      case bounty.status !== "OPEN":
+        const buttonText = (() => {
+          switch (true) {
+            case !!bounty.winnersAnnouncedAt:
+              return "Winners Announced";
+            case hasDeadlineExpired:
+              return "Deadline Expired";
+            default:
+              return "Submission Closed";
+          }
+        })();
+        return (
+          <Button
+            className='w-full bg-pink-600 text-white hover:bg-pink-700'
+            disabled={true}
+          >
+            {buttonText}
+          </Button>
+        );
+      default:
+        return (
+          <Link href={`/bounties/${bountyId}/submit`}>
+            <Button
+              className='w-full bg-pink-600 text-white hover:bg-pink-700'
+              disabled={bounty.canSubmit === false}
+            >
+              Submit Now
+            </Button>
+          </Link>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Glass Header Card */}
@@ -157,31 +211,7 @@ export default function BountyDetailPage({
               <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
                 <ShareButton url={`/bounties/${bountyId}`} />
 
-                {bounty.userSubmissionId ? (
-                  <Link href={`/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`}>
-                    <Button
-                      className='w-full bg-pink-600 text-white hover:bg-pink-700'
-                      disabled={bounty.status !== "OPEN"}
-                    >
-                      View Submission
-                    </Button>
-                  </Link>
-                ) : bounty.canSubmit === false ? (
-                  <Button
-                    className='w-full bg-pink-600 text-white hover:bg-pink-700'
-                    disabled={true}
-                  >
-                    Submit Now
-                  </Button>
-                ) : (
-                  <Link href={`/bounties/${bountyId}/submit`}>
-                    <Button
-                      className='w-full bg-pink-600 text-white hover:bg-pink-700'
-                    >
-                      Submit Now
-                    </Button>
-                  </Link>
-                )}
+                {renderActionButton()}
               </div>
             </div>
           </div>

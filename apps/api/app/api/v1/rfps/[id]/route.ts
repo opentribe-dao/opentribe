@@ -26,6 +26,9 @@ type RFPWithRelations = Prisma.RFPGetPayload<{
             isVerified: true;
           };
         };
+        source: true;
+        applicationUrl: true;
+        status: true;
       };
     };
     comments: {
@@ -108,6 +111,7 @@ export async function GET(
             },
           },
         ],
+        visibility: "PUBLISHED",
       },
       include: {
         grant: {
@@ -128,6 +132,9 @@ export async function GET(
                 isVerified: true,
               },
             },
+            source: true,
+            applicationUrl: true,
+            status: true,
           },
         },
         comments: {

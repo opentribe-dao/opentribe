@@ -106,7 +106,9 @@ const UserMenu = ({
   const firstName = user.name ? user.name.split(" ")[0] : displayName;
   const hasOrganization =
     userProfile?.organizations && userProfile.organizations.length > 0;
-  const profileHref = `/profile/${userProfile?.username || user.username || user.id}`;
+  const profileHref = `/profile/${
+    userProfile?.username || user.username || user.id
+  }`;
 
   return (
     <DropdownMenu>
@@ -226,6 +228,7 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   const handleSignOut = async () => {
     const { signOut } = await import("@packages/auth/client");
     await signOut();
+    window.location.reload();
   };
 
   const navigationItems = [

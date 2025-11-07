@@ -181,7 +181,7 @@ We're looking for projects that:
 - Enhance user experience`,
         summary:
           "Web3 Foundation's flagship $45M funding program for ambitious Polkadot ecosystem projects",
-        logoUrl: "https://futures.web3.foundation/logo.png",
+        logoUrl: "https://avatars.githubusercontent.com/u/30405397",
         instructions: `## Application Process
 
 1. Submit initial proposal outlining your project vision

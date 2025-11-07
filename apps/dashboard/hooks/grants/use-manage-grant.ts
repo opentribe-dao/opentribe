@@ -107,7 +107,9 @@ export function useGrantForm({
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, 4));
+      return true;
     }
+    return false;
   };
 
   const handleBack = () => {

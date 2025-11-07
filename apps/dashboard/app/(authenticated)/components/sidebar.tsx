@@ -188,7 +188,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
               size="sm"
               asChild
             >
-              <Link href="/grants/new">
+              <Link href="/grants/create">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Grant
               </Link>

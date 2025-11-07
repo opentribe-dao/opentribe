@@ -47,7 +47,7 @@ export function FeaturedOrganizations({
   }
   
   if (featuredOrganizations.length === 0) {
-    return (<div/>);
+    return null;
   }
 
   const displayOrganizations = featuredOrganizations || [];

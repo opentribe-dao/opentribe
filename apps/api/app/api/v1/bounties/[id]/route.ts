@@ -135,6 +135,7 @@ export async function GET(
     const bounty = await database.bounty.findFirst({
       where: {
         OR: [{ id: bountyId }, { slug: bountyId }],
+        visibility: "PUBLISHED",
       },
       include: {
         organization: {

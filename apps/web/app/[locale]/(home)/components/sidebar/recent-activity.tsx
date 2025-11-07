@@ -62,7 +62,7 @@ export function RecentActivity({
   }
 
   if (activities.length === 0) {
-    return (<div/>);
+    return null;
   }
 
   const getUserInitials = (userName: string) => {

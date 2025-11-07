@@ -11,8 +11,7 @@ import { Button } from '@packages/base/components/ui/button';
 import { Badge } from '@packages/base/components/ui/badge';
 import Link from 'next/link';
 import { useActiveOrganization } from '@packages/auth/client';
-import { usePathname } from 'next/navigation';
-import router from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 import { Header } from '../../components/header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@packages/base/components/ui/tabs';
 
@@ -23,7 +22,7 @@ export default function GrantDetailLayout({
   const { id } = use(params);
   const pathname = usePathname();
 
-  if(pathname.endsWith('/edit') ){
+  if(pathname?.endsWith('/edit') ){
     return (
       <GrantProvider grantId={id}>
         {children}
@@ -40,6 +39,7 @@ export default function GrantDetailLayout({
 
 function GrantDetailLayoutBody({ children }: { children: React.ReactNode }) {
   const { grant, isLoading, isError, refetch } = useGrantContext();
+  const router = useRouter();
 
   const { data: activeOrg } = useActiveOrganization();
 
@@ -61,7 +61,7 @@ function GrantDetailLayoutBody({ children }: { children: React.ReactNode }) {
         </h1>
         <Button
           variant="outline"
-          onClick={() => router.push('/grant')}
+          onClick={() => router.push('/grants')}
           className="border-white/20 text-white hover:bg-white/10"
         >
           Back to Grants

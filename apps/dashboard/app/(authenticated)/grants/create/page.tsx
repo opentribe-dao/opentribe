@@ -37,13 +37,23 @@ import { useEffect } from 'react';
 import { useGrantForm } from '@/hooks/grants/use-manage-grant';
 import { Badge } from '@packages/base/components/ui/badge';
 import { getSkillLabel } from '@packages/base/lib/skills';
+import { defineStepper } from '@stepperize/react';
 
-const STEPS = [
-  { id: 1, name: 'Details', description: 'Basic information' },
-  { id: 2, name: 'Funding', description: 'Budget and amounts' },
-  { id: 3, name: 'Requirements', description: 'Application criteria' },
-  { id: 4, name: 'Publish', description: 'Review and publish' },
-];
+const { useStepper, steps, utils } = defineStepper(
+  { id: 'details', label: 'Details' },
+  { id: 'funding', label: 'Funding' },
+  { id: 'requirements', label: 'Requirements' },
+  { id: 'publish', label: 'Publish' }
+);
+
+const STEP_ID_MAP: Record<number, string> = {
+  1: 'details',
+  2: 'funding',
+  3: 'requirements',
+  4: 'publish',
+};
+
+const CURRENT_STEP_TO_ID = (step: number) => STEP_ID_MAP[step] || 'details';
 
 const TOKENS = [
   { value: 'DOT', label: 'DOT' },
@@ -59,11 +69,8 @@ const CreateGrantPage = () => {
 
   const {
     currentStep,
-    canGoBack,
-    canGoNext,
     submitting,
     formMethods,
-    setStep,
     handleBack,
     handleNext,
     handleSubmit,
@@ -82,6 +89,14 @@ const CreateGrantPage = () => {
       router.push('/sign-in');
     }
   }, [session, sessionLoading, router]);
+
+  const stepper = useStepper({
+    initialStep: CURRENT_STEP_TO_ID(currentStep) as
+      | 'details'
+      | 'funding'
+      | 'requirements'
+      | 'publish',
+  });
 
   if (sessionLoading || orgLoading) {
     return (
@@ -108,63 +123,85 @@ const CreateGrantPage = () => {
 
   const onSubmit = formMethods.handleSubmit((data) => handleSubmit(data));
 
+  const currentIndex = utils.getIndex(stepper.current.id);
+
+  const handleNextStep = () => {
+    const advanced = handleNext();
+    if (advanced) {
+      stepper.next();
+    }
+  };
+
+  const handleBackStep = () => {
+    handleBack();
+    stepper.prev();
+  };
+
   return (
     <>
       <Header pages={['Overview', 'Grants']} page="Create Grant" />
       <form className="flex flex-1 flex-col gap-6 p-6" autoComplete="off">
-        <div className="flex items-center justify-between">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div className="flex flex-col items-center">
+        <div className="flex items-center justify-between px-8">
+          <nav aria-label="Stepperize Steps" className="w-full">
+            <ol className="flex w-full items-center justify-between gap-2">
+              {stepper.all.map((step, index, array) => (
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                    currentStep > step.id
-                      ? 'bg-green-500 text-white'
-                      : currentStep === step.id
-                        ? 'bg-[#E6007A] text-white'
-                        : 'bg-white/10 text-white/60'
-                  }`}
+                  key={step.id}
+                  className="flex items-center justify-between"
                 >
-                  {currentStep > step.id ? (
-                    <Check className="h-5 w-5" />
-                  ) : (
-                    step.id
+                  <div className="flex flex-col items-center">
+                    <Button
+                      type="button"
+                      variant={
+                        index < currentIndex
+                          ? 'secondary'
+                          : index === currentIndex
+                            ? 'default'
+                            : 'secondary'
+                      }
+                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                        index < currentIndex
+                          ? 'bg-green-500 text-white'
+                          : index === currentIndex
+                            ? 'bg-[#E6007A] text-white'
+                            : 'bg-white/10 text-white/60'
+                      }`}
+                      aria-current={index === currentIndex ? 'step' : undefined}
+                      aria-selected={index === currentIndex}
+                    >
+                      {index < currentIndex ? (
+                        <Check className="h-5 w-5" />
+                      ) : (
+                        index + 1
+                      )}
+                    </Button>
+                  </div>
+                  <div className="mx-4 text-center">
+                    <p
+                      className={`font-medium text-sm ${
+                        index <= currentIndex ? 'text-white' : 'text-white/60'
+                      }`}
+                    >
+                      {step.label}
+                    </p>
+                  </div>
+                  {index < array.length - 1 && (
+                    <div
+                      className={`mx-2 h-px w-[200] ${
+                        index < currentIndex ? 'bg-green-500' : 'bg-white/20'
+                      }`}
+                    />
                   )}
                 </div>
-                <div className="mt-2 text-center">
-                  <p
-                    className={`font-medium text-sm ${
-                      currentStep >= step.id ? 'text-white' : 'text-white/60'
-                    }`}
-                  >
-                    {step.name}
-                  </p>
-                  <p className="text-white/40 text-xs">{step.description}</p>
-                </div>
-              </div>
-              {index < STEPS.length - 1 && (
-                <div
-                  className={`mx-4 h-px w-24 ${
-                    currentStep > step.id ? 'bg-green-500' : 'bg-white/20'
-                  }`}
-                />
-              )}
-            </div>
-          ))}
+              ))}
+            </ol>
+          </nav>
         </div>
 
         <Card className="rounded-lg border border-white/20 bg-white/10 backdrop-blur-[10px]">
-          <CardHeader>
-            <CardTitle className="font-heading">
-              {STEPS[currentStep - 1].name}
-            </CardTitle>
-            <CardDescription className="font-sans">
-              {STEPS[currentStep - 1].description}
-            </CardDescription>
-          </CardHeader>
           <CardContent>
-            {/* --- STEP 1: DETAILS --- */}
-            {currentStep === 1 && (
+            {stepper.switch({
+              details: () => (
               <div className="space-y-6">
                 <div>
                   <Label htmlFor="title">Grant Title *</Label>
@@ -246,10 +283,8 @@ const CreateGrantPage = () => {
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* --- STEP 2: FUNDING --- */}
-            {currentStep === 2 && (
+              ),
+              funding: () => (
               <div className="space-y-6">
                 <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4">
                   <p className="text-blue-400 text-sm">
@@ -314,10 +349,8 @@ const CreateGrantPage = () => {
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* --- STEP 3: REQUIREMENTS --- */}
-            {currentStep === 3 && (
+              ),
+              requirements: () => (
               <div className="space-y-6">
                 <div>
                   <Label>Source</Label>
@@ -554,10 +587,8 @@ const CreateGrantPage = () => {
                   )}
                 </div>
               </div>
-            )}
-
-            {/* --- STEP 4: PUBLISH --- */}
-            {currentStep === 4 && (
+              ),
+              publish: () => (
               <div className="space-y-6">
                 <div className="space-y-4 rounded-lg bg-white/5 p-6">
                   <h3 className="font-heading font-medium text-lg text-white">
@@ -642,22 +673,31 @@ const CreateGrantPage = () => {
                   </div>
                 </div>
               </div>
-            )}
+              ),
+            })}
           </CardContent>
         </Card>
         <div className="flex justify-between">
           <Button
             variant="outline"
-            onClick={canGoBack ? handleBack : () => router.push('/grants')}
+            onClick={
+              currentIndex > 0
+                ? () => {
+                    handleBackStep();
+                  }
+                : () => router.push('/grants')
+            }
             className="border-white/20 text-white hover:bg-white/10"
             type="button"
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
-            {canGoBack ? 'Back' : 'Cancel'}
+            {currentIndex > 0 ? 'Back' : 'Cancel'}
           </Button>
-          {canGoNext ? (
+          {currentIndex < steps.length - 1 ? (
             <Button
-              onClick={handleNext}
+              onClick={() => {
+                handleNextStep();
+              }}
               className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
               type="button"
             >

@@ -114,7 +114,7 @@ export function ContentSection({
 
   return (
     <div className="space-y-12">
-      {allEmpty ? (
+      {allEmpty && !loading.bounties && !loading.grants && !loading.rfps ? (
         <Empty className="border border-dashed">
           <EmptyHeader>
             <EmptyTitle>No results</EmptyTitle>

@@ -320,21 +320,52 @@ const CreateGrantPage = () => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div>
-                  <Label htmlFor="applicationUrl">
-                    External Application URL
-                  </Label>
-                  <Input
-                    {...formMethods.register('applicationUrl')}
-                    id="applicationUrl"
-                    type="url"
-                    placeholder="https://..."
-                    className="border-white/10 bg-white/5 text-white"
-                  />
-                  <p className="mt-1 text-sm text-white/40">
-                    If you have an external application form, provide the URL
-                    here.
-                  </p>
+                  <Label>Source</Label>
+                  <div className="mt-2 flex gap-4">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        {...formMethods.register('source')}
+                        value="NATIVE"
+                        checked={formData.source === 'NATIVE'}
+                        className="text-[#E6007A]"
+                      />
+                      <span className="font-sans text-white">
+                        Native (managed in Opentribe)
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        {...formMethods.register('source')}
+                        value="EXTERNAL"
+                        checked={formData.source === 'EXTERNAL'}
+                        className="text-[#E6007A]"
+                      />
+                      <span className="font-sans text-white">
+                        External (managed externally)
+                      </span>
+                    </label>
+                  </div>
                 </div>
+                {formData.source === 'EXTERNAL' && (
+                  <div>
+                    <Label htmlFor="applicationUrl">
+                      External Application URL
+                    </Label>
+                    <Input
+                      {...formMethods.register('applicationUrl')}
+                      id="applicationUrl"
+                      type="url"
+                      placeholder="https://..."
+                      className="border-white/10 bg-white/5 text-white"
+                    />
+                    <p className="mt-1 text-sm text-white/40">
+                      If you have an external application form, provide the URL
+                      here.
+                    </p>
+                  </div>
+                )}
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <Label>Resources</Label>
@@ -584,35 +615,6 @@ const CreateGrantPage = () => {
                       </div>
                     </div>
                   )}
-                </div>
-                <div>
-                  <Label>Grant Type</Label>
-                  <div className="mt-2 flex gap-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        {...formMethods.register('source')}
-                        value="NATIVE"
-                        checked={formData.source === 'NATIVE'}
-                        className="text-[#E6007A]"
-                      />
-                      <span className="font-sans text-white">
-                        Native (managed in Opentribe)
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        {...formMethods.register('source')}
-                        value="EXTERNAL"
-                        checked={formData.source === 'EXTERNAL'}
-                        className="text-[#E6007A]"
-                      />
-                      <span className="font-sans text-white">
-                        External (managed externally)
-                      </span>
-                    </label>
-                  </div>
                 </div>
                 <div>
                   <Label>Visibility</Label>

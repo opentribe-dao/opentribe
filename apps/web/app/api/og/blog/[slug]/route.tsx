@@ -142,7 +142,7 @@ export async function GET(
                   style={{
                     fontFamily: "Chakra Petch",
                     fontWeight: 700,
-                    fontSize: 24,
+                    fontSize: 26,
                     color: "#fff",
                     letterSpacing: 4,
                   }}
@@ -174,21 +174,20 @@ export async function GET(
               style={{
                 display: "flex",
                 flexDirection: "row",
+                justifyContent: "flex-start",
                 alignItems: "center",
-                gap: 16,
-                fontFamily: "Satoshi",
-                fontWeight: 600,
-                fontSize: 28,
-                color: "rgba(255,255,255,0.92)",
               }}
             >
-              <span>By {author}</span>
-              {date && (
-                <>
-                  <span style={{ color: "rgba(255,255,255,0.5)" }}>·</span>
-                  <span>{date}</span>
-                </>
-              )}
+              <div
+                style={{
+                  fontFamily: "Satoshi",
+                  fontWeight: 600,
+                  fontSize: 28,
+                  color: "rgba(255,255,255,0.92)",
+                }}
+              >
+                {`By ${author}${date ? " · " : ""}${date || ""}`}
+              </div>
             </div>
           </div>
         </div>

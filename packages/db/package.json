@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
-    "@prisma/adapter-neon": "6.4.1",
-    "@prisma/client": "6.4.1",
+    "@prisma/adapter-neon": "6.19.0",
+    "@prisma/client": "6.19.0",
     "@t3-oss/env-nextjs": "^0.13.4",
     "react": "19.1.1",
     "react-dom": "19.1.1",
@@ -35,7 +35,7 @@
     "@types/ws": "^8.18.1",
     "bcryptjs": "^2.4.3",
     "bufferutil": "^4.0.9",
-    "prisma": "6.4.1",
+    "prisma": "6.19.0",
     "tsx": "^4.19.2",
     "typescript": "^5.8.3"
   }

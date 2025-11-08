@@ -294,7 +294,7 @@ model GrantApplication {
   approverId   String?
   notes        String?
   likesCount   Int                    @default(0)
-  viewsCount   Int                    @default(0)
+  viewCount    Int                    @default(0)
   commentCount Int                    @default(0)
   submittedAt  DateTime?
   reviewedAt   DateTime?
@@ -330,7 +330,7 @@ model Submission {
   winningAmount Decimal?
   winnerUserId  String?
   likesCount    Int              @default(0)
-  viewsCount    Int              @default(0)
+  viewCount     Int              @default(0)
   commentCount  Int              @default(0)
   submittedAt   DateTime?
   reviewedAt    DateTime?
@@ -347,6 +347,20 @@ model Submission {
   @@index([userId])
   @@index([winnerUserId])
   @@map("submission")
+}
+
+model View {
+  id        String   @id @default(cuid())
+  entity    String
+  userIp    String?
+  userId    String?
+  createdAt DateTime @default(now())
+  exp       DateTime
+
+  @@index([entity, userIp, exp])
+  @@index([entity, userId, exp])
+  @@index([exp])
+  @@map("view")
 }
 
 model Payment {

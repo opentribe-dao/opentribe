@@ -1,7 +1,7 @@
 import { Badge } from '@packages/base/components/ui/badge';
 import { Button } from '@packages/base/components/ui/button';
 import { getDictionary } from '@packages/i18n';
-import { createMetadata } from '@packages/seo/metadata';
+import { createSiteMetadata } from '@packages/seo/meta';
 import { ArrowUpRight } from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -52,11 +52,13 @@ export const generateMetadata = async ({
   params,
 }: ChangelogProps): Promise<Metadata> => {
   const { locale } = await params;
-  await getDictionary(locale);
+  const dictionary = await getDictionary(locale);
 
-  return createMetadata({
-    title: 'Changelog - OpenTribe',
-    description: 'Get the latest updates and improvements to our platform.',
+  return createSiteMetadata({
+    title: dictionary.seo.changelog.title,
+    description: dictionary.seo.changelog.description,
+    keywords: dictionary.seo.changelog.keywords,
+    image: '/api/og?title=Changelog',
   });
 };
 

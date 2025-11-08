@@ -3,6 +3,7 @@
 import React from 'react'
 import { Button } from "@packages/base/components/ui/button"
 import { Skeleton } from "@packages/base/components/ui/skeleton"
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@packages/base/components/ui/empty"
 import { GrantCard } from "../../components/cards/grant-card"
 import { type TopRFP, TopRFPsCard } from "./top-rfps"
 import type { Grant } from '@/hooks/use-grants-data'
@@ -123,25 +124,16 @@ function GrantsContentSectionComponent({
 
       {/* Empty State */}
       {!loading && !error && grants.length === 0 && (
-        <div className='rounded-xl border border-white/10 bg-white/5 p-12 text-center'>
-          <div className='mb-4 text-6xl text-white/60'>🔍</div>
-          <h3 className='mb-2 font-heading font-semibold text-white text-xl'>
-            No grants found
-          </h3>
-          <p className='mb-6 text-white/60'>
-            {activeFiltersCount > 0
-              ? 'Try adjusting your filters to see more grants.'
-              : 'There are no grants available at the moment.'}
-          </p>
-          {activeFiltersCount > 0 && (
-            <Button
-              onClick={onClearAllFilters}
-              className="bg-pink-500 hover:bg-pink-600"
-            >
-              Clear All Filters
-            </Button>
-          )}
-        </div>
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyTitle>No grants found</EmptyTitle>
+            <EmptyDescription>
+              {activeFiltersCount > 0
+                ? 'Try adjusting your filters to see more grants.'
+                : 'There are no grants available at the moment.'}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
 
       {/* Grants Grid */}

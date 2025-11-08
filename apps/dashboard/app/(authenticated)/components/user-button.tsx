@@ -1,5 +1,5 @@
-'use client';
-import { signOut, useSession } from '@packages/auth/client';
+"use client";
+import { signOut, useSession } from "@packages/auth/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,11 +7,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@packages/base/components/ui/dropdown-menu';
-import { SidebarMenuButton } from '@packages/base/components/ui/sidebar';
-import { ChevronsUpDown, LogOut, Settings, User, UserIcon } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+} from "@packages/base/components/ui/dropdown-menu";
+import { SidebarMenuButton } from "@packages/base/components/ui/sidebar";
+import { ChevronsUpDown, LogOut, Settings, User, UserIcon } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface UserButtonProps {
   showName?: boolean;
@@ -33,18 +33,18 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
     try {
       await signOut();
       // Redirect to sign-in page after successful sign out
-      window.location.href = '/sign-in';
+      window.location.href = "/sign-in";
     } catch (error) {
-      console.error('Failed to sign out:', error);
+      console.error("Failed to sign out:", error);
     }
   };
 
   const handleSettings = () => {
-    router.push('/settings/billing');
+    router.push("/settings/billing");
   };
 
   const handleProfile = () => {
-    router.push('/settings/profile');
+    router.push("/settings/profile");
   };
 
   if (!user) {
@@ -66,24 +66,24 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
   const getInitials = (name?: string, email?: string) => {
     if (name) {
       return name
-        .split(' ')
+        .split(" ")
         .map((part) => part[0])
-        .join('')
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     }
     if (email) {
       return email[0].toUpperCase();
     }
-    return 'U';
+    return "U";
   };
 
   const userInitials = getInitials(user.name, user.email);
-  const displayName = user.name || user.email || 'User';
+  const displayName = user.name || user.email || "User";
 
   return (
     <div
-      className={appearance?.elements?.rootBox || 'flex w-full overflow-hidden'}
+      className={appearance?.elements?.rootBox || "flex w-full overflow-hidden"}
     >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -93,7 +93,7 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
           >
             <div
               className={
-                appearance?.elements?.userButtonBox || 'flex items-center gap-2'
+                appearance?.elements?.userButtonBox || "flex items-center gap-2"
               }
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-primary font-medium text-sidebar-primary-foreground text-sm">
@@ -111,7 +111,10 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
               </div>
               {showName && (
                 <div
-                  className={`grid flex-1 text-left text-sm leading-tight ${appearance?.elements?.userButtonOuterIdentifier || 'truncate pl-0'}`}
+                  className={`grid flex-1 text-left text-sm leading-tight ${
+                    appearance?.elements?.userButtonOuterIdentifier ||
+                    "truncate pl-0"
+                  }`}
                 >
                   <span className="truncate font-medium">{displayName}</span>
                   <span className="truncate text-muted-foreground text-xs">

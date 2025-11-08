@@ -6,9 +6,15 @@ interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl";
   showText?: boolean;
   className?: string;
+  appearance?: "light" | "dark";
 }
 
-export function Logo({ size = "md", showText = true, className }: LogoProps) {
+export function Logo({
+  size = "md",
+  showText = true,
+  className,
+  appearance = "dark",
+}: LogoProps) {
   if (!showText) {
     return <Logomark size={size} className={className} />;
   }
@@ -24,7 +30,7 @@ export function Logo({ size = "md", showText = true, className }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <Logomark size={logomarkSizeMap[size]} />
-      <Wordmark size={size} />
+      <Wordmark size={size} appearance={appearance} />
     </div>
   );
 }

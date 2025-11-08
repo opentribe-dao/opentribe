@@ -169,7 +169,7 @@ const GrantsPage = () => {
             className="bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
             asChild
           >
-            <Link href="/grants/new">
+            <Link href="/grants/create">
               Create New Grant
             </Link>
           </Button>
@@ -302,7 +302,7 @@ const GrantsPage = () => {
                           className="border-white/20 text-white hover:bg-white/10"
                           asChild
                         >
-                          <Link href="/grants/new">
+                          <Link href="/grants/create">
                             <Plus className="mr-2 h-4 w-4" />
                             Create your first grant
                           </Link>

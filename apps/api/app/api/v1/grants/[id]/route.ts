@@ -106,6 +106,7 @@ const updateGrantSchema = z.object({
       })
     )
     .optional(),
+  resourceFiles: z.array(z.string().regex(URL_REGEX)).optional(),
   screening: z
     .array(
       z.object({
@@ -386,8 +387,18 @@ export async function PATCH(
       updateData.totalFunds = validatedData.totalFunds;
     if (validatedData.token !== undefined)
       updateData.token = validatedData.token;
-    if (validatedData.resources !== undefined)
-      updateData.resources = validatedData.resources;
+    if (validatedData.resources !== undefined || validatedData.resourceFiles !== undefined) {
+      const attachments = validatedData.resourceFiles?.map((file) => ({
+        title: "Attachment",
+        url: file,
+        description: undefined,
+      })) ?? [];
+      const existingResources = Array.isArray(grant.resources) ? grant.resources : [];
+      updateData.resources = [
+        ...(validatedData.resources ?? existingResources),
+        ...attachments,
+      ];
+    }
     if (validatedData.screening !== undefined)
       updateData.screening = validatedData.screening;
     if (validatedData.applicationUrl !== undefined)

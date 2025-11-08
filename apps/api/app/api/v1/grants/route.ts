@@ -27,6 +27,7 @@ const createGrantSchema = z.object({
       })
     )
     .optional(),
+  resourceFiles: z.array(z.string().regex(URL_REGEX)).optional(),
   screening: z
     .array(
       z.object({
@@ -385,7 +386,17 @@ export async function POST(request: NextRequest) {
         maxAmount: validatedData.maxAmount,
         totalFunds: validatedData.totalFunds,
         token: validatedData.token,
-        resources: validatedData.resources || undefined,
+        resources:
+          validatedData.resourceFiles?.length
+            ? [
+                ...(validatedData.resources ?? []),
+                ...validatedData.resourceFiles.map((file) => ({
+                  title: "Attachment",
+                  url: file,
+                  description: undefined,
+                })),
+              ]
+            : validatedData.resources || undefined,
         screening: validatedData.screening || undefined,
         applicationUrl: validatedData.applicationUrl,
         visibility: validatedData.visibility,

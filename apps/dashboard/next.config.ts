@@ -6,13 +6,21 @@ import type { NextConfig } from "next";
 
 let nextConfig: NextConfig = withToolbar(withLogging(config));
 
-nextConfig.images?.remotePatterns?.push({
+// Ensure images config is properly initialized
+if (!nextConfig.images) {
+  nextConfig.images = {};
+}
+if (!nextConfig.images.remotePatterns) {
+  nextConfig.images.remotePatterns = [];
+}
+
+nextConfig.images.remotePatterns.push({
   protocol: "https",
   hostname: "assets.orama.com",
 });
 
 // Add Polkadot ecosystem image domains
-nextConfig.images?.remotePatterns?.push(
+nextConfig.images.remotePatterns.push(
   {
     protocol: "https",
     hostname: "futures.web3.foundation",

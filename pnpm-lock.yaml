@@ -172,8 +172,8 @@ importers:
         specifier: ^1.13.2
         version: 1.15.0
       lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.1.1)
+        specifier: ^0.553.0
+        version: 0.553.0(react@19.1.1)
       next:
         specifier: 15.5.6
         version: 15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -257,8 +257,8 @@ importers:
         specifier: 15.6.2
         version: 15.6.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(next@15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(tailwindcss@4.1.17)
       lucide-react:
-        specifier: ^0.511.0
-        version: 0.511.0(react@19.1.1)
+        specifier: ^0.553.0
+        version: 0.553.0(react@19.1.1)
       next:
         specifier: 15.5.6
         version: 15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -363,8 +363,8 @@ importers:
         specifier: ^1.13.2
         version: 1.15.0
       lucide-react:
-        specifier: ^0.546.0
-        version: 0.546.0(react@19.1.1)
+        specifier: ^0.553.0
+        version: 0.553.0(react@19.1.1)
       mdx-bundler:
         specifier: ^10.1.1
         version: 10.1.1(acorn@8.15.0)(esbuild@0.25.6)
@@ -645,8 +645,8 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       lucide-react:
-        specifier: ^0.546.0
-        version: 0.546.0(react@19.1.1)
+        specifier: ^0.553.0
+        version: 0.553.0(react@19.1.1)
       motion:
         specifier: ^12.23.24
         version: 12.23.24(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -7037,13 +7037,8 @@ packages:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
 
-  lucide-react@0.511.0:
-    resolution: {integrity: sha512-VK5a2ydJ7xm8GvBeKLS9mu1pVK6ucef9780JVUjw6bAjJL/QXnd4Y0p7SPeOUMC27YhzNCZvm5d/QX0Tp3rc0w==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  lucide-react@0.546.0:
-    resolution: {integrity: sha512-Z94u6fKT43lKeYHiVyvyR8fT7pwCzDu7RyMPpTvh054+xahSgj4HFQ+NmflvzdXsoAjYGdCguGaFKYuvq0ThCQ==}
+  lucide-react@0.553.0:
+    resolution: {integrity: sha512-BRgX5zrWmNy/lkVAe0dXBgd7XQdZ3HTf+Hwe3c9WK6dqgnj9h+hxV+MDncM88xDWlCq27+TKvHGE70ViODNILw==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -16033,11 +16028,7 @@ snapshots:
 
   lru-cache@7.18.3: {}
 
-  lucide-react@0.511.0(react@19.1.1):
-    dependencies:
-      react: 19.1.1
-
-  lucide-react@0.546.0(react@19.1.1):
+  lucide-react@0.553.0(react@19.1.1):
     dependencies:
       react: 19.1.1
 

@@ -1,22 +1,23 @@
-'use client';
+"use client";
 
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { useSession } from '@packages/auth/client';
+} from "@packages/base/components/ui/card";
+import { useSession } from "@packages/auth/client";
 
-import { DollarSign, ExternalLink } from 'lucide-react';
-import { useGrantContext } from '../../components/grants/grant-provider';
-import type React from 'react';
-import { memo } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { LoadingPage } from '@/components/loading-states';
+import { DollarSign, ExternalLink } from "lucide-react";
+import { useGrantContext } from "../../components/grants/grant-provider";
+import type React from "react";
+import { memo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { LoadingPage } from "@/components/loading-states";
+import { getTokenLogo } from "@packages/base/lib/utils";
 
 type FundingInfoProps = {
   minAmount?: number | null;
@@ -67,7 +68,7 @@ const ErrorState: React.FC<{ onRetry: () => void; message?: string }> = ({
 }) => (
   <div className="flex min-h-screen flex-col items-center justify-center">
     <p className="font-sans text-red-400">
-      {message ?? 'Failed to load grant.'}
+      {message ?? "Failed to load grant."}
     </p>
     <Button className="mt-4" onClick={onRetry}>
       Retry
@@ -118,9 +119,9 @@ const OrganizationSection = memo(function OrganizationSection({
 
 const formatAmount = (amount?: number | null) => {
   if (!amount) {
-    return 'N/A';
+    return "N/A";
   }
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -141,45 +142,40 @@ const FundingSection = memo(function FundingSection({
       <div className="space-y-2">
         {minAmount && maxAmount ? (
           <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-white/40" />
+            {getTokenLogo(token) ? (
+              // Show token logo if available
+              <img
+                src={getTokenLogo(token) || ""}
+                alt={token || "Token"}
+                className="h-4 w-4 rounded-full object-contain bg-white/10"
+              />
+            ) : (
+              <DollarSign className="h-4 w-4 text-white/40" />
+            )}
             <span className="font-sans text-white">
-              {formatAmount(minAmount)} - {formatAmount(maxAmount)}{' '}
-              {token ?? ''}
+              {formatAmount(minAmount)} - {formatAmount(maxAmount)}{" "}
+              {token ?? ""}
             </span>
           </div>
         ) : null}
         {totalFunds ? (
           <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-white/40" />
+            {getTokenLogo(token) ? (
+              // Show token logo if available
+              <img
+                src={getTokenLogo(token) || ""}
+                alt={token || "Token"}
+                className="h-4 w-4 rounded-full object-contain bg-white/10"
+              />
+            ) : (
+              <DollarSign className="h-4 w-4 text-white/40" />
+            )}
             <span className="font-sans text-white">
-              Total Funds: {formatAmount(totalFunds)} {token ?? ''}
+              Total Funds: {formatAmount(totalFunds)} {token ?? ""}
             </span>
           </div>
         ) : null}
       </div>
-    </div>
-  );
-});
-
-const ExternalApplicationSection = memo(function ExternalApplicationSection({
-  applicationUrl,
-}: {
-  applicationUrl?: string | null;
-}) {
-  if (!applicationUrl) {
-    return null;
-  }
-  return (
-    <div>
-      <p className="mb-2 font-sans text-sm text-white/60">
-        External Application
-      </p>
-      <Button className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90" asChild>
-        <a href={applicationUrl} target="_blank" rel="noopener noreferrer">
-          <ExternalLink className="mr-2 h-4 w-4" />
-          Apply Externally
-        </a>
-      </Button>
     </div>
   );
 });

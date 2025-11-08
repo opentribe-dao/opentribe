@@ -173,25 +173,37 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
             </SidebarGroupLabel>
             <SidebarGroupContent className="mt-3">
               <div className="mt-auto space-y-2 px-3">
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/bounties/create">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Bounty
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/grants/new">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Grant
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/rfps/new">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create RFP
-                  </Link>
-                </Button>
-              </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+            >
+              <Link href="/bounties/create">
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Bounty
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+            >
+              <Link href="/grants/create">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Grant
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+            >
+              <Link href="/rfps/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Create RFP
+              </Link>
+            </Button>
+          </div>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>

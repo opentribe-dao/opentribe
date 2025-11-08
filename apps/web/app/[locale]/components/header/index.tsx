@@ -4,6 +4,7 @@ import { env } from "@/env";
 import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
+import { Logo } from "@packages/base/components/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -263,9 +264,7 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
       <div className="container relative mx-auto flex min-h-20 flex-row items-center justify-between px-4">
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
-            <span className="bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-transparent text-xl leading-[1.75] tracking-[0.25em]">
-              OPENTRIBE
-            </span>
+            <Logo size="md" />
           </Link>
         </div>
         <nav className="hidden items-center gap-6 md:flex">

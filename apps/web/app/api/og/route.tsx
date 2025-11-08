@@ -23,6 +23,7 @@ export async function GET(request: Request) {
     satoshi700,
     background,
     builderIllustration,
+    logomark,
   } = await ogAssets;
   const bgBuffer = background ?? null;
   const bgDataUrl = bgBuffer
@@ -30,6 +31,9 @@ export async function GET(request: Request) {
     : undefined;
   const builderSrc = builderIllustration
     ? `data:image/png;base64,${Buffer.from(builderIllustration).toString("base64")}`
+    : undefined;
+  const logomarkSrc = logomark
+    ? `data:image/svg+xml;base64,${Buffer.from(logomark).toString("base64")}`
     : undefined;
 
   return new ImageResponse(
@@ -60,17 +64,28 @@ export async function GET(request: Request) {
         >
           {/* Left text block */}
           <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
-            {/* Wordmark */}
-            <div
-              style={{
-                fontFamily: "Chakra Petch",
-                fontWeight: 700,
-                fontSize: 28,
-                color: "#fff",
-                letterSpacing: 4,
-              }}
-            >
-              OPENTRIBE
+            {/* Logo + Wordmark */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              {logomarkSrc && (
+                <img
+                  src={logomarkSrc}
+                  width={40}
+                  height={46}
+                  alt="Opentribe"
+                  style={{ display: "block" }}
+                />
+              )}
+              <div
+                style={{
+                  fontFamily: "Chakra Petch",
+                  fontWeight: 700,
+                  fontSize: 28,
+                  color: "#fff",
+                  letterSpacing: 4,
+                }}
+              >
+                OPENTRIBE
+              </div>
             </div>
             {/* Headline (Satoshi bold) */}
             <div

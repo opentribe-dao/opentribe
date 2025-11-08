@@ -167,7 +167,7 @@ export async function GET(
                   style={{
                     fontFamily: "Chakra Petch",
                     fontWeight: 700,
-                    fontSize: 20,
+                    fontSize: 26,
                     color: "rgba(255,255,255,0.85)",
                     letterSpacing: "4px",
                   }}

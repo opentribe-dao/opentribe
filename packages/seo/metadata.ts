@@ -52,18 +52,19 @@ export const createMetadata = ({
     twitter: {
       card: "summary_large_image",
       creator: twitterHandle,
+      images: [image || "/api/og"],
     },
   };
 
   const metadata: Metadata = merge(defaultMetadata, properties);
 
-  if (image && metadata.openGraph) {
+  if (metadata.openGraph) {
     metadata.openGraph.images = [
       {
-        url: image,
+        url: image || "/api/og",
         width: 1200,
         height: 630,
-        alt: title,
+        alt: image ? title : "Opentribe",
       },
     ];
   }

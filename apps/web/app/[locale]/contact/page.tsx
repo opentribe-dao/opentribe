@@ -1,5 +1,5 @@
 import { getDictionary } from '@packages/i18n';
-import { createMetadata } from '@packages/seo/metadata';
+import { createSiteMetadata } from '@packages/seo/meta';
 import type { Metadata } from 'next';
 import { ContactForm } from './components/contact-form';
 
@@ -15,7 +15,12 @@ export const generateMetadata = async ({
   const { locale } = await params;
   const dictionary = await getDictionary(locale);
 
-  return createMetadata(dictionary.web.contact.meta);
+  return createSiteMetadata({
+    title: dictionary.seo.contact.title,
+    description: dictionary.seo.contact.description,
+    keywords: dictionary.seo.contact.keywords,
+    image: '/api/og?title=Contact Us',
+  });
 };
 
 const Contact = async ({ params }: ContactProps) => {

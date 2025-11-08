@@ -1,34 +1,64 @@
 import { type Legal, legal } from '@packages/cms';
 import { Body } from '@packages/cms/components/body';
-import { createMetadata } from '@packages/seo/metadata';
+import { getDictionary } from '@packages/i18n';
+import { createSiteMetadata } from '@packages/seo/meta';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 type LegalPageProperties = {
   readonly params: Promise<{
+    locale: string;
     slug: string;
   }>;
+};
+
+// Map slug to i18n key
+const getLegalSeoKey = (slug: string): 'cookiePolicy' | 'privacyPolicy' | 'termsOfService' | null => {
+  const mapping: Record<string, 'cookiePolicy' | 'privacyPolicy' | 'termsOfService'> = {
+    'cookie-policy': 'cookiePolicy',
+    'privacy-policy': 'privacyPolicy',
+    'terms-of-service': 'termsOfService',
+  };
+  return mapping[slug] || null;
 };
 
 export const generateMetadata = async ({
   params,
 }: LegalPageProperties): Promise<Metadata> => {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const dictionary = await getDictionary(locale);
   const post = legal.getPost(slug);
 
   if (!post) {
     return {};
   }
 
-  return createMetadata({
-    title: post._title,
-    description: post.description,
+  // Try to get SEO content from i18n, fall back to CMS content
+  const seoKey = getLegalSeoKey(slug);
+  const seoContent = seoKey ? dictionary.seo.legal[seoKey] : null;
+
+  // Generate OG image title based on slug
+  const ogTitles: Record<string, string> = {
+    'cookie-policy': 'Cookie Policy',
+    'privacy-policy': 'Privacy Policy',
+    'terms-of-service': 'Terms of Service',
+  };
+  const ogTitle = ogTitles[slug] || 'Legal';
+
+  return createSiteMetadata({
+    title: seoContent?.title || post._title,
+    description: seoContent?.description || post.description,
+    keywords: seoContent?.keywords,
+    image: `/api/og?title=${encodeURIComponent(ogTitle)}`,
   });
 };
 
-export const generateStaticParams = (): { slug: string }[] => {
+export const generateStaticParams = () => {
   const posts = legal.getPosts();
-  return posts.map(({ _slug }: Legal) => ({ slug: _slug }));
+  return posts.map(({ _slug }: Legal) => ({
+    locale: 'en',
+    slug: _slug,
+  }));
 };
 
 const LegalPage = async ({ params }: LegalPageProperties) => {

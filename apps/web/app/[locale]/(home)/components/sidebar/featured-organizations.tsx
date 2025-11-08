@@ -45,6 +45,10 @@ export function FeaturedOrganizations({
       </Card>
     );
   }
+  
+  if (featuredOrganizations.length === 0) {
+    return null;
+  }
 
   const displayOrganizations = featuredOrganizations || [];
 

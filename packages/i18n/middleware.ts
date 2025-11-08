@@ -11,13 +11,24 @@ const I18nMiddleware = createI18nMiddleware({
   defaultLocale: "en",
   urlMappingStrategy: "rewriteDefault",
   resolveLocaleFromRequest: (request: NextRequest) => {
-    const headers = Object.fromEntries(request.headers.entries());
-    const negotiator = new Negotiator({ headers });
-    const acceptedLanguages = negotiator.languages();
+    try {
+      const headers = Object.fromEntries(request.headers.entries());
+      const negotiator = new Negotiator({ headers });
+      const acceptedLanguages = negotiator.languages();
 
-    const matchedLocale = matchLocale(acceptedLanguages, locales, "en");
+      // If no languages provided or empty, return default
+      if (!acceptedLanguages || acceptedLanguages.length === 0) {
+        return "en";
+      }
 
-    return matchedLocale;
+      const matchedLocale = matchLocale(acceptedLanguages, locales, "en");
+
+      return matchedLocale;
+    } catch (error) {
+      // Handle RangeError from invalid locale information (e.g., from bots/crawlers)
+      console.warn("Failed to resolve locale, defaulting to 'en':", error);
+      return "en";
+    }
   },
 });
 

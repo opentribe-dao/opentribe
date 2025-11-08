@@ -360,6 +360,16 @@ export async function POST(request: NextRequest) {
       slug = `${baseSlug}-${Date.now()}`;
     }
 
+    // Set source based on applicationUrl
+    if (
+      validatedData.applicationUrl?.length &&
+      validatedData.applicationUrl.length > 0
+    ) {
+      validatedData.source = "EXTERNAL";
+    } else {
+      validatedData.source = "NATIVE";
+    }
+
     // Create the grant
     const grant = await database.grant.create({
       data: {

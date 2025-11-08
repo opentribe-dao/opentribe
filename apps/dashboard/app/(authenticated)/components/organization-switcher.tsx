@@ -42,12 +42,23 @@ export function OrganizationSwitcher({
   const { data: organizations, isPending } = useListOrganizations();
   const { data: activeOrg } = useActiveOrganization();
 
-  const handleOrganizationSwitch = async (orgId: string) => {
+  const handleOrganizationSwitch = async (
+    orgId: string,
+    event?: React.MouseEvent
+  ) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     try {
       await organization.setActive({
         organizationId: orgId,
       });
-      router.push(afterSelectOrganizationUrl);
+      // Ensure we use a relative path, not a full URL
+      const url =
+        afterSelectOrganizationUrl.startsWith("http") ||
+        afterSelectOrganizationUrl.startsWith("//")
+          ? "/"
+          : afterSelectOrganizationUrl;
+      router.push(url);
       router.refresh();
     } catch (error) {
       console.error("Failed to switch organization:", error);
@@ -170,7 +181,7 @@ export function OrganizationSwitcher({
             {organizations?.map((org, index) => (
               <DropdownMenuItem
                 key={org.id}
-                onClick={() => handleOrganizationSwitch(org.id)}
+                onClick={(e) => handleOrganizationSwitch(org.id, e)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">

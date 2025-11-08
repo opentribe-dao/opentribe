@@ -181,7 +181,7 @@ We're looking for projects that:
 - Enhance user experience`,
         summary:
           "Web3 Foundation's flagship $45M funding program for ambitious Polkadot ecosystem projects",
-        logoUrl: "https://futures.web3.foundation/logo.png",
+        logoUrl: "https://avatars.githubusercontent.com/u/30405397",
         instructions: `## Application Process
 
 1. Submit initial proposal outlining your project vision
@@ -664,7 +664,7 @@ XCM Studio will be the first visual development environment specifically designe
         status: "SUBMITTED",
         submittedAt: daysFromNow(1),
         likesCount: 15,
-        viewsCount: 67,
+        viewCount: 67,
       },
     }),
     prisma.grantApplication.create({
@@ -697,7 +697,7 @@ Create the most comprehensive and accessible learning resource for Substrate dev
         submittedAt: daysFromNow(-10),
         reviewedAt: daysFromNow(-5),
         likesCount: 23,
-        viewsCount: 134,
+        viewCount: 134,
       },
     }),
   ]);
@@ -739,7 +739,7 @@ I've completely reimagined the Polkadot.js extension with a focus on clarity, ac
         status: "SUBMITTED",
         submittedAt: daysFromNow(5),
         likesCount: 42,
-        viewsCount: 189,
+        viewCount: 189,
       },
     }),
     prisma.submission.create({
@@ -768,7 +768,7 @@ Each tutorial includes:
         status: "SUBMITTED",
         submittedAt: daysFromNow(8),
         likesCount: 38,
-        viewsCount: 156,
+        viewCount: 156,
       },
     }),
   ]);

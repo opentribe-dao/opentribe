@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { GoogleAnalytics, GoogleTagManager } from "./google";
 import { keys } from "./keys";

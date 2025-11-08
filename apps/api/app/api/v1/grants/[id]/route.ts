@@ -139,6 +139,7 @@ export async function GET(
           { id: grantId },
           { slug: { equals: grantId, mode: "insensitive" } },
         ],
+        visibility: "PUBLISHED",
       },
       include: {
         organization: {

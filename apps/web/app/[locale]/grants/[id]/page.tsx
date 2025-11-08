@@ -162,45 +162,56 @@ export default function GrantDetailPage({
 
                 <ShareButton url={`/grants/${grantId}`} />
                 <div className="col-span-2 w-full">
-                {grant.userApplicationId ? (
-                  <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>
-                    <Button
-                      className="bg-pink-600 text-white hover:bg-pink-700"
-                      disabled={grant.status !== "OPEN"}
-                    >
-                      View Application
-                    </Button>
-                  </Link>
-                ) : grant.source === "EXTERNAL" && grant.applicationUrl ? (
-                  <a
-                    href={grant.applicationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button
-                      className="bg-pink-600 text-white hover:bg-pink-700"
-                      disabled={grant.status !== "OPEN"}
-                    >
-                      Apply Externally
-                    </Button>
-                  </a>
-                ) : grant.canApply === false ? (
-                  <Button
-                    className="bg-pink-600 text-white hover:bg-pink-700"
-                    disabled={true}
-                  >
-                    Application Closed
-                  </Button>
-                ) : (
-                   <Link href={`/grants/${grantId}/apply`}>
-                    <Button
-                      className="bg-pink-600 text-white hover:bg-pink-700"
-                      disabled={grant.status !== "OPEN"}
-                    >
-                      Apply Now
-                    </Button>
-                  </Link>
-                )}
+                {(() => {
+                  switch (true) {
+                    case !!grant.userApplicationId:
+                      return (
+                        <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>
+                          <Button
+                            className="bg-pink-600 text-white hover:bg-pink-700"
+                            disabled={grant.status !== "OPEN"}
+                          >
+                            View Application
+                          </Button>
+                        </Link>
+                      );
+                    case grant.status !== "OPEN":
+                      return (
+                        <Button
+                          className="bg-pink-600 text-white hover:bg-pink-700"
+                          disabled={true}
+                        >
+                          Application Closed
+                        </Button>
+                      );
+                    case grant.source === "EXTERNAL" && grant.applicationUrl:
+                      return (
+                        <a
+                          href={grant.applicationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button
+                            className="bg-pink-600 text-white hover:bg-pink-700"
+                            disabled={grant.canApply === false}
+                          >
+                            Apply Externally
+                          </Button>
+                        </a>
+                      );
+                    default:
+                      return (
+                        <Link href={`/grants/${grantId}/apply`}>
+                          <Button
+                            className="bg-pink-600 text-white hover:bg-pink-700"
+                            disabled={grant.canApply === false}
+                          >
+                            Apply Now
+                          </Button>
+                        </Link>
+                      );
+                  }
+                })()}
               </div>
               </div>
             </div>

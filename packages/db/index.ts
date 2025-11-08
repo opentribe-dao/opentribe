@@ -1,13 +1,16 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { PrismaNeon } from '@prisma/adapter-neon';
-import ws from 'ws';
-import { PrismaClient } from './generated/client';
-import { keys } from './keys';
+import { neonConfig } from "@neondatabase/serverless";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import ws from "ws";
+import { PrismaClient } from "./generated/client";
+import { keys } from "./keys";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 const databaseUrl = keys().DATABASE_URL;
-const isLocalDatabase = databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1') || databaseUrl.includes('postgres:');
+const isLocalDatabase =
+  databaseUrl.includes("localhost") ||
+  databaseUrl.includes("127.0.0.1") ||
+  databaseUrl.includes("postgres:");
 
 let database: PrismaClient;
 
@@ -17,15 +20,15 @@ if (isLocalDatabase) {
 } else {
   // Production with Neon serverless
   neonConfig.webSocketConstructor = ws;
-  const pool = new Pool({ connectionString: databaseUrl });
-  const adapter = new PrismaNeon(pool);
+  const poolConfig = { connectionString: databaseUrl };
+  const adapter = new PrismaNeon(poolConfig) as any;
   database = globalForPrisma.prisma || new PrismaClient({ adapter });
 }
 
 export { database };
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = database;
 }
 
-export * from './generated/client';
+export * from "./generated/client";

@@ -27,11 +27,14 @@ export async function GET(
   const tLen = title.length;
   const titleSize = tLen > 60 ? 44 : tLen > 40 ? 52 : 60;
 
-  const { chakra700, chakra500, satoshi400, satoshi500, satoshi700, background } =
+  const { chakra700, chakra500, satoshi400, satoshi500, satoshi700, background, logomark } =
     await ogAssets;
   const bgBuffer = background ?? null;
   const bgDataUrl = bgBuffer
     ? `url(data:image/png;base64,${Buffer.from(bgBuffer).toString("base64")})`
+    : undefined;
+  const logomarkSrc = logomark
+    ? `data:image/svg+xml;base64,${Buffer.from(logomark).toString("base64")}`
     : undefined;
 
   return new ImageResponse(
@@ -124,17 +127,28 @@ export async function GET(
               >
                 📰 Blog Post
               </div>
-              {/* Wordmark */}
-              <div
-                style={{
-                  fontFamily: "Chakra Petch",
-                  fontWeight: 700,
-                  fontSize: 24,
-                  color: "#fff",
-                  letterSpacing: 4,
-                }}
-              >
-                OPENTRIBE
+              {/* Logo + Wordmark */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                {logomarkSrc && (
+                  <img
+                    src={logomarkSrc}
+                    width={32}
+                    height={37}
+                    alt="Opentribe"
+                    style={{ display: "block" }}
+                  />
+                )}
+                <div
+                  style={{
+                    fontFamily: "Chakra Petch",
+                    fontWeight: 700,
+                    fontSize: 26,
+                    color: "#fff",
+                    letterSpacing: 4,
+                  }}
+                >
+                  OPENTRIBE
+                </div>
               </div>
             </div>
 
@@ -160,21 +174,20 @@ export async function GET(
               style={{
                 display: "flex",
                 flexDirection: "row",
+                justifyContent: "flex-start",
                 alignItems: "center",
-                gap: 16,
-                fontFamily: "Satoshi",
-                fontWeight: 600,
-                fontSize: 28,
-                color: "rgba(255,255,255,0.92)",
               }}
             >
-              <span>By {author}</span>
-              {date && (
-                <>
-                  <span style={{ color: "rgba(255,255,255,0.5)" }}>·</span>
-                  <span>{date}</span>
-                </>
-              )}
+              <div
+                style={{
+                  fontFamily: "Satoshi",
+                  fontWeight: 600,
+                  fontSize: 28,
+                  color: "rgba(255,255,255,0.92)",
+                }}
+              >
+                {`By ${author}${date ? " · " : ""}${date || ""}`}
+              </div>
             </div>
           </div>
         </div>

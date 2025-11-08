@@ -2,6 +2,7 @@
 
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
+import { Logo } from "@packages/base/components/logo";
 import { Facebook, Twitter, Linkedin, Github, Youtube } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
@@ -117,9 +118,7 @@ export const Footer = () => {
           {/* Logo and Description */}
           <div>
             <Link href="/" className="mb-4 flex items-center gap-2">
-              <span className="bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-transparent text-xl leading-[1.75] tracking-[0.25em]">
-                OPENTRIBE
-              </span>
+              <Logo size="md" />
             </Link>
             <p className="mb-4 text-sm text-white/60">
               Opentribe is a talent marketplace connecting builders with

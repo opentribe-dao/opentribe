@@ -53,11 +53,14 @@ export async function GET(
   const tLen = title.length;
   const titleSize = tLen > 60 ? 44 : tLen > 40 ? 52 : 60;
 
-  const { chakra700, chakra500, satoshi400, satoshi500, background } =
+  const { chakra700, chakra500, satoshi400, satoshi500, background, logomark } =
     await ogAssets;
   const bgBuffer = background ?? null;
   const bgDataUrl = bgBuffer
     ? `url(data:image/png;base64,${Buffer.from(bgBuffer).toString("base64")})`
+    : undefined;
+  const logomarkSrc = logomark
+    ? `data:image/svg+xml;base64,${Buffer.from(logomark).toString("base64")}`
     : undefined;
 
   return new ImageResponse(
@@ -151,16 +154,27 @@ export async function GET(
               >
                 ⚡ Bounty
               </div>
-              <div
-                style={{
-                  fontFamily: "Chakra Petch",
-                  fontWeight: 700,
-                  fontSize: 20,
-                  color: "rgba(255,255,255,0.85)",
-                  letterSpacing: "4px",
-                }}
-              >
-                OPENTRIBE
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                {logomarkSrc && (
+                  <img
+                    src={logomarkSrc}
+                    width={32}
+                    height={37}
+                    alt="Opentribe"
+                    style={{ display: "block" }}
+                  />
+                )}
+                <div
+                  style={{
+                    fontFamily: "Chakra Petch",
+                    fontWeight: 700,
+                    fontSize: 26,
+                    color: "rgba(255,255,255,0.85)",
+                    letterSpacing: "4px",
+                  }}
+                >
+                  OPENTRIBE
+                </div>
               </div>
             </div>
 

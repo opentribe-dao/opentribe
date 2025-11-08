@@ -47,7 +47,7 @@ export function PopularSkills({
   }
 
   if (skills.length === 0) {
-    return (<div/>);
+    return null;
   }
 
   return (

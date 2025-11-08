@@ -9,10 +9,9 @@ import {
 } from "@packages/base/components/ui/card";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import Image from "next/image";
-import { relativeTime } from "@packages/base/lib/utils";
 
 interface RecentActivityProps {
-  activities?: Array<{
+  activities: Array<{
     id: string;
     type: "submission" | "application";
     user: {
@@ -62,7 +61,9 @@ export function RecentActivity({
     );
   }
 
-  const displayActivities = activities || [];
+  if (activities.length === 0) {
+    return null;
+  }
 
   const getUserInitials = (userName: string) => {
     return userName
@@ -84,7 +85,7 @@ export function RecentActivity({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {displayActivities.map((activity) => (
+          {activities.map((activity) => (
             <div key={activity.id} className="flex items-start gap-3">
               {activity.user.image ? (
                 <Image

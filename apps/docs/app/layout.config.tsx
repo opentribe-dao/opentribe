@@ -1,5 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { BookOpen, Github, Home } from 'lucide-react';
+import { Logo } from '@packages/base/components/logo';
 
 /**
  * Shared layout configurations
@@ -13,10 +14,7 @@ export const baseOptions: BaseLayoutProps = {
     title: (
       <>
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-foreground font-bold text-background text-xs">
-            T
-          </div>
-          <span className="font-bold">Turbocamp</span>
+          <Logo size="sm" appearance="light" />
           <span className="text-muted-foreground text-xs">Docs</span>
         </div>
       </>
@@ -37,7 +35,7 @@ export const baseOptions: BaseLayoutProps = {
     },
     {
       text: 'GitHub',
-      url: 'https://github.com/turbocamp/turbocamp',
+      url: 'https://github.com/opentribe-dao/opentribe',
       icon: <Github className="h-4 w-4" />,
       external: true,
     },

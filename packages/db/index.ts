@@ -18,10 +18,9 @@ if (isLocalDatabase) {
   // Local development with standard PostgreSQL
   database = globalForPrisma.prisma || new PrismaClient();
 } else {
-  // Production with Neon serverless
+  // Production with Neon serverless (Prisma 6.6.0+ API)
   neonConfig.webSocketConstructor = ws;
-  const poolConfig = { connectionString: databaseUrl };
-  const adapter = new PrismaNeon(poolConfig) as any;
+  const adapter = new PrismaNeon({ connectionString: databaseUrl });
   database = globalForPrisma.prisma || new PrismaClient({ adapter });
 }
 

@@ -145,14 +145,14 @@ export function OrganizationSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <div className={`flex aspect-square size-8 items-center justify-center rounded-lg ${displayOrg?.logo ? 'bg-transparent' : 'bg-sidebar-primary'} text-sidebar-primary-foreground`}>
                 {displayOrg?.logo ? (
                   <Image
                     src={displayOrg.logo}
                     alt={`${displayOrg.name} logo`}
-                    width={16}
-                    height={16}
-                    className="size-4 rounded"
+                    width={32}
+                    height={32}
+                    className="size-8 rounded-lg object-cover"
                   />
                 ) : (
                   <Building2 className="size-4" />
@@ -184,14 +184,14 @@ export function OrganizationSwitcher({
                 onClick={(e) => handleOrganizationSwitch(org.id, e)}
                 className="gap-2 p-2"
               >
-                <div className="flex size-6 items-center justify-center rounded-md border">
+                <div className={`flex size-6 items-center justify-center rounded-md ${org.logo ? '' : 'border'}`}>
                   {org.logo ? (
                     <Image
                       src={org.logo}
                       alt={`${org.name} logo`}
-                      width={14}
-                      height={14}
-                      className="size-3.5 rounded"
+                      width={24}
+                      height={24}
+                      className="size-6 rounded-md object-cover"
                     />
                   ) : (
                     <Building2 className="size-3.5 shrink-0" />

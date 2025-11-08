@@ -5,7 +5,11 @@ import { Textarea } from '@packages/base/components/ui/textarea';
 import SkillsOptions from '@packages/base/components/ui/skills-options';
 import { useFormContext } from 'react-hook-form';
 
-export function GrantDetailsForm() {
+interface GrantDetailsFormProps {
+  organizationId?: string;
+}
+
+export function GrantDetailsForm({ organizationId }: GrantDetailsFormProps) {
   const { register, setValue, watch } = useFormContext();
   const skills = watch('skills') ?? [];
   const logoUrl = watch('logoUrl');
@@ -54,7 +58,7 @@ export function GrantDetailsForm() {
           currentImageUrl={logoUrl}
           onImageChange={(url) => setValue('logoUrl', url || '')}
           uploadType="organization-logo"
-          entityId={undefined}
+          entityId={organizationId}
           variant="logo"
         />
       </div>
@@ -64,7 +68,7 @@ export function GrantDetailsForm() {
           currentImageUrl={bannerUrl}
           onImageChange={(url) => setValue('bannerUrl', url || '')}
           uploadType="grant-banner"
-          entityId={undefined}
+          entityId={organizationId}
           variant="banner"
         />
       </div>

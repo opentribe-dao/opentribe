@@ -48,6 +48,7 @@ export interface GrantApplicationApplicant {
   username: string;
   firstName?: string | null;
   lastName?: string | null;
+  image?: string | null;
   avatarUrl?: string | null;
 }
 

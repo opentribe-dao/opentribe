@@ -81,9 +81,9 @@ export default function GrantApplicationsPage (){
                         </p>
                         <div className="flex items-center gap-3 text-sm text-white/60">
                           <div className="flex items-center gap-2">
-                            {application.applicant.avatarUrl ? (
+                            {application.applicant.image ? (
                               <img
-                                src={application.applicant.avatarUrl}
+                                src={application.applicant.image}
                                 alt={application.applicant.username}
                                 className='h-6 w-6 rounded-full'
                               />

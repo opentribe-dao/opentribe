@@ -158,7 +158,7 @@ const EditGrantPage = ({ params }: { params: Promise<{ id: string }> }) => {
           {/* Form Content */}
           <Card className="border-white/10 bg-zinc-900/50">
             <CardContent>
-              {currentStep === 1 && <GrantDetailsForm />}
+              {currentStep === 1 && <GrantDetailsForm organizationId={activeOrg?.id} />}
               {currentStep === 2 && <GrantFundingForm />}
               {currentStep === 3 && <GrantRequirementsForm />}
               {currentStep === 4 && <GrantPublishForm />}

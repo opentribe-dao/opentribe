@@ -49,7 +49,7 @@
   "devDependencies": {
     "@content-collections/cli": "^0.1.6",
     "@content-collections/core": "^0.9.1",
-    "@content-collections/next": "^0.2.6",
+    "@content-collections/next": "^0.2.9",
     "@tooling/typescript-config": "workspace:*",
     "@types/node": "24.5.2",
     "@types/react": "^19.1.8",

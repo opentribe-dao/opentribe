@@ -14,7 +14,7 @@ export const baseOptions: BaseLayoutProps = {
     title: (
       <>
         <div className="flex items-center gap-2">
-          <Logo size="sm" />
+          <Logo size="sm" appearance="light" />
           <span className="text-muted-foreground text-xs">Docs</span>
         </div>
       </>

@@ -32,7 +32,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@packages/base/components/ui/accordion";
-import { formatCurrency } from "@packages/base/lib/utils";
+import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
 import { GrantCard } from "@/app/[locale]/components/cards/grant-card";
 
 interface Grant {
@@ -174,9 +174,7 @@ const GrantApplicationPage = () => {
       const minAmount = Number.parseFloat(grant.minAmount || "0");
       const maxAmount = Number.parseFloat(grant.maxAmount || "0");
       if (minAmount && budget < minAmount) {
-        toast.error(
-          `Budget must be at least ${minAmount} ${grant.token}`
-        );
+        toast.error(`Budget must be at least ${minAmount} ${grant.token}`);
         return;
       }
       if (maxAmount && budget > maxAmount) {
@@ -202,7 +200,9 @@ const GrantApplicationPage = () => {
         title: formData.title,
         summary: formData.summary || undefined,
         description: formData.description,
-        budget: formData.budget ? Number.parseFloat(formData.budget) : undefined,
+        budget: formData.budget
+          ? Number.parseFloat(formData.budget)
+          : undefined,
         rfpId:
           formData.rfpId && formData.rfpId !== "none"
             ? formData.rfpId
@@ -348,7 +348,7 @@ const GrantApplicationPage = () => {
 
   if (loading || sessionLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -366,22 +366,23 @@ const GrantApplicationPage = () => {
   const maxAmountStr = hasMaxAmount
     ? formatCurrency(Number.parseFloat(grant.maxAmount || "0"), grant.token)
     : null;
-  const budgetPlaceholder = hasMinAmount && hasMaxAmount
-    ? `${minAmountStr} - ${maxAmountStr}`
-    : hasMinAmount
+  const budgetPlaceholder =
+    hasMinAmount && hasMaxAmount
+      ? `${minAmountStr} - ${maxAmountStr}`
+      : hasMinAmount
       ? `Minimum: ${minAmountStr}`
       : hasMaxAmount
-        ? `Maximum: ${maxAmountStr}`
-        : "";
+      ? `Maximum: ${maxAmountStr}`
+      : "";
 
   return (
     <>
       <div className="min-h-screen">
-        <div className='container relative z-10 mx-auto px-4 py-12'>
-          <div className='mx-auto max-w-3xl'>
+        <div className="container relative z-10 mx-auto px-4 py-12">
+          <div className="mx-auto max-w-3xl">
             {/* Header */}
-            <div className='mb-8 text-center'>
-              <h1 className='mb-4 font-bold text-3xl text-white'>
+            <div className="mb-8 text-center">
+              <h1 className="mb-4 font-bold text-3xl text-white">
                 Grant Application
               </h1>
 
@@ -391,7 +392,7 @@ const GrantApplicationPage = () => {
                   <img
                     src={grant.organization.logo}
                     alt={grant.organization.name}
-                    className='h-8 w-8 rounded-full bg-white'
+                    className="h-8 w-8 rounded-full bg-white"
                   />
                 )}
                 <span>{grant.organization.name}</span>
@@ -447,14 +448,13 @@ const GrantApplicationPage = () => {
               createdAt={grant.createdAt}
             />
 
-            <div className='mb-8'>
-            </div>
+            <div className="mb-8"></div>
 
             {/* Application Form */}
             <form onSubmit={handleSubmit}>
-              <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+              <Card className="border-white/10 bg-white/5 backdrop-blur-md">
                 <CardHeader>
-                  <h3 className='font-medium text-lg text-white'>
+                  <h3 className="font-medium text-lg text-white">
                     Application Details
                   </h3>
                   {grant.instructions && (
@@ -488,10 +488,10 @@ const GrantApplicationPage = () => {
                           setFormData((prev) => ({ ...prev, rfpId: value }))
                         }
                       >
-                        <SelectTrigger className='mt-2 border-white/10 bg-white/5 text-white'>
+                        <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                           <SelectValue placeholder="Select an RFP" />
                         </SelectTrigger>
-                        <SelectContent className='border-white/10 bg-zinc-900'>
+                        <SelectContent className="border-white/10 bg-zinc-900">
                           <SelectItem value="none" className="text-white">
                             None
                           </SelectItem>
@@ -525,7 +525,7 @@ const GrantApplicationPage = () => {
                         }))
                       }
                       placeholder="Enter your project title"
-                      className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       required
                     />
                   </div>
@@ -546,7 +546,7 @@ const GrantApplicationPage = () => {
                       }
                       placeholder="Brief summary of your project (2-3 sentences)"
                       rows={3}
-                      className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                     />
                   </div>
 
@@ -566,7 +566,7 @@ const GrantApplicationPage = () => {
                       }
                       placeholder="Provide a detailed description of your project, including objectives, methodology, and expected outcomes..."
                       rows={8}
-                      className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       required
                     />
                   </div>
@@ -578,7 +578,16 @@ const GrantApplicationPage = () => {
                         Budget Request ({grant.token})
                       </Label>
                       <div className="relative mt-2">
-                        <DollarSign className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                        {getTokenLogo(grant.token) ? (
+                          // Show token logo if available
+                          <img
+                            src={getTokenLogo(grant.token) || ""}
+                            alt={grant.token || "Token"}
+                            className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 rounded-full object-contain bg-white/10"
+                          />
+                        ) : (
+                          <DollarSign className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                        )}
                         <Input
                           id="budget"
                           type="number"
@@ -590,7 +599,7 @@ const GrantApplicationPage = () => {
                             }))
                           }
                           placeholder={budgetPlaceholder}
-                          className='border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40'
+                          className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
                           min={grant.minAmount || 0}
                           max={grant.maxAmount || undefined}
                         />
@@ -600,7 +609,7 @@ const GrantApplicationPage = () => {
 
                   {/* Timeline */}
                   <div>
-                    <div className='mb-3 flex items-center justify-between'>
+                    <div className="mb-3 flex items-center justify-between">
                       <Label className="text-white">Project Timeline</Label>
                       <Button
                         type="button"
@@ -609,7 +618,7 @@ const GrantApplicationPage = () => {
                         onClick={addTimelineItem}
                         className="border-white/20 text-white hover:bg-white/10"
                       >
-                        <Plus className='mr-2 h-4 w-4' />
+                        <Plus className="mr-2 h-4 w-4" />
                         Add Timeline Item
                       </Button>
                     </div>
@@ -618,7 +627,7 @@ const GrantApplicationPage = () => {
                         {formData.timeline.map((item, index) => (
                           <div
                             key={index}
-                            className='space-y-3 rounded-lg bg-white/5 p-4'
+                            className="space-y-3 rounded-lg bg-white/5 p-4"
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1 space-y-3">
@@ -632,7 +641,7 @@ const GrantApplicationPage = () => {
                                     )
                                   }
                                   placeholder="Milestone name"
-                                  className='border-white/10 bg-white/5 text-white'
+                                  className="border-white/10 bg-white/5 text-white"
                                 />
                                 <Input
                                   type="date"
@@ -644,7 +653,7 @@ const GrantApplicationPage = () => {
                                       e.target.value
                                     )
                                   }
-                                  className='border-white/10 bg-white/5 text-white'
+                                  className="border-white/10 bg-white/5 text-white"
                                 />
                               </div>
                               <Button
@@ -652,7 +661,7 @@ const GrantApplicationPage = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeTimelineItem(index)}
-                                className='ml-2 text-white/60 hover:text-white'
+                                className="ml-2 text-white/60 hover:text-white"
                               >
                                 <X className="h-4 w-4" />
                               </Button>
@@ -669,7 +678,7 @@ const GrantApplicationPage = () => {
 
                   {/* Milestones */}
                   <div>
-                    <div className='mb-3 flex items-center justify-between'>
+                    <div className="mb-3 flex items-center justify-between">
                       <Label className="text-white">
                         Milestones & Deliverables
                       </Label>
@@ -680,7 +689,7 @@ const GrantApplicationPage = () => {
                         onClick={addMilestone}
                         className="border-white/20 text-white hover:bg-white/10"
                       >
-                        <Plus className='mr-2 h-4 w-4' />
+                        <Plus className="mr-2 h-4 w-4" />
                         Add Milestone
                       </Button>
                     </div>
@@ -689,10 +698,10 @@ const GrantApplicationPage = () => {
                         {formData.milestones.map((milestone, index) => (
                           <div
                             key={index}
-                            className='space-y-3 rounded-lg bg-white/5 p-4'
+                            className="space-y-3 rounded-lg bg-white/5 p-4"
                           >
                             <div className="flex items-start justify-between">
-                              <h4 className='font-medium text-sm text-white'>
+                              <h4 className="font-medium text-sm text-white">
                                 Milestone {index + 1}
                               </h4>
                               <Button
@@ -711,7 +720,7 @@ const GrantApplicationPage = () => {
                                 updateMilestone(index, "title", e.target.value)
                               }
                               placeholder="Milestone title"
-                              className='border-white/10 bg-white/5 text-white'
+                              className="border-white/10 bg-white/5 text-white"
                             />
                             <Textarea
                               value={milestone.description}
@@ -724,10 +733,10 @@ const GrantApplicationPage = () => {
                               }
                               placeholder="Milestone description"
                               rows={2}
-                              className='border-white/10 bg-white/5 text-white'
+                              className="border-white/10 bg-white/5 text-white"
                             />
                             <div>
-                              <div className='mb-2 flex items-center justify-between'>
+                              <div className="mb-2 flex items-center justify-between">
                                 <Label className="text-sm text-white/80">
                                   Deliverables
                                 </Label>
@@ -736,9 +745,9 @@ const GrantApplicationPage = () => {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => addDeliverable(index)}
-                                  className='h-auto py-1 text-white/60 hover:text-white'
+                                  className="h-auto py-1 text-white/60 hover:text-white"
                                 >
-                                  <Plus className='mr-1 h-3 w-3' />
+                                  <Plus className="mr-1 h-3 w-3" />
                                   Add
                                 </Button>
                               </div>
@@ -746,7 +755,7 @@ const GrantApplicationPage = () => {
                                 (deliverable, dIndex) => (
                                   <div
                                     key={dIndex}
-                                    className='mb-2 flex items-center gap-2'
+                                    className="mb-2 flex items-center gap-2"
                                   >
                                     <Input
                                       value={deliverable}
@@ -758,7 +767,7 @@ const GrantApplicationPage = () => {
                                         )
                                       }
                                       placeholder="Deliverable"
-                                      className='border-white/10 bg-white/5 text-sm text-white'
+                                      className="border-white/10 bg-white/5 text-sm text-white"
                                     />
                                     <Button
                                       type="button"
@@ -790,7 +799,7 @@ const GrantApplicationPage = () => {
                     <Label htmlFor="attachments" className="text-white">
                       Supporting Documents (optional)
                     </Label>
-                    <p className='mt-1 mb-3 text-sm text-white/60'>
+                    <p className="mt-1 mb-3 text-sm text-white/60">
                       Upload any supporting documents, mockups, or technical
                       specifications
                     </p>
@@ -809,8 +818,8 @@ const GrantApplicationPage = () => {
 
                   {/* Screening Questions */}
                   {grant.screening && grant.screening.length > 0 && (
-                    <div className='space-y-6 border-white/10 border-t pt-6'>
-                      <h4 className='font-medium text-lg text-white'>
+                    <div className="space-y-6 border-white/10 border-t pt-6">
+                      <h4 className="font-medium text-lg text-white">
                         Additional Questions
                       </h4>
                       {grant.screening.map((question, index) => (
@@ -831,7 +840,7 @@ const GrantApplicationPage = () => {
                               }
                               placeholder="Enter your response..."
                               rows={3}
-                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               required={!question.optional}
                             />
                           ) : question.type === "url" ? (
@@ -847,7 +856,7 @@ const GrantApplicationPage = () => {
                                 )
                               }
                               placeholder="https://..."
-                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               required={!question.optional}
                             />
                           ) : (
@@ -863,7 +872,7 @@ const GrantApplicationPage = () => {
                                 )
                               }
                               placeholder="File URL or description..."
-                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               required={!question.optional}
                             />
                           )}
@@ -877,18 +886,18 @@ const GrantApplicationPage = () => {
                     <Button
                       type="submit"
                       disabled={submitting}
-                      className='w-full bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
+                      className="w-full bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
                     >
                       {submitting ? (
                         <>
-                          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Submitting...
                         </>
                       ) : (
                         "Submit Application"
                       )}
                     </Button>
-                    <p className='mt-4 text-center text-white/60 text-xs'>
+                    <p className="mt-4 text-center text-white/60 text-xs">
                       By submitting, you acknowledge that you have read the
                       grant description and meet all eligibility requirements
                     </p>

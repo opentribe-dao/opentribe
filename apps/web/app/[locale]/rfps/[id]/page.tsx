@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@packages/base/components/ui/button";
 import {
-  Share2,
   ThumbsUp,
   MessageCircle,
   Calendar,
@@ -11,7 +10,6 @@ import {
   DollarSign,
   ArrowUpRight,
 } from "lucide-react";
-import { env } from "@/env";
 import { auth } from "@packages/auth/server";
 import { headers } from "next/headers";
 import ReactMarkdown from "react-markdown";
@@ -19,13 +17,20 @@ import remarkGfm from "remark-gfm";
 import { VoteSection } from "./vote-section";
 import { CommentSection } from "./comment-section";
 import { ShareButton } from "@packages/base/components/ui/share-button";
-import { formatCurrency } from "@packages/base/lib/utils";
+import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
 import { ExpandableText } from "@packages/base/components/ui/expandable-text";
+import { ApplyButton } from "./apply-button";
+import { env } from "@/env";
 
 async function getRfp(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
+  const headersList = await headers();
+
   const res = await fetch(`${apiUrl}/api/v1/rfps/${id}`, {
     cache: "no-store",
+    headers: {
+      Cookie: headersList.get("cookie") || "",
+    },
   });
 
   if (!res.ok) {
@@ -56,65 +61,6 @@ export default async function RFPDetailPage({
 
   // Resources are already parsed from the API
   const resources = rfp.resources || [];
-
-  const renderApplyButton = () => {
-    switch (true) {
-      case !!rfp.userApplicationId:
-        return (
-          <Link
-            href={`/grants/${rfp.grant.slug || rfp.grant.id}/applications/${
-              rfp.grant.userApplicationId
-            }`}
-          >
-            <Button
-              className="bg-pink-600 text-white hover:bg-pink-700"
-              disabled={false}
-            >
-              View Application
-            </Button>
-          </Link>
-        );
-      case rfp.status !== "OPEN" || rfp.grant.status !== "OPEN":
-        return (
-          <Button
-            className="bg-pink-600 text-white hover:bg-pink-700"
-            disabled={true}
-          >
-            Application Closed
-          </Button>
-        );
-      case rfp.grant.source === "EXTERNAL" && rfp.grant.applicationUrl:
-        return (
-          <a
-            href={rfp.grant.applicationUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button
-              className="w-full bg-pink-600 text-white hover:bg-pink-700"
-              disabled={rfp.canApply === false}
-            >
-              Apply Externally
-            </Button>
-          </a>
-        );
-      default:
-        return (
-          <Link
-            href={`/grants/${rfp.grant.slug || rfp.grant.id}/apply?rfp=${
-              rfp.id
-            }`}
-          >
-            <Button
-              className="w-full bg-pink-600 text-white hover:bg-pink-700"
-              disabled={rfp.canApply === false}
-            >
-              Apply with this RFP
-            </Button>
-          </Link>
-        );
-    }
-  };
 
   return (
     <div className="min-h-screen">
@@ -460,7 +406,16 @@ export default async function RFPDetailPage({
               <div className="mb-4 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-1 text-white/60">
-                    <DollarSign className="h-4 w-4" />
+                    {getTokenLogo(rfp.grant.token) ? (
+                      // Show token logo if available
+                      <img
+                        src={getTokenLogo(rfp.grant.token) || ""}
+                        alt={rfp.grant.token || "Token"}
+                        className="h-4 w-4 rounded-full object-contain bg-white/10"
+                      />
+                    ) : (
+                      <DollarSign className="h-4 w-4" />
+                    )}
                     Total Prize
                   </span>
                   <span className="font-semibold">
@@ -490,7 +445,7 @@ export default async function RFPDetailPage({
                 </div>
               </div>
 
-              {renderApplyButton()}
+              <ApplyButton rfp={rfp} />
             </div>
 
             {/* Vote Stats */}

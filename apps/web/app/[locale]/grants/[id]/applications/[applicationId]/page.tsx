@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { env } from '@/env';
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
-import { Label } from '@packages/base/components/ui/label';
-import { Textarea } from '@packages/base/components/ui/textarea';
+import { env } from "@/env";
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
+import { Label } from "@packages/base/components/ui/label";
+import { Textarea } from "@packages/base/components/ui/textarea";
+import { getTokenLogo } from "@packages/base/lib/utils";
 import {
   ArrowLeft,
   Calendar,
@@ -18,14 +19,14 @@ import {
   Mail,
   User,
   X,
-} from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { use } from 'react';
-import { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { toast } from 'sonner';
+} from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { use } from "react";
+import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
 
 interface ApplicationDetails {
   id: string;
@@ -88,7 +89,7 @@ export default function ApplicationReviewPage({
   );
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
     if (id && applicationId) {
@@ -102,19 +103,19 @@ export default function ApplicationReviewPage({
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications/${applicationId}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch application details');
+        throw new Error("Failed to fetch application details");
       }
 
       const data = await response.json();
       setApplication(data.application);
-      setFeedback(data.application.feedback || '');
+      setFeedback(data.application.feedback || "");
     } catch (error) {
-      toast.error('Failed to load application details');
+      toast.error("Failed to load application details");
       router.push(`/grants/${id}`);
     } finally {
       setLoading(false);
@@ -122,15 +123,15 @@ export default function ApplicationReviewPage({
   };
 
   const updateApplicationStatus = async (
-    newStatus: 'APPROVED' | 'REJECTED'
+    newStatus: "APPROVED" | "REJECTED"
   ) => {
     const response = await fetch(
       `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications/${applicationId}/review`,
       {
-        method: 'PATCH',
-        credentials: 'include',
+        method: "PATCH",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           status: newStatus,
@@ -140,13 +141,13 @@ export default function ApplicationReviewPage({
     );
 
     if (!response.ok) {
-      throw new Error('Failed to update application status');
+      throw new Error("Failed to update application status");
     }
   };
 
-  const handleStatusUpdate = async (newStatus: 'APPROVED' | 'REJECTED') => {
-    if (!feedback && newStatus === 'REJECTED') {
-      toast.error('Please provide feedback when rejecting an application');
+  const handleStatusUpdate = async (newStatus: "APPROVED" | "REJECTED") => {
+    if (!feedback && newStatus === "REJECTED") {
+      toast.error("Please provide feedback when rejecting an application");
       return;
     }
 
@@ -156,38 +157,38 @@ export default function ApplicationReviewPage({
       toast.success(`Application ${newStatus.toLowerCase()} successfully`);
       router.push(`/grants/${id}`);
     } catch (error) {
-      toast.error('Failed to update application status');
+      toast.error("Failed to update application status");
     } finally {
       setActionLoading(false);
     }
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-US').format(amount);
+    return new Intl.NumberFormat("en-US").format(amount);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'SUBMITTED':
-        return 'bg-blue-500/20 text-blue-400';
-      case 'UNDER_REVIEW':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'APPROVED':
-        return 'bg-green-500/20 text-green-400';
-      case 'REJECTED':
-        return 'bg-red-500/20 text-red-400';
+      case "SUBMITTED":
+        return "bg-blue-500/20 text-blue-400";
+      case "UNDER_REVIEW":
+        return "bg-yellow-500/20 text-yellow-400";
+      case "APPROVED":
+        return "bg-green-500/20 text-green-400";
+      case "REJECTED":
+        return "bg-red-500/20 text-red-400";
       default:
-        return 'bg-white/10 text-white/60';
+        return "bg-white/10 text-white/60";
     }
   };
 
@@ -271,7 +272,7 @@ export default function ApplicationReviewPage({
                       <p className="font-medium text-sm text-white/80">
                         {answer.question}
                       </p>
-                      {answer.type === 'url' ? (
+                      {answer.type === "url" ? (
                         <a
                           href={answer.answer}
                           target="_blank"
@@ -320,7 +321,7 @@ export default function ApplicationReviewPage({
             )}
 
             {/* Review Actions */}
-            {application.status === 'SUBMITTED' && (
+            {application.status === "SUBMITTED" && (
               <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
                 <h2 className="mb-2 font-semibold text-white text-xl">
                   Review Decision
@@ -344,7 +345,7 @@ export default function ApplicationReviewPage({
                   </div>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => handleStatusUpdate('APPROVED')}
+                      onClick={() => handleStatusUpdate("APPROVED")}
                       disabled={actionLoading}
                       className="bg-green-600 hover:bg-green-700"
                     >
@@ -356,7 +357,7 @@ export default function ApplicationReviewPage({
                       Approve Application
                     </Button>
                     <Button
-                      onClick={() => handleStatusUpdate('REJECTED')}
+                      onClick={() => handleStatusUpdate("REJECTED")}
                       disabled={actionLoading || !feedback}
                       variant="destructive"
                     >
@@ -373,18 +374,18 @@ export default function ApplicationReviewPage({
             )}
 
             {/* Previous Decision */}
-            {(application.status === 'APPROVED' ||
-              application.status === 'REJECTED') &&
+            {(application.status === "APPROVED" ||
+              application.status === "REJECTED") &&
               application.feedback && (
                 <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
                   <h2 className="mb-2 font-semibold text-white text-xl">
                     Review Decision
                   </h2>
                   <p className="mb-4 text-white/60">
-                    Reviewed on{' '}
+                    Reviewed on{" "}
                     {application.reviewedAt
                       ? formatDate(application.reviewedAt)
-                      : 'N/A'}
+                      : "N/A"}
                   </p>
                   <p className="text-white/80">{application.feedback}</p>
                 </div>
@@ -549,11 +550,20 @@ export default function ApplicationReviewPage({
               <div className="space-y-3">
                 {application.budget && (
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-white/60" />
+                    {getTokenLogo(application.grant.token) ? (
+                      // Show token logo if available
+                      <img
+                        src={getTokenLogo(application.grant.token) || ""}
+                        alt={application.grant.token || "Token"}
+                        className="h-4 w-4 rounded-full object-contain bg-white/10"
+                      />
+                    ) : (
+                      <DollarSign className="h-4 w-4 text-white/60" />
+                    )}
                     <div>
                       <p className="text-sm text-white/60">Budget Request</p>
                       <p className="font-medium text-white">
-                        {formatAmount(application.budget)}{' '}
+                        {formatAmount(application.budget)}{" "}
                         {application.grant.token}
                       </p>
                     </div>

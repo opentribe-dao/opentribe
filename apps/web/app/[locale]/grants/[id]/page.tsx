@@ -1,5 +1,5 @@
 "use client";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@packages/base/components/ui/button";
@@ -12,14 +12,16 @@ import {
   ExternalLink,
   MessageCircle,
   Heart,
+  DollarSign,
 } from "lucide-react";
 import { env } from "@/env";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { ShareButton } from "@packages/base/components/ui/share-button";
-import { formatCurrency } from "@packages/base/lib/utils";
+import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
 import { ExpandableText } from "@packages/base/components/ui/expandable-text";
 
 async function getGrant(id: string) {
@@ -44,6 +46,7 @@ export default function GrantDetailPage({
   const [grant, setGrant] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [grantId, setGrantId] = useState<string | null>(null);
+  const router = useRouter();
 
   // Resolve params once
   useEffect(() => {
@@ -75,7 +78,7 @@ export default function GrantDetailPage({
 
   if (loading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Skeleton className="h-full w-full" />
       </div>
     );
@@ -151,7 +154,7 @@ export default function GrantDetailPage({
               </div>
 
               {/* Actions */}
-              <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
+              <div className="mt-4 grid grid-cols-2 gap-4 md:mt-0">
                 {/* Application count badge */}
                 <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
                   <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
@@ -162,57 +165,63 @@ export default function GrantDetailPage({
 
                 <ShareButton url={`/grants/${grantId}`} />
                 <div className="col-span-2 w-full">
-                {(() => {
-                  switch (true) {
-                    case !!grant.userApplicationId:
-                      return (
-                        <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>
+                  {(() => {
+                    switch (true) {
+                      case !!grant.userApplicationId:
+                        return (
                           <Button
                             className="bg-pink-600 text-white hover:bg-pink-700"
                             disabled={grant.status !== "OPEN"}
+                            onClick={() =>
+                              router.push(
+                                `/grants/${grantId}/applications/${grant.userApplicationId}`
+                              )
+                            }
                           >
                             View Application
                           </Button>
-                        </Link>
-                      );
-                    case grant.status !== "OPEN":
-                      return (
-                        <Button
-                          className="bg-pink-600 text-white hover:bg-pink-700"
-                          disabled={true}
-                        >
-                          Application Closed
-                        </Button>
-                      );
-                    case grant.source === "EXTERNAL" && grant.applicationUrl:
-                      return (
-                        <a
-                          href={grant.applicationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        );
+                      case grant.status !== "OPEN":
+                        return (
+                          <Button
+                            className="bg-pink-600 text-white hover:bg-pink-700"
+                            disabled={true}
+                          >
+                            Application Closed
+                          </Button>
+                        );
+                      case grant.source === "EXTERNAL" &&
+                        !!grant.applicationUrl:
+                        return (
                           <Button
                             className="bg-pink-600 text-white hover:bg-pink-700"
                             disabled={grant.canApply === false}
+                            onClick={() =>
+                              window.open(
+                                grant.applicationUrl,
+                                "_blank",
+                                "noopener,noreferrer"
+                              )
+                            }
                           >
                             Apply Externally
                           </Button>
-                        </a>
-                      );
-                    default:
-                      return (
-                        <Link href={`/grants/${grantId}/apply`}>
+                        );
+                      default:
+                        return (
                           <Button
                             className="bg-pink-600 text-white hover:bg-pink-700"
                             disabled={grant.canApply === false}
+                            onClick={() =>
+                              router.push(`/grants/${grantId}/apply`)
+                            }
                           >
                             Apply Now
                           </Button>
-                        </Link>
-                      );
-                  }
-                })()}
-              </div>
+                        );
+                    }
+                  })()}
+                </div>
               </div>
             </div>
           </div>
@@ -227,26 +236,26 @@ export default function GrantDetailPage({
             {/* About Section */}
             <section>
               <ExpandableText maxHeight={300} className="py-0">
-              <h2 className="mb-4 font-bold font-heading text-2xl">
-                About the {grant.title}
-              </h2>
-              <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {grant.description}
-                </ReactMarkdown>
-              </div>
+                <h2 className="mb-4 font-bold font-heading text-2xl">
+                  About the {grant.title}
+                </h2>
+                <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {grant.description}
+                  </ReactMarkdown>
+                </div>
 
-              {grant.instructions && (
-                <div className="mt-6 space-y-4">
-                  {/* <h3 className="font-semibold text-lg">
+                {grant.instructions && (
+                  <div className="mt-6 space-y-4">
+                    {/* <h3 className="font-semibold text-lg">
                     Application Requirements:
                   </h3> */}
-                  <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {grant.instructions}
-                </ReactMarkdown>
-              </div>
-                  {/* <div className="space-y-2 text-white/80">
+                    <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {grant.instructions}
+                      </ReactMarkdown>
+                    </div>
+                    {/* <div className="space-y-2 text-white/80">
                     {grant.instructions
                       .split("\n")
                       .map((instruction: any, idx: number) => (
@@ -256,8 +265,8 @@ export default function GrantDetailPage({
                         </div>
                       ))}
                   </div> */}
-                </div>
-              )}
+                  </div>
+                )}
               </ExpandableText>
 
               {/* Funding Details */}
@@ -268,15 +277,26 @@ export default function GrantDetailPage({
                 <p className="text-white/70">
                   {grant.minAmount && grant.maxAmount ? (
                     <>
-                      Grants range from {formatCurrency(Number(grant.minAmount), String(grant.token))}{" "}
-                      to {formatCurrency(Number(grant.maxAmount), String(grant.token))} in{" "}
-                      {grant.token || "DOT"} capital, designed to help teams
+                      Grants range from{" "}
+                      {formatCurrency(
+                        Number(grant.minAmount),
+                        String(grant.token)
+                      )}{" "}
+                      to{" "}
+                      {formatCurrency(
+                        Number(grant.maxAmount),
+                        String(grant.token)
+                      )}{" "}
+                      in {grant.token || "DOT"} capital, designed to help teams
                       scale.
                     </>
                   ) : (
                     <>
                       Total funding available:{" "}
-                      {formatCurrency(Number(grant.totalFunds || 0), String(grant.token))}{" "}
+                      {formatCurrency(
+                        Number(grant.totalFunds || 0),
+                        String(grant.token)
+                      )}{" "}
                       {grant.token || "DOT"}
                     </>
                   )}
@@ -290,18 +310,47 @@ export default function GrantDetailPage({
             {/* Grant Price Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
               <h3 className="mb-2 flex items-center gap-2 font-medium text-sm text-white/60">
-                <span className="text-xl">💰</span> Grant Prize
+                {getTokenLogo(grant.token) ? (
+                  // Show token logo if available
+                  <img
+                    src={getTokenLogo(grant.token) || ""}
+                    alt={grant.token || "Token"}
+                    className="h-4 w-4 rounded-full object-contain bg-white/10"
+                  />
+                ) : (
+                  <DollarSign className="h-4 w-4 rounded-full bg-[#DBE7FF] p-0.5 text-black" />
+                )}{" "}
+                Grant Prize
               </h3>
               <div className="font-bold font-heading text-2xl">
                 {grant.minAmount && grant.maxAmount ? (
                   <>
-                    {formatCurrency(Number(grant.minAmount), String(grant.token))} -{" "}
-                    {formatCurrency(Number(grant.maxAmount), String(grant.token))}
+                    {formatCurrency(
+                      Number(grant.minAmount),
+                      String(grant.token)
+                    )}{" "}
+                    -{" "}
+                    {formatCurrency(
+                      Number(grant.maxAmount),
+                      String(grant.token)
+                    )}
                   </>
                 ) : grant.minAmount ? (
-                  <>From {formatCurrency(Number(grant.minAmount), String(grant.token))}</>
+                  <>
+                    From{" "}
+                    {formatCurrency(
+                      Number(grant.minAmount),
+                      String(grant.token)
+                    )}
+                  </>
                 ) : grant.maxAmount ? (
-                  <>Up to {formatCurrency(Number(grant.maxAmount), String(grant.token))}</>
+                  <>
+                    Up to{" "}
+                    {formatCurrency(
+                      Number(grant.maxAmount),
+                      String(grant.token)
+                    )}
+                  </>
                 ) : (
                   "Variable"
                 )}

@@ -168,8 +168,8 @@ const UserMenu = ({
         {hasOrganization ? (
           <DropdownMenuItem asChild>
             <a
-              href={`${env.NEXT_PUBLIC_DASHBOARD_URL}`}
               className="cursor-pointer focus:bg-white/10 focus:text-white"
+              onClick={() => window.open(`${env.NEXT_PUBLIC_DASHBOARD_URL}`)}
             >
               <Building2 className="mr-2 h-4 w-4" />
               <span>Go to Dashboard</span>

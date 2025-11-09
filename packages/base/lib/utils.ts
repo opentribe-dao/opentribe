@@ -223,3 +223,32 @@ export const getDeadlineInfo = (
     return { timeRemaining: null, isExpired: false, isSoon: false };
   }
 };
+
+/**
+ * Token logo URLs from CoinMarketCap
+ * Maps token symbols to their corresponding logo image URLs
+ */
+const TOKEN_LOGOS: Record<string, string> = {
+  // Polkadot ecosystem
+  KSM: "https://s2.coinmarketcap.com/static/img/coins/128x128/5034.png", // Kusama
+  DOT: "https://s2.coinmarketcap.com/static/img/coins/128x128/6636.png", // Polkadot
+  // Stablecoins
+  USDC: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+  USDT: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png", // Tether
+};
+
+/**
+ * Get the logo URL for a given token identifier
+ * @param token - The token symbol/identifier (e.g., "KSM", "DOT", "USDC")
+ * @returns The logo URL if found, null otherwise
+ */
+export const getTokenLogo = (
+  token: string | null | undefined
+): string | null => {
+  if (!token) return null;
+
+  // Normalize the token symbol to uppercase for case-insensitive matching
+  const normalizedToken = token.toUpperCase().trim();
+
+  return TOKEN_LOGOS[normalizedToken] || null;
+};

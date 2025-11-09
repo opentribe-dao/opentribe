@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { Header } from "../../../../components/header";
 import { env } from "@/env";
 import { getSkillLabel } from "@packages/base/lib/skills";
+import { getTokenLogo } from "@packages/base/lib/utils";
 
 interface ApplicationDetails {
   id: string;
@@ -570,7 +571,16 @@ export default function ApplicationReviewPage({
               <CardContent className="space-y-3">
                 {application.budget && (
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-white/60" />
+                    {getTokenLogo(application.grant.token) ? (
+                      // Show token logo if available
+                      <img
+                        src={getTokenLogo(application.grant.token) || ""}
+                        alt={application.grant.token || "Token"}
+                        className="h-4 w-4 rounded-full object-contain bg-white/10"
+                      />
+                    ) : (
+                      <DollarSign className="h-4 w-4 text-white/40" />
+                    )}
                     <div>
                       <p className="text-sm text-white/60">Budget Request</p>
                       <p className="text-white font-medium">

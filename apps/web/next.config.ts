@@ -65,6 +65,10 @@ nextConfig.images.remotePatterns.push(
   {
     protocol: "https",
     hostname: "**.googleusercontent.com",
+  },
+  {
+    protocol: "https",
+    hostname: "**.coinmarketcap.com",
   }
 );
 

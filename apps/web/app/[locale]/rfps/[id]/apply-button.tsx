@@ -33,7 +33,7 @@ export function ApplyButton({ rfp }: ApplyButtonProps) {
           onClick={() =>
             router.push(
               `/grants/${rfp.grant.slug || rfp.grant.id}/applications/${
-                rfp.grant.userApplicationId
+                rfp.userApplicationId
               }`
             )
           }
@@ -55,7 +55,13 @@ export function ApplyButton({ rfp }: ApplyButtonProps) {
         <Button
           className="w-full bg-pink-600 text-white hover:bg-pink-700"
           disabled={rfp.canApply === false}
-          onClick={() => window.open(rfp.grant.applicationUrl)}
+          onClick={() =>
+            window.open(
+              rfp.grant.applicationUrl,
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
         >
           Apply Externally
         </Button>

@@ -196,7 +196,13 @@ export default function GrantDetailPage({
                           <Button
                             className="bg-pink-600 text-white hover:bg-pink-700"
                             disabled={grant.canApply === false}
-                            onClick={() => window.open(grant.applicationUrl)}
+                            onClick={() =>
+                              window.open(
+                                grant.applicationUrl,
+                                "_blank",
+                                "noopener,noreferrer"
+                              )
+                            }
                           >
                             Apply Externally
                           </Button>

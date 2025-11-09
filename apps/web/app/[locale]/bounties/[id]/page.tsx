@@ -387,6 +387,7 @@ export default function BountyDetailPage({
                         <Link
                           href={submission.submissionUrl || "#"}
                           target="_blank"
+                          rel="noopener noreferrer"
                           className="text-pink-400 text-xs hover:text-pink-300"
                         >
                           View →

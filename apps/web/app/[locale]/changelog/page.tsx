@@ -1,10 +1,10 @@
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
-import { getDictionary } from '@packages/i18n';
-import { createSiteMetadata } from '@packages/seo/meta';
-import { ArrowUpRight } from 'lucide-react';
-import type { Metadata } from 'next';
-import Image from 'next/image';
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
+import { getDictionary } from "@packages/i18n";
+import { createSiteMetadata } from "@packages/seo/meta";
+import { ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
+import Image from "next/image";
 
 // Define the ChangelogEntry type
 export type ChangelogEntry = {
@@ -23,21 +23,45 @@ export type ChangelogEntry = {
 // Sample changelog entries
 const changelogEntries: ChangelogEntry[] = [
   {
-    version: 'Version 1.0.0',
-    date: '12 October 2025',
-    title: 'First version of our platform',
+    version: "Version 1.0.0",
+    date: "09 November 2025",
+    title: "Major feature release with enhanced functionality",
     description:
-      "Our beta version is now available for testing. We've implemented core features and are ready for user feedback.",
-    image: '',
+      "A major update with new features, comprehensive SEO enhancements, improved branding, and numerous bug fixes to improve platform stability and user experience.",
     items: [
-      'User authentication system',
-      'Basic dashboard functionality',
-      'Initial API endpoints',
-      'Responsive design implementation',
-      'Database schema design',
-      'Authentication middleware',
-      'API structure planning',
-      'UI component library setup',
+      "Added: Resource file uploads for grants",
+      "Added: New Opentribe branding system (logomark, wordmark components)",
+      "Added: View tracking and analytics",
+      "Added: Empty state components for bounties, grants, RFPs",
+      "Added: ShareButton component",
+      "Added: Visibility filters for content types",
+      "Added: Comprehensive SEO enhancements (OG images, breadcrumbs, sitemap, article schema)",
+      "Added: Health check API with detailed responses",
+      "Changed: Grant creation flow with stepper navigation and react-hook-form",
+      "Changed: Grant editing interface with improved form handling",
+      "Changed: Organization switcher functionality",
+      "Changed: Dashboard and web app branding",
+      "Fixed: Prisma Neon adapter compatibility (Prisma 6.19.0)",
+      "Fixed: OG image proportions and metadata alignment",
+      "Fixed: Empty state loading logic",
+      "Fixed: SEO asset bundling for Vercel",
+      "Fixed: Static generation with cookies",
+      "Dependencies: Prisma 6.19.0, lucide-react 0.552.0, @biomejs/biome 2.3.2",
+    ],
+  },
+  {
+    version: "Version 0.1.0",
+    date: "24 October 2025",
+    title: "Initial production deployment",
+    description:
+      "First production release with core platform features, monitoring capabilities, and foundational infrastructure improvements.",
+    items: [
+      "Sentry integration and monitoring",
+      "Next.js upgrade to 15.5.6",
+      "Dashboard and web component refactoring for SEO",
+      "Exchange rate USD conversion",
+      "Dependency updates (recharts, lucide-react, posthog, etc.)",
+      "Development environment configuration improvements",
     ],
   },
 ];
@@ -58,7 +82,7 @@ export const generateMetadata = async ({
     title: dictionary.seo.changelog.title,
     description: dictionary.seo.changelog.description,
     keywords: dictionary.seo.changelog.keywords,
-    image: '/api/og?title=Changelog',
+    image: "/api/og?title=Changelog",
   });
 };
 
@@ -67,14 +91,14 @@ const Changelog = async ({ params }: ChangelogProps) => {
   await getDictionary(locale);
 
   return (
-    <section className='px-8 py-16'>
+    <section className="px-8 py-16">
       <div className="container">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-4 font-bold text-3xl tracking-tight md:text-5xl">
             Changelog
           </h1>
           <p className="mb-6 text-base text-muted-foreground md:text-lg">
-          Stay informed about the latest product improvements and updates.
+            Stay informed about the latest product improvements and updates.
           </p>
         </div>
         <div className="mx-auto mt-16 max-w-3xl space-y-16 md:mt-24 md:space-y-24">

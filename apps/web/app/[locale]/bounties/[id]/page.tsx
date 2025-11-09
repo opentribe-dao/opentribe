@@ -11,14 +11,14 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { BountyContent } from "./bounty-content";
 import { CommentSection } from "./comment-section";
 import { ShareButton } from "@packages/base/components/ui/share-button";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { useCountdown } from "@packages/base/hooks/use-countdown";
-import { formatCurrency } from "@packages/base/lib/utils";
+import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
 import { getSkillLabel } from "@packages/base/lib/skills";
 
 async function getBounty(id: string) {
@@ -44,9 +44,12 @@ export default function BountyDetailPage({
   const [bounty, setBounty] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [bountyId, setBountyId] = useState<string | null>(null);
+  const router = useRouter();
 
   // Countdown string for the deadline
-  const { formatted: countdownFormatted } = useCountdown(bounty?.deadline ?? null);
+  const { formatted: countdownFormatted } = useCountdown(
+    bounty?.deadline ?? null
+  );
 
   // Resolve params once
   useEffect(() => {
@@ -78,7 +81,7 @@ export default function BountyDetailPage({
 
   if (loading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Skeleton className="h-full w-full" />
       </div>
     );
@@ -121,14 +124,17 @@ export default function BountyDetailPage({
     switch (true) {
       case !!bounty.userSubmissionId:
         return (
-          <Link href={`/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`}>
-            <Button
-              className='w-full bg-pink-600 text-white hover:bg-pink-700'
-              disabled={false}
-            >
-              View Submission
-            </Button>
-          </Link>
+          <Button
+            className="w-full bg-pink-600 text-white hover:bg-pink-700"
+            disabled={false}
+            onClick={() =>
+              router.push(
+                `/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`
+              )
+            }
+          >
+            View Submission
+          </Button>
         );
       case bounty.status !== "OPEN":
         const buttonText = (() => {
@@ -143,7 +149,7 @@ export default function BountyDetailPage({
         })();
         return (
           <Button
-            className='w-full bg-pink-600 text-white hover:bg-pink-700'
+            className="w-full bg-pink-600 text-white hover:bg-pink-700"
             disabled={true}
           >
             {buttonText}
@@ -151,14 +157,13 @@ export default function BountyDetailPage({
         );
       default:
         return (
-          <Link href={`/bounties/${bountyId}/submit`}>
-            <Button
-              className='w-full bg-pink-600 text-white hover:bg-pink-700'
-              disabled={bounty.canSubmit === false}
-            >
-              Submit Now
-            </Button>
-          </Link>
+          <Button
+            className="w-full bg-pink-600 text-white hover:bg-pink-700"
+            disabled={bounty.canSubmit === false}
+            onClick={() => router.push(`/bounties/${bountyId}/submit`)}
+          >
+            Submit Now
+          </Button>
         );
     }
   };
@@ -169,8 +174,8 @@ export default function BountyDetailPage({
       <div className="relative overflow-hidden">
         <div className="container relative mx-auto px-6 py-8">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <div className='items-start justify-between md:flex'>
-              <div className='items-start gap-6 md:flex'>
+            <div className="items-start justify-between md:flex">
+              <div className="items-start gap-6 md:flex">
                 {/* Organization Logo */}
                 <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
                   {bounty.organization.logo ? (
@@ -178,7 +183,7 @@ export default function BountyDetailPage({
                       src={bounty.organization.logo}
                       alt={bounty.organization.name}
                       fill
-                      className='h-20 w-20 object-cover'
+                      className="h-20 w-20 object-cover"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -191,10 +196,10 @@ export default function BountyDetailPage({
 
                 {/* Bounty Info */}
                 <div>
-                  <h1 className='mt-2 mb-2 font-bold font-heading text-2xl sm:text-2xl md:mt-0'>
+                  <h1 className="mt-2 mb-2 font-bold font-heading text-2xl sm:text-2xl md:mt-0">
                     {bounty.title}
                   </h1>
-                  <div className='flex flex-col gap-4 text-white/60 md:flex-row md:items-center'>
+                  <div className="flex flex-col gap-4 text-white/60 md:flex-row md:items-center">
                     <span className="flex items-center gap-1">
                       <Building2 className="h-4 w-4" />
                       {bounty.organization.industry?.[0] || "Technology"}
@@ -208,7 +213,7 @@ export default function BountyDetailPage({
               </div>
 
               {/* Actions */}
-              <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
+              <div className="mt-4 grid grid-cols-2 gap-4 md:mt-0">
                 <ShareButton url={`/bounties/${bountyId}`} />
 
                 {renderActionButton()}
@@ -248,11 +253,21 @@ export default function BountyDetailPage({
           <div className="space-y-6">
             {/* Grant Price Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <h3 className='mb-2 flex items-center gap-2 font-medium text-white/60 text-xl' >
-                <DollarSign className='h-7 w-7 rounded-full border border-white/20 bg-[#DBE7FF] p-1 text-black' />Total Prize
+              <h3 className="mb-2 flex items-center gap-2 font-medium text-white/60 text-xl">
+                {getTokenLogo(bounty.token) ? (
+                  // Show token logo if available
+                  <img
+                    src={getTokenLogo(bounty.token) || ""}
+                    alt={bounty.token || "Token"}
+                    className="h-7 w-7 rounded-full object-contain bg-white/10"
+                  />
+                ) : (
+                  <DollarSign className="h-7 w-7 rounded-full border border-white/20 bg-[#DBE7FF] p-1 text-black" />
+                )}
+                Total Prize
               </h3>
               <div className="mb-4 font-bold font-heading text-2xl">
-              {formatCurrency(Number(totalPrize), String(bounty.token))}
+                {formatCurrency(Number(totalPrize), String(bounty.token))}
               </div>
 
               {/* Winner breakdown */}
@@ -361,7 +376,10 @@ export default function BountyDetailPage({
                                 submission.submitter.username}
                             </p>
                             <p className="text-white/50 text-xs">
-                              {formatCurrency(Number(submission.winningAmount), String(bounty.token))}
+                              {formatCurrency(
+                                Number(submission.winningAmount),
+                                String(bounty.token)
+                              )}
                             </p>
                           </div>
                         </div>
@@ -369,6 +387,7 @@ export default function BountyDetailPage({
                         <Link
                           href={submission.submissionUrl || "#"}
                           target="_blank"
+                          rel="noopener noreferrer"
                           className="text-pink-400 text-xs hover:text-pink-300"
                         >
                           View →

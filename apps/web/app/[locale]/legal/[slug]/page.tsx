@@ -1,9 +1,9 @@
-import { type Legal, legal } from '@packages/cms';
-import { Body } from '@packages/cms/components/body';
-import { getDictionary } from '@packages/i18n';
-import { createSiteMetadata } from '@packages/seo/meta';
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { type Legal, legal } from "@packages/cms";
+import { Body } from "@packages/cms/components/body";
+import { getDictionary } from "@packages/i18n";
+import { createSiteMetadata } from "@packages/seo/meta";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 type LegalPageProperties = {
   readonly params: Promise<{
@@ -13,11 +13,16 @@ type LegalPageProperties = {
 };
 
 // Map slug to i18n key
-const getLegalSeoKey = (slug: string): 'cookiePolicy' | 'privacyPolicy' | 'termsOfService' | null => {
-  const mapping: Record<string, 'cookiePolicy' | 'privacyPolicy' | 'termsOfService'> = {
-    'cookie-policy': 'cookiePolicy',
-    'privacy-policy': 'privacyPolicy',
-    'terms-of-service': 'termsOfService',
+const getLegalSeoKey = (
+  slug: string
+): "cookiePolicy" | "privacyPolicy" | "termsOfService" | null => {
+  const mapping: Record<
+    string,
+    "cookiePolicy" | "privacyPolicy" | "termsOfService"
+  > = {
+    "cookie-policy": "cookiePolicy",
+    "privacy-policy": "privacyPolicy",
+    "terms-of-service": "termsOfService",
   };
   return mapping[slug] || null;
 };
@@ -39,11 +44,11 @@ export const generateMetadata = async ({
 
   // Generate OG image title based on slug
   const ogTitles: Record<string, string> = {
-    'cookie-policy': 'Cookie Policy',
-    'privacy-policy': 'Privacy Policy',
-    'terms-of-service': 'Terms of Service',
+    "cookie-policy": "Cookie Policy",
+    "privacy-policy": "Privacy Policy",
+    "terms-of-service": "Terms of Service",
   };
-  const ogTitle = ogTitles[slug] || 'Legal';
+  const ogTitle = ogTitles[slug] || "Legal";
 
   return createSiteMetadata({
     title: seoContent?.title || post._title,
@@ -56,7 +61,7 @@ export const generateMetadata = async ({
 export const generateStaticParams = () => {
   const posts = legal.getPosts();
   return posts.map(({ _slug }: Legal) => ({
-    locale: 'en',
+    locale: "en",
     slug: _slug,
   }));
 };
@@ -70,25 +75,34 @@ const LegalPage = async ({ params }: LegalPageProperties) => {
   }
 
   return (
-    <div className="container mx-auto px-4 pt-8 pb-16 sm:px-6 sm:pt-12 md:pt-16 md:pb-20 lg:px-8">
-      {/* Page Title - Responsive Text Size */}
-      <h1 className="scroll-m-20 text-balance font-extrabold text-3xl tracking-tight sm:text-4xl lg:text-5xl">
-        {page._title}
-      </h1>
+    <div className="min-h-screen py-20">
+      <div className="container mx-auto max-w-6xl px-4">
+        {/* Hero Section - matches support page */}
+        <div className="mb-16 text-center">
+          <h1 className="mb-4 font-bold text-4xl tracking-tight md:text-6xl">
+            {page._title}
+          </h1>
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+            {page.description}
+          </p>
 
-      {/* Description */}
-      <p className="text-balance text-sm leading-7 sm:text-base [&:not(:first-child)]:mt-4 sm:[&:not(:first-child)]:mt-6">
-        {page.description}
-      </p>
-
-      {/* Main Content Area */}
-      <div className="mt-4 flex flex-col items-start gap-8 sm:mt-12 md:mt-16 md:flex-row lg:gap-12">
-        {/* Article Content - Responsive Width */}
-        <div className="w-full md:flex-1">
-          <article className="prose prose-neutral prose-sm sm:prose-base md:prose-lg dark:prose-invert max-w-none">
-            <Body content={page.body} />
-          </article>
+          {/* Metadata badges */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+            <span>
+              Last Updated:{" "}
+              {new Date(page.date).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
+          </div>
         </div>
+
+        {/* Article Content */}
+        <article className="prose prose-neutral prose-sm sm:prose-base md:prose-lg dark:prose-invert mx-auto max-w-none lg:max-w-4xl">
+          <Body content={page.body} />
+        </article>
       </div>
     </div>
   );

@@ -1,26 +1,26 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@packages/base/components/ui/button";
-import {
-  ThumbsUp,
-  MessageCircle,
-  Calendar,
-  Users,
-  DollarSign,
-  ArrowUpRight,
-} from "lucide-react";
 import { auth } from "@packages/auth/server";
-import { headers } from "next/headers";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { VoteSection } from "./vote-section";
-import { CommentSection } from "./comment-section";
+import { Button } from "@packages/base/components/ui/button";
+import { ExpandableText } from "@packages/base/components/ui/expandable-text";
 import { ShareButton } from "@packages/base/components/ui/share-button";
 import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
-import { ExpandableText } from "@packages/base/components/ui/expandable-text";
-import { ApplyButton } from "./apply-button";
+import {
+  ArrowUpRight,
+  Calendar,
+  DollarSign,
+  MessageCircle,
+  ThumbsUp,
+  Users,
+} from "lucide-react";
+import { headers } from "next/headers";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { env } from "@/env";
+import { ApplyButton } from "./apply-button";
+import { CommentSection } from "./comment-section";
+import { VoteSection } from "./vote-section";
 
 async function getRfp(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -49,7 +49,7 @@ export default async function RFPDetailPage({
   const { id } = await params;
   const data = await getRfp(id);
 
-  if (!data || !data.rfp) {
+  if (!(data && data.rfp)) {
     notFound();
   }
 
@@ -74,10 +74,10 @@ export default async function RFPDetailPage({
                 <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-red-500">
                   {rfp.grant.organization.logo ? (
                     <Image
-                      src={rfp.grant.organization.logo}
                       alt={rfp.grant.organization.name}
-                      fill
                       className="h-20 w-20 object-cover"
+                      fill
+                      src={rfp.grant.organization.logo}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -96,8 +96,8 @@ export default async function RFPDetailPage({
                   <div className="flex items-center gap-4 text-white/60">
                     <span className="text-sm">Part of</span>
                     <Link
-                      href={`/grants/${rfp.grant.slug || rfp.grant.id}`}
                       className="flex items-center gap-1 text-pink-400 transition-colors hover:text-pink-300"
+                      href={`/grants/${rfp.grant.slug || rfp.grant.id}`}
                     >
                       {rfp.grant.title}
                       <ArrowUpRight className="h-3 w-3" />
@@ -126,7 +126,7 @@ export default async function RFPDetailPage({
 
                 <ShareButton url={`/rfps/${rfp.id}`} />
 
-                <VoteSection rfpId={rfp.id} initialVoteCount={rfp.voteCount} />
+                <VoteSection initialVoteCount={rfp.voteCount} rfpId={rfp.id} />
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default async function RFPDetailPage({
           <div className="space-y-8 lg:col-span-2">
             {/* Description Section */}
             <section>
-              <ExpandableText maxHeight={300} className="py-0">
+              <ExpandableText className="py-0" maxHeight={300}>
                 <h2 className="mb-4 font-bold font-heading text-2xl">
                   Description
                 </h2>
@@ -187,8 +187,8 @@ export default async function RFPDetailPage({
 
                   {resources.map((resource: any, idx: number) => (
                     <div
-                      key={idx}
                       className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                      key={idx}
                     >
                       <h3 className="mb-2 font-semibold">{resource.title}</h3>
                       {resource.description && (
@@ -198,10 +198,10 @@ export default async function RFPDetailPage({
                       )}
                       {resource.url && (
                         <a
-                          href={resource.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className="flex items-center gap-1 text-pink-400 text-sm hover:text-pink-300"
+                          href={resource.url}
+                          rel="noopener noreferrer"
+                          target="_blank"
                         >
                           View Resource
                           <ArrowUpRight className="h-3 w-3" />
@@ -227,8 +227,8 @@ export default async function RFPDetailPage({
               {/* Add Comment Button */}
               {session?.user && (
                 <Button
-                  variant="outline"
                   className="mb-6 border-white/20 text-white hover:bg-white/10"
+                  variant="outline"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Add Comment
@@ -239,17 +239,17 @@ export default async function RFPDetailPage({
               <div className="space-y-4">
                 {rfp.comments.map((comment: any) => (
                   <div
-                    key={comment.id}
                     className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                    key={comment.id}
                   >
                     <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-green-500">
                       {comment.author.image ? (
                         <Image
-                          src={comment.author.image}
                           alt="Avatar"
-                          width={40}
-                          height={40}
                           className="rounded-full"
+                          height={40}
+                          src={comment.author.image}
+                          width={40}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
@@ -292,8 +292,8 @@ export default async function RFPDetailPage({
                         <div className="mt-3 ml-8 space-y-2">
                           {comment.replies.map((reply: any) => (
                             <div
-                              key={reply.id}
                               className="flex items-start gap-2"
+                              key={reply.id}
                             >
                               <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500" />
                               <div className="flex-1">
@@ -323,8 +323,8 @@ export default async function RFPDetailPage({
 
               {rfp.comments.length >= 10 && (
                 <Button
-                  variant="outline"
                   className="mt-4 w-full border-white/20 text-white hover:bg-white/10"
+                  variant="outline"
                 >
                   View More
                 </Button>
@@ -338,9 +338,9 @@ export default async function RFPDetailPage({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   {relatedRfps.map((related: any) => (
                     <Link
-                      key={related.id}
-                      href={`/rfps/${related.id}`}
                       className="group"
+                      href={`/rfps/${related.id}`}
+                      key={related.id}
                     >
                       <div className="h-full rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10">
                         <div className="mb-4 flex items-center justify-center">
@@ -362,8 +362,8 @@ export default async function RFPDetailPage({
                           </span>
                         </div>
                         <Button
-                          variant="outline"
                           className="mt-4 w-full border-white/20 text-white text-xs hover:bg-white/10"
+                          variant="outline"
                         >
                           View Now
                         </Button>
@@ -382,11 +382,11 @@ export default async function RFPDetailPage({
               <div className="mb-4 flex items-center gap-4">
                 {rfp.grant.logoUrl ? (
                   <Image
-                    src={rfp.grant.logoUrl}
                     alt={rfp.grant.title}
-                    width={64}
-                    height={64}
                     className="rounded-xl"
+                    height={64}
+                    src={rfp.grant.logoUrl}
+                    width={64}
                   />
                 ) : (
                   <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500">
@@ -409,9 +409,9 @@ export default async function RFPDetailPage({
                     {getTokenLogo(rfp.grant.token) ? (
                       // Show token logo if available
                       <img
-                        src={getTokenLogo(rfp.grant.token) || ""}
                         alt={rfp.grant.token || "Token"}
-                        className="h-4 w-4 rounded-full object-contain bg-white/10"
+                        className="h-4 w-4 rounded-full bg-white/10 object-contain"
+                        src={getTokenLogo(rfp.grant.token) || ""}
                       />
                     ) : (
                       <DollarSign className="h-4 w-4" />

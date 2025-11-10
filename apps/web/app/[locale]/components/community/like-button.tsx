@@ -34,7 +34,7 @@ export function LikeButton({
 
   // Check if user has liked this item
   useEffect(() => {
-    if (!session?.user || !(applicationId || submissionId)) return;
+    if (!(session?.user && (applicationId || submissionId))) return;
 
     checkLikes({
       applicationIds: applicationId ? [applicationId] : [],

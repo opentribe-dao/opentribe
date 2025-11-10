@@ -1,13 +1,11 @@
 "use client";
 
-import { env } from "@/env";
 import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
 import { Label } from "@packages/base/components/ui/label";
 import { Textarea } from "@packages/base/components/ui/textarea";
 import { getTokenLogo } from "@packages/base/lib/utils";
 import {
-  ArrowLeft,
   Calendar,
   Check,
   Clock,
@@ -16,17 +14,14 @@ import {
   ExternalLink,
   FileText,
   Loader2,
-  Mail,
-  User,
   X,
 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { use } from "react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import { env } from "@/env";
 
 interface ApplicationDetails {
   id: string;
@@ -163,19 +158,17 @@ export default function ApplicationReviewPage({
     }
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US").format(amount);
-  };
+  const formatAmount = (amount: number) =>
+    new Intl.NumberFormat("en-US").format(amount);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -268,16 +261,16 @@ export default function ApplicationReviewPage({
                 </h2>
                 <div className="space-y-4">
                   {application.answers.map((answer, index) => (
-                    <div key={index} className="space-y-2">
+                    <div className="space-y-2" key={index}>
                       <p className="font-medium text-sm text-white/80">
                         {answer.question}
                       </p>
                       {answer.type === "url" ? (
                         <a
-                          href={answer.answer}
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className="flex items-center gap-2 text-[#E6007A] hover:underline"
+                          href={answer.answer}
+                          rel="noopener noreferrer"
+                          target="_blank"
                         >
                           <ExternalLink className="h-4 w-4" />
                           {answer.answer}
@@ -300,11 +293,11 @@ export default function ApplicationReviewPage({
                 <div className="space-y-2">
                   {application.files.map((file, index) => (
                     <a
-                      key={index}
-                      href={file.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="flex items-center gap-3 rounded-lg bg-white/5 p-3 transition-colors hover:bg-white/10"
+                      href={file.url}
+                      key={index}
+                      rel="noopener noreferrer"
+                      target="_blank"
                     >
                       <FileText className="h-5 w-5 text-white/60" />
                       <div className="flex-1">
@@ -331,23 +324,23 @@ export default function ApplicationReviewPage({
                 </p>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="feedback" className="text-white/80">
+                    <Label className="text-white/80" htmlFor="feedback">
                       Feedback (Required for rejection)
                     </Label>
                     <Textarea
+                      className="mt-2 border-white/10 bg-white/5 text-white"
                       id="feedback"
-                      value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
                       placeholder="Provide constructive feedback for the applicant..."
                       rows={4}
-                      className="mt-2 border-white/10 bg-white/5 text-white"
+                      value={feedback}
                     />
                   </div>
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => handleStatusUpdate("APPROVED")}
-                      disabled={actionLoading}
                       className="bg-green-600 hover:bg-green-700"
+                      disabled={actionLoading}
+                      onClick={() => handleStatusUpdate("APPROVED")}
                     >
                       {actionLoading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -357,8 +350,8 @@ export default function ApplicationReviewPage({
                       Approve Application
                     </Button>
                     <Button
-                      onClick={() => handleStatusUpdate("REJECTED")}
                       disabled={actionLoading || !feedback}
+                      onClick={() => handleStatusUpdate("REJECTED")}
                       variant="destructive"
                     >
                       {actionLoading ? (
@@ -553,9 +546,9 @@ export default function ApplicationReviewPage({
                     {getTokenLogo(application.grant.token) ? (
                       // Show token logo if available
                       <img
-                        src={getTokenLogo(application.grant.token) || ""}
                         alt={application.grant.token || "Token"}
-                        className="h-4 w-4 rounded-full object-contain bg-white/10"
+                        className="h-4 w-4 rounded-full bg-white/10 object-contain"
+                        src={getTokenLogo(application.grant.token) || ""}
                       />
                     ) : (
                       <DollarSign className="h-4 w-4 text-white/60" />
@@ -581,8 +574,8 @@ export default function ApplicationReviewPage({
                       <div className="space-y-1">
                         {application.timeline.map((milestone, index) => (
                           <div
-                            key={index}
                             className="flex items-center justify-between text-sm"
+                            key={index}
                           >
                             <span className="text-white">
                               {milestone.milestone}

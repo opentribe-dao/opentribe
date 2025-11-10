@@ -1,6 +1,5 @@
 "use client";
 
-import { env } from "@/env";
 import { Button } from "@packages/base/components/ui/button";
 import { useRouter } from "next/navigation";
 

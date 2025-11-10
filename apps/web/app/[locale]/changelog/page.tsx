@@ -1,10 +1,10 @@
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
-import { getDictionary } from '@packages/i18n';
-import { createSiteMetadata } from '@packages/seo/meta';
-import { ArrowUpRight } from 'lucide-react';
-import type { Metadata } from 'next';
-import Image from 'next/image';
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
+import { getDictionary } from "@packages/i18n";
+import { createSiteMetadata } from "@packages/seo/meta";
+import { ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
+import Image from "next/image";
 
 // Define the ChangelogEntry type
 export type ChangelogEntry = {
@@ -23,21 +23,21 @@ export type ChangelogEntry = {
 // Sample changelog entries
 const changelogEntries: ChangelogEntry[] = [
   {
-    version: 'Version 1.0.0',
-    date: '12 October 2025',
-    title: 'First version of our platform',
+    version: "Version 1.0.0",
+    date: "12 October 2025",
+    title: "First version of our platform",
     description:
       "Our beta version is now available for testing. We've implemented core features and are ready for user feedback.",
-    image: '',
+    image: "",
     items: [
-      'User authentication system',
-      'Basic dashboard functionality',
-      'Initial API endpoints',
-      'Responsive design implementation',
-      'Database schema design',
-      'Authentication middleware',
-      'API structure planning',
-      'UI component library setup',
+      "User authentication system",
+      "Basic dashboard functionality",
+      "Initial API endpoints",
+      "Responsive design implementation",
+      "Database schema design",
+      "Authentication middleware",
+      "API structure planning",
+      "UI component library setup",
     ],
   },
 ];
@@ -58,7 +58,7 @@ export const generateMetadata = async ({
     title: dictionary.seo.changelog.title,
     description: dictionary.seo.changelog.description,
     keywords: dictionary.seo.changelog.keywords,
-    image: '/api/og?title=Changelog',
+    image: "/api/og?title=Changelog",
   });
 };
 
@@ -67,24 +67,24 @@ const Changelog = async ({ params }: ChangelogProps) => {
   await getDictionary(locale);
 
   return (
-    <section className='px-8 py-16'>
+    <section className="px-8 py-16">
       <div className="container">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-4 font-bold text-3xl tracking-tight md:text-5xl">
             Changelog
           </h1>
           <p className="mb-6 text-base text-muted-foreground md:text-lg">
-          Stay informed about the latest product improvements and updates.
+            Stay informed about the latest product improvements and updates.
           </p>
         </div>
         <div className="mx-auto mt-16 max-w-3xl space-y-16 md:mt-24 md:space-y-24">
           {changelogEntries.map((entry, index) => (
             <div
-              key={index}
               className="relative flex flex-col gap-4 md:flex-row md:gap-16"
+              key={index}
             >
               <div className="top-8 flex h-min w-64 shrink-0 items-center gap-4 md:sticky">
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="text-xs" variant="secondary">
                   {entry.version}
                 </Badge>
                 <span className="font-medium text-muted-foreground text-xs">
@@ -101,7 +101,7 @@ const Changelog = async ({ params }: ChangelogProps) => {
                 {entry.items && entry.items.length > 0 && (
                   <ul className="mt-4 ml-4 space-y-1.5 text-muted-foreground text-sm md:text-base">
                     {entry.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="list-disc">
+                      <li className="list-disc" key={itemIndex}>
                         {item}
                       </li>
                     ))}
@@ -109,19 +109,19 @@ const Changelog = async ({ params }: ChangelogProps) => {
                 )}
                 {entry.image && (
                   <Image
-                    src={entry.image}
                     alt={`${entry.version} visual`}
-                    width={800}
-                    height={400}
                     className="mt-8 w-full rounded-lg object-cover"
+                    height={400}
+                    src={entry.image}
+                    width={800}
                   />
                 )}
                 {entry.button && (
-                  <Button variant="link" className="mt-4 self-end" asChild>
+                  <Button asChild className="mt-4 self-end" variant="link">
                     <a
                       href={entry.button.url}
-                      target="_blank"
                       rel="noopener noreferrer"
+                      target="_blank"
                     >
                       {entry.button.text} <ArrowUpRight className="h-4 w-4" />
                     </a>

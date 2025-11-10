@@ -1,15 +1,15 @@
-import { Button } from '@packages/base/components/ui/button';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
+import { Button } from "@packages/base/components/ui/button";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
-} from '@packages/base/components/ui/select';
-import { Plus, X } from 'lucide-react';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+  SelectTrigger,
+  SelectValue,
+} from "@packages/base/components/ui/select";
+import { Plus, X } from "lucide-react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 
 export function GrantRequirementsForm() {
   const { register, control, setValue, watch } = useFormContext();
@@ -20,7 +20,7 @@ export function GrantRequirementsForm() {
     update: updateResource,
   } = useFieldArray({
     control,
-    name: 'resources',
+    name: "resources",
   });
   const {
     fields: screeningFields,
@@ -29,19 +29,19 @@ export function GrantRequirementsForm() {
     update: updateScreening,
   } = useFieldArray({
     control,
-    name: 'screening',
+    name: "screening",
   });
 
-  const applicationUrl = watch('applicationUrl');
+  const applicationUrl = watch("applicationUrl");
 
   return (
     <div className="space-y-6">
       <div>
         <Label>External Application URL</Label>
         <Input
-          {...register('applicationUrl')}
-          placeholder="https://..."
+          {...register("applicationUrl")}
           className="border-white/10 bg-white/5 text-white"
+          placeholder="https://..."
         />
         <p className="mt-1 text-sm text-white/40">
           If you have an external application form, provide the URL here.
@@ -53,12 +53,12 @@ export function GrantRequirementsForm() {
         <div className="mb-3 flex items-center justify-between">
           <Label>Resources</Label>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              appendResource({ title: '', url: '', description: '' })
-            }
             className="border-white/20 text-white hover:bg-white/10"
+            onClick={() =>
+              appendResource({ title: "", url: "", description: "" })
+            }
+            size="sm"
+            variant="outline"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Resource
@@ -68,29 +68,29 @@ export function GrantRequirementsForm() {
           <div className="space-y-3">
             {resourceFields.map((field, index) => (
               <div
-                key={index}
                 className="flex flex-col space-y-3 rounded-lg bg-white/5 p-4"
+                key={index}
               >
                 <Input
                   {...register(`resources.${index}.title`)}
-                  placeholder="Resource title"
                   className="border-white/10 bg-white/5 text-white"
+                  placeholder="Resource title"
                 />
                 <Input
                   {...register(`resources.${index}.url`)}
-                  placeholder="https://..."
                   className="border-white/10 bg-white/5 text-white"
+                  placeholder="https://..."
                 />
                 <Input
                   {...register(`resources.${index}.description`)}
-                  placeholder="Brief description (optional)"
                   className="border-white/10 bg-white/5 text-white"
+                  placeholder="Brief description (optional)"
                 />
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeResource(index)}
                   className="self-end text-white/60 hover:text-white"
+                  onClick={() => removeResource(index)}
+                  size="sm"
+                  variant="ghost"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -107,12 +107,12 @@ export function GrantRequirementsForm() {
         <div className="mb-3 flex items-center justify-between">
           <Label>Screening Questions</Label>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              appendScreening({ question: '', type: 'text', optional: false })
-            }
             className="border-white/20 text-white hover:bg-white/10"
+            onClick={() =>
+              appendScreening({ question: "", type: "text", optional: false })
+            }
+            size="sm"
+            variant="outline"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Question
@@ -122,55 +122,55 @@ export function GrantRequirementsForm() {
           <div className="space-y-3">
             {screeningFields.map((question, index) => (
               <div
-                key={index}
                 className="flex flex-col space-y-3 rounded-lg bg-white/5 p-4"
+                key={index}
               >
                 <Input
                   {...register(`screening.${index}.question`)}
-                  placeholder="Enter your question"
                   className="border-white/10 bg-white/5 text-white"
+                  placeholder="Enter your question"
                 />
                 <div className="flex items-center gap-3">
                   <Select
-                    value={watch(`screening.${index}.type`)}
                     onValueChange={(value) =>
                       setValue(`screening.${index}.type`, value)
                     }
+                    value={watch(`screening.${index}.type`)}
                   >
                     <SelectTrigger className="w-32 border-white/10 bg-white/5 text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="border-white/10 bg-zinc-900">
-                      <SelectItem value="text" className="text-white">
+                      <SelectItem className="text-white" value="text">
                         Text
                       </SelectItem>
-                      <SelectItem value="url" className="text-white">
+                      <SelectItem className="text-white" value="url">
                         URL
                       </SelectItem>
-                      <SelectItem value="file" className="text-white">
+                      <SelectItem className="text-white" value="file">
                         File
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   <label className="flex items-center gap-2 text-sm text-white/60">
                     <input
-                      type="checkbox"
                       checked={watch(`screening.${index}.optional`)}
+                      className="rounded border-white/20"
                       onChange={(e) =>
                         setValue(
                           `screening.${index}.optional`,
                           e.target.checked
                         )
                       }
-                      className="rounded border-white/20"
+                      type="checkbox"
                     />
                     Optional
                   </label>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeScreening(index)}
                     className="ml-2 text-white/60 hover:text-white"
+                    onClick={() => removeScreening(index)}
+                    size="sm"
+                    variant="ghost"
                   >
                     <X className="h-4 w-4" />
                   </Button>

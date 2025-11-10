@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import { DangerZoneCard } from './danzer-zone-card';
-import { PrizeDistributionCard } from './prize-distribution-card';
-import { StatusVisibilityCard } from './status-visibility-card';
-import { TimelineCard } from './timeline-card';
-import type { BountyDetails } from '@/hooks/use-bounty';
+import type { BountyDetails } from "@/hooks/use-bounty";
+import { DangerZoneCard } from "./danzer-zone-card";
+import { PrizeDistributionCard } from "./prize-distribution-card";
+import { StatusVisibilityCard } from "./status-visibility-card";
+import { TimelineCard } from "./timeline-card";
 
 interface BountySettingsFormProps {
   formData: Partial<BountyDetails>;
   bounty: BountyDetails;
-  updateFormData: <K extends keyof BountyDetails>(field: K, value: BountyDetails[K]) => void;
+  updateFormData: <K extends keyof BountyDetails>(
+    field: K,
+    value: BountyDetails[K]
+  ) => void;
   updateWinnings: (position: string, amount: number) => void;
   onDelete: () => void;
   showDeleteConfirm: boolean;
@@ -29,28 +32,25 @@ export function BountySettingsForm({
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Left Column - Basic Settings */}
       <div className="space-y-6">
-        <PrizeDistributionCard 
-          formData={formData} 
+        <PrizeDistributionCard
+          formData={formData}
           updateFormData={updateFormData}
           updateWinnings={updateWinnings}
         />
-        <TimelineCard 
-          formData={formData} 
-          updateFormData={updateFormData}
-        />
+        <TimelineCard formData={formData} updateFormData={updateFormData} />
       </div>
 
       {/* Right Column - Advanced Settings */}
       <div className="space-y-6">
-        <StatusVisibilityCard 
-          formData={formData} 
+        <StatusVisibilityCard
           bounty={bounty}
+          formData={formData}
           updateFormData={updateFormData}
         />
         <DangerZoneCard
           onDelete={onDelete}
-          showDeleteConfirm={showDeleteConfirm}
           onToggleDeleteConfirm={onToggleDeleteConfirm}
+          showDeleteConfirm={showDeleteConfirm}
         />
       </div>
     </div>

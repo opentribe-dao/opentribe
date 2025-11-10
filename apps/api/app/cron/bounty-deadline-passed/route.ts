@@ -161,14 +161,11 @@ export const GET = async () => {
 };
 
 // Handle unsupported methods
-export const POST = () => {
-  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
-};
+export const POST = () =>
+  NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 
-export const PUT = () => {
-  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
-};
+export const PUT = () =>
+  NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 
-export const DELETE = () => {
-  return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
-};
+export const DELETE = () =>
+  NextResponse.json({ error: "Method not allowed" }, { status: 405 });

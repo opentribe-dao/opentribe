@@ -60,7 +60,7 @@ export class PaymentService {
       const formattedFrom = formatPolkadotAddress(params.fromAddress, 0);
       const formattedTo = formatPolkadotAddress(params.toAddress, 0);
 
-      if (!formattedFrom || !formattedTo) {
+      if (!(formattedFrom && formattedTo)) {
         return {
           verified: false,
           status: "FAILED" as PaymentStatus,
@@ -88,7 +88,7 @@ export class PaymentService {
         extrinsic.call_module.toLowerCase() === "balances" &&
         extrinsic.call_module_function.toLowerCase() === "transfer";
 
-      if (!extrinsic.success || !isBalancesTransfer) {
+      if (!(extrinsic.success && isBalancesTransfer)) {
         return {
           verified: false,
           status: "FAILED" as PaymentStatus,

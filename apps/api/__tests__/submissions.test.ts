@@ -290,33 +290,31 @@ describe("Submission System Tests", () => {
         { id: "sub-3", userId: "u3", status: "SUBMITTED" },
       ]);
       // Simulate transaction outcome with winners and updated bounty
-      (database.$transaction as any) = vi.fn(async (fn: any) => {
-        return {
-          ...mockUpdatedBounty,
-          status: "COMPLETED",
-          submissions: [
-            {
-              id: "sub-1",
-              position: 1,
-              winningAmount: 500,
-              submitter: { email: "a@b.com", username: "u1" },
-            },
-            {
-              id: "sub-2",
-              position: 2,
-              winningAmount: 300,
-              submitter: { email: "c@d.com", username: "u2" },
-            },
-            {
-              id: "sub-3",
-              position: 3,
-              winningAmount: 200,
-              submitter: { email: "e@f.com", username: "u3" },
-            },
-          ],
-          organization: { name: "Org" },
-        };
-      });
+      (database.$transaction as any) = vi.fn(async (fn: any) => ({
+        ...mockUpdatedBounty,
+        status: "COMPLETED",
+        submissions: [
+          {
+            id: "sub-1",
+            position: 1,
+            winningAmount: 500,
+            submitter: { email: "a@b.com", username: "u1" },
+          },
+          {
+            id: "sub-2",
+            position: 2,
+            winningAmount: 300,
+            submitter: { email: "c@d.com", username: "u2" },
+          },
+          {
+            id: "sub-3",
+            position: 3,
+            winningAmount: 200,
+            submitter: { email: "e@f.com", username: "u3" },
+          },
+        ],
+        organization: { name: "Org" },
+      }));
 
       // Act
       const body = JSON.stringify({

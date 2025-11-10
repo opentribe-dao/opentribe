@@ -51,7 +51,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <Header pages={["Settings"]} page="Profile" />
+      <Header page="Profile" pages={["Settings"]} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="max-w-2xl">
           <div className="mb-8">
@@ -79,7 +79,7 @@ export default function ProfilePage() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Button variant="outline" type="button">
+                    <Button type="button" variant="outline">
                       Change Avatar
                     </Button>
                     <p className="mt-2 text-muted-foreground text-sm">
@@ -91,21 +91,21 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
                   <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
                     disabled={isLoading}
+                    id="name"
+                    onChange={(e) => setName(e.target.value)}
+                    value={name}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
+                    disabled={isLoading}
                     id="email"
+                    onChange={(e) => setEmail(e.target.value)}
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={isLoading}
                   />
                   <p className="text-muted-foreground text-sm">
                     Your email address is used for login and notifications
@@ -116,7 +116,7 @@ export default function ProfilePage() {
                 {success && <p className="text-green-600 text-sm">{success}</p>}
               </CardContent>
               <CardFooter>
-                <Button type="submit" disabled={isLoading}>
+                <Button disabled={isLoading} type="submit">
                   {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
               </CardFooter>

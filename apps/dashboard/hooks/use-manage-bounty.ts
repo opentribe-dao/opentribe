@@ -1,41 +1,41 @@
-import { useBountyContext } from '@/app/(authenticated)/components/bounty-provider';
-import type { BountyDetails } from './use-bounty';
-import { useCallback, useEffect, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { env } from '@/env';
-import { toast } from 'sonner';
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { useRouter } from 'next/navigation';
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useBountyContext } from "@/app/(authenticated)/components/bounty-provider";
+import { env } from "@/env";
+import type { BountyDetails } from "./use-bounty";
 
 const getDeadline = (dateStr?: string) => {
   if (!dateStr) {
-    return '';
+    return "";
   }
   const date = new Date(dateStr);
-  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 16);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 16);
 };
 
 const getString = (value: unknown, fallback: string) =>
-  typeof value === 'string' && value.length > 0 ? value : fallback;
+  typeof value === "string" && value.length > 0 ? value : fallback;
 
 const getArray = <T>(value: unknown, fallback: T[]) =>
   Array.isArray(value) ? value : fallback;
 
 const getObject = <T>(value: unknown, fallback: T) =>
-  value && typeof value === 'object' ? (value as T) : fallback;
+  value && typeof value === "object" ? (value as T) : fallback;
 
 const createInitialFormData = (
   bounty: BountyDetails
 ): Partial<BountyDetails> => ({
-  title: getString(bounty.title, ''),
-  description: getString(bounty.description, ''),
+  title: getString(bounty.title, ""),
+  description: getString(bounty.description, ""),
   skills: getArray<string>(bounty.skills, []),
   amount: bounty.amount || 0,
-  token: getString(bounty.token, 'DOT'),
-  split: getString(bounty.split, 'FIXED') as
-    | 'FIXED'
-    | 'EQUAL_SPLIT'
-    | 'VARIABLE',
+  token: getString(bounty.token, "DOT"),
+  split: getString(bounty.split, "FIXED") as
+    | "FIXED"
+    | "EQUAL_SPLIT"
+    | "VARIABLE",
   winnings: getObject<Record<string, number>>(bounty.winnings, {}),
   deadline: getDeadline(bounty.deadline),
   resources: getArray<{ title: string; url: string; description?: string }>(
@@ -44,31 +44,31 @@ const createInitialFormData = (
   ),
   screening: getArray<{
     question: string;
-    type: 'text' | 'url' | 'file';
+    type: "text" | "url" | "file";
     optional: boolean;
   }>(bounty.screening, []),
-  visibility: getString(bounty.visibility, 'DRAFT') as 'DRAFT' | 'PUBLISHED',
-  status: getString(bounty.status, 'OPEN') as
-    | 'OPEN'
-    | 'REVIEWING'
-    | 'COMPLETED'
-    | 'CLOSED'
-    | 'CANCELLED',
+  visibility: getString(bounty.visibility, "DRAFT") as "DRAFT" | "PUBLISHED",
+  status: getString(bounty.status, "OPEN") as
+    | "OPEN"
+    | "REVIEWING"
+    | "COMPLETED"
+    | "CLOSED"
+    | "CANCELLED",
 });
 
 export function useBountySkills() {
   return useQuery({
-    queryKey: ['bounty-skills'],
+    queryKey: ["bounty-skills"],
     queryFn: async (): Promise<string[]> => {
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/skills`
       );
       if (!res.ok) {
-        throw new Error('Failed to fetch skills');
+        throw new Error("Failed to fetch skills");
       }
       const json = await res.json();
       // API returns { data: [{ skill: string, count: number }] }
-      if (!json?.data || !Array.isArray(json.data)) {
+      if (!(json?.data && Array.isArray(json.data))) {
         return [];
       }
       return json.data.map((item: { skill: string }) => item.skill);
@@ -84,18 +84,18 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
 
   // Initialize form data from bounty
   const [formData, setFormData] = useState<Partial<BountyDetails>>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     skills: [],
     amount: 0,
-    token: 'DOT',
-    split: 'FIXED',
+    token: "DOT",
+    split: "FIXED",
     winnings: {},
-    deadline: '',
+    deadline: "",
     resources: [],
     screening: [],
-    visibility: 'DRAFT',
-    status: 'OPEN',
+    visibility: "DRAFT",
+    status: "OPEN",
   });
 
   const [hasChanges, setHasChanges] = useState(false);
@@ -139,7 +139,7 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
       } else {
         delete newWinnings[position];
       }
-      updateFormData('winnings', newWinnings);
+      updateFormData("winnings", newWinnings);
     },
     [formData.winnings, updateFormData]
   );
@@ -148,7 +148,7 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   const saveMutation = useMutation({
     mutationFn: async (data: Partial<BountyDetails>) => {
       if (!bounty) {
-        throw new Error('No bounty found');
+        throw new Error("No bounty found");
       }
 
       // Validate data
@@ -157,9 +157,9 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
         {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             ...validatedData,
             amount: Number(validatedData.amount),
@@ -172,19 +172,19 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update bounty');
+        throw new Error(error.error || "Failed to update bounty");
       }
 
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Bounty updated successfully!');
+      toast.success("Bounty updated successfully!");
       refreshBounty();
       setHasChanges(false);
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to update bounty'
+        error instanceof Error ? error.message : "Failed to update bounty"
       );
     },
   });
@@ -193,29 +193,29 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!bounty) {
-        throw new Error('No bounty found');
+        throw new Error("No bounty found");
       }
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
         {
-          method: 'DELETE',
-          credentials: 'include',
+          method: "DELETE",
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to delete bounty');
+        throw new Error("Failed to delete bounty");
       }
 
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Bounty deleted successfully!');
-      window.location.href = '/bounties';
+      toast.success("Bounty deleted successfully!");
+      window.location.href = "/bounties";
     },
     onError: () => {
-      toast.error('Failed to delete bounty');
+      toast.error("Failed to delete bounty");
     },
   });
 
@@ -263,22 +263,22 @@ export function useBountyForm() {
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Partial<BountyDetails>>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     skills: [],
     amount: undefined,
-    token: 'DOT',
-    split: 'FIXED',
+    token: "DOT",
+    split: "FIXED",
     winnings: {},
-    deadline: '',
+    deadline: "",
     resources: [],
     screening: [],
-    visibility: 'DRAFT',
+    visibility: "DRAFT",
   });
 
   useEffect(() => {
-    if (!sessionLoading && !session?.user) {
-      router.push('/sign-in');
+    if (!(sessionLoading || session?.user)) {
+      router.push("/sign-in");
     }
   }, [session, sessionLoading, router]);
 
@@ -299,33 +299,33 @@ export function useBountyForm() {
       } else {
         delete newWinnings[position];
       }
-      updateFormData('winnings', newWinnings);
+      updateFormData("winnings", newWinnings);
     },
     [formData.winnings, updateFormData]
   );
 
   const addSkill = (skills: string[]) => {
-    updateFormData('skills', skills);
+    updateFormData("skills", skills);
   };
 
   const removeSkill = (skill: string) => {
     updateFormData(
-      'skills',
+      "skills",
       (formData.skills ?? []).filter((s) => s !== skill)
     );
   };
 
-
-
   // Split validation logic into smaller helpers to reduce complexity
   function validateStep1(formData: Partial<BountyDetails>): boolean {
     if (
-      !formData.title ||
-      !formData.description ||
-      !Array.isArray(formData.skills) ||
+      !(
+        formData.title &&
+        formData.description &&
+        Array.isArray(formData.skills)
+      ) ||
       formData.skills.length === 0
     ) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return false;
     }
     return true;
@@ -337,14 +337,13 @@ export function useBountyForm() {
     const totalAmount = formData.amount as string | undefined;
 
     if (
-      !totalAmount ||
-      !winnings ||
+      !(totalAmount && winnings) ||
       Object.keys(winnings).length === 0 ||
       Object.values(winnings).some(
         (amount) => !amount || Number.isNaN(Number(amount))
       )
     ) {
-      toast.error('Please specify all reward amounts');
+      toast.error("Please specify all reward amounts");
       return false;
     }
     const total = Number.parseFloat(totalAmount);
@@ -353,7 +352,7 @@ export function useBountyForm() {
       0
     );
     if (Math.abs(total - winnersTotal) > 0.01) {
-      toast.error('Winner rewards must add up to the total amount');
+      toast.error("Winner rewards must add up to the total amount");
       return false;
     }
     return true;
@@ -361,7 +360,7 @@ export function useBountyForm() {
 
   function validateStep3(formData: Partial<BountyDetails>): boolean {
     if (!formData.deadline) {
-      toast.error('Please set a deadline');
+      toast.error("Please set a deadline");
       return false;
     }
     return true;
@@ -402,9 +401,9 @@ export function useBountyForm() {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             ...formData,
             amount: Number(formData.amount),
@@ -418,16 +417,16 @@ export function useBountyForm() {
       return response.json();
     },
     onSuccess: (result) => {
-      toast.success('Bounty created successfully!');
+      toast.success("Bounty created successfully!");
       router.push(`/bounties/${result.bounty.id}/`);
     },
     onError: (error) => {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Failed to create bounty. Please try again.';
+          : "Failed to create bounty. Please try again.";
       setError(errorMessage);
-      toast.error('Failed to create bounty. Please try again.');
+      toast.error("Failed to create bounty. Please try again.");
     },
   });
 
@@ -443,9 +442,9 @@ export function useBountyForm() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Failed to create bounty. Please try again.';
+          : "Failed to create bounty. Please try again.";
       setError(errorMessage);
-      toast.error('Failed to create bounty. Please try again.');
+      toast.error("Failed to create bounty. Please try again.");
     } finally {
       setSubmitting(false);
     }

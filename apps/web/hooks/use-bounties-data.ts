@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { bountyQueryKeys } from "./react-query";
+import React from "react";
 import { env } from "@/env";
+import { bountyQueryKeys } from "./react-query";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
@@ -25,7 +25,7 @@ interface Bounty {
   applicationUrl: string | null;
   skills: string[];
   organizationId: string;
-  amount: string; 
+  amount: string;
   amountUSD: number | null;
   token: string;
   winnings: Record<string, number> | null;
@@ -124,18 +124,18 @@ export function fetchBountiesData(filters: BountiesFilters = {}) {
     filters.priceRange &&
     Array.isArray(filters.priceRange) &&
     filters.priceRange.length === 2 &&
-    !(filters.priceRange[0] === 0 && filters.priceRange[1] === 50000)
+    !(filters.priceRange[0] === 0 && filters.priceRange[1] === 50_000)
   ) {
     queryParams.append("minAmount", filters.priceRange[0].toString());
     queryParams.append("maxAmount", filters.priceRange[1].toString());
   }
   // hasSubmissions
   if (filters.hasSubmissions !== undefined && filters.hasSubmissions === true) {
-    queryParams.append('hasSubmissions', 'true');
+    queryParams.append("hasSubmissions", "true");
   }
   // hasDeadline
   if (filters.hasDeadline !== undefined && filters.hasDeadline === true) {
-    queryParams.append('hasDeadline', 'true');
+    queryParams.append("hasDeadline", "true");
   }
   // pagination
   if (filters.page) {
@@ -150,41 +150,47 @@ export function fetchBountiesData(filters: BountiesFilters = {}) {
     queryKey: bountyQueryKeys.list(filters),
     queryFn: async (): Promise<BountiesResponse> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/bounties?${queryParams.toString()}`);
-        
+        const response = await fetch(
+          `${API_BASE_URL}/api/v1/bounties?${queryParams.toString()}`
+        );
+
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('Bounties API endpoint not found');
+            throw new Error("Bounties API endpoint not found");
           }
           if (response.status >= 500) {
-            throw new Error('Server error. Please try again later.');
+            throw new Error("Server error. Please try again later.");
           }
           if (response.status === 429) {
-            throw new Error('Too many requests. Please wait a moment and try again.');
+            throw new Error(
+              "Too many requests. Please wait a moment and try again."
+            );
           }
           throw new Error(`Failed to fetch bounties (${response.status})`);
         }
-        
+
         const data = await response.json();
-        
+
         // Validate response structure
-        if (!data || typeof data !== 'object') {
-          throw new Error('Invalid response format from server');
+        if (!data || typeof data !== "object") {
+          throw new Error("Invalid response format from server");
         }
-        
+
         return data;
       } catch (error) {
         if (error instanceof Error) {
           throw error;
         }
-        throw new Error('Network error. Please check your connection and try again.');
+        throw new Error(
+          "Network error. Please check your connection and try again."
+        );
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: (failureCount, error) => {
       // Don't retry on 4xx errors
-      if (error instanceof Error && error.message.includes('404')) {
+      if (error instanceof Error && error.message.includes("404")) {
         return false;
       }
       // Retry up to 2 times for other errors
@@ -200,46 +206,46 @@ export function useBountiesSkills() {
     queryFn: async (): Promise<BountySkillCount[]> => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/v1/bounties/skills`);
-        
+
         if (!res.ok) {
           if (res.status === 404) {
-            throw new Error('Skills API endpoint not found');
+            throw new Error("Skills API endpoint not found");
           }
           if (res.status >= 500) {
-            throw new Error('Server error while fetching skills');
+            throw new Error("Server error while fetching skills");
           }
           throw new Error(`Failed to fetch bounty skills (${res.status})`);
         }
-        
+
         const json = await res.json();
-        
+
         // Validate response structure
-        if (!json || typeof json !== 'object') {
-          throw new Error('Invalid skills response format');
+        if (!json || typeof json !== "object") {
+          throw new Error("Invalid skills response format");
         }
-        
+
         // API returns { data: { skill, count }[] }
         const skills = json?.data ?? [];
-        
+
         // Validate skills array structure
         if (!Array.isArray(skills)) {
-          console.warn('Skills API returned non-array data, using empty array');
+          console.warn("Skills API returned non-array data, using empty array");
           return [];
         }
-        
+
         return skills;
       } catch (error) {
         if (error instanceof Error) {
           throw error;
         }
-        throw new Error('Network error while fetching skills');
+        throw new Error("Network error while fetching skills");
       }
     },
     staleTime: 15 * 60 * 1000, // 15 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
     retry: (failureCount, error) => {
       // Don't retry on 4xx errors
-      if (error instanceof Error && error.message.includes('404')) {
+      if (error instanceof Error && error.message.includes("404")) {
         return false;
       }
       // Retry up to 2 times for other errors
@@ -271,7 +277,9 @@ export function useBountiesData(filters: BountiesFilters = {}) {
   React.useEffect(() => {
     if (initialQuery.data) {
       setAllBounties(initialQuery.data.bounties);
-      setHasMore(initialQuery.data.bounties.length < initialQuery.data.pagination.total);
+      setHasMore(
+        initialQuery.data.bounties.length < initialQuery.data.pagination.total
+      );
       setError(null);
     }
     if (initialQuery.error) {
@@ -320,16 +328,19 @@ export function useBountiesData(filters: BountiesFilters = {}) {
         filters.priceRange &&
         Array.isArray(filters.priceRange) &&
         filters.priceRange.length === 2 &&
-        !(filters.priceRange[0] === 0 && filters.priceRange[1] === 50000)
+        !(filters.priceRange[0] === 0 && filters.priceRange[1] === 50_000)
       ) {
         queryParams.append("minAmount", filters.priceRange[0].toString());
         queryParams.append("maxAmount", filters.priceRange[1].toString());
       }
-      if (filters.hasSubmissions !== undefined && filters.hasSubmissions === true) {
-        queryParams.append('hasSubmissions', 'true');
+      if (
+        filters.hasSubmissions !== undefined &&
+        filters.hasSubmissions === true
+      ) {
+        queryParams.append("hasSubmissions", "true");
       }
       if (filters.hasDeadline !== undefined && filters.hasDeadline === true) {
-        queryParams.append('hasDeadline', 'true');
+        queryParams.append("hasDeadline", "true");
       }
       if (filters.limit) {
         queryParams.append("limit", filters.limit.toString());
@@ -338,24 +349,27 @@ export function useBountiesData(filters: BountiesFilters = {}) {
       // Add page parameter
       queryParams.append("page", nextPage.toString());
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/bounties?${queryParams.toString()}`);
-      
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/bounties?${queryParams.toString()}`
+      );
+
       if (!response.ok) {
         throw new Error(`Failed to fetch bounties (${response.status})`);
       }
-      
+
       const data: BountiesResponse = await response.json();
-      
+
       // Append new bounties to existing ones
-      setAllBounties(prev => [...prev, ...data.bounties]);
+      setAllBounties((prev) => [...prev, ...data.bounties]);
       setCurrentPage(nextPage);
-      
+
       // Check if there are more pages
       const totalLoaded = allBounties.length + data.bounties.length;
       setHasMore(totalLoaded < data.pagination.total);
-      
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load more bounties'));
+      setError(
+        err instanceof Error ? err : new Error("Failed to load more bounties")
+      );
     } finally {
       setIsLoadingMore(false);
     }
@@ -368,7 +382,7 @@ export function useBountiesData(filters: BountiesFilters = {}) {
     error: error || initialQuery.error,
     hasMore,
     loadMore,
-    refetch: initialQuery.refetch
+    refetch: initialQuery.refetch,
   };
 }
 

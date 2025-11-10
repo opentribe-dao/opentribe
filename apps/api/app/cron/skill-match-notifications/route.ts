@@ -143,7 +143,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `Skill match notifications completed`,
+      message: "Skill match notifications completed",
       stats: {
         bountiesProcessed: newBounties.length,
         usersProcessed: activeUsers.length,

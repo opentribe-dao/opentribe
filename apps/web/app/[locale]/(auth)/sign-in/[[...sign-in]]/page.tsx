@@ -1,11 +1,11 @@
+import { auth } from "@packages/auth/server";
 import { Button } from "@packages/base/components/ui/button";
 import { createMetadata } from "@packages/seo/metadata";
-import { auth } from "@packages/auth/server";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import dynamic from "next/dynamic";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { OAuthButtons } from "@/app/[locale]/components/oauth-buttons";
 
 const title = "Welcome back";
@@ -40,12 +40,15 @@ const SignInPage = async ({
   return (
     <>
       <div className="mb-8 flex flex-col space-y-2 text-center">
-        <Link href={homeHref} className="flex items-center justify-center gap-2">
+        <Link
+          className="flex items-center justify-center gap-2"
+          href={homeHref}
+        >
           <span className="bg-gradient-to-r from-white/35 to-white bg-clip-text font-bold font-heading text-2xl text-transparent leading-[2] tracking-[0.25em]">
             OPENTRIBE
           </span>
         </Link>
-        <h1 className='mt-4 font-semibold text-2xl tracking-tight'>{title}</h1>
+        <h1 className="mt-4 font-semibold text-2xl tracking-tight">{title}</h1>
         <p className="text-muted-foreground text-sm">{description}</p>
       </div>
 
@@ -63,9 +66,9 @@ const SignInPage = async ({
         <p className="mt-4 text-muted-foreground text-sm">
           Don't have an account?{" "}
           <Button
-            variant="link"
-            className="h-auto p-0 font-normal text-sm"
             asChild
+            className="h-auto p-0 font-normal text-sm"
+            variant="link"
           >
             <Link href={`/${locale}/sign-up`}>Create an account</Link>
           </Button>

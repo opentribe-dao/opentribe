@@ -297,7 +297,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate a unique slug from the title
-    let baseSlug = validatedData.title
+    const baseSlug = validatedData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");

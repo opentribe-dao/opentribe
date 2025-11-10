@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { createContext, useContext, useState, useCallback } from 'react';
+import type React from "react";
+import { createContext, useCallback, useContext, useState } from "react";
+import { toast } from "sonner";
+import { env } from "@/env";
 import {
-  useBounty,
-  useBountySubmissions,
   type BountyDetails,
   type Submission,
-} from '@/hooks/use-bounty';
-import { useSubmission, type SubmissionDetails } from '@/hooks/use-submission';
-import { toast } from 'sonner';
-import { env } from '@/env';
+  useBounty,
+  useBountySubmissions,
+} from "@/hooks/use-bounty";
+import { type SubmissionDetails, useSubmission } from "@/hooks/use-submission";
 
-type VerificationStatus = 'idle' | 'success' | 'error';
+type VerificationStatus = "idle" | "success" | "error";
 
 interface BountyContextType {
   bounty: BountyDetails | undefined;
@@ -69,7 +69,7 @@ interface BountyContextType {
   updateSubmissionStatus: (
     bountyId: string,
     submissionId: string,
-    newStatus: 'APPROVED' | 'REJECTED',
+    newStatus: "APPROVED" | "REJECTED",
     feedback?: string,
     position?: number
   ) => Promise<boolean>;
@@ -82,7 +82,10 @@ const BountyContext = createContext<BountyContextType | null>(null);
 export function BountyProvider({
   children,
   bountyId,
-}: { children: React.ReactNode; bountyId: string }) {
+}: {
+  children: React.ReactNode;
+  bountyId: string;
+}) {
   // Bounty data via react-query
   const {
     data: bounty,
@@ -126,31 +129,31 @@ export function BountyProvider({
     useState<Submission | null>(null);
 
   // Payment flow state
-  const [transactionId, _setTransactionId] = useState('');
+  const [transactionId, _setTransactionId] = useState("");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const [verificationStatus, setVerificationStatus] =
-    useState<VerificationStatus>('idle');
-  const [verificationMessage, setVerificationMessage] = useState('');
+    useState<VerificationStatus>("idle");
+  const [verificationMessage, setVerificationMessage] = useState("");
 
   const resetPaymentState = useCallback(() => {
-    _setTransactionId('');
+    _setTransactionId("");
     setIsSubmittingPayment(false);
     setIsVerifyingPayment(false);
-    setVerificationStatus('idle');
-    setVerificationMessage('');
+    setVerificationStatus("idle");
+    setVerificationMessage("");
   }, []);
 
   const setTransactionId = useCallback((id: string) => {
     _setTransactionId(id);
-    setVerificationStatus('idle');
-    setVerificationMessage('');
+    setVerificationStatus("idle");
+    setVerificationMessage("");
   }, []);
 
   // Announce winners function
   const announceWinners = useCallback(async () => {
     if (selectedWinners.size === 0) {
-      toast.error('Please select at least one winner');
+      toast.error("Please select at least one winner");
       return;
     }
     setIsAnnouncing(true);
@@ -165,21 +168,21 @@ export function BountyProvider({
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/winners`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ winners }),
         }
       );
       if (!res.ok) {
-        throw new Error('Failed to announce winners');
+        throw new Error("Failed to announce winners");
       }
-      toast.success('Winners announced successfully!');
+      toast.success("Winners announced successfully!");
       setSelectedWinners(new Map());
       refreshBounty();
       refreshSubmissions();
     } catch {
-      toast.error('Failed to announce winners');
+      toast.error("Failed to announce winners");
     } finally {
       setIsAnnouncing(false);
     }
@@ -192,24 +195,23 @@ export function BountyProvider({
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/winners/reset`,
         {
-          method: 'PATCH',
-          credentials: 'include',
+          method: "PATCH",
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to removed selected winners');
+        throw new Error("Failed to removed selected winners");
       }
       setSelectedWinners(new Map());
       refreshSubmissions();
 
-      toast.success('Winners removed successfully');
-   
+      toast.success("Winners removed successfully");
     } catch (error) {
-      toast.error('Failed to remove selected winners');
+      toast.error("Failed to remove selected winners");
       throw error;
     } finally {
       setIsResetingWinners(false);
@@ -219,23 +221,22 @@ export function BountyProvider({
   // Verify payment via blockchain
   const verifyPayment = useCallback(async () => {
     if (
-      !transactionId ||
-      !selectedPaymentSubmission?.submitter?.walletAddress
+      !(transactionId && selectedPaymentSubmission?.submitter?.walletAddress)
     ) {
       return;
     }
 
     setIsVerifyingPayment(true);
-    setVerificationStatus('idle');
-    setVerificationMessage('');
+    setVerificationStatus("idle");
+    setVerificationMessage("");
 
     try {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/payments/verify`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             extrinsicHash: transactionId,
             expectedTo: selectedPaymentSubmission.submitter.walletAddress,
@@ -247,20 +248,20 @@ export function BountyProvider({
       const data = await response.json();
 
       if (response.ok && data.verified) {
-        setVerificationStatus('success');
+        setVerificationStatus("success");
         setVerificationMessage(
-          'Transaction verified successfully on the blockchain!'
+          "Transaction verified successfully on the blockchain!"
         );
       } else {
-        setVerificationStatus('error');
+        setVerificationStatus("error");
         setVerificationMessage(
           data.error ||
-            'Could not verify transaction. Please check the transaction ID.'
+            "Could not verify transaction. Please check the transaction ID."
         );
       }
     } catch {
-      setVerificationStatus('error');
-      setVerificationMessage('Failed to verify transaction. Please try again.');
+      setVerificationStatus("error");
+      setVerificationMessage("Failed to verify transaction. Please try again.");
     } finally {
       setIsVerifyingPayment(false);
     }
@@ -268,11 +269,11 @@ export function BountyProvider({
 
   // Record payment
   const recordPayment = useCallback(async () => {
-    if (!bounty || !selectedPaymentSubmission) {
+    if (!(bounty && selectedPaymentSubmission)) {
       return;
     }
     if (!transactionId) {
-      toast.error('Please enter a transaction ID');
+      toast.error("Please enter a transaction ID");
       return;
     }
 
@@ -282,9 +283,9 @@ export function BountyProvider({
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}/payments`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             submissionId: selectedPaymentSubmission.id,
             extrinsicHash: transactionId,
@@ -296,10 +297,10 @@ export function BountyProvider({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to record payment');
+        throw new Error(error.error || "Failed to record payment");
       }
 
-      toast.success('Payment recorded successfully!');
+      toast.success("Payment recorded successfully!");
       // Refresh data and close modal
       await Promise.all([refreshBounty(), refreshSubmissions()]);
       setPaymentModalOpen(false);
@@ -307,7 +308,7 @@ export function BountyProvider({
       resetPaymentState();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to record payment'
+        error instanceof Error ? error.message : "Failed to record payment"
       );
     } finally {
       setIsSubmittingPayment(false);
@@ -372,7 +373,7 @@ export function BountyProvider({
 export function useBountyContext() {
   const ctx = useContext(BountyContext);
   if (!ctx) {
-    throw new Error('useBountyContext must be used within a BountyProvider');
+    throw new Error("useBountyContext must be used within a BountyProvider");
   }
   return ctx;
 }

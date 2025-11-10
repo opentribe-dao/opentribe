@@ -15,10 +15,10 @@ const sizeMap = {
 export function Logomark({ size = "md", className }: LogomarkProps) {
   return (
     <svg
-      viewBox="0 0 519 602"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
       className={cn(sizeMap[size], className)}
+      fill="none"
+      viewBox="0 0 519 602"
+      xmlns="http://www.w3.org/2000/svg"
     >
       <g clipPath="url(#clip0_676_89)">
         <path
@@ -36,40 +36,40 @@ export function Logomark({ size = "md", className }: LogomarkProps) {
       </g>
       <defs>
         <linearGradient
+          gradientUnits="userSpaceOnUse"
           id="paint0_linear_676_89"
           x1="259.247"
-          y1="0"
           x2="259.247"
+          y1="0"
           y2="602"
-          gradientUnits="userSpaceOnUse"
         >
           <stop offset="0.08" stopColor="white" />
           <stop offset="1" stopColor="#999999" />
         </linearGradient>
         <linearGradient
+          gradientUnits="userSpaceOnUse"
           id="paint1_linear_676_89"
           x1="35.9703"
-          y1="338.408"
           x2="35.9703"
+          y1="338.408"
           y2="489.314"
-          gradientUnits="userSpaceOnUse"
         >
           <stop offset="0.08" stopColor="white" />
           <stop offset="1" stopColor="#999999" />
         </linearGradient>
         <linearGradient
+          gradientUnits="userSpaceOnUse"
           id="paint2_linear_676_89"
           x1="483.029"
-          y1="338.408"
           x2="483.029"
+          y1="338.408"
           y2="489.314"
-          gradientUnits="userSpaceOnUse"
         >
           <stop offset="0.08" stopColor="white" />
           <stop offset="1" stopColor="#999999" />
         </linearGradient>
         <clipPath id="clip0_676_89">
-          <rect width="519" height="602" fill="white" />
+          <rect fill="white" height="602" width="519" />
         </clipPath>
       </defs>
     </svg>

@@ -1,14 +1,14 @@
 "use client";
 
-import React from "react";
 import {
   Card,
+  CardContent,
   CardHeader,
   CardTitle,
-  CardContent,
 } from "@packages/base/components/ui/card";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import Image from "next/image";
+import React from "react";
 
 interface RecentActivityProps {
   activities: Array<{
@@ -37,7 +37,7 @@ export function RecentActivity({
 }: RecentActivityProps) {
   if (loading) {
     return (
-      <Card className='border-white/10 bg-white/5 backdrop-blur-sm'>
+      <Card className="border-white/10 bg-white/5 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-white">Recent Activity</CardTitle>
@@ -47,7 +47,7 @@ export function RecentActivity({
         <CardContent>
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-start gap-3">
+              <div className="flex items-start gap-3" key={i}>
                 <Skeleton className="h-8 w-8 flex-shrink-0 rounded-full" />
                 <div className="flex-1 space-y-1">
                   <Skeleton className="h-4 w-full" />
@@ -65,16 +65,15 @@ export function RecentActivity({
     return null;
   }
 
-  const getUserInitials = (userName: string) => {
-    return userName
+  const getUserInitials = (userName: string) =>
+    userName
       .split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase();
-  };
 
   return (
-    <Card className='border-white/10 bg-white/5 backdrop-blur-sm'>
+    <Card className="border-white/10 bg-white/5 backdrop-blur-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white">Recent Activity</CardTitle>
@@ -86,18 +85,18 @@ export function RecentActivity({
       <CardContent>
         <div className="space-y-3">
           {activities.map((activity) => (
-            <div key={activity.id} className="flex items-start gap-3">
+            <div className="flex items-start gap-3" key={activity.id}>
               {activity.user.image ? (
                 <Image
-                  height={32}
-                  width={32}
-                  src={activity.user.image}
                   alt={activity.user.username}
-                  className='rounded-full bg-black object-cover'
+                  className="rounded-full bg-black object-cover"
+                  height={32}
+                  src={activity.user.image}
+                  width={32}
                 />
-              ) :  (
-                <div className='flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-600'>
-                  <span className='font-bold font-heading text-white text-xs'>
+              ) : (
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-600">
+                  <span className="font-bold font-heading text-white text-xs">
                     {getUserInitials(activity.user.username)}
                   </span>
                 </div>

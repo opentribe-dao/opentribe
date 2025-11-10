@@ -1,8 +1,8 @@
-import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { auth } from '@packages/auth/server';
+import { auth } from "@packages/auth/server";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 // Mock the auth module
-vi.mock('@packages/auth/server', () => ({
+vi.mock("@packages/auth/server", () => ({
   auth: {
     api: {
       getSession: vi.fn(),
@@ -10,23 +10,23 @@ vi.mock('@packages/auth/server', () => ({
   },
 }));
 
-describe('Authentication', () => {
+describe("Authentication", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('Session Management', () => {
-    test('should return user session when authenticated', async () => {
+  describe("Session Management", () => {
+    test("should return user session when authenticated", async () => {
       const mockSession = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          username: 'testuser',
-          role: 'USER',
+          id: "user-123",
+          email: "test@example.com",
+          username: "testuser",
+          role: "USER",
         },
         session: {
-          id: 'session-123',
-          userId: 'user-123',
+          id: "session-123",
+          userId: "user-123",
         },
       };
 
@@ -39,7 +39,7 @@ describe('Authentication', () => {
       expect(auth.api.getSession).toHaveBeenCalledWith({ headers });
     });
 
-    test('should return null when not authenticated', async () => {
+    test("should return null when not authenticated", async () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(null);
 
       const headers = new Headers();
@@ -49,17 +49,17 @@ describe('Authentication', () => {
     });
   });
 
-  describe('Role-based Access Control', () => {
-    test('should allow SUPERADMIN access to admin routes', async () => {
+  describe("Role-based Access Control", () => {
+    test("should allow SUPERADMIN access to admin routes", async () => {
       const mockSession = {
         user: {
-          id: 'admin-123',
-          email: 'admin@example.com',
-          role: 'SUPERADMIN',
+          id: "admin-123",
+          email: "admin@example.com",
+          role: "SUPERADMIN",
         },
         session: {
-          id: 'session-123',
-          userId: 'admin-123',
+          id: "session-123",
+          userId: "admin-123",
         },
       };
 
@@ -68,10 +68,10 @@ describe('Authentication', () => {
       const headers = new Headers();
       const session = await auth.api.getSession({ headers });
 
-      expect(session?.user.role).toBe('SUPERADMIN');
+      expect(session?.user.role).toBe("SUPERADMIN");
     });
 
-    test('should deny access for unauthorized users', async () => {
+    test("should deny access for unauthorized users", async () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(null);
 
       const headers = new Headers();

@@ -307,7 +307,7 @@ const Support = async ({ params }: SupportProps) => {
             . We're a small team building tools to connect builders and
             organizations across the Polkadot ecosystem.
           </p>
-          <p className="mt-4 text-base font-medium text-foreground leading-relaxed">
+          <p className="mt-4 font-medium text-base text-foreground leading-relaxed">
             Our mission is to serve as the "Talent Layer" for Polkadot—a
             centralized marketplace that consolidates official grant
             opportunities and enables ecosystem projects to discover and engage
@@ -318,11 +318,14 @@ const Support = async ({ params }: SupportProps) => {
             it easier for builders to find opportunities and for organizations
             to connect with talent.
           </p>
-          <p className="mt-6 rounded-md border-l-2 border-primary/40 bg-white/5 py-2 pl-4 pr-3 text-muted-foreground text-sm italic leading-relaxed">
-            <strong className="not-italic font-semibold text-foreground">Note:</strong> "Polkadot Bounty" in the governance context
-            refers to treasury grants (like what funds Opentribe), which is
-            different from "bounties" listed on our platform. We're working to
-            make this naming clearer!
+          <p className="mt-6 rounded-md border-primary/40 border-l-2 bg-white/5 py-2 pr-3 pl-4 text-muted-foreground text-sm italic leading-relaxed">
+            <strong className="font-semibold text-foreground not-italic">
+              Note:
+            </strong>{" "}
+            "Polkadot Bounty" in the governance context refers to treasury
+            grants (like what funds Opentribe), which is different from
+            "bounties" listed on our platform. We're working to make this naming
+            clearer!
           </p>
         </div>
 

@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
   GET as healthGet,
   HEAD as healthHead,

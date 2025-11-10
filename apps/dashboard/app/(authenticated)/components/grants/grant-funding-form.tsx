@@ -1,24 +1,24 @@
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
-} from '@packages/base/components/ui/select';
-import { useFormContext } from 'react-hook-form';
+  SelectTrigger,
+  SelectValue,
+} from "@packages/base/components/ui/select";
+import { useFormContext } from "react-hook-form";
 
 const TOKENS = [
-  { value: 'DOT', label: 'DOT' },
-  { value: 'KSM', label: 'KSM' },
-  { value: 'USDC', label: 'USDC' },
-  { value: 'USDT', label: 'USDT' },
+  { value: "DOT", label: "DOT" },
+  { value: "KSM", label: "KSM" },
+  { value: "USDC", label: "USDC" },
+  { value: "USDT", label: "USDT" },
 ];
 
 export function GrantFundingForm() {
   const { register, setValue, watch } = useFormContext();
-  const token = watch('token');
+  const token = watch("token");
 
   return (
     <div className="space-y-6">
@@ -34,7 +34,7 @@ export function GrantFundingForm() {
           <Input
             id="minAmount"
             type="number"
-            {...register('minAmount')}
+            {...register("minAmount")}
             className="border-white/10 bg-white/5 text-white"
           />
         </div>
@@ -43,7 +43,7 @@ export function GrantFundingForm() {
           <Input
             id="maxAmount"
             type="number"
-            {...register('maxAmount')}
+            {...register("maxAmount")}
             className="border-white/10 bg-white/5 text-white"
           />
         </div>
@@ -54,15 +54,15 @@ export function GrantFundingForm() {
           <Input
             id="totalFunds"
             type="number"
-            {...register('totalFunds')}
+            {...register("totalFunds")}
             className="border-white/10 bg-white/5 text-white"
           />
         </div>
         <div>
           <Label htmlFor="token">Token</Label>
           <Select
+            onValueChange={(value) => setValue("token", value)}
             value={token}
-            onValueChange={(value) => setValue('token', value)}
           >
             <SelectTrigger className="border-white/10 bg-white/5 text-white">
               <SelectValue />
@@ -70,9 +70,9 @@ export function GrantFundingForm() {
             <SelectContent className="border-white/10 bg-zinc-900">
               {TOKENS.map((token) => (
                 <SelectItem
+                  className="text-white"
                   key={token.value}
                   value={token.value}
-                  className="text-white"
                 >
                   {token.label}
                 </SelectItem>

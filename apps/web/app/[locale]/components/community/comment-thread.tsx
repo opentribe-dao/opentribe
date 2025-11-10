@@ -1,29 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@packages/base/components/ui/button";
-import { Textarea } from "@packages/base/components/ui/textarea";
+import { useSession } from "@packages/auth/client";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@packages/base/components/ui/avatar";
-import { useSession } from "@packages/auth/client";
-import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
-import { MessageCircle, Edit2, Trash2, MoreVertical } from "lucide-react";
+import { Button } from "@packages/base/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@packages/base/components/ui/dropdown-menu";
+import { Textarea } from "@packages/base/components/ui/textarea";
+import { formatDistanceToNow } from "date-fns";
+import { Edit2, MessageCircle, MoreVertical, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
-  getComments,
-  createComment,
-  updateComment,
-  deleteComment,
   type Comment,
+  createComment,
+  deleteComment,
+  getComments,
+  updateComment,
 } from "../../lib/api/community";
 
 interface CommentThreadProps {
@@ -141,8 +141,8 @@ export function CommentThread({
     comments: Comment[],
     parentId: string,
     newReply: Comment
-  ): Comment[] => {
-    return comments.map((comment) => {
+  ): Comment[] =>
+    comments.map((comment) => {
       if (comment.id === parentId) {
         return {
           ...comment,
@@ -157,14 +157,13 @@ export function CommentThread({
       }
       return comment;
     });
-  };
 
   const updateCommentInTree = (
     comments: Comment[],
     commentId: string,
     updatedComment: Comment
-  ): Comment[] => {
-    return comments.map((comment) => {
+  ): Comment[] =>
+    comments.map((comment) => {
       if (comment.id === commentId) {
         return updatedComment;
       }
@@ -180,13 +179,12 @@ export function CommentThread({
       }
       return comment;
     });
-  };
 
   const removeCommentFromTree = (
     comments: Comment[],
     commentId: string
-  ): Comment[] => {
-    return comments
+  ): Comment[] =>
+    comments
       .filter((comment) => comment.id !== commentId)
       .map((comment) => ({
         ...comment,
@@ -194,7 +192,6 @@ export function CommentThread({
           ? removeCommentFromTree(comment.replies, commentId)
           : undefined,
       }));
-  };
 
   const CommentItem = ({
     comment,
@@ -231,26 +228,26 @@ export function CommentThread({
           </Avatar>
 
           <div className="flex-1">
-            <div className="bg-white/5 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-1">
+            <div className="rounded-lg bg-white/5 p-3">
+              <div className="mb-1 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm text-white">
                     @{comment.author.username}
                   </span>
-                  <span className="text-xs text-white/40">
+                  <span className="text-white/40 text-xs">
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,
                     })}
                   </span>
                   {comment.isEdited && (
-                    <span className="text-xs text-white/40">(edited)</span>
+                    <span className="text-white/40 text-xs">(edited)</span>
                   )}
                 </div>
 
                 {isAuthor && !comment.isHidden && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                      <Button className="h-6 w-6 p-0" size="sm" variant="ghost">
                         <MoreVertical className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -261,14 +258,14 @@ export function CommentThread({
                           setEditText(comment.body);
                         }}
                       >
-                        <Edit2 className="h-3 w-3 mr-2" />
+                        <Edit2 className="mr-2 h-3 w-3" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => handleDeleteComment(comment.id)}
                         className="text-red-500"
+                        onClick={() => handleDeleteComment(comment.id)}
                       >
-                        <Trash2 className="h-3 w-3 mr-2" />
+                        <Trash2 className="mr-2 h-3 w-3" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -279,32 +276,32 @@ export function CommentThread({
               {isEditing ? (
                 <div className="mt-2">
                   <Textarea
-                    value={editText}
+                    className="min-h-[80px] border-white/10 bg-white/5 text-white"
                     onChange={(e) => setEditText(e.target.value)}
-                    className="bg-white/5 border-white/10 text-white min-h-[80px]"
+                    value={editText}
                   />
-                  <div className="flex gap-2 mt-2">
+                  <div className="mt-2 flex gap-2">
                     <Button
-                      size="sm"
-                      onClick={handleEdit}
                       disabled={!editText.trim()}
+                      onClick={handleEdit}
+                      size="sm"
                     >
                       Save
                     </Button>
                     <Button
-                      size="sm"
-                      variant="ghost"
                       onClick={() => {
                         setIsEditing(false);
                         setEditText(comment.body);
                       }}
+                      size="sm"
+                      variant="ghost"
                     >
                       Cancel
                     </Button>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-white/80 whitespace-pre-wrap">
+                <p className="whitespace-pre-wrap text-sm text-white/80">
                   {comment.body}
                 </p>
               )}
@@ -312,8 +309,6 @@ export function CommentThread({
 
             {!comment.isHidden && depth < 2 && (
               <Button
-                variant="ghost"
-                size="sm"
                 className="mt-1 text-xs"
                 onClick={() => {
                   if (!session?.user) {
@@ -322,8 +317,10 @@ export function CommentThread({
                   }
                   setIsReplying(true);
                 }}
+                size="sm"
+                variant="ghost"
               >
-                <MessageCircle className="h-3 w-3 mr-1" />
+                <MessageCircle className="mr-1 h-3 w-3" />
                 Reply
               </Button>
             )}
@@ -331,27 +328,27 @@ export function CommentThread({
             {isReplying && (
               <div className="mt-3">
                 <Textarea
-                  value={replyText}
+                  autoFocus
+                  className="min-h-[80px] border-white/10 bg-white/5 text-white"
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Write a reply..."
-                  className="bg-white/5 border-white/10 text-white min-h-[80px]"
-                  autoFocus
+                  value={replyText}
                 />
-                <div className="flex gap-2 mt-2">
+                <div className="mt-2 flex gap-2">
                   <Button
-                    size="sm"
-                    onClick={handleReply}
                     disabled={!replyText.trim() || isSubmitting}
+                    onClick={handleReply}
+                    size="sm"
                   >
                     {isSubmitting ? "Posting..." : "Post Reply"}
                   </Button>
                   <Button
-                    size="sm"
-                    variant="ghost"
                     onClick={() => {
                       setIsReplying(false);
                       setReplyText("");
                     }}
+                    size="sm"
+                    variant="ghost"
                   >
                     Cancel
                   </Button>
@@ -363,9 +360,9 @@ export function CommentThread({
               <div className="mt-3 space-y-3">
                 {comment.replies.map((reply) => (
                   <CommentItem
-                    key={reply.id}
                     comment={reply}
                     depth={depth + 1}
+                    key={reply.id}
                   />
                 ))}
               </div>
@@ -379,7 +376,7 @@ export function CommentThread({
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500" />
+        <div className="h-8 w-8 animate-spin rounded-full border-pink-500 border-b-2" />
       </div>
     );
   }
@@ -388,7 +385,7 @@ export function CommentThread({
     <div className="space-y-6">
       {/* New comment form */}
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">
+        <h3 className="mb-4 font-semibold text-lg text-white">
           Comments ({comments.length})
         </h3>
 
@@ -400,23 +397,23 @@ export function CommentThread({
             </Avatar>
             <div className="flex-1">
               <Textarea
-                value={newComment}
+                className="min-h-[100px] border-white/10 bg-white/5 text-white"
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
-                className="bg-white/5 border-white/10 text-white min-h-[100px]"
+                value={newComment}
               />
               <Button
                 className="mt-2"
-                onClick={() => handleSubmitComment(newComment)}
                 disabled={!newComment.trim() || isSubmitting}
+                onClick={() => handleSubmitComment(newComment)}
               >
                 {isSubmitting ? "Posting..." : "Post Comment"}
               </Button>
             </div>
           </div>
         ) : (
-          <div className="bg-white/5 rounded-lg p-4 text-center">
-            <p className="text-white/60 mb-2">Sign in to join the discussion</p>
+          <div className="rounded-lg bg-white/5 p-4 text-center">
+            <p className="mb-2 text-white/60">Sign in to join the discussion</p>
             <Button onClick={onAuthRequired}>Sign In</Button>
           </div>
         )}
@@ -425,12 +422,12 @@ export function CommentThread({
       {/* Comments list */}
       <div className="space-y-4">
         {comments.length === 0 ? (
-          <p className="text-center text-white/40 py-8">
+          <p className="py-8 text-center text-white/40">
             No comments yet. Be the first to comment!
           </p>
         ) : (
           comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} />
+            <CommentItem comment={comment} key={comment.id} />
           ))
         )}
       </div>

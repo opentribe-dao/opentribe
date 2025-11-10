@@ -1,9 +1,9 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { sendPaymentConfirmationEmail } from "@packages/email";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { sendPaymentConfirmationEmail } from "@packages/email";
 
 // Schema for payment creation
 const createPaymentSchema = z.object({
@@ -63,7 +63,7 @@ export async function GET(
     const payments = await database.payment.findMany({
       where: {
         submission: {
-          bountyId: bountyId,
+          bountyId,
         },
       },
       include: {

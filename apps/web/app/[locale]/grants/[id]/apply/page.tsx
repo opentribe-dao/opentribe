@@ -1,6 +1,13 @@
 "use client";
 
 import { useSession } from "@packages/auth/client";
+import { FileUpload } from "@packages/base";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@packages/base/components/ui/accordion";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
@@ -9,8 +16,6 @@ import {
 } from "@packages/base/components/ui/card";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
-import { Textarea } from "@packages/base/components/ui/textarea";
-import { FileUpload } from "@packages/base";
 import {
   Select,
   SelectContent,
@@ -18,22 +23,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@packages/base/components/ui/select";
-import { Loader2, Plus, X, Calendar, DollarSign } from "lucide-react";
+import { Textarea } from "@packages/base/components/ui/textarea";
+import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
+import { DollarSign, Loader2, Plus, X } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Header } from "../../../components/header";
-import { AuthModal } from "../../../components/auth-modal";
-import { env } from "@/env";
 import ReactMarkdown from "react-markdown";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@packages/base/components/ui/accordion";
-import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
+import { toast } from "sonner";
 import { GrantCard } from "@/app/[locale]/components/cards/grant-card";
+import { env } from "@/env";
+import { AuthModal } from "../../../components/auth-modal";
 
 interface Grant {
   id: string;
@@ -163,7 +162,7 @@ const GrantApplicationPage = () => {
     }
 
     // Validate required fields
-    if (!formData.title || !formData.description) {
+    if (!(formData.title && formData.description)) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -186,7 +185,7 @@ const GrantApplicationPage = () => {
     // Validate screening responses
     if (grant?.screening) {
       for (const question of grant.screening) {
-        if (!question.optional && !formData.responses[question.question]) {
+        if (!(question.optional || formData.responses[question.question])) {
           toast.error(`Please answer: ${question.question}`);
           return;
         }
@@ -370,10 +369,10 @@ const GrantApplicationPage = () => {
     hasMinAmount && hasMaxAmount
       ? `${minAmountStr} - ${maxAmountStr}`
       : hasMinAmount
-      ? `Minimum: ${minAmountStr}`
-      : hasMaxAmount
-      ? `Maximum: ${maxAmountStr}`
-      : "";
+        ? `Minimum: ${minAmountStr}`
+        : hasMaxAmount
+          ? `Maximum: ${maxAmountStr}`
+          : "";
 
   return (
     <>
@@ -390,9 +389,9 @@ const GrantApplicationPage = () => {
               <div className="flex items-center justify-center gap-3 text-white/60">
                 {grant.organization.logo && (
                   <img
-                    src={grant.organization.logo}
                     alt={grant.organization.name}
                     className="h-8 w-8 rounded-full bg-white"
+                    src={grant.organization.logo}
                   />
                 )}
                 <span>{grant.organization.name}</span>
@@ -431,24 +430,24 @@ const GrantApplicationPage = () => {
 
             {/* Grant card */}
             <GrantCard
-              key={grant.id}
-              id={grant.id}
-              slug={grant.slug}
-              title={grant.title}
-              organization={grant.organization}
-              bannerUrl={grant.bannerUrl}
-              minAmount={grant.minAmount}
-              maxAmount={grant.maxAmount}
-              token={grant.token}
-              rfpCount={grant.rfps.length}
               applicationCount={grant.applicationCount}
+              bannerUrl={grant.bannerUrl}
+              createdAt={grant.createdAt}
+              id={grant.id}
+              key={grant.id}
+              maxAmount={grant.maxAmount}
+              minAmount={grant.minAmount}
+              organization={grant.organization}
+              rfpCount={grant.rfps.length}
+              skills={grant.skills}
+              slug={grant.slug}
               status={grant.status}
               summary={grant.summary}
-              skills={grant.skills}
-              createdAt={grant.createdAt}
+              title={grant.title}
+              token={grant.token}
             />
 
-            <div className="mb-8"></div>
+            <div className="mb-8" />
 
             {/* Application Form */}
             <form onSubmit={handleSubmit}>
@@ -458,10 +457,10 @@ const GrantApplicationPage = () => {
                     Application Details
                   </h3>
                   {grant.instructions && (
-                    <Accordion type="single" collapsible className="mt-4">
+                    <Accordion className="mt-4" collapsible type="single">
                       <AccordionItem
-                        value="instructions"
                         className="border-white/10"
+                        value="instructions"
                       >
                         <AccordionTrigger className="text-white hover:no-underline">
                           Application Instructions
@@ -479,27 +478,27 @@ const GrantApplicationPage = () => {
                   {/* RFP Selection (if applicable) */}
                   {grant.rfps && grant.rfps.length > 0 && (
                     <div>
-                      <Label htmlFor="rfpId" className="text-white">
+                      <Label className="text-white" htmlFor="rfpId">
                         Select RFP (optional)
                       </Label>
                       <Select
-                        value={formData.rfpId}
                         onValueChange={(value) =>
                           setFormData((prev) => ({ ...prev, rfpId: value }))
                         }
+                        value={formData.rfpId}
                       >
                         <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                           <SelectValue placeholder="Select an RFP" />
                         </SelectTrigger>
                         <SelectContent className="border-white/10 bg-zinc-900">
-                          <SelectItem value="none" className="text-white">
+                          <SelectItem className="text-white" value="none">
                             None
                           </SelectItem>
                           {grant.rfps.map((rfp) => (
                             <SelectItem
+                              className="text-white"
                               key={rfp.id}
                               value={rfp.id}
-                              className="text-white"
                             >
                               {rfp.title}
                             </SelectItem>
@@ -511,13 +510,12 @@ const GrantApplicationPage = () => {
 
                   {/* Title */}
                   <div>
-                    <Label htmlFor="title" className="text-white">
+                    <Label className="text-white" htmlFor="title">
                       Project Title *
                     </Label>
                     <Input
+                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       id="title"
-                      type="text"
-                      value={formData.title}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -525,19 +523,20 @@ const GrantApplicationPage = () => {
                         }))
                       }
                       placeholder="Enter your project title"
-                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       required
+                      type="text"
+                      value={formData.title}
                     />
                   </div>
 
                   {/* Summary */}
                   <div>
-                    <Label htmlFor="summary" className="text-white">
+                    <Label className="text-white" htmlFor="summary">
                       Summary (optional)
                     </Label>
                     <Textarea
+                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       id="summary"
-                      value={formData.summary}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -546,18 +545,18 @@ const GrantApplicationPage = () => {
                       }
                       placeholder="Brief summary of your project (2-3 sentences)"
                       rows={3}
-                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
+                      value={formData.summary}
                     />
                   </div>
 
                   {/* Description */}
                   <div>
-                    <Label htmlFor="description" className="text-white">
+                    <Label className="text-white" htmlFor="description">
                       Project Description *
                     </Label>
                     <Textarea
+                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       id="description"
-                      value={formData.description}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -565,33 +564,34 @@ const GrantApplicationPage = () => {
                         }))
                       }
                       placeholder="Provide a detailed description of your project, including objectives, methodology, and expected outcomes..."
-                      rows={8}
-                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       required
+                      rows={8}
+                      value={formData.description}
                     />
                   </div>
 
                   {/* Budget */}
                   {(hasMinAmount || hasMaxAmount) && (
                     <div>
-                      <Label htmlFor="budget" className="text-white">
+                      <Label className="text-white" htmlFor="budget">
                         Budget Request ({grant.token})
                       </Label>
                       <div className="relative mt-2">
                         {getTokenLogo(grant.token) ? (
                           // Show token logo if available
                           <img
-                            src={getTokenLogo(grant.token) || ""}
                             alt={grant.token || "Token"}
-                            className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 rounded-full object-contain bg-white/10"
+                            className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 rounded-full bg-white/10 object-contain"
+                            src={getTokenLogo(grant.token) || ""}
                           />
                         ) : (
                           <DollarSign className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                         )}
                         <Input
+                          className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
                           id="budget"
-                          type="number"
-                          value={formData.budget}
+                          max={grant.maxAmount || undefined}
+                          min={grant.minAmount || 0}
                           onChange={(e) =>
                             setFormData((prev) => ({
                               ...prev,
@@ -599,9 +599,8 @@ const GrantApplicationPage = () => {
                             }))
                           }
                           placeholder={budgetPlaceholder}
-                          className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
-                          min={grant.minAmount || 0}
-                          max={grant.maxAmount || undefined}
+                          type="number"
+                          value={formData.budget}
                         />
                       </div>
                     </div>
@@ -612,11 +611,11 @@ const GrantApplicationPage = () => {
                     <div className="mb-3 flex items-center justify-between">
                       <Label className="text-white">Project Timeline</Label>
                       <Button
+                        className="border-white/20 text-white hover:bg-white/10"
+                        onClick={addTimelineItem}
+                        size="sm"
                         type="button"
                         variant="outline"
-                        size="sm"
-                        onClick={addTimelineItem}
-                        className="border-white/20 text-white hover:bg-white/10"
                       >
                         <Plus className="mr-2 h-4 w-4" />
                         Add Timeline Item
@@ -626,13 +625,13 @@ const GrantApplicationPage = () => {
                       <div className="space-y-3">
                         {formData.timeline.map((item, index) => (
                           <div
-                            key={index}
                             className="space-y-3 rounded-lg bg-white/5 p-4"
+                            key={index}
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1 space-y-3">
                                 <Input
-                                  value={item.milestone}
+                                  className="border-white/10 bg-white/5 text-white"
                                   onChange={(e) =>
                                     updateTimelineItem(
                                       index,
@@ -641,11 +640,10 @@ const GrantApplicationPage = () => {
                                     )
                                   }
                                   placeholder="Milestone name"
-                                  className="border-white/10 bg-white/5 text-white"
+                                  value={item.milestone}
                                 />
                                 <Input
-                                  type="date"
-                                  value={item.date}
+                                  className="border-white/10 bg-white/5 text-white"
                                   onChange={(e) =>
                                     updateTimelineItem(
                                       index,
@@ -653,15 +651,16 @@ const GrantApplicationPage = () => {
                                       e.target.value
                                     )
                                   }
-                                  className="border-white/10 bg-white/5 text-white"
+                                  type="date"
+                                  value={item.date}
                                 />
                               </div>
                               <Button
+                                className="ml-2 text-white/60 hover:text-white"
+                                onClick={() => removeTimelineItem(index)}
+                                size="sm"
                                 type="button"
                                 variant="ghost"
-                                size="sm"
-                                onClick={() => removeTimelineItem(index)}
-                                className="ml-2 text-white/60 hover:text-white"
                               >
                                 <X className="h-4 w-4" />
                               </Button>
@@ -683,11 +682,11 @@ const GrantApplicationPage = () => {
                         Milestones & Deliverables
                       </Label>
                       <Button
+                        className="border-white/20 text-white hover:bg-white/10"
+                        onClick={addMilestone}
+                        size="sm"
                         type="button"
                         variant="outline"
-                        size="sm"
-                        onClick={addMilestone}
-                        className="border-white/20 text-white hover:bg-white/10"
                       >
                         <Plus className="mr-2 h-4 w-4" />
                         Add Milestone
@@ -697,33 +696,33 @@ const GrantApplicationPage = () => {
                       <div className="space-y-4">
                         {formData.milestones.map((milestone, index) => (
                           <div
-                            key={index}
                             className="space-y-3 rounded-lg bg-white/5 p-4"
+                            key={index}
                           >
                             <div className="flex items-start justify-between">
                               <h4 className="font-medium text-sm text-white">
                                 Milestone {index + 1}
                               </h4>
                               <Button
+                                className="text-white/60 hover:text-white"
+                                onClick={() => removeMilestone(index)}
+                                size="sm"
                                 type="button"
                                 variant="ghost"
-                                size="sm"
-                                onClick={() => removeMilestone(index)}
-                                className="text-white/60 hover:text-white"
                               >
                                 <X className="h-4 w-4" />
                               </Button>
                             </div>
                             <Input
-                              value={milestone.title}
+                              className="border-white/10 bg-white/5 text-white"
                               onChange={(e) =>
                                 updateMilestone(index, "title", e.target.value)
                               }
                               placeholder="Milestone title"
-                              className="border-white/10 bg-white/5 text-white"
+                              value={milestone.title}
                             />
                             <Textarea
-                              value={milestone.description}
+                              className="border-white/10 bg-white/5 text-white"
                               onChange={(e) =>
                                 updateMilestone(
                                   index,
@@ -733,7 +732,7 @@ const GrantApplicationPage = () => {
                               }
                               placeholder="Milestone description"
                               rows={2}
-                              className="border-white/10 bg-white/5 text-white"
+                              value={milestone.description}
                             />
                             <div>
                               <div className="mb-2 flex items-center justify-between">
@@ -741,11 +740,11 @@ const GrantApplicationPage = () => {
                                   Deliverables
                                 </Label>
                                 <Button
+                                  className="h-auto py-1 text-white/60 hover:text-white"
+                                  onClick={() => addDeliverable(index)}
+                                  size="sm"
                                   type="button"
                                   variant="ghost"
-                                  size="sm"
-                                  onClick={() => addDeliverable(index)}
-                                  className="h-auto py-1 text-white/60 hover:text-white"
                                 >
                                   <Plus className="mr-1 h-3 w-3" />
                                   Add
@@ -754,11 +753,11 @@ const GrantApplicationPage = () => {
                               {milestone.deliverables.map(
                                 (deliverable, dIndex) => (
                                   <div
-                                    key={dIndex}
                                     className="mb-2 flex items-center gap-2"
+                                    key={dIndex}
                                   >
                                     <Input
-                                      value={deliverable}
+                                      className="border-white/10 bg-white/5 text-sm text-white"
                                       onChange={(e) =>
                                         updateDeliverable(
                                           index,
@@ -767,16 +766,16 @@ const GrantApplicationPage = () => {
                                         )
                                       }
                                       placeholder="Deliverable"
-                                      className="border-white/10 bg-white/5 text-sm text-white"
+                                      value={deliverable}
                                     />
                                     <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
+                                      className="text-white/60 hover:text-white"
                                       onClick={() =>
                                         removeDeliverable(index, dIndex)
                                       }
-                                      className="text-white/60 hover:text-white"
+                                      size="sm"
+                                      type="button"
+                                      variant="ghost"
                                     >
                                       <X className="h-3 w-3" />
                                     </Button>
@@ -796,7 +795,7 @@ const GrantApplicationPage = () => {
 
                   {/* Attachments */}
                   <div>
-                    <Label htmlFor="attachments" className="text-white">
+                    <Label className="text-white" htmlFor="attachments">
                       Supporting Documents (optional)
                     </Label>
                     <p className="mt-1 mb-3 text-sm text-white/60">
@@ -804,15 +803,15 @@ const GrantApplicationPage = () => {
                       specifications
                     </p>
                     <FileUpload
-                      type="submission"
                       maxFiles={10}
-                      value={formData.attachments}
                       onChange={(urls) =>
                         setFormData((prev) => ({
                           ...prev,
                           attachments: urls,
                         }))
                       }
+                      type="submission"
+                      value={formData.attachments}
                     />
                   </div>
 
@@ -829,9 +828,7 @@ const GrantApplicationPage = () => {
                           </Label>
                           {question.type === "text" ? (
                             <Textarea
-                              value={
-                                formData.responses[question.question] || ""
-                              }
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               onChange={(e) =>
                                 updateResponse(
                                   question.question,
@@ -839,16 +836,15 @@ const GrantApplicationPage = () => {
                                 )
                               }
                               placeholder="Enter your response..."
-                              rows={3}
-                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               required={!question.optional}
-                            />
-                          ) : question.type === "url" ? (
-                            <Input
-                              type="url"
+                              rows={3}
                               value={
                                 formData.responses[question.question] || ""
                               }
+                            />
+                          ) : question.type === "url" ? (
+                            <Input
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               onChange={(e) =>
                                 updateResponse(
                                   question.question,
@@ -856,15 +852,15 @@ const GrantApplicationPage = () => {
                                 )
                               }
                               placeholder="https://..."
-                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               required={!question.optional}
-                            />
-                          ) : (
-                            <Input
-                              type="text"
+                              type="url"
                               value={
                                 formData.responses[question.question] || ""
                               }
+                            />
+                          ) : (
+                            <Input
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               onChange={(e) =>
                                 updateResponse(
                                   question.question,
@@ -872,8 +868,11 @@ const GrantApplicationPage = () => {
                                 )
                               }
                               placeholder="File URL or description..."
-                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               required={!question.optional}
+                              type="text"
+                              value={
+                                formData.responses[question.question] || ""
+                              }
                             />
                           )}
                         </div>
@@ -884,9 +883,9 @@ const GrantApplicationPage = () => {
                   {/* Submit Button */}
                   <div className="pt-6">
                     <Button
-                      type="submit"
-                      disabled={submitting}
                       className="w-full bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
+                      disabled={submitting}
+                      type="submit"
                     >
                       {submitting ? (
                         <>

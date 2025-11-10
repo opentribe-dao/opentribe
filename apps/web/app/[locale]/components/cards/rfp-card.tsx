@@ -1,6 +1,6 @@
-import { Badge } from "@packages/base/components/ui/badge";
 import { Card } from "@packages/base/components/ui/card";
-import { MessageSquare, ThumbsUp } from "lucide-react";
+import { Badge } from "@packages/base/components/ui/badge";
+import { ThumbsUp, MessageSquare } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -43,9 +43,11 @@ export function RFPCard({
             {/* Grant Logo */}
             {grant.organization.logo ? (
               <Image
+                src={grant.organization.logo}
                 alt={grant.organization.name}
-                className="rounded-full bg-black"
+                width={48}
                 height={48}
+                className="rounded-full bg-black"
                 onError={(e) => {
                   console.log(
                     "RFP Card image failed to load:",
@@ -53,8 +55,6 @@ export function RFPCard({
                   );
                   e.currentTarget.style.display = "none";
                 }}
-                src={grant.organization.logo}
-                width={48}
               />
             ) : (
               <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-purple-500/20 to-blue-600/20">
@@ -95,11 +95,11 @@ export function RFPCard({
         <div className="mb-4 flex items-start gap-4">
           {grant.organization.logo ? (
             <Image
-              alt={grant.organization.name}
-              className="rounded-full bg-black"
-              height={56}
               src={grant.organization.logo}
+              alt={grant.organization.name}
               width={56}
+              height={56}
+              className="rounded-full bg-black"
             />
           ) : (
             <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
@@ -114,16 +114,16 @@ export function RFPCard({
               {grant.title} • {grant.organization.name}
             </p>
             {description && (
-              <p className="line-clamp-2 text-sm text-white/70">
+              <p className="line-clamp-2 text-sm text-white/70 ">
                 {description}
               </p>
             )}
           </div>
           <Badge
+            variant={isOpen ? "default" : "secondary"}
             className={
               isOpen ? "border-green-500/30 bg-green-500/20 text-green-400" : ""
             }
-            variant={isOpen ? "default" : "secondary"}
           >
             {status}
           </Badge>

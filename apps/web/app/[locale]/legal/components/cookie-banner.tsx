@@ -327,7 +327,6 @@ export default function CookieBanner() {
                 </Link>
                 .
               </p>
->>>>>>> chore/biome-sweep
             </div>
           </div>
 

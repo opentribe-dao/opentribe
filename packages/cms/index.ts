@@ -1,4 +1,3 @@
-// @ts-expect-error - content-collections will be generated
 import {
   allLegals,
   allPosts,

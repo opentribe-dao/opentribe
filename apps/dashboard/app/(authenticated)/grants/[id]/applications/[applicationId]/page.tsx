@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useActiveOrganization, useSession } from "@packages/auth/client";
 import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
@@ -10,9 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@packages/base/components/ui/card";
-import { Label } from "@packages/base/components/ui/label";
 import { Textarea } from "@packages/base/components/ui/textarea";
-import { getSkillLabel } from "@packages/base/lib/skills";
+import { Label } from "@packages/base/components/ui/label";
 import {
   ArrowLeft,
   Calendar,
@@ -27,13 +27,16 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
-import { env } from "@/env";
 import { Header } from "../../../../components/header";
+import { env } from "@/env";
+import { getSkillLabel } from "@packages/base/lib/skills";
+import { getTokenLogo } from "@packages/base/lib/utils";
 
 interface ApplicationDetails {
   id: string;
@@ -177,17 +180,19 @@ export default function ApplicationReviewPage({
     }
   };
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString("en-US", {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
 
-  const formatAmount = (amount: number) =>
-    new Intl.NumberFormat("en-US").format(amount);
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat("en-US").format(amount);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -206,7 +211,7 @@ export default function ApplicationReviewPage({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -219,22 +224,22 @@ export default function ApplicationReviewPage({
   return (
     <>
       <Header
-        page="Review Application"
         pages={[
           "Grants",
           application.grant.title,
           "Applications",
           application.title,
         ]}
+        page="Review Application"
       />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <Button
-            className="text-white/60 hover:text-white"
-            onClick={() => router.push(`/grants/${id}`)}
             variant="ghost"
+            onClick={() => router.push(`/grants/${id}`)}
+            className="text-white/60 hover:text-white"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Grant
           </Button>
           <Badge className={`${getStatusColor(application.status)} border-0`}>
@@ -242,13 +247,13 @@ export default function ApplicationReviewPage({
           </Badge>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
-          <div className="space-y-6 lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             {/* Application Header */}
-            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+            <Card className="bg-white/5 backdrop-blur-md border-white/10">
               <CardHeader>
-                <CardTitle className="text-2xl text-white">
+                <CardTitle className="text-white text-2xl">
                   {application.title}
                 </CardTitle>
                 <CardDescription className="text-white/60">
@@ -258,7 +263,7 @@ export default function ApplicationReviewPage({
             </Card>
 
             {/* Application Content */}
-            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+            <Card className="bg-white/5 backdrop-blur-md border-white/10">
               <CardHeader>
                 <CardTitle className="text-white">
                   Application Details
@@ -275,7 +280,7 @@ export default function ApplicationReviewPage({
 
             {/* Screening Questions */}
             {application.answers && application.answers.length > 0 && (
-              <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+              <Card className="bg-white/5 backdrop-blur-md border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white">
                     Screening Questions
@@ -283,16 +288,16 @@ export default function ApplicationReviewPage({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {application.answers.map((answer, index) => (
-                    <div className="space-y-2" key={index}>
-                      <p className="font-medium text-sm text-white/80">
+                    <div key={index} className="space-y-2">
+                      <p className="text-sm font-medium text-white/80">
                         {answer.question}
                       </p>
                       {answer.type === "url" ? (
                         <a
-                          className="flex items-center gap-2 text-[#E6007A] hover:underline"
                           href={answer.answer}
-                          rel="noopener noreferrer"
                           target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#E6007A] hover:underline flex items-center gap-2"
                         >
                           <ExternalLink className="h-4 w-4" />
                           {answer.answer}
@@ -308,7 +313,7 @@ export default function ApplicationReviewPage({
 
             {/* Attached Files */}
             {application.files && application.files.length > 0 && (
-              <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+              <Card className="bg-white/5 backdrop-blur-md border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white">Attached Files</CardTitle>
                 </CardHeader>
@@ -316,15 +321,15 @@ export default function ApplicationReviewPage({
                   <div className="space-y-2">
                     {application.files.map((file, index) => (
                       <a
-                        className="flex items-center gap-3 rounded-lg bg-white/5 p-3 transition-colors hover:bg-white/10"
-                        href={file.url}
                         key={index}
-                        rel="noopener noreferrer"
+                        href={file.url}
                         target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
                       >
                         <FileText className="h-5 w-5 text-white/60" />
                         <div className="flex-1">
-                          <p className="font-medium text-white">{file.name}</p>
+                          <p className="text-white font-medium">{file.name}</p>
                           <p className="text-sm text-white/40">
                             {(file.size / 1024).toFixed(1)} KB
                           </p>
@@ -339,7 +344,7 @@ export default function ApplicationReviewPage({
 
             {/* Review Actions */}
             {application.status === "SUBMITTED" && (
-              <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+              <Card className="bg-white/5 backdrop-blur-md border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white">Review Decision</CardTitle>
                   <CardDescription className="text-white/60">
@@ -352,36 +357,36 @@ export default function ApplicationReviewPage({
                       Feedback (Required for rejection)
                     </Label>
                     <Textarea
-                      className="mt-2 border-white/10 bg-white/5 text-white"
                       id="feedback"
+                      value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
                       placeholder="Provide constructive feedback for the applicant..."
                       rows={4}
-                      value={feedback}
+                      className="bg-white/5 border-white/10 text-white mt-2"
                     />
                   </div>
                   <div className="flex gap-3">
                     <Button
-                      className="bg-green-600 hover:bg-green-700"
-                      disabled={actionLoading}
                       onClick={() => handleStatusUpdate("APPROVED")}
+                      disabled={actionLoading}
+                      className="bg-green-600 hover:bg-green-700"
                     >
                       {actionLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
-                        <Check className="mr-2 h-4 w-4" />
+                        <Check className="h-4 w-4 mr-2" />
                       )}
                       Approve Application
                     </Button>
                     <Button
-                      disabled={actionLoading || !feedback}
                       onClick={() => handleStatusUpdate("REJECTED")}
+                      disabled={actionLoading || !feedback}
                       variant="destructive"
                     >
                       {actionLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
-                        <X className="mr-2 h-4 w-4" />
+                        <X className="h-4 w-4 mr-2" />
                       )}
                       Reject Application
                     </Button>
@@ -394,7 +399,7 @@ export default function ApplicationReviewPage({
             {(application.status === "APPROVED" ||
               application.status === "REJECTED") &&
               application.feedback && (
-                <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+                <Card className="bg-white/5 backdrop-blur-md border-white/10">
                   <CardHeader>
                     <CardTitle className="text-white">
                       Review Decision
@@ -416,7 +421,7 @@ export default function ApplicationReviewPage({
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Applicant Info */}
-            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+            <Card className="bg-white/5 backdrop-blur-md border-white/10">
               <CardHeader>
                 <CardTitle className="text-white">Applicant</CardTitle>
               </CardHeader>
@@ -424,17 +429,17 @@ export default function ApplicationReviewPage({
                 <div className="flex items-center gap-3">
                   {application.applicant.image ? (
                     <img
-                      alt={application.applicant.username}
-                      className="h-12 w-12 rounded-full"
                       src={application.applicant.image}
+                      alt={application.applicant.username}
+                      className="w-12 h-12 rounded-full"
                     />
                   ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 flex items-center justify-center text-white font-bold">
                       {application.applicant.username[0].toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <p className="font-medium text-white">
+                    <p className="text-white font-medium">
                       {application.applicant.firstName}{" "}
                       {application.applicant.lastName}
                     </p>
@@ -446,8 +451,8 @@ export default function ApplicationReviewPage({
 
                 {application.applicant.bio && (
                   <div>
-                    <p className="mb-1 text-sm text-white/60">Bio</p>
-                    <p className="text-sm text-white/80">
+                    <p className="text-sm text-white/60 mb-1">Bio</p>
+                    <p className="text-white/80 text-sm">
                       {application.applicant.bio}
                     </p>
                   </div>
@@ -466,8 +471,8 @@ export default function ApplicationReviewPage({
                   <div className="flex items-center gap-2 text-white/60">
                     <Mail className="h-4 w-4" />
                     <a
-                      className="text-sm hover:text-white"
                       href={`mailto:${application.applicant.email}`}
+                      className="text-sm hover:text-white"
                     >
                       {application.applicant.email}
                     </a>
@@ -478,13 +483,13 @@ export default function ApplicationReviewPage({
                   Array.isArray(application.applicant.skills) &&
                   application.applicant.skills.length > 0 && (
                     <div>
-                      <p className="mb-2 text-sm text-white/60">Skills</p>
+                      <p className="text-sm text-white/60 mb-2">Skills</p>
                       <div className="flex flex-wrap gap-2">
                         {application.applicant.skills.map((skill: string) => (
                           <Badge
-                            className="border-0 bg-white/10 text-white"
                             key={skill}
                             variant="secondary"
+                            className="bg-white/10 text-white border-0"
                           >
                             {getSkillLabel(skill)}
                           </Badge>
@@ -493,17 +498,17 @@ export default function ApplicationReviewPage({
                     </div>
                   )}
 
-                <div className="space-y-2 pt-2">
+                <div className="pt-2 space-y-2">
                   {application.applicant.github && (
                     <a
-                      className="flex items-center gap-2 text-[#E6007A] text-sm hover:underline"
                       href={
                         application.applicant.github.startsWith("http")
                           ? application.applicant.github
                           : `https://github.com/${application.applicant.github}`
                       }
-                      rel="noopener noreferrer"
                       target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
                     >
                       <ExternalLink className="h-4 w-4" />
                       GitHub Profile
@@ -511,14 +516,14 @@ export default function ApplicationReviewPage({
                   )}
                   {application.applicant.linkedin && (
                     <a
-                      className="flex items-center gap-2 text-[#E6007A] text-sm hover:underline"
                       href={
                         application.applicant.linkedin.startsWith("http")
                           ? application.applicant.linkedin
                           : `https://linkedin.com/in/${application.applicant.linkedin}`
                       }
-                      rel="noopener noreferrer"
                       target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
                     >
                       <ExternalLink className="h-4 w-4" />
                       LinkedIn Profile
@@ -526,14 +531,14 @@ export default function ApplicationReviewPage({
                   )}
                   {application.applicant.twitter && (
                     <a
-                      className="flex items-center gap-2 text-[#E6007A] text-sm hover:underline"
                       href={
                         application.applicant.twitter.startsWith("http")
                           ? application.applicant.twitter
                           : `https://twitter.com/${application.applicant.twitter}`
                       }
-                      rel="noopener noreferrer"
                       target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Twitter Profile
@@ -541,14 +546,14 @@ export default function ApplicationReviewPage({
                   )}
                   {application.applicant.website && (
                     <a
-                      className="flex items-center gap-2 text-[#E6007A] text-sm hover:underline"
                       href={
                         application.applicant.website.startsWith("http")
                           ? application.applicant.website
                           : `https://${application.applicant.website}`
                       }
-                      rel="noopener noreferrer"
                       target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-[#E6007A] hover:underline"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Website
@@ -559,17 +564,26 @@ export default function ApplicationReviewPage({
             </Card>
 
             {/* Application Metadata */}
-            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+            <Card className="bg-white/5 backdrop-blur-md border-white/10">
               <CardHeader>
                 <CardTitle className="text-white">Application Info</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {application.budget && (
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-white/60" />
+                    {getTokenLogo(application.grant.token) ? (
+                      // Show token logo if available
+                      <img
+                        src={getTokenLogo(application.grant.token) || ""}
+                        alt={application.grant.token || "Token"}
+                        className="h-4 w-4 rounded-full object-contain bg-white/10"
+                      />
+                    ) : (
+                      <DollarSign className="h-4 w-4 text-white/40" />
+                    )}
                     <div>
                       <p className="text-sm text-white/60">Budget Request</p>
-                      <p className="font-medium text-white">
+                      <p className="text-white font-medium">
                         {formatAmount(application.budget)}{" "}
                         {application.grant.token}
                       </p>
@@ -588,8 +602,8 @@ export default function ApplicationReviewPage({
                       <div className="space-y-1">
                         {application.timeline.map((milestone, index) => (
                           <div
-                            className="flex items-center justify-between text-sm"
                             key={index}
+                            className="flex justify-between items-center text-sm"
                           >
                             <span className="text-white">
                               {milestone.milestone}

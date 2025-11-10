@@ -1,12 +1,10 @@
 "use client";
 
-import { env } from "@/env";
 import { useSession } from "@packages/auth/client";
 import { ImageUpload } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
-import SkillsOptions from "@packages/base/components/ui/skills-options";
 import {
   Select,
   SelectContent,
@@ -14,14 +12,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@packages/base/components/ui/select";
+import SkillsOptions from "@packages/base/components/ui/skills-options";
 import { Textarea } from "@packages/base/components/ui/textarea";
 import { ChevronLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { env } from "@/env";
+import { useUpdateProfile, useUserProfile } from "@/hooks/use-user-profile";
 import { validateWalletAddress } from "../../lib/validations/wallet";
-import Link from "next/link";
-import { useUserProfile, useUpdateProfile } from "@/hooks/use-user-profile";
 
 const CRYPTO_EXPERIENCE_OPTIONS = [
   { value: "new", label: "New to crypto" },
@@ -48,7 +48,6 @@ export default function BuilderOnboardingPage() {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-
   // Form data
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
@@ -72,7 +71,7 @@ export default function BuilderOnboardingPage() {
   });
 
   useEffect(() => {
-    if (!sessionLoading && !session?.user) {
+    if (!(sessionLoading || session?.user)) {
       // User is not authenticated, redirect to home
       router.push("/");
     }
@@ -109,13 +108,14 @@ export default function BuilderOnboardingPage() {
   }, [userProfile]);
 
   // Cleanup debounce timer on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-    };
-  }, []);
+    },
+    []
+  );
 
   // Username validation function
   const checkUsernameAvailability = useCallback(
@@ -187,13 +187,15 @@ export default function BuilderOnboardingPage() {
       }, 500); // 500ms debounce
     }
   };
-  
+
   const validateStep1 = () => {
     if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.username ||
-      !formData.location
+      !(
+        formData.firstName &&
+        formData.lastName &&
+        formData.username &&
+        formData.location
+      )
     ) {
       toast.error("Please fill in all required fields");
       return false;
@@ -228,10 +230,12 @@ export default function BuilderOnboardingPage() {
     }
 
     if (
-      !formData.website &&
-      !formData.twitter &&
-      !formData.github &&
-      !formData.linkedin
+      !(
+        formData.website ||
+        formData.twitter ||
+        formData.github ||
+        formData.linkedin
+      )
     ) {
       toast.error("Please add at least one social media link");
       return false;
@@ -241,7 +245,7 @@ export default function BuilderOnboardingPage() {
   };
 
   const validateStep2 = () => {
-    if (!formData.cryptoExperience || !formData.workPreference) {
+    if (!(formData.cryptoExperience && formData.workPreference)) {
       toast.error("Please fill in all required fields");
       return false;
     }
@@ -328,10 +332,20 @@ export default function BuilderOnboardingPage() {
             OPENTRIBE
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/faq" className="text-sm text-white/60" target="_blank" rel="noopener noreferrer">
+            <Link
+              className="text-sm text-white/60"
+              href="/faq"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               Questions?
             </Link>
-            <Link href="/contact" className="text-sm text-white/60" target="_blank" rel="noopener noreferrer">
+            <Link
+              className="text-sm text-white/60"
+              href="/contact"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               Contact
             </Link>
           </div>
@@ -341,10 +355,10 @@ export default function BuilderOnboardingPage() {
         <div className="rounded-2xl border border-white/10 bg-zinc-900/95 p-8 backdrop-blur-md">
           {/* Back Button */}
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
             className="mb-6 text-white/60 hover:text-white"
+            onClick={handleBack}
+            size="sm"
+            variant="ghost"
           >
             <ChevronLeft className="mr-1 h-4 w-4" />
             Back
@@ -387,31 +401,31 @@ export default function BuilderOnboardingPage() {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="mb-2 text-white/80">
+                  <Label className="mb-2 text-white/80" htmlFor="firstName">
                     First Name *
                   </Label>
                   <Input
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     id="firstName"
-                    value={formData.firstName}
                     onChange={(e) =>
                       handleInputChange("firstName", e.target.value)
                     }
                     placeholder="Enter your first name"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.firstName}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="mb-2 text-white/80">
+                  <Label className="mb-2 text-white/80" htmlFor="lastName">
                     Last Name *
                   </Label>
                   <Input
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     id="lastName"
-                    value={formData.lastName}
                     onChange={(e) =>
                       handleInputChange("lastName", e.target.value)
                     }
                     placeholder="Enter your last name"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.lastName}
                   />
                 </div>
               </div>
@@ -423,29 +437,29 @@ export default function BuilderOnboardingPage() {
                 </Label>
                 <ImageUpload
                   currentImageUrl={formData.image}
+                  entityId={session?.user?.id}
                   onImageChange={(url) => handleInputChange("image", url || "")}
                   uploadType="profile-avatar"
-                  entityId={session?.user?.id}
                   variant="avatar"
                 />
               </div>
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="username">
                   Username *
                 </Label>
                 <div className="relative">
                   <Input
+                    className={`bg-white/5 text-white placeholder:text-white/40 ${
+                      usernameError ? "border-red-500" : "border-white/20"
+                    }`}
                     id="username"
-                    value={formData.username}
                     onChange={(e) =>
                       handleInputChange("username", e.target.value)
                     }
                     placeholder="Choose a unique username"
-                    className={`bg-white/5 text-white placeholder:text-white/40 ${
-                      usernameError ? "border-red-500" : "border-white/20"
-                    }`}
+                    value={formData.username}
                   />
                   {isCheckingUsername && (
                     <div className="-translate-y-1/2 absolute top-1/2 right-3">
@@ -456,8 +470,7 @@ export default function BuilderOnboardingPage() {
                 {usernameError && (
                   <p className="mt-1 text-red-500 text-xs">{usernameError}</p>
                 )}
-                {!usernameError &&
-                  !isCheckingUsername &&
+                {!(usernameError || isCheckingUsername) &&
                   formData.username &&
                   formData.username.length >= 3 && (
                     <p className="mt-1 text-green-500 text-xs">
@@ -468,50 +481,48 @@ export default function BuilderOnboardingPage() {
 
               {/* Location */}
               <div>
-                <Label htmlFor="location" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="location">
                   Location *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="location"
-                  value={formData.location}
                   onChange={(e) =>
                     handleInputChange("location", e.target.value)
                   }
                   placeholder="City, Country"
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.location}
                 />
               </div>
 
               {/* Skills */}
               <div>
-                <Label className="mb-2 text-white/80">
-                  Skills *
-                </Label>
-                <SkillsOptions 
-                  value={formData.skills}
+                <Label className="mb-2 text-white/80">Skills *</Label>
+                <SkillsOptions
                   onChange={(skills) => {
                     if (skills && skills.length > 0) {
-                      setFormData((prev) => ({ ...prev, skills: skills }));
+                      setFormData((prev) => ({ ...prev, skills }));
                     } else {
                       setFormData((prev) => ({ ...prev, skills: [] }));
                     }
                   }}
+                  value={formData.skills}
                 />
               </div>
 
               {/* Wallet Address */}
               <div>
-                <Label htmlFor="walletAddress" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="walletAddress">
                   Wallet Address *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 font-mono text-white placeholder:text-white/40"
                   id="walletAddress"
-                  value={formData.walletAddress}
                   onChange={(e) =>
                     handleInputChange("walletAddress", e.target.value)
                   }
                   placeholder="Enter your Polkadot or Kusama address"
-                  className="border-white/20 bg-white/5 font-mono text-white placeholder:text-white/40"
+                  value={formData.walletAddress}
                 />
                 {formData.walletAddress && (
                   <p
@@ -540,36 +551,36 @@ export default function BuilderOnboardingPage() {
                 </Label>
                 <div className="space-y-3">
                   <Input
-                    value={formData.website}
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     onChange={(e) =>
                       handleInputChange("website", e.target.value)
                     }
                     placeholder="Personal website"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.website}
                   />
                   <Input
-                    value={formData.twitter}
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     onChange={(e) =>
                       handleInputChange("twitter", e.target.value)
                     }
                     placeholder="Twitter handle"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.twitter}
                   />
                   <Input
-                    value={formData.github}
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     onChange={(e) =>
                       handleInputChange("github", e.target.value)
                     }
                     placeholder="GitHub username"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.github}
                   />
                   <Input
-                    value={formData.linkedin}
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     onChange={(e) =>
                       handleInputChange("linkedin", e.target.value)
                     }
                     placeholder="LinkedIn profile"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.linkedin}
                   />
                 </div>
               </div>
@@ -580,36 +591,36 @@ export default function BuilderOnboardingPage() {
             <div className="space-y-6">
               {/* Current Employer */}
               <div>
-                <Label htmlFor="employer" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="employer">
                   Current Employer{" "}
                   <span className="text-white/40 text-xs">(Optional)</span>
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="employer"
-                  value={formData.employer}
                   onChange={(e) =>
                     handleInputChange("employer", e.target.value)
                   }
                   placeholder="Company name"
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.employer}
                 />
               </div>
 
               {/* Work Experience */}
               <div>
-                <Label htmlFor="workExperience" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="workExperience">
                   Work Experience{" "}
                   <span className="text-white/40 text-xs">(Optional)</span>
                 </Label>
                 <Textarea
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="workExperience"
-                  value={formData.workExperience}
                   onChange={(e) =>
                     handleInputChange("workExperience", e.target.value)
                   }
                   placeholder="Tell us about your professional experience"
                   rows={4}
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.workExperience}
                 />
               </div>
 
@@ -619,10 +630,10 @@ export default function BuilderOnboardingPage() {
                   Crypto Experience *
                 </Label>
                 <Select
-                  value={formData.cryptoExperience}
                   onValueChange={(value) =>
                     handleInputChange("cryptoExperience", value)
                   }
+                  value={formData.cryptoExperience}
                 >
                   <SelectTrigger className="border-white/20 bg-white/5 text-white">
                     <SelectValue placeholder="Select your experience level" />
@@ -630,9 +641,9 @@ export default function BuilderOnboardingPage() {
                   <SelectContent className="border-white/20 bg-zinc-900">
                     {CRYPTO_EXPERIENCE_OPTIONS.map((option) => (
                       <SelectItem
+                        className="text-white"
                         key={option.value}
                         value={option.value}
-                        className="text-white"
                       >
                         {option.label}
                       </SelectItem>
@@ -645,10 +656,10 @@ export default function BuilderOnboardingPage() {
               <div>
                 <Label className="mb-2 text-white/80">Work Preference *</Label>
                 <Select
-                  value={formData.workPreference}
                   onValueChange={(value) =>
                     handleInputChange("workPreference", value)
                   }
+                  value={formData.workPreference}
                 >
                   <SelectTrigger className="border-white/20 bg-white/5 text-white">
                     <SelectValue placeholder="Select your preferred work type" />
@@ -656,9 +667,9 @@ export default function BuilderOnboardingPage() {
                   <SelectContent className="border-white/20 bg-zinc-900">
                     {WORK_PREFERENCE_OPTIONS.map((option) => (
                       <SelectItem
+                        className="text-white"
                         key={option.value}
                         value={option.value}
-                        className="text-white"
                       >
                         {option.label}
                       </SelectItem>
@@ -683,17 +694,19 @@ export default function BuilderOnboardingPage() {
             </Button> */}
 
             <Button
-              onClick={handleNext}
-              disabled={updateProfileMutation.isPending}
               className="bg-[#E6007A] px-8 text-white hover:bg-[#E6007A]/90"
+              disabled={updateProfileMutation.isPending}
+              onClick={handleNext}
             >
               {updateProfileMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
+              ) : currentStep === 1 ? (
+                "Next Step"
               ) : (
-                currentStep === 1 ? "Next Step" : "Complete Profile"
+                "Complete Profile"
               )}
             </Button>
           </div>

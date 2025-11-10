@@ -1,10 +1,9 @@
-import { env } from "@/env";
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
-import { sendCommentReplyEmail } from "@packages/email";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { env } from "@/env";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -52,8 +51,8 @@ export async function GET(request: NextRequest) {
     const bountyId = searchParams.get("bountyId");
     const applicationId = searchParams.get("applicationId");
     const submissionId = searchParams.get("submissionId");
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Number.parseInt(searchParams.get("limit") || "50");
+    const offset = Number.parseInt(searchParams.get("offset") || "0");
 
     // Validate that exactly one ID is provided
     const providedIds = [rfpId, bountyId, applicationId, submissionId].filter(

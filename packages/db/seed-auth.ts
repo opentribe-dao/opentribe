@@ -195,7 +195,7 @@ async function main() {
               linkedin: userData.data.linkedin || undefined,
               website: userData.data.website || undefined,
               telegram: userData.data.telegram || undefined,
-              profileCompleted: userData.data.profileCompleted || false,
+              profileCompleted: userData.data.profileCompleted,
             },
           });
         }

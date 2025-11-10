@@ -1,6 +1,6 @@
 import { database } from "@packages/db";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const username = searchParams.get("username");
     const id = searchParams.get("id");
 
-    if (!username && !id) {
+    if (!(username || id)) {
       return NextResponse.json(
         { error: "Username or ID parameter required" },
         { status: 400 }

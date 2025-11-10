@@ -87,7 +87,7 @@ const LegalPage = async ({ params }: LegalPageProperties) => {
           </p>
 
           {/* Metadata badges */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-muted-foreground text-sm">
             <span>
               Last Updated:{" "}
               {new Date(page.date).toLocaleDateString("en-US", {

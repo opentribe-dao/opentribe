@@ -39,7 +39,7 @@ export async function GET(
     const membership = await database.member.findFirst({
       where: {
         userId: session.user.id,
-        organizationId: organizationId,
+        organizationId,
       },
     });
 
@@ -63,7 +63,7 @@ export async function GET(
 
     // Build where clause
     const whereClause: any = {
-      organizationId: organizationId,
+      organizationId,
     };
 
     if (status !== "ALL") {

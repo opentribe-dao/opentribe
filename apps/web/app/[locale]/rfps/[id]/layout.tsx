@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import {
-  createDetailMetadata,
-  clampDescription,
-  clampTitle,
-} from "@packages/seo/meta";
-import { env } from "@/env";
-import type { ReactNode } from "react";
 import { createBreadcrumbSchema } from "@packages/seo/breadcrumbs";
 import { JsonLd } from "@packages/seo/json-ld";
+import {
+  clampDescription,
+  clampTitle,
+  createDetailMetadata,
+} from "@packages/seo/meta";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { env } from "@/env";
 
 async function getRfp(id: string) {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`, {

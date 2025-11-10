@@ -1,11 +1,16 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { Button } from "@packages/base/components/ui/button"
-import { Skeleton } from "@packages/base/components/ui/skeleton"
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@packages/base/components/ui/empty"
-import { RFPCard } from "../../components/cards/rfp-card"
-import {  type TopBounty, TopBountiesCard } from "./top-bounties"
+import { Button } from "@packages/base/components/ui/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@packages/base/components/ui/empty";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
+import React from "react";
+import { RFPCard } from "../../components/cards/rfp-card";
+import { TopBountiesCard, type TopBounty } from "./top-bounties";
 
 interface RFP {
   id: string;
@@ -30,27 +35,27 @@ interface RFP {
 }
 
 interface RfpsFilters {
-  search: string
-  status: string[]
-  sort: string
-  grant: string
-  submission: string
+  search: string;
+  status: string[];
+  sort: string;
+  grant: string;
+  submission: string;
 }
 
 interface RfpsContentSectionProps {
-  rfps: RFP[]
-  loading: boolean
-  error: Error | null
-  filters: RfpsFilters
-  hasMore: boolean
-  isLoadingMore: boolean
-  activeFiltersCount: number
-  onClearAllFilters: () => void
-  onLoadMore: () => void
-  onRetry: () => void
-  topBounties: TopBounty[]
-  topBountiesLoading: boolean
-  topBountiesError: Error | null
+  rfps: RFP[];
+  loading: boolean;
+  error: Error | null;
+  filters: RfpsFilters;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  activeFiltersCount: number;
+  onClearAllFilters: () => void;
+  onLoadMore: () => void;
+  onRetry: () => void;
+  topBounties: TopBounty[];
+  topBountiesLoading: boolean;
+  topBountiesError: Error | null;
 }
 
 function RfpsContentSectionComponent({
@@ -65,35 +70,38 @@ function RfpsContentSectionComponent({
   onRetry,
   topBounties,
   topBountiesLoading,
-  topBountiesError
+  topBountiesError,
 }: RfpsContentSectionProps) {
   return (
     <div className="lg:col-span-3">
       {/* Error State */}
       {error && (
-        <div 
-          className='mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-6'
-          role="alert"
+        <div
           aria-live="polite"
+          className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-6"
+          role="alert"
         >
-          <div className='mb-2 font-semibold text-red-400'>Error loading RFPs</div>
-          <div className='mb-4 text-red-300 text-sm'>
-            {error.message || 'Something went wrong while loading RFPs. Please try again.'}
+          <div className="mb-2 font-semibold text-red-400">
+            Error loading RFPs
+          </div>
+          <div className="mb-4 text-red-300 text-sm">
+            {error.message ||
+              "Something went wrong while loading RFPs. Please try again."}
           </div>
           <div className="flex gap-3">
             <Button
-              onClick={onRetry}
-              className="bg-red-500 hover:bg-red-600"
               aria-label="Retry loading RFPs"
+              className="bg-red-500 hover:bg-red-600"
+              onClick={onRetry}
             >
               Try Again
             </Button>
             {activeFiltersCount > 0 && (
               <Button
-                variant="outline"
-                onClick={onClearAllFilters}
-                className="border-red-500/20 text-red-300 hover:bg-red-500/10"
                 aria-label="Clear all active filters"
+                className="border-red-500/20 text-red-300 hover:bg-red-500/10"
+                onClick={onClearAllFilters}
+                variant="outline"
               >
                 Clear Filters
               </Button>
@@ -104,26 +112,22 @@ function RfpsContentSectionComponent({
 
       {/* Loading State */}
       {loading && rfps.length === 0 && (
-        <div className="space-y-4" aria-label="Loading RFPs">
+        <div aria-label="Loading RFPs" className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton
-              key={i}
-              className="h-32 rounded-xl"
-              aria-hidden="true"
-            />
+            <Skeleton aria-hidden="true" className="h-32 rounded-xl" key={i} />
           ))}
         </div>
       )}
 
       {/* Empty State */}
-      {!loading && !error && rfps.length === 0 && (
+      {!(loading || error) && rfps.length === 0 && (
         <Empty className="border border-dashed">
           <EmptyHeader>
             <EmptyTitle>No RFPs found</EmptyTitle>
             <EmptyDescription>
               {activeFiltersCount > 0
-                ? 'Try adjusting your filters to see more RFPs.'
-                : 'There are no RFPs available at the moment.'}
+                ? "Try adjusting your filters to see more RFPs."
+                : "There are no RFPs available at the moment."}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -134,23 +138,23 @@ function RfpsContentSectionComponent({
         <>
           <div>
             {rfps.map((rfp, index) => (
-              <div key={rfp.id} className={index > 0 ? "mt-6" : ""}>
+              <div className={index > 0 ? "mt-6" : ""} key={rfp.id}>
                 <RFPCard
-                  id={rfp.id}
-                  slug={rfp.slug}
-                  title={rfp.title}
+                  commentCount={rfp.commentCount}
+                  description={rfp.description}
                   grant={{
                     title: rfp.grant.title,
                     organization: {
                       name: rfp.grant.organization.name,
                       logo: rfp.grant.organization.logo || undefined,
-                    }
+                    },
                   }}
-                  voteCount={rfp.voteCount}
-                  commentCount={rfp.commentCount}
+                  id={rfp.id}
+                  slug={rfp.slug}
                   status={rfp.status as "OPEN" | "CLOSED"}
-                  description={rfp.description}
+                  title={rfp.title}
                   variant="list"
+                  voteCount={rfp.voteCount}
                 />
               </div>
             ))}
@@ -160,11 +164,13 @@ function RfpsContentSectionComponent({
           {hasMore && (
             <div className="mt-8 text-center">
               <Button
-                onClick={onLoadMore}
-                disabled={isLoadingMore}
-                variant="outline"
+                aria-label={
+                  isLoadingMore ? "Loading more RFPs" : "Load more RFPs"
+                }
                 className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
-                aria-label={isLoadingMore ? "Loading more RFPs" : "Load more RFPs"}
+                disabled={isLoadingMore}
+                onClick={onLoadMore}
+                variant="outline"
               >
                 {isLoadingMore ? (
                   <div className="flex items-center gap-2">
@@ -178,31 +184,31 @@ function RfpsContentSectionComponent({
             </div>
           )}
 
-      {/* Top Bounties - Mobile Only */}
-        <TopBountiesCard
-          topBounties={topBounties}
-          topBountiesLoading={topBountiesLoading}
-          topBountiesError={topBountiesError}
-          className='mt-6 lg:hidden'
-        />
+          {/* Top Bounties - Mobile Only */}
+          <TopBountiesCard
+            className="mt-6 lg:hidden"
+            topBounties={topBounties}
+            topBountiesError={topBountiesError}
+            topBountiesLoading={topBountiesLoading}
+          />
         </>
       )}
 
       {/* Loading More State */}
       {loading && rfps.length > 0 && (
-        <div className="mt-6 space-y-4" aria-label="Loading more RFPs">
+        <div aria-label="Loading more RFPs" className="mt-6 space-y-4">
           {[1, 2, 3].map((i) => (
             <Skeleton
-              key={`loading-${i}`}
-              className="h-32 rounded-xl"
               aria-hidden="true"
+              className="h-32 rounded-xl"
+              key={`loading-${i}`}
             />
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // Memoize the component for performance
-export const RfpsContentSection = React.memo(RfpsContentSectionComponent)
+export const RfpsContentSection = React.memo(RfpsContentSectionComponent);

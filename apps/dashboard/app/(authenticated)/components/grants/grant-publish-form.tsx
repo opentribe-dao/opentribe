@@ -1,13 +1,13 @@
-import { Badge } from '@packages/base/components/ui/badge';
-import { Label } from '@packages/base/components/ui/label';
+import { Badge } from "@packages/base/components/ui/badge";
+import { Label } from "@packages/base/components/ui/label";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
-} from '@packages/base/components/ui/select';
-import { useFormContext } from 'react-hook-form';
+  SelectTrigger,
+  SelectValue,
+} from "@packages/base/components/ui/select";
+import { useFormContext } from "react-hook-form";
 
 export function GrantPublishForm() {
   const { register, setValue, watch } = useFormContext();
@@ -39,9 +39,9 @@ export function GrantPublishForm() {
             <div className="mt-1 flex flex-wrap gap-2">
               {formData.skills.map((skill: string) => (
                 <Badge
+                  className="border-0 bg-white/10 text-white"
                   key={skill}
                   variant="secondary"
-                  className="border-0 bg-white/10 text-white"
                 >
                   {skill}
                 </Badge>
@@ -55,7 +55,7 @@ export function GrantPublishForm() {
             <div className="mt-1 space-y-1">
               {formData.minAmount && formData.maxAmount && (
                 <p className="text-white">
-                  Range: {formData.minAmount} - {formData.maxAmount}{' '}
+                  Range: {formData.minAmount} - {formData.maxAmount}{" "}
                   {formData.token}
                 </p>
               )}
@@ -75,22 +75,22 @@ export function GrantPublishForm() {
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              {...register('source')}
-              value="NATIVE"
-              checked={formData.source === 'NATIVE'}
-              onChange={() => setValue('source', 'NATIVE')}
+              {...register("source")}
+              checked={formData.source === "NATIVE"}
               className="text-[#E6007A]"
+              onChange={() => setValue("source", "NATIVE")}
+              value="NATIVE"
             />
             <span className="text-white">Native (managed in Opentribe)</span>
           </label>
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              {...register('source')}
-              value="EXTERNAL"
-              checked={formData.source === 'EXTERNAL'}
-              onChange={() => setValue('source', 'EXTERNAL')}
+              {...register("source")}
+              checked={formData.source === "EXTERNAL"}
               className="text-[#E6007A]"
+              onChange={() => setValue("source", "EXTERNAL")}
+              value="EXTERNAL"
             />
             <span className="text-white">External (managed externally)</span>
           </label>
@@ -100,20 +100,20 @@ export function GrantPublishForm() {
       <div>
         <Label>Grant Status</Label>
         <Select
+          onValueChange={(value) => setValue("status", value)}
           value={formData.status}
-          onValueChange={(value) => setValue('status', value)}
         >
           <SelectTrigger className="border-white/10 bg-white/5 text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="border-white/10 bg-zinc-900">
-            <SelectItem value="OPEN" className="text-white">
+            <SelectItem className="text-white" value="OPEN">
               Open
             </SelectItem>
-            <SelectItem value="PAUSED" className="text-white">
+            <SelectItem className="text-white" value="PAUSED">
               Paused
             </SelectItem>
-            <SelectItem value="CLOSED" className="text-white">
+            <SelectItem className="text-white" value="CLOSED">
               Closed
             </SelectItem>
           </SelectContent>
@@ -125,33 +125,33 @@ export function GrantPublishForm() {
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              {...register('visibility')}
-              value="DRAFT"
-              checked={formData.visibility === 'DRAFT'}
-              onChange={() => setValue('visibility', 'DRAFT')}
+              {...register("visibility")}
+              checked={formData.visibility === "DRAFT"}
               className="text-[#E6007A]"
+              onChange={() => setValue("visibility", "DRAFT")}
+              value="DRAFT"
             />
             <span className="text-white">Draft</span>
           </label>
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              {...register('visibility')}
-              value="PUBLISHED"
-              checked={formData.visibility === 'PUBLISHED'}
-              onChange={() => setValue('visibility', 'PUBLISHED')}
+              {...register("visibility")}
+              checked={formData.visibility === "PUBLISHED"}
               className="text-[#E6007A]"
+              onChange={() => setValue("visibility", "PUBLISHED")}
+              value="PUBLISHED"
             />
             <span className="text-white">Published</span>
           </label>
           <label className="flex items-center gap-2">
             <input
               type="radio"
-              {...register('visibility')}
-              value="ARCHIVED"
-              checked={formData.visibility === 'ARCHIVED'}
-              onChange={() => setValue('visibility', 'ARCHIVED')}
+              {...register("visibility")}
+              checked={formData.visibility === "ARCHIVED"}
               className="text-[#E6007A]"
+              onChange={() => setValue("visibility", "ARCHIVED")}
+              value="ARCHIVED"
             />
             <span className="text-white">Archived</span>
           </label>

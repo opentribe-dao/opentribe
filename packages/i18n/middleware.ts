@@ -1,7 +1,7 @@
 import { match as matchLocale } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
-import { createI18nMiddleware } from "next-international/middleware";
 import type { NextRequest } from "next/server";
+import { createI18nMiddleware } from "next-international/middleware";
 import languine from "./languine.json";
 
 const locales = [languine.locale.source, ...languine.locale.targets];

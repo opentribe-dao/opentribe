@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
-import { Search, Settings, User } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
+  CommandItem,
   CommandList,
   CommandSeparator,
-  CommandItem,
 } from "@packages/base/components/ui/command";
+import { Search, Settings, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { env } from "@/env";
 
 // Types for search functionality
@@ -101,16 +101,15 @@ export function HeroSection() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-
   const profileHref = `/profile/${session?.user?.username || session?.user.id}`;
   return (
     <>
       <section className="container mx-auto px-4 pt-8 pb-6">
-        <div className='mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             {session?.user ? (
               <>
-                <h1 className='mb-2 font-bold text-4xl'>
+                <h1 className="mb-2 font-bold text-4xl">
                   Welcome Back{userName ? `, ${userName}` : ""}!
                 </h1>
                 <p className="text-white/60">
@@ -119,7 +118,7 @@ export function HeroSection() {
               </>
             ) : (
               <>
-                <h1 className='mb-2 font-bold text-4xl'>
+                <h1 className="mb-2 font-bold text-4xl">
                   Find your next high paying gig
                 </h1>
                 <p className="text-white/60">
@@ -129,15 +128,15 @@ export function HeroSection() {
             )}
           </div>
 
-          <div className='flex flex-col gap-4 md:flex-row'>
+          <div className="flex flex-col gap-4 md:flex-row">
             <Button
-              variant="outline"
               className="border-white/20 text-white hover:bg-white/10"
               onClick={() => setOpen(true)}
+              variant="outline"
             >
-              <Search className='mr-2 h-4 w-4' />
+              <Search className="mr-2 h-4 w-4" />
               Search
-              <kbd className='pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground opacity-100'>
+              <kbd className="pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground opacity-100">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
@@ -154,7 +153,6 @@ export function HeroSection() {
 
       {/* Search Dialog */}
       <CommandDialog
-        open={open}
         onOpenChange={(o) => {
           setOpen(o);
           if (!o) {
@@ -165,16 +163,17 @@ export function HeroSection() {
             if (searchAbortRef.current) searchAbortRef.current.abort();
           }
         }}
+        open={open}
       >
         <CommandInput
+          onValueChange={setSearchTerm}
           placeholder="Search..."
           value={searchTerm}
-          onValueChange={setSearchTerm}
         />
         <CommandList>
           {/* Optional: simple loading hint when typing */}
           {isSearching && searchTerm && (
-            <div className='px-3 py-2 text-muted-foreground text-sm'>
+            <div className="px-3 py-2 text-muted-foreground text-sm">
               Searching…
             </div>
           )}
@@ -182,31 +181,31 @@ export function HeroSection() {
           {searchTerm === "" ? (
             <CommandGroup heading="Suggestions">
               <CommandItem
-                value="go-to-bounties"
                 onSelect={() => {
                   router.push("/bounties");
                   setOpen(false);
                 }}
+                value="go-to-bounties"
               >
                 <Search className="mr-2 h-4 w-4" />
                 <span>Bounties</span>
               </CommandItem>
               <CommandItem
-                value="go-to-grants"
                 onSelect={() => {
                   router.push("/grants");
                   setOpen(false);
                 }}
+                value="go-to-grants"
               >
                 <Search className="mr-2 h-4 w-4" />
                 <span>Grants</span>
               </CommandItem>
               <CommandItem
-                value="go-to-rfps"
                 onSelect={() => {
                   router.push("/rfps");
                   setOpen(false);
                 }}
+                value="go-to-rfps"
               >
                 <Search className="mr-2 h-4 w-4" />
                 <span>RFPs</span>
@@ -219,11 +218,11 @@ export function HeroSection() {
                   {bountyResults.map((r) => (
                     <CommandItem
                       key={r.id}
-                      value={r.title ?? r.id}
                       onSelect={() => {
                         router.push(`/bounties/${r.slug || r.id}`);
                         setOpen(false);
                       }}
+                      value={r.title ?? r.id}
                     >
                       <Search className="mr-2 h-4 w-4" />
                       <span>{r.title}</span>
@@ -237,11 +236,11 @@ export function HeroSection() {
                   {grantResults.map((r: any) => (
                     <CommandItem
                       key={r.id}
-                      value={r.title ?? r.id}
                       onSelect={() => {
                         router.push(`/grants/${r.slug || r.id}`);
                         setOpen(false);
                       }}
+                      value={r.title ?? r.id}
                     >
                       <Search className="mr-2 h-4 w-4" />
                       <span>{r.title}</span>
@@ -255,11 +254,11 @@ export function HeroSection() {
                   {rfpResults.map((r) => (
                     <CommandItem
                       key={r.id}
-                      value={r.title ?? r.id}
                       onSelect={() => {
                         router.push(`/rfps/${r.slug || r.id}`);
                         setOpen(false);
                       }}
+                      value={r.title ?? r.id}
                     >
                       <Search className="mr-2 h-4 w-4" />
                       <span>{r.title}</span>
@@ -279,21 +278,21 @@ export function HeroSection() {
           {session?.user && (
             <CommandGroup heading="Settings">
               <CommandItem
-                value="profile"
                 onSelect={() => {
                   router.push(profileHref);
                   setOpen(false);
                 }}
+                value="profile"
               >
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </CommandItem>
               <CommandItem
-                value="settings"
                 onSelect={() => {
                   router.push("/settings");
                   setOpen(false);
                 }}
+                value="settings"
               >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>

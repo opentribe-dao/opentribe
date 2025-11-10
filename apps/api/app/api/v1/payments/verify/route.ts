@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         verified: true,
         details: {
-          blockNumber: 12345678,
+          blockNumber: 12_345_678,
           from: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
           to: validatedData.expectedTo,
           amount: validatedData.expectedAmount,

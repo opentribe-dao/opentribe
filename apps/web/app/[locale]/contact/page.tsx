@@ -1,7 +1,7 @@
-import { getDictionary } from '@packages/i18n';
-import { createSiteMetadata } from '@packages/seo/meta';
-import type { Metadata } from 'next';
-import { ContactForm } from './components/contact-form';
+import { getDictionary } from "@packages/i18n";
+import { createSiteMetadata } from "@packages/seo/meta";
+import type { Metadata } from "next";
+import { ContactForm } from "./components/contact-form";
 
 type ContactProps = {
   params: Promise<{
@@ -19,7 +19,7 @@ export const generateMetadata = async ({
     title: dictionary.seo.contact.title,
     description: dictionary.seo.contact.description,
     keywords: dictionary.seo.contact.keywords,
-    image: '/api/og?title=Contact Us',
+    image: "/api/og?title=Contact Us",
   });
 };
 

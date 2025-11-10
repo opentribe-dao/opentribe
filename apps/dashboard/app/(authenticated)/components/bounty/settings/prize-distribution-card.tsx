@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Button } from '@packages/base/components/ui/button';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@packages/base/components/ui/select';
-import { Award, Plus, Trash2 } from 'lucide-react';
-import type { BountyDetails } from '@/hooks/use-bounty';
+} from "@packages/base/components/ui/select";
+import { Award, Plus, Trash2 } from "lucide-react";
+import type { BountyDetails } from "@/hooks/use-bounty";
 
 interface PrizeDistributionCardProps {
   formData: Partial<BountyDetails>;
@@ -48,37 +48,37 @@ export function PrizeDistributionCard({
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-white/80">
+            <Label className="text-white/80" htmlFor="amount">
               Total Amount *
             </Label>
             <Input
+              className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
               id="amount"
+              onChange={(e) => updateFormData("amount", Number(e.target.value))}
+              placeholder="0"
               type="number"
               value={formData.amount}
-              onChange={(e) => updateFormData('amount', Number(e.target.value))}
-              className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
-              placeholder="0"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="token" className="text-white/80">
+            <Label className="text-white/80" htmlFor="token">
               Token
             </Label>
             <Select
+              onValueChange={(value) => updateFormData("token", value)}
               value={formData.token}
-              onValueChange={(value) => updateFormData('token', value)}
             >
               <SelectTrigger className="border-white/10 bg-white/5 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-white/10 bg-zinc-900">
-                <SelectItem value="DOT" className="text-white">
+                <SelectItem className="text-white" value="DOT">
                   DOT
                 </SelectItem>
-                <SelectItem value="USDT" className="text-white">
+                <SelectItem className="text-white" value="USDT">
                   USDT
                 </SelectItem>
-                <SelectItem value="USDC" className="text-white">
+                <SelectItem className="text-white" value="USDC">
                   USDC
                 </SelectItem>
               </SelectContent>
@@ -89,61 +89,61 @@ export function PrizeDistributionCard({
         <div className="space-y-2">
           <Label className="text-white/80">Distribution Type</Label>
           <Select
+            onValueChange={(value: string) => updateFormData("split", value)}
             value={formData.split}
-            onValueChange={(value: string) => updateFormData('split', value)}
           >
             <SelectTrigger className="border-white/10 bg-white/5 text-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="border-white/10 bg-zinc-900">
-              <SelectItem value="FIXED" className="text-white">
+              <SelectItem className="text-white" value="FIXED">
                 Fixed Amounts
               </SelectItem>
-              <SelectItem value="EQUAL_SPLIT" className="text-white">
+              <SelectItem className="text-white" value="EQUAL_SPLIT">
                 Equal Split
               </SelectItem>
-              <SelectItem value="VARIABLE" className="text-white">
+              <SelectItem className="text-white" value="VARIABLE">
                 Variable
               </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {formData.split === 'FIXED' && (
+        {formData.split === "FIXED" && (
           <div className="space-y-4">
             <Label className="text-white/80">Winner Prizes *</Label>
             <div className="space-y-2">
               {(formData.winnings && Object.keys(formData.winnings).length > 0
                 ? Object.keys(formData.winnings)
-                : ['1']
+                : ["1"]
               )
                 .sort((a, b) => Number(a) - Number(b))
                 .map((position) => (
-                  <div key={position} className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" key={position}>
                     <span className="w-16 text-sm text-white/60">
                       {position}
-                      {position === '1'
-                        ? 'st'
-                        : position === '2'
-                          ? 'nd'
-                          : position === '3'
-                            ? 'rd'
-                            : 'th'}{' '}
+                      {position === "1"
+                        ? "st"
+                        : position === "2"
+                          ? "nd"
+                          : position === "3"
+                            ? "rd"
+                            : "th"}{" "}
                       Place
                     </span>
                     <Input
+                      className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
+                      onChange={(e) =>
+                        updateWinnings(position, Number(e.target.value))
+                      }
+                      placeholder="0"
                       type="number"
                       value={
                         formData.winnings &&
                         formData.winnings[position] !== undefined
                           ? formData.winnings[position]
-                          : ''
+                          : ""
                       }
-                      onChange={(e) =>
-                        updateWinnings(position, Number(e.target.value))
-                      }
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
-                      placeholder="0"
                     />
                     <span className="text-sm text-white/60">
                       {formData.token}
@@ -151,9 +151,7 @@ export function PrizeDistributionCard({
                     {formData.winnings &&
                       Object.keys(formData.winnings).length > 1 && (
                         <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
+                          aria-label="Remove tier"
                           className="ml-2 text-white/40 hover:text-white"
                           onClick={() => {
                             if (!formData.winnings) {
@@ -161,9 +159,11 @@ export function PrizeDistributionCard({
                             }
                             const newWinnings = { ...formData.winnings };
                             delete newWinnings[position];
-                            updateFormData('winnings', newWinnings);
+                            updateFormData("winnings", newWinnings);
                           }}
-                          aria-label="Remove tier"
+                          size="icon"
+                          type="button"
+                          variant="ghost"
                         >
                           <Trash2 className="size-4" />
                         </Button>
@@ -171,9 +171,6 @@ export function PrizeDistributionCard({
                   </div>
                 ))}
               <Button
-                type="button"
-                variant="outline"
-                size="sm"
                 className="mt-4 border-white/20 bg-white/10 text-white hover:bg-white/20"
                 onClick={() => {
                   const winnings = formData.winnings ?? {};
@@ -184,10 +181,13 @@ export function PrizeDistributionCard({
                   }
                   const newWinnings = {
                     ...winnings,
-                    [next]: '',
+                    [next]: "",
                   };
-                  updateFormData('winnings', newWinnings);
+                  updateFormData("winnings", newWinnings);
                 }}
+                size="sm"
+                type="button"
+                variant="outline"
               >
                 <Plus className="size-4" />
                 Add Winning Tier

@@ -7,8 +7,9 @@
     "dev": "turbo dev",
     "email:dev": "email dev --port 3003 --dir packages/email/templates",
     "db:studio": "prisma studio --schema packages/db/prisma/schema.prisma",
-    "lint": "ultracite lint",
-    "format": "ultracite format",
+    "lint": "ultracite check",
+    "lint:fix": "ultracite fix",
+    "format": "ultracite fix",
     "test": "turbo test",
     "analyze": "turbo analyze",
     "translate": "turbo translate",
@@ -16,7 +17,13 @@
     "bump-deps": "npx npm-check-updates --deep -u -x react-day-picker",
     "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/base",
     "migrate": "cd packages/db && npx prisma format && npx prisma generate && npx prisma db push",
-    "clean": "git clean -xdf node_modules"
+    "clean": "git clean -xdf node_modules",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md}": [
+      "ultracite fix"
+    ]
   },
   "devDependencies": {
     "@auto-it/first-time-contributor": "^11.3.0",
@@ -24,11 +31,13 @@
     "@tooling/typescript-config": "workspace:*",
     "@turbo/gen": "^2.5.3",
     "@types/node": "^24.5.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
     "react-email": "^4.2.11",
     "tsup": "^8.5.0",
     "turbo": "^2.5.3",
     "typescript": "^5.8.3",
-    "ultracite": "^4.2.5",
+    "ultracite": "^6.3.2",
     "vitest": "^3.1.4"
   },
   "engines": {

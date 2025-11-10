@@ -1,8 +1,8 @@
 import { database } from "@packages/db";
 import { redis } from "@packages/security/cache";
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GET as getRfpStats } from "../app/api/v1/rfps/stats/route";
-import { NextRequest } from "next/server";
 
 // Mock database
 vi.mock("@packages/db", () => ({

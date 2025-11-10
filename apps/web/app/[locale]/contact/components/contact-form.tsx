@@ -13,7 +13,7 @@ import {
 } from "@packages/base/components/ui/select";
 import { Textarea } from "@packages/base/components/ui/textarea";
 import type { Dictionary } from "@packages/i18n";
-import { Check, MoveRight, Users, Zap, Headphones } from "lucide-react";
+import { Check, Headphones, MoveRight, Users, Zap } from "lucide-react";
 import { useState } from "react";
 
 type ContactFormProps = {
@@ -198,12 +198,17 @@ export const ContactForm = ({ dictionary }: ContactFormProps) => {
             {dictionary.web.contact.hero.benefits.map((benefit, index) => {
               const Icon = benefitIcons[index];
               return (
-                <div className="flex flex-1 flex-col rounded-lg border bg-white/5 p-4 sm:p-6" key={index}>
+                <div
+                  className="flex flex-1 flex-col rounded-lg border bg-white/5 p-4 sm:p-6"
+                  key={index}
+                >
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                     <Icon className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="mb-2 font-semibold text-base lg:text-lg">{benefit.title}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="mb-2 font-semibold text-base lg:text-lg">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
                     {benefit.description}
                   </p>
                 </div>
@@ -217,7 +222,7 @@ export const ContactForm = ({ dictionary }: ContactFormProps) => {
               className="flex h-full w-full flex-col gap-4 rounded-lg border bg-white/5 p-4 sm:p-6 lg:p-8"
               onSubmit={handleSubmit}
             >
-            <div className="grid w-full items-center gap-1.5">
+              <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="organizationName">
                   {dictionary.web.contact.hero.form.organizationName}
                 </Label>

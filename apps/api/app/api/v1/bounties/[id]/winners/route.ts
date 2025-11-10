@@ -107,7 +107,7 @@ export async function POST(
     const submissions = await database.submission.findMany({
       where: {
         id: { in: submissionIds },
-        bountyId: bountyId,
+        bountyId,
         status: "APPROVED",
       },
     });
@@ -127,7 +127,7 @@ export async function POST(
       // First, reset any existing winners for this bounty
       await tx.submission.updateMany({
         where: {
-          bountyId: bountyId,
+          bountyId,
           isWinner: true,
         },
         data: {

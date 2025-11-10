@@ -1,30 +1,34 @@
-'use client';
+"use client";
 
-import { Header } from '@/app/(authenticated)/components/header';
-import { Card, CardContent, CardHeader } from '@packages/base/components/ui/card';
-import { Skeleton } from '@packages/base/components/ui/skeleton';
-import { cn } from '@packages/base/lib/utils';
-import { Loader2 } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@packages/base/components/ui/card";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { cn } from "@packages/base/lib/utils";
+import { Loader2 } from "lucide-react";
+import { Header } from "@/app/(authenticated)/components/header";
 
 interface LoadingSpinnerProps {
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 }
 
 export function LoadingSpinner({
   className,
-  size = 'md',
+  size = "md",
 }: LoadingSpinnerProps) {
   const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-6 w-6',
-    lg: 'h-8 w-8',
+    sm: "h-4 w-4",
+    md: "h-6 w-6",
+    lg: "h-8 w-8",
   };
 
   return (
     <Loader2
       className={cn(
-        'animate-spin text-muted-foreground',
+        "animate-spin text-muted-foreground",
         sizeClasses[size],
         className
       )}
@@ -43,7 +47,10 @@ export function LoadingPage() {
 export function TableSkeleton({
   rows = 5,
   columns = 4,
-}: { rows?: number; columns?: number }) {
+}: {
+  rows?: number;
+  columns?: number;
+}) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -54,15 +61,15 @@ export function TableSkeleton({
         <div className="border-b p-4">
           <div className="flex gap-4">
             {Array.from({ length: columns }).map((_, i) => (
-              <Skeleton key={i} className="h-4 w-[100px]" />
+              <Skeleton className="h-4 w-[100px]" key={i} />
             ))}
           </div>
         </div>
         {Array.from({ length: rows }).map((_, i) => (
-          <div key={i} className="border-b p-4 last:border-0">
+          <div className="border-b p-4 last:border-0" key={i}>
             <div className="flex gap-4">
               {Array.from({ length: columns }).map((_, j) => (
-                <Skeleton key={j} className="h-4 w-[100px]" />
+                <Skeleton className="h-4 w-[100px]" key={j} />
               ))}
             </div>
           </div>
@@ -111,16 +118,15 @@ export function PageHeaderSkeleton() {
   );
 }
 
-
-export function OverviewSkeleton(){
+export function OverviewSkeleton() {
   return (
     <>
-      <Header pages={[]} page="Overview" />
+      <Header page="Overview" pages={[]} />
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Stats Cards Skeleton */}
         <div className="grid gap-12 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="border-white/10 bg-zinc-900/50">
+            <Card className="border-white/10 bg-zinc-900/50" key={i}>
               <CardHeader className="pb-3">
                 <Skeleton className="h-4 w-24 bg-white/20" />
               </CardHeader>
@@ -152,7 +158,7 @@ export function OverviewSkeleton(){
         <div className="space-y-4">
           <Skeleton className="h-6 w-24 bg-white/20" />
           {[1, 2].map((i) => (
-            <Card key={i} className="border-white/10 bg-zinc-900/50">
+            <Card className="border-white/10 bg-zinc-900/50" key={i}>
               <CardContent className="flex items-center justify-between px-4">
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-8 w-8 rounded-full bg-[#E6007A]/20" />
@@ -165,5 +171,5 @@ export function OverviewSkeleton(){
         </div>
       </div>
     </>
-  ); 
+  );
 }

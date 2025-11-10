@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { env } from "@/env";
 import { useSession } from "@packages/auth/client";
 import type { Prisma } from "@packages/db";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { env } from "@/env";
 
 // Define the user profile with organizations using Prisma's type system
 export type UserProfileWithOrganizations = Prisma.UserGetPayload<{

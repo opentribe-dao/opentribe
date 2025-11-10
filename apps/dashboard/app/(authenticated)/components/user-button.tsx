@@ -49,7 +49,7 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
 
   if (!user) {
     return (
-      <SidebarMenuButton size="lg" disabled>
+      <SidebarMenuButton disabled size="lg">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
           <UserIcon className="h-4 w-4" />
         </div>
@@ -88,8 +88,8 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton
-            size="lg"
             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            size="lg"
           >
             <div
               className={
@@ -99,11 +99,11 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-primary font-medium text-sidebar-primary-foreground text-sm">
                 {user.image ? (
                   <Image
-                    src={user.image}
                     alt={`${displayName} avatar`}
-                    width={32}
-                    height={32}
                     className="h-8 w-8 rounded-full"
+                    height={32}
+                    src={user.image}
+                    width={32}
                   />
                 ) : (
                   userInitials
@@ -127,8 +127,8 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
           </SidebarMenuButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="w-56 rounded-lg"
           align="end"
+          className="w-56 rounded-lg"
           side="right"
           sideOffset={4}
         >
@@ -141,18 +141,18 @@ export function UserButton({ showName = false, appearance }: UserButtonProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleProfile} className="gap-2">
+          <DropdownMenuItem className="gap-2" onClick={handleProfile}>
             <User className="h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleSettings} className="gap-2">
+          <DropdownMenuItem className="gap-2" onClick={handleSettings}>
             <Settings className="h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={handleSignOut}
             className="gap-2 text-red-600"
+            onClick={handleSignOut}
           >
             <LogOut className="h-4 w-4" />
             <span>Sign out</span>

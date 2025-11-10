@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "@packages/auth/client";
+import { ImageUpload } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
@@ -12,15 +13,14 @@ import {
   SelectValue,
 } from "@packages/base/components/ui/select";
 import { Textarea } from "@packages/base/components/ui/textarea";
-import { ImageUpload } from "@packages/base";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ChevronLeft, Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
-import { useUserProfile } from "@/hooks/use-user-profile";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/hooks/react-query";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 const ORGANIZATION_TYPES = [
   { value: "protocol", label: "Protocol" },
@@ -90,7 +90,7 @@ function OrganizationOnboardingPageContent() {
   });
 
   useEffect(() => {
-    if (!sessionLoading && !session?.user) {
+    if (!(sessionLoading || session?.user)) {
       // User is not authenticated, redirect to home
       router.push("/");
     }
@@ -166,10 +166,12 @@ function OrganizationOnboardingPageContent() {
 
   const validateStep1 = () => {
     if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.username ||
-      !formData.location
+      !(
+        formData.firstName &&
+        formData.lastName &&
+        formData.username &&
+        formData.location
+      )
     ) {
       toast.error("Please fill in all required fields");
       return false;
@@ -178,7 +180,7 @@ function OrganizationOnboardingPageContent() {
       toast.error("Please enter your wallet address");
       return false;
     }
-    if (!formData.website && !formData.twitter && !formData.linkedin) {
+    if (!(formData.website || formData.twitter || formData.linkedin)) {
       toast.error("Please add at least one social media link");
       return false;
     }
@@ -187,9 +189,11 @@ function OrganizationOnboardingPageContent() {
 
   const validateStep2 = () => {
     if (
-      !formData.organizationName ||
-      !formData.organizationType ||
-      !formData.organizationDescription
+      !(
+        formData.organizationName &&
+        formData.organizationType &&
+        formData.organizationDescription
+      )
     ) {
       toast.error("Please fill in all required fields");
       return false;
@@ -198,7 +202,7 @@ function OrganizationOnboardingPageContent() {
       toast.error("Please enter your organization website");
       return false;
     }
-    if (!formData.organizationLocation || !formData.organizationIndustry) {
+    if (!(formData.organizationLocation && formData.organizationIndustry)) {
       toast.error("Please complete all organization details");
       return false;
     }
@@ -333,10 +337,10 @@ function OrganizationOnboardingPageContent() {
           </div>
           <div className="mr-4 flex items-center">
             <Button
-              variant="outline"
-              size="sm"
               className="text-white/60"
               onClick={() => router.push("/contact")}
+              size="sm"
+              variant="outline"
             >
               <Mail className="mr-1 h-4 w-4" />
               Contact
@@ -348,10 +352,10 @@ function OrganizationOnboardingPageContent() {
         <div className="rounded-2xl border border-white/10 bg-zinc-900/95 p-8 backdrop-blur-md">
           {/* Back Button */}
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
             className="mb-6 text-white/60 hover:text-white"
+            onClick={handleBack}
+            size="sm"
+            variant="ghost"
           >
             <ChevronLeft className="mr-1 h-4 w-4" />
             Back
@@ -419,80 +423,80 @@ function OrganizationOnboardingPageContent() {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className="mb-2 text-white/80">
+                  <Label className="mb-2 text-white/80" htmlFor="firstName">
                     First Name *
                   </Label>
                   <Input
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     id="firstName"
-                    value={formData.firstName}
                     onChange={(e) =>
                       handleInputChange("firstName", e.target.value)
                     }
                     placeholder="Enter your first name"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.firstName}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className="mb-2 text-white/80">
+                  <Label className="mb-2 text-white/80" htmlFor="lastName">
                     Last Name *
                   </Label>
                   <Input
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     id="lastName"
-                    value={formData.lastName}
                     onChange={(e) =>
                       handleInputChange("lastName", e.target.value)
                     }
                     placeholder="Enter your last name"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.lastName}
                   />
                 </div>
               </div>
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="username">
                   Username *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="username"
-                  value={formData.username}
                   onChange={(e) =>
                     handleInputChange("username", e.target.value)
                   }
                   placeholder="Choose a unique username"
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.username}
                 />
               </div>
 
               {/* Location */}
               <div>
-                <Label htmlFor="location" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="location">
                   Your Location *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="location"
-                  value={formData.location}
                   onChange={(e) =>
                     handleInputChange("location", e.target.value)
                   }
                   placeholder="City, Country"
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.location}
                 />
               </div>
 
               {/* Wallet Address */}
               <div>
-                <Label htmlFor="walletAddress" className="mb-2 text-white/80">
+                <Label className="mb-2 text-white/80" htmlFor="walletAddress">
                   Wallet Address *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="walletAddress"
-                  value={formData.walletAddress}
                   onChange={(e) =>
                     handleInputChange("walletAddress", e.target.value)
                   }
                   placeholder="0x..."
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.walletAddress}
                 />
               </div>
 
@@ -506,28 +510,28 @@ function OrganizationOnboardingPageContent() {
                 </Label>
                 <div className="space-y-3">
                   <Input
-                    value={formData.website}
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     onChange={(e) =>
                       handleInputChange("website", e.target.value)
                     }
                     placeholder="Personal website"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.website}
                   />
                   <Input
-                    value={formData.twitter}
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     onChange={(e) =>
                       handleInputChange("twitter", e.target.value)
                     }
                     placeholder="Twitter handle"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.twitter}
                   />
                   <Input
-                    value={formData.linkedin}
+                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                     onChange={(e) =>
                       handleInputChange("linkedin", e.target.value)
                     }
                     placeholder="LinkedIn profile"
-                    className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                    value={formData.linkedin}
                   />
                 </div>
               </div>
@@ -539,19 +543,19 @@ function OrganizationOnboardingPageContent() {
               {/* Organization Name */}
               <div>
                 <Label
-                  htmlFor="organizationName"
                   className="mb-2 text-white/80"
+                  htmlFor="organizationName"
                 >
                   Organization Name *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="organizationName"
-                  value={formData.organizationName}
                   onChange={(e) =>
                     handleInputChange("organizationName", e.target.value)
                   }
                   placeholder="Enter organization name"
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.organizationName}
                 />
               </div>
 
@@ -562,10 +566,10 @@ function OrganizationOnboardingPageContent() {
                     Organization Type *
                   </Label>
                   <Select
-                    value={formData.organizationType}
                     onValueChange={(value) =>
                       handleInputChange("organizationType", value)
                     }
+                    value={formData.organizationType}
                   >
                     <SelectTrigger className="border-white/20 bg-white/5 text-white">
                       <SelectValue placeholder="Select type" />
@@ -573,9 +577,9 @@ function OrganizationOnboardingPageContent() {
                     <SelectContent className="border-white/20 bg-zinc-900">
                       {ORGANIZATION_TYPES.map((type) => (
                         <SelectItem
+                          className="text-white"
                           key={type.value}
                           value={type.value}
-                          className="text-white"
                         >
                           {type.label}
                         </SelectItem>
@@ -588,10 +592,10 @@ function OrganizationOnboardingPageContent() {
                 <div>
                   <Label className="mb-2 text-white/80">Industry *</Label>
                   <Select
-                    value={formData.organizationIndustry}
                     onValueChange={(value) =>
                       handleInputChange("organizationIndustry", value)
                     }
+                    value={formData.organizationIndustry}
                   >
                     <SelectTrigger className="border-white/20 bg-white/5 text-white">
                       <SelectValue placeholder="Select industry" />
@@ -599,9 +603,9 @@ function OrganizationOnboardingPageContent() {
                     <SelectContent className="border-white/20 bg-zinc-900">
                       {INDUSTRIES.map((industry) => (
                         <SelectItem
+                          className="text-white"
                           key={industry.value}
                           value={industry.value}
-                          className="text-white"
                         >
                           {industry.label}
                         </SelectItem>
@@ -614,58 +618,58 @@ function OrganizationOnboardingPageContent() {
               {/* Organization Description */}
               <div>
                 <Label
-                  htmlFor="organizationDescription"
                   className="mb-2 text-white/80"
+                  htmlFor="organizationDescription"
                 >
                   Organization Description *
                 </Label>
                 <Textarea
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="organizationDescription"
-                  value={formData.organizationDescription}
                   onChange={(e) =>
                     handleInputChange("organizationDescription", e.target.value)
                   }
                   placeholder="Tell us about your organization"
                   rows={4}
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.organizationDescription}
                 />
               </div>
 
               {/* Organization Website */}
               <div>
                 <Label
-                  htmlFor="organizationWebsite"
                   className="mb-2 text-white/80"
+                  htmlFor="organizationWebsite"
                 >
                   Organization Website *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="organizationWebsite"
-                  value={formData.organizationWebsite}
                   onChange={(e) =>
                     handleInputChange("organizationWebsite", e.target.value)
                   }
                   placeholder="https://your-organization.com"
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.organizationWebsite}
                 />
               </div>
 
               {/* Organization Location */}
               <div>
                 <Label
-                  htmlFor="organizationLocation"
                   className="mb-2 text-white/80"
+                  htmlFor="organizationLocation"
                 >
                   Organization Location *
                 </Label>
                 <Input
+                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="organizationLocation"
-                  value={formData.organizationLocation}
                   onChange={(e) =>
                     handleInputChange("organizationLocation", e.target.value)
                   }
                   placeholder="City, Country"
-                  className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
+                  value={formData.organizationLocation}
                 />
               </div>
 
@@ -677,11 +681,11 @@ function OrganizationOnboardingPageContent() {
                 </Label>
                 <ImageUpload
                   currentImageUrl={formData.organizationLogo}
+                  entityId={session?.user?.id}
                   onImageChange={(url) =>
                     handleInputChange("organizationLogo", url || "")
                   }
                   uploadType="organization-logo"
-                  entityId={session?.user?.id}
                   variant="logo"
                 />
               </div>
@@ -817,9 +821,9 @@ function OrganizationOnboardingPageContent() {
             </Button> */}
 
             <Button
-              onClick={handleNext}
-              disabled={loading}
               className="bg-[#E6007A] px-8 text-white hover:bg-[#E6007A]/90"
+              disabled={loading}
+              onClick={handleNext}
             >
               {loading ? (
                 <>

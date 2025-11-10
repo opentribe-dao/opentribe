@@ -1,17 +1,6 @@
 "use client";
 import { useActiveOrganization, useSession } from "@packages/auth/client";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@packages/base/components/ui/collapsible";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@packages/base/components/ui/dropdown-menu";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -22,42 +11,26 @@ import {
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
 } from "@packages/base/components/ui/sidebar";
-import { Button } from "@packages/base/components/ui/button";
 import { cn } from "@packages/base/lib/utils";
 import {
-  Building2Icon,
-  CreditCardIcon,
-  LifeBuoyIcon,
-  SendIcon,
-  Settings2Icon,
-  SquareTerminalIcon,
-  UserIcon,
-  UsersIcon,
-  HomeIcon,
   CoinsIcon,
   FileTextIcon,
-  MessageSquareIcon,
-  SettingsIcon,
   HelpCircleIcon,
-  ChevronDownIcon,
-  Plus,
+  HomeIcon,
   LogOut,
+  MessageSquareIcon,
+  Plus,
+  SettingsIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { redirect, usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { OrganizationSwitcher } from "./organization-switcher";
-import { Search } from "./search";
-import { UserButton } from "./user-button";
 import { env } from "@/env";
+import { OrganizationSwitcher } from "./organization-switcher";
 
 type GlobalSidebarProperties = {
   readonly children: ReactNode;
@@ -133,8 +106,8 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
 
   return (
     <>
-      <Sidebar className="border-r border-white/10 bg-white/5 backdrop-blur-xl">
-        <SidebarHeader className="border-b border-white/10 p-4">
+      <Sidebar className="border-white/10 border-r bg-white/5 backdrop-blur-xl">
+        <SidebarHeader className="border-white/10 border-b p-4">
           <OrganizationSwitcher />
         </SidebarHeader>
 
@@ -146,7 +119,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
                   <SidebarMenuButton
                     asChild
                     className={cn(
-                      "w-full justify-start rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      "w-full justify-start rounded-lg px-3 py-2 font-medium text-sm transition-colors",
                       item.isActive
                         ? "bg-[#E6007A]/10 text-[#E6007A] hover:bg-[#E6007A]/20"
                         : "text-white/60 hover:bg-white/5 hover:text-white"
@@ -163,47 +136,35 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
           </SidebarGroup>
 
           <SidebarGroup className="mt-8">
-            <SidebarGroupLabel className="text-xs font-medium text-white/40 uppercase tracking-wider">
+            <SidebarGroupLabel className="font-medium text-white/40 text-xs uppercase tracking-wider">
               Quick Actions
             </SidebarGroupLabel>
             <SidebarGroupContent className="mt-3">
               <div className="mt-auto space-y-2 px-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-            >
-              <Link href="/bounties/create">
-                <Plus className="mr-2 h-4 w-4" />
-                Create New Bounty
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-            >
-              <Link href="/grants/create">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Grant
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-            >
-              <Link href="/rfps/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Create RFP
-              </Link>
-            </Button>
-          </div>
+                <Button asChild size="sm" variant="ghost">
+                  <Link href="/bounties/create">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create New Bounty
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="ghost">
+                  <Link href="/grants/create">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Grant
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="ghost">
+                  <Link href="/rfps/new">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create RFP
+                  </Link>
+                </Button>
+              </div>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="border-t border-white/10 p-3">
+        <SidebarFooter className="border-white/10 border-t p-3">
           <SidebarMenu>
             {data.bottomActions.map((item) => (
               <SidebarMenuItem key={item.title}>
@@ -213,9 +174,9 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
                 >
                   {item.url === "/sign-out" ? (
                     <button
-                      type="button"
-                      onClick={handleSignOut}
                       className="flex w-full items-center"
+                      onClick={handleSignOut}
+                      type="button"
                     >
                       <item.icon className="mr-3 h-4 w-4" />
                       <span>{item.title}</span>

@@ -1,16 +1,15 @@
-import type { BountyDetails } from '@/hooks/use-bounty';
-import { useBountyForm } from '@/hooks/use-manage-bounty';
-import { Button } from '@packages/base/components/ui/button';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
+import { Button } from "@packages/base/components/ui/button";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
-} from '@packages/base/components/ui/select';
-import { CalendarIcon, Plus, X } from 'lucide-react';
+  SelectTrigger,
+  SelectValue,
+} from "@packages/base/components/ui/select";
+import { CalendarIcon, Plus, X } from "lucide-react";
+import type { BountyDetails } from "@/hooks/use-bounty";
 
 interface BountyRequirementsProps {
   formData: Partial<BountyDetails>;
@@ -33,26 +32,26 @@ export const BountyRequirementsStepComponent: React.FC<
   // } = useBountyForm();
 
   const addResource = () => {
-    updateFormData('resources', [
+    updateFormData("resources", [
       ...(formData.resources ?? []),
-      { title: '', url: '', description: '' },
+      { title: "", url: "", description: "" },
     ]);
   };
 
   const removeResource = (index: number) => {
     updateFormData(
-      'resources',
+      "resources",
       (formData.resources ?? []).filter((_, i) => i !== index)
     );
   };
 
   const updateResource = (
     index: number,
-    field: keyof NonNullable<BountyDetails['resources']>[number],
+    field: keyof NonNullable<BountyDetails["resources"]>[number],
     value: string
   ) => {
     updateFormData(
-      'resources',
+      "resources",
       (formData.resources ?? []).map((r, i) =>
         i === index ? { ...r, [field]: value } : r
       )
@@ -60,15 +59,15 @@ export const BountyRequirementsStepComponent: React.FC<
   };
 
   const addScreeningQuestion = () => {
-    updateFormData('screening', [
+    updateFormData("screening", [
       ...(formData.screening ?? []),
-      { question: '', type: 'text', optional: false },
+      { question: "", type: "text", optional: false },
     ]);
   };
 
   const removeScreeningQuestion = (index: number) => {
     updateFormData(
-      'screening',
+      "screening",
       (formData.screening ?? []).filter((_, i) => i !== index)
     );
   };
@@ -79,7 +78,7 @@ export const BountyRequirementsStepComponent: React.FC<
     value: string | boolean
   ) => {
     updateFormData(
-      'screening',
+      "screening",
       (formData.screening ?? []).map((q, i) =>
         i === index ? { ...q, [field]: value } : q
       )
@@ -92,12 +91,12 @@ export const BountyRequirementsStepComponent: React.FC<
         <Label htmlFor="deadline">Submission Deadline *</Label>
         <div className="relative mt-2">
           <Input
+            className="border-white/10 bg-white/5 text-white"
             id="deadline"
+            min={new Date().toISOString().split("T")[0]}
+            onChange={(e) => updateFormData("deadline", e.target.value)}
             type="date"
             value={formData.deadline}
-            onChange={(e) => updateFormData('deadline', e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-            className="border-white/10 bg-white/5 text-white"
           />
           <CalendarIcon className="-translate-y-1/2 absolute top-1/2 right-3 h-4 w-4 text-white/40" />
         </div>
@@ -107,10 +106,10 @@ export const BountyRequirementsStepComponent: React.FC<
         <div className="mb-3 flex items-center justify-between">
           <Label>Resources</Label>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={addResource}
             className="border-white/20 text-white hover:bg-white/10"
+            onClick={addResource}
+            size="sm"
+            variant="outline"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Resource
@@ -119,39 +118,39 @@ export const BountyRequirementsStepComponent: React.FC<
         {formData.resources && formData.resources.length > 0 ? (
           <div className="space-y-3">
             {formData.resources.map((resource, index) => (
-              <div key={index} className="space-y-3 rounded-lg bg-white/5 p-4">
+              <div className="space-y-3 rounded-lg bg-white/5 p-4" key={index}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1 space-y-3">
                     <Input
-                      value={resource.title}
+                      className="border-white/10 bg-white/5 text-white"
                       onChange={(e) =>
-                        updateResource(index, 'title', e.target.value)
+                        updateResource(index, "title", e.target.value)
                       }
                       placeholder="Resource title"
-                      className="border-white/10 bg-white/5 text-white"
+                      value={resource.title}
                     />
                     <Input
-                      value={resource.url}
+                      className="border-white/10 bg-white/5 text-white"
                       onChange={(e) =>
-                        updateResource(index, 'url', e.target.value)
+                        updateResource(index, "url", e.target.value)
                       }
                       placeholder="https://..."
-                      className="border-white/10 bg-white/5 text-white"
+                      value={resource.url}
                     />
                     <Input
-                      value={resource.description}
+                      className="border-white/10 bg-white/5 text-white"
                       onChange={(e) =>
-                        updateResource(index, 'description', e.target.value)
+                        updateResource(index, "description", e.target.value)
                       }
                       placeholder="Brief description (optional)"
-                      className="border-white/10 bg-white/5 text-white"
+                      value={resource.description}
                     />
                   </div>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeResource(index)}
                     className="ml-2 text-white/60 hover:text-white"
+                    onClick={() => removeResource(index)}
+                    size="sm"
+                    variant="ghost"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -168,10 +167,10 @@ export const BountyRequirementsStepComponent: React.FC<
         <div className="mb-3 flex items-center justify-between">
           <Label>Screening Questions</Label>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={addScreeningQuestion}
             className="border-white/20 text-white hover:bg-white/10"
+            onClick={addScreeningQuestion}
+            size="sm"
+            variant="outline"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Question
@@ -180,65 +179,65 @@ export const BountyRequirementsStepComponent: React.FC<
         {formData.screening && formData.screening.length > 0 ? (
           <div className="space-y-3">
             {formData.screening.map((question, index) => (
-              <div key={index} className="space-y-3 rounded-lg bg-white/5 p-4">
+              <div className="space-y-3 rounded-lg bg-white/5 p-4" key={index}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1 space-y-3">
                     <Input
-                      value={question.question}
+                      className="border-white/10 bg-white/5 text-white"
                       onChange={(e) =>
                         updateScreeningQuestion(
                           index,
-                          'question',
+                          "question",
                           e.target.value
                         )
                       }
                       placeholder="Enter your question"
-                      className="border-white/10 bg-white/5 text-white"
+                      value={question.question}
                     />
                     <div className="flex items-center gap-3">
                       <Select
-                        value={question.type}
                         onValueChange={(value) =>
-                          updateScreeningQuestion(index, 'type', value)
+                          updateScreeningQuestion(index, "type", value)
                         }
+                        value={question.type}
                       >
                         <SelectTrigger className="w-32 border-white/10 bg-white/5 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="border-white/10 bg-zinc-900">
-                          <SelectItem value="text" className="text-white">
+                          <SelectItem className="text-white" value="text">
                             Text
                           </SelectItem>
-                          <SelectItem value="url" className="text-white">
+                          <SelectItem className="text-white" value="url">
                             URL
                           </SelectItem>
-                          <SelectItem value="file" className="text-white">
+                          <SelectItem className="text-white" value="file">
                             File
                           </SelectItem>
                         </SelectContent>
                       </Select>
                       <label className="flex items-center gap-2 text-sm text-white/60">
                         <input
-                          type="checkbox"
                           checked={question.optional}
+                          className="rounded border-white/20"
                           onChange={(e) =>
                             updateScreeningQuestion(
                               index,
-                              'optional',
+                              "optional",
                               e.target.checked
                             )
                           }
-                          className="rounded border-white/20"
+                          type="checkbox"
                         />
                         Optional
                       </label>
                     </div>
                   </div>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeScreeningQuestion(index)}
                     className="ml-2 text-white/60 hover:text-white"
+                    onClick={() => removeScreeningQuestion(index)}
+                    size="sm"
+                    variant="ghost"
                   >
                     <X className="h-4 w-4" />
                   </Button>

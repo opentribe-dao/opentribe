@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "@packages/auth/client";
+import { FileUpload, MarkdownEditor } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
@@ -10,27 +11,14 @@ import {
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
 import { Textarea } from "@packages/base/components/ui/textarea";
-import { MarkdownEditor, FileUpload } from "@packages/base";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@packages/base/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@packages/base/components/ui/select";
-import { Loader2, Link2 } from "lucide-react";
+import { formatCurrency } from "@packages/base/lib/utils";
+import { Link2, Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Header } from "../../../components/header";
-import { AuthModal } from "../../../components/auth-modal";
 import { env } from "@/env";
 import type { Bounty } from "@/hooks/use-bounties-data";
-import { formatCurrency } from "@packages/base/lib/utils";
+import { AuthModal } from "../../../components/auth-modal";
 
 const BountySubmissionPage = () => {
   const params = useParams();
@@ -108,7 +96,7 @@ const BountySubmissionPage = () => {
     // Validate screening responses
     if (bounty?.screening) {
       for (const question of bounty.screening) {
-        if (!question.optional && !formData.responses[question.question]) {
+        if (!(question.optional || formData.responses[question.question])) {
           toast.error(`Please answer: ${question.question}`);
           return;
         }
@@ -170,7 +158,7 @@ const BountySubmissionPage = () => {
 
   if (loading || sessionLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -183,11 +171,11 @@ const BountySubmissionPage = () => {
   return (
     <>
       <div className="min-h-screen">
-        <div className='container relative z-10 mx-auto px-4 py-12'>
-          <div className='mx-auto max-w-2xl'>
+        <div className="container relative z-10 mx-auto px-4 py-12">
+          <div className="mx-auto max-w-2xl">
             {/* Header */}
-            <div className='mb-8 text-center'>
-              <h1 className='mb-4 font-bold text-3xl text-white'>
+            <div className="mb-8 text-center">
+              <h1 className="mb-4 font-bold text-3xl text-white">
                 Bounty Submission
               </h1>
 
@@ -195,9 +183,9 @@ const BountySubmissionPage = () => {
               <div className="flex items-center justify-center gap-3 text-white/60">
                 {bounty.organization.logo && (
                   <img
-                    src={bounty.organization.logo}
                     alt={bounty.organization.name}
-                    className='h-8 w-8 rounded-full'
+                    className="h-8 w-8 rounded-full"
+                    src={bounty.organization.logo}
                   />
                 )}
                 <span>{bounty.organization.name}</span>
@@ -205,16 +193,20 @@ const BountySubmissionPage = () => {
             </div>
 
             {/* Bounty Info Card */}
-            <Card className='mb-8 border-white/10 bg-white/5 backdrop-blur-md'>
+            <Card className="mb-8 border-white/10 bg-white/5 backdrop-blur-md">
               <CardHeader>
-                <h2 className='font-semibold text-white text-xl'>
+                <h2 className="font-semibold text-white text-xl">
                   {bounty.title}
                 </h2>
-                <div className='mt-2 flex items-center gap-4 text-sm text-white/60'>
+                <div className="mt-2 flex items-center gap-4 text-sm text-white/60">
                   <span>Bounty #{params.id?.slice(0, 8)}</span>
                   {bounty.amount && (
                     <span>
-                      Prize: {formatCurrency(Number(bounty.amount), String(bounty.token))}
+                      Prize:{" "}
+                      {formatCurrency(
+                        Number(bounty.amount),
+                        String(bounty.token)
+                      )}
                     </span>
                   )}
                 </div>
@@ -223,27 +215,26 @@ const BountySubmissionPage = () => {
 
             {/* Submission Form */}
             <form onSubmit={handleSubmit}>
-              <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+              <Card className="border-white/10 bg-white/5 backdrop-blur-md">
                 <CardHeader>
-                  <h3 className='font-medium text-lg text-white'>
+                  <h3 className="font-medium text-lg text-white">
                     Link to your submission
                   </h3>
-                  <p className='mt-1 text-sm text-white/60'>
+                  <p className="mt-1 text-sm text-white/60">
                     Make sure this link is accessible to everyone
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Submission URL */}
                   <div>
-                    <Label htmlFor="submissionUrl" className="text-white">
+                    <Label className="text-white" htmlFor="submissionUrl">
                       Submission Link *
                     </Label>
                     <div className="relative mt-2">
-                      <Link2 className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                      <Link2 className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                       <Input
+                        className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
                         id="submissionUrl"
-                        type="url"
-                        value={formData.submissionUrl}
                         onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
@@ -251,21 +242,21 @@ const BountySubmissionPage = () => {
                           }))
                         }
                         placeholder="https://..."
-                        className='border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40'
                         required
+                        type="url"
+                        value={formData.submissionUrl}
                       />
                     </div>
                   </div>
 
                   {/* Optional Title */}
                   <div>
-                    <Label htmlFor="title" className="text-white">
+                    <Label className="text-white" htmlFor="title">
                       Title (optional)
                     </Label>
                     <Input
+                      className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                       id="title"
-                      type="text"
-                      value={formData.title}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -273,18 +264,19 @@ const BountySubmissionPage = () => {
                         }))
                       }
                       placeholder="Give your submission a title"
-                      className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                      type="text"
+                      value={formData.title}
                     />
                   </div>
 
                   {/* Optional Description */}
                   <div>
-                    <Label htmlFor="description" className="text-white">
+                    <Label className="text-white" htmlFor="description">
                       Description (optional)
                     </Label>
                     <div className="mt-2">
                       <MarkdownEditor
-                        value={formData.description}
+                        height={250}
                         onChange={(value) =>
                           setFormData((prev) => ({
                             ...prev,
@@ -292,37 +284,37 @@ const BountySubmissionPage = () => {
                           }))
                         }
                         placeholder="Add any additional context or information..."
-                        height={250}
+                        value={formData.description}
                       />
                     </div>
                   </div>
 
                   {/* Attachments */}
                   <div>
-                    <Label htmlFor="attachments" className="text-white">
+                    <Label className="text-white" htmlFor="attachments">
                       Attachments (optional)
                     </Label>
-                    <p className='mt-1 mb-3 text-sm text-white/60'>
+                    <p className="mt-1 mb-3 text-sm text-white/60">
                       Upload supporting documents, images, or demo files (PDF,
                       ZIP, images, videos)
                     </p>
                     <FileUpload
-                      type="submission"
                       maxFiles={5}
-                      value={formData.attachments}
                       onChange={(urls) =>
                         setFormData((prev) => ({
                           ...prev,
                           attachments: urls,
                         }))
                       }
+                      type="submission"
+                      value={formData.attachments}
                     />
                   </div>
 
                   {/* Screening Questions */}
                   {bounty.screening && bounty.screening.length > 0 && (
-                    <div className='space-y-6 border-white/10 border-t pt-6'>
-                      <h4 className='font-medium text-lg text-white'>
+                    <div className="space-y-6 border-white/10 border-t pt-6">
+                      <h4 className="font-medium text-lg text-white">
                         Screening Questions
                       </h4>
                       {bounty.screening.map((question, index) => (
@@ -332,9 +324,7 @@ const BountySubmissionPage = () => {
                           </Label>
                           {question.type === "text" ? (
                             <Textarea
-                              value={
-                                formData.responses[question.question] || ""
-                              }
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               onChange={(e) =>
                                 updateResponse(
                                   question.question,
@@ -342,16 +332,15 @@ const BountySubmissionPage = () => {
                                 )
                               }
                               placeholder="Enter your response..."
-                              rows={3}
-                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
                               required={!question.optional}
-                            />
-                          ) : question.type === "url" ? (
-                            <Input
-                              type="url"
+                              rows={3}
                               value={
                                 formData.responses[question.question] || ""
                               }
+                            />
+                          ) : question.type === "url" ? (
+                            <Input
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               onChange={(e) =>
                                 updateResponse(
                                   question.question,
@@ -359,15 +348,15 @@ const BountySubmissionPage = () => {
                                 )
                               }
                               placeholder="https://..."
-                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
                               required={!question.optional}
-                            />
-                          ) : (
-                            <Input
-                              type="text"
+                              type="url"
                               value={
                                 formData.responses[question.question] || ""
                               }
+                            />
+                          ) : (
+                            <Input
+                              className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"
                               onChange={(e) =>
                                 updateResponse(
                                   question.question,
@@ -375,8 +364,11 @@ const BountySubmissionPage = () => {
                                 )
                               }
                               placeholder="File URL or description..."
-                              className='mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40'
                               required={!question.optional}
+                              type="text"
+                              value={
+                                formData.responses[question.question] || ""
+                              }
                             />
                           )}
                         </div>
@@ -387,13 +379,13 @@ const BountySubmissionPage = () => {
                   {/* Submit Button */}
                   <div className="pt-6">
                     <Button
-                      type="submit"
+                      className="w-full bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
                       disabled={submitting}
-                      className='w-full bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
+                      type="submit"
                     >
                       {submitting ? (
                         <>
-                          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Submitting...
                         </>
                       ) : (

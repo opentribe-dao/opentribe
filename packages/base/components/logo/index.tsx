@@ -16,7 +16,7 @@ export function Logo({
   appearance = "dark",
 }: LogoProps) {
   if (!showText) {
-    return <Logomark size={size} className={className} />;
+    return <Logomark className={className} size={size} />;
   }
 
   // Use a smaller logomark size for better proportion with text
@@ -30,7 +30,7 @@ export function Logo({
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <Logomark size={logomarkSizeMap[size]} />
-      <Wordmark size={size} appearance={appearance} />
+      <Wordmark appearance={appearance} size={size} />
     </div>
   );
 }

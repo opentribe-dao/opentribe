@@ -2,8 +2,8 @@ import { auth } from "@packages/auth/server";
 import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 export async function OPTIONS() {

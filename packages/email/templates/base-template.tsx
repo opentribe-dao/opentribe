@@ -3,13 +3,12 @@ import {
   Container,
   Head,
   Html,
-  Img,
   Link,
   Preview,
   Section,
   Tailwind,
   Text,
-} from '@react-email/components';
+} from "@react-email/components";
 
 interface BaseTemplateProps {
   readonly preview: string;
@@ -29,28 +28,30 @@ export const BaseTemplate = ({
       <Body
         className="bg-black font-sans"
         style={{
-          backgroundColor: '#0a0a0a',
-          backgroundImage: 'linear-gradient(135deg, rgba(147, 51, 234, 0.08) 0%, rgba(0, 0, 0, 0) 30%, rgba(59, 130, 246, 0.08) 100%)',
+          backgroundColor: "#0a0a0a",
+          backgroundImage:
+            "linear-gradient(135deg, rgba(147, 51, 234, 0.08) 0%, rgba(0, 0, 0, 0) 30%, rgba(59, 130, 246, 0.08) 100%)",
         }}
       >
         <Container
           className="mx-auto max-w-[600px] py-12"
           style={{
-            background: 'radial-gradient(ellipse 800px 400px at 50% 0%, rgba(230, 0, 122, 0.04), transparent)',
+            background:
+              "radial-gradient(ellipse 800px 400px at 50% 0%, rgba(230, 0, 122, 0.04), transparent)",
           }}
         >
           {/* Header */}
           <Section className="mb-8 text-center">
-            <table align="center" style={{ margin: '0 auto' }}>
+            <table align="center" style={{ margin: "0 auto" }}>
               <tr>
                 <td align="center">
                   <svg
-                    viewBox="0 0 519 602"
                     fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
                     height="28"
-                    style={{ display: 'inline-block', verticalAlign: 'middle' }}
+                    style={{ display: "inline-block", verticalAlign: "middle" }}
+                    viewBox="0 0 519 602"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <g clipPath="url(#clip0_676_89)">
                       <path
@@ -68,55 +69,56 @@ export const BaseTemplate = ({
                     </g>
                     <defs>
                       <linearGradient
+                        gradientUnits="userSpaceOnUse"
                         id="paint0_linear_676_89"
                         x1="259.247"
-                        y1="0"
                         x2="259.247"
+                        y1="0"
                         y2="602"
-                        gradientUnits="userSpaceOnUse"
                       >
                         <stop offset="0.08" stopColor="white" />
                         <stop offset="1" stopColor="#999999" />
                       </linearGradient>
                       <linearGradient
+                        gradientUnits="userSpaceOnUse"
                         id="paint1_linear_676_89"
                         x1="35.9703"
-                        y1="338.408"
                         x2="35.9703"
+                        y1="338.408"
                         y2="489.314"
-                        gradientUnits="userSpaceOnUse"
                       >
                         <stop offset="0.08" stopColor="white" />
                         <stop offset="1" stopColor="#999999" />
                       </linearGradient>
                       <linearGradient
+                        gradientUnits="userSpaceOnUse"
                         id="paint2_linear_676_89"
                         x1="483.029"
-                        y1="338.408"
                         x2="483.029"
+                        y1="338.408"
                         y2="489.314"
-                        gradientUnits="userSpaceOnUse"
                       >
                         <stop offset="0.08" stopColor="white" />
                         <stop offset="1" stopColor="#999999" />
                       </linearGradient>
                       <clipPath id="clip0_676_89">
-                        <rect width="519" height="602" fill="white" />
+                        <rect fill="white" height="602" width="519" />
                       </clipPath>
                     </defs>
                   </svg>
                 </td>
-                <td align="center" style={{ paddingLeft: '8px' }}>
+                <td align="center" style={{ paddingLeft: "8px" }}>
                   <span
                     style={{
-                      background: 'linear-gradient(to right, rgba(255, 255, 255, 0.35), white)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      fontWeight: 'bold',
-                      fontSize: '20px',
-                      letterSpacing: '0.25em',
-                      fontFamily: 'Arial, sans-serif',
+                      background:
+                        "linear-gradient(to right, rgba(255, 255, 255, 0.35), white)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                      fontWeight: "bold",
+                      fontSize: "20px",
+                      letterSpacing: "0.25em",
+                      fontFamily: "Arial, sans-serif",
                     }}
                   >
                     OPENTRIBE
@@ -141,8 +143,8 @@ export const BaseTemplate = ({
             </Text>
             {unsubscribeUrl && (
               <Link
-                href={unsubscribeUrl}
                 className="mt-4 inline-block text-sm text-white/40 underline"
+                href={unsubscribeUrl}
               >
                 Unsubscribe from these emails
               </Link>

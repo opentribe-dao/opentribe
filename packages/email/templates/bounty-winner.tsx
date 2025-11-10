@@ -1,12 +1,12 @@
-import BaseTemplate from './base-template';
+import BaseTemplate from "./base-template";
 import {
   EmailButton,
-  EmailHeading,
-  EmailText,
-  EmailDivider,
   EmailCard,
+  EmailDivider,
+  EmailHeading,
   EmailHighlight,
-} from './components';
+  EmailText,
+} from "./components";
 
 interface BountyWinnerEmailProps {
   readonly winnerName: string;
@@ -29,23 +29,40 @@ export const BountyWinnerEmail = ({
   submissionUrl,
   profileUrl,
 }: BountyWinnerEmailProps) => {
-  const positionEmoji = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏆';
-  const positionText = position === 1 ? '1st' : position === 2 ? '2nd' : position === 3 ? '3rd' : `${position}th`;
-  
+  const positionEmoji =
+    position === 1
+      ? "🥇"
+      : position === 2
+        ? "🥈"
+        : position === 3
+          ? "🥉"
+          : "🏆";
+  const positionText =
+    position === 1
+      ? "1st"
+      : position === 2
+        ? "2nd"
+        : position === 3
+          ? "3rd"
+          : `${position}th`;
+
   return (
     <BaseTemplate preview="Congratulations! You won a bounty 🎉">
       <EmailHeading>Congratulations, {winnerName}! 🎉</EmailHeading>
-      
+
       <EmailText className="mt-4 text-lg">
-        Amazing news! You've won <strong>{positionText} place</strong> in the bounty:
+        Amazing news! You've won <strong>{positionText} place</strong> in the
+        bounty:
       </EmailText>
-      
+
       <EmailCard className="mt-4 border border-yellow-500/30 bg-yellow-500/10">
-        <EmailText className="text-center text-4xl mb-2">{positionEmoji}</EmailText>
+        <EmailText className="mb-2 text-center text-4xl">
+          {positionEmoji}
+        </EmailText>
         <EmailText className="text-center font-semibold text-lg">
           {bountyTitle}
         </EmailText>
-        <EmailText className="text-center text-sm text-white/60 mt-1">
+        <EmailText className="mt-1 text-center text-sm text-white/60">
           by {organizationName}
         </EmailText>
       </EmailCard>
@@ -53,10 +70,13 @@ export const BountyWinnerEmail = ({
       <EmailDivider />
 
       <EmailCard>
-        <EmailText className="font-semibold mb-3">Your Prize</EmailText>
+        <EmailText className="mb-3 font-semibold">Your Prize</EmailText>
         <EmailHighlight label="Position" value={`${positionText} Place`} />
-        <EmailHighlight label="Prize Amount" value={`${prizeAmount} ${token}`} />
-        
+        <EmailHighlight
+          label="Prize Amount"
+          value={`${prizeAmount} ${token}`}
+        />
+
         <EmailText className="mt-3 text-sm text-white/60">
           The organization will contact you soon with payment details.
         </EmailText>
@@ -75,24 +95,24 @@ export const BountyWinnerEmail = ({
       <EmailText className="text-center">
         🌟 This win has been added to your profile!
       </EmailText>
-      
-      <EmailText className="text-sm text-white/60 text-center mt-4">
-        Share your success with the community and keep building. 
-        The Polkadot ecosystem needs talented builders like you!
+
+      <EmailText className="mt-4 text-center text-sm text-white/60">
+        Share your success with the community and keep building. The Polkadot
+        ecosystem needs talented builders like you!
       </EmailText>
     </BaseTemplate>
   );
 };
 
 BountyWinnerEmail.PreviewProps = {
-  winnerName: 'Alice',
-  bountyTitle: 'Create Polkadot.js Tutorial',
-  organizationName: 'Polkadot Builders DAO',
+  winnerName: "Alice",
+  bountyTitle: "Create Polkadot.js Tutorial",
+  organizationName: "Polkadot Builders DAO",
   position: 1,
-  prizeAmount: '2,000',
-  token: 'USDT',
-  submissionUrl: 'https://opentribe.io/bounties/123/submissions/456',
-  profileUrl: 'https://opentribe.io/profile/alice',
+  prizeAmount: "2,000",
+  token: "USDT",
+  submissionUrl: "https://opentribe.io/bounties/123/submissions/456",
+  profileUrl: "https://opentribe.io/profile/alice",
 };
 
 export default BountyWinnerEmail;

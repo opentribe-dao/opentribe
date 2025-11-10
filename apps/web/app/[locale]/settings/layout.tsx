@@ -5,9 +5,7 @@ type SettingsLayoutProps = {
   readonly children: ReactNode;
 };
 
-const SettingsLayout = ({ children }: SettingsLayoutProps) => (
-  <>{children}</>
-);
+const SettingsLayout = ({ children }: SettingsLayoutProps) => <>{children}</>;
 
 export default SettingsLayout;
 

@@ -1,26 +1,17 @@
 "use client";
-import { notFound } from "next/navigation";
+import { Button } from "@packages/base/components/ui/button";
+import { ExpandableText } from "@packages/base/components/ui/expandable-text";
+import { ShareButton } from "@packages/base/components/ui/share-button";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { formatCurrency } from "@packages/base/lib/utils";
+import { Building2, Clock, ExternalLink, Mail, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@packages/base/components/ui/button";
-import {
-  Share2,
-  MapPin,
-  Building2,
-  Clock,
-  Mail,
-  ExternalLink,
-  MessageCircle,
-  Heart,
-} from "lucide-react";
-import { env } from "@/env";
+import { notFound } from "next/navigation";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useEffect, useState } from "react";
-import { Skeleton } from "@packages/base/components/ui/skeleton";
-import { ShareButton } from "@packages/base/components/ui/share-button";
-import { formatCurrency } from "@packages/base/lib/utils";
-import { ExpandableText } from "@packages/base/components/ui/expandable-text";
+import { env } from "@/env";
 
 async function getGrant(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -75,7 +66,7 @@ export default function GrantDetailPage({
 
   if (loading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Skeleton className="h-full w-full" />
       </div>
     );
@@ -118,10 +109,10 @@ export default function GrantDetailPage({
                 <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
                   {grant.organization.logo ? (
                     <Image
-                      src={grant.organization.logo}
                       alt={grant.organization.name}
-                      fill
                       className="h-20 w-20 object-cover"
+                      fill
+                      src={grant.organization.logo}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -151,7 +142,7 @@ export default function GrantDetailPage({
               </div>
 
               {/* Actions */}
-              <div className='mt-4 grid grid-cols-2 gap-4 md:mt-0'>
+              <div className="mt-4 grid grid-cols-2 gap-4 md:mt-0">
                 {/* Application count badge */}
                 <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
                   <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
@@ -162,57 +153,59 @@ export default function GrantDetailPage({
 
                 <ShareButton url={`/grants/${grantId}`} />
                 <div className="col-span-2 w-full">
-                {(() => {
-                  switch (true) {
-                    case !!grant.userApplicationId:
-                      return (
-                        <Link href={`/grants/${grantId}/applications/${grant.userApplicationId}`}>
+                  {(() => {
+                    switch (true) {
+                      case !!grant.userApplicationId:
+                        return (
+                          <Link
+                            href={`/grants/${grantId}/applications/${grant.userApplicationId}`}
+                          >
+                            <Button
+                              className="bg-pink-600 text-white hover:bg-pink-700"
+                              disabled={grant.status !== "OPEN"}
+                            >
+                              View Application
+                            </Button>
+                          </Link>
+                        );
+                      case grant.status !== "OPEN":
+                        return (
                           <Button
                             className="bg-pink-600 text-white hover:bg-pink-700"
-                            disabled={grant.status !== "OPEN"}
+                            disabled={true}
                           >
-                            View Application
+                            Application Closed
                           </Button>
-                        </Link>
-                      );
-                    case grant.status !== "OPEN":
-                      return (
-                        <Button
-                          className="bg-pink-600 text-white hover:bg-pink-700"
-                          disabled={true}
-                        >
-                          Application Closed
-                        </Button>
-                      );
-                    case grant.source === "EXTERNAL" && grant.applicationUrl:
-                      return (
-                        <a
-                          href={grant.applicationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button
-                            className="bg-pink-600 text-white hover:bg-pink-700"
-                            disabled={grant.canApply === false}
+                        );
+                      case grant.source === "EXTERNAL" && grant.applicationUrl:
+                        return (
+                          <a
+                            href={grant.applicationUrl}
+                            rel="noopener noreferrer"
+                            target="_blank"
                           >
-                            Apply Externally
-                          </Button>
-                        </a>
-                      );
-                    default:
-                      return (
-                        <Link href={`/grants/${grantId}/apply`}>
-                          <Button
-                            className="bg-pink-600 text-white hover:bg-pink-700"
-                            disabled={grant.canApply === false}
-                          >
-                            Apply Now
-                          </Button>
-                        </Link>
-                      );
-                  }
-                })()}
-              </div>
+                            <Button
+                              className="bg-pink-600 text-white hover:bg-pink-700"
+                              disabled={grant.canApply === false}
+                            >
+                              Apply Externally
+                            </Button>
+                          </a>
+                        );
+                      default:
+                        return (
+                          <Link href={`/grants/${grantId}/apply`}>
+                            <Button
+                              className="bg-pink-600 text-white hover:bg-pink-700"
+                              disabled={grant.canApply === false}
+                            >
+                              Apply Now
+                            </Button>
+                          </Link>
+                        );
+                    }
+                  })()}
+                </div>
               </div>
             </div>
           </div>
@@ -226,27 +219,27 @@ export default function GrantDetailPage({
           <div className="space-y-8 lg:col-span-2">
             {/* About Section */}
             <section>
-              <ExpandableText maxHeight={300} className="py-0">
-              <h2 className="mb-4 font-bold font-heading text-2xl">
-                About the {grant.title}
-              </h2>
-              <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {grant.description}
-                </ReactMarkdown>
-              </div>
+              <ExpandableText className="py-0" maxHeight={300}>
+                <h2 className="mb-4 font-bold font-heading text-2xl">
+                  About the {grant.title}
+                </h2>
+                <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {grant.description}
+                  </ReactMarkdown>
+                </div>
 
-              {grant.instructions && (
-                <div className="mt-6 space-y-4">
-                  {/* <h3 className="font-semibold text-lg">
+                {grant.instructions && (
+                  <div className="mt-6 space-y-4">
+                    {/* <h3 className="font-semibold text-lg">
                     Application Requirements:
                   </h3> */}
-                  <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {grant.instructions}
-                </ReactMarkdown>
-              </div>
-                  {/* <div className="space-y-2 text-white/80">
+                    <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {grant.instructions}
+                      </ReactMarkdown>
+                    </div>
+                    {/* <div className="space-y-2 text-white/80">
                     {grant.instructions
                       .split("\n")
                       .map((instruction: any, idx: number) => (
@@ -256,8 +249,8 @@ export default function GrantDetailPage({
                         </div>
                       ))}
                   </div> */}
-                </div>
-              )}
+                  </div>
+                )}
               </ExpandableText>
 
               {/* Funding Details */}
@@ -268,15 +261,26 @@ export default function GrantDetailPage({
                 <p className="text-white/70">
                   {grant.minAmount && grant.maxAmount ? (
                     <>
-                      Grants range from {formatCurrency(Number(grant.minAmount), String(grant.token))}{" "}
-                      to {formatCurrency(Number(grant.maxAmount), String(grant.token))} in{" "}
-                      {grant.token || "DOT"} capital, designed to help teams
+                      Grants range from{" "}
+                      {formatCurrency(
+                        Number(grant.minAmount),
+                        String(grant.token)
+                      )}{" "}
+                      to{" "}
+                      {formatCurrency(
+                        Number(grant.maxAmount),
+                        String(grant.token)
+                      )}{" "}
+                      in {grant.token || "DOT"} capital, designed to help teams
                       scale.
                     </>
                   ) : (
                     <>
                       Total funding available:{" "}
-                      {formatCurrency(Number(grant.totalFunds || 0), String(grant.token))}{" "}
+                      {formatCurrency(
+                        Number(grant.totalFunds || 0),
+                        String(grant.token)
+                      )}{" "}
                       {grant.token || "DOT"}
                     </>
                   )}
@@ -295,13 +299,32 @@ export default function GrantDetailPage({
               <div className="font-bold font-heading text-2xl">
                 {grant.minAmount && grant.maxAmount ? (
                   <>
-                    {formatCurrency(Number(grant.minAmount), String(grant.token))} -{" "}
-                    {formatCurrency(Number(grant.maxAmount), String(grant.token))}
+                    {formatCurrency(
+                      Number(grant.minAmount),
+                      String(grant.token)
+                    )}{" "}
+                    -{" "}
+                    {formatCurrency(
+                      Number(grant.maxAmount),
+                      String(grant.token)
+                    )}
                   </>
                 ) : grant.minAmount ? (
-                  <>From {formatCurrency(Number(grant.minAmount), String(grant.token))}</>
+                  <>
+                    From{" "}
+                    {formatCurrency(
+                      Number(grant.minAmount),
+                      String(grant.token)
+                    )}
+                  </>
                 ) : grant.maxAmount ? (
-                  <>Up to {formatCurrency(Number(grant.maxAmount), String(grant.token))}</>
+                  <>
+                    Up to{" "}
+                    {formatCurrency(
+                      Number(grant.maxAmount),
+                      String(grant.token)
+                    )}
+                  </>
                 ) : (
                   "Variable"
                 )}
@@ -332,8 +355,8 @@ export default function GrantDetailPage({
               </h3>
               <div className="space-y-3">
                 <a
-                  href={`mailto:grants@${grant.organization.slug}.com`}
                   className="flex items-center gap-2 text-white/80 transition-colors hover:text-white"
+                  href={`mailto:grants@${grant.organization.slug}.com`}
                 >
                   <Mail className="h-4 w-4" />
                   <span className="text-sm">
@@ -342,10 +365,10 @@ export default function GrantDetailPage({
                 </a>
                 {grant.applicationUrl && (
                   <a
-                    href={grant.applicationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="flex items-center gap-2 text-white/80 transition-colors hover:text-white"
+                    href={grant.applicationUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
                     <ExternalLink className="h-4 w-4" />
                     <span className="text-sm">External Application</span>
@@ -363,9 +386,9 @@ export default function GrantDetailPage({
                 <div className="space-y-3">
                   {grant.rfps.map((rfp: any) => (
                     <Link
-                      key={rfp.id}
-                      href={`/rfps/${rfp.slug || rfp.id}`}
                       className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-white/5"
+                      href={`/rfps/${rfp.slug || rfp.id}`}
+                      key={rfp.id}
                     >
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600" />
@@ -394,8 +417,8 @@ export default function GrantDetailPage({
                 <div className="-space-x-2 flex">
                   {grant.applications.map((app: any, idx: number) => (
                     <div
-                      key={idx}
                       className="h-10 w-10 rounded-full border-2 border-[#0a0a0a] bg-gradient-to-br from-pink-500 to-purple-600"
+                      key={idx}
                       title={`${app.applicant.firstName || ""} ${
                         app.applicant.lastName ||
                         app.applicant.username ||
@@ -404,11 +427,11 @@ export default function GrantDetailPage({
                     >
                       {app.applicant.image ? (
                         <Image
-                          src={app.applicant.image}
                           alt="Applicant"
-                          width={40}
-                          height={40}
                           className="rounded-full"
+                          height={40}
+                          src={app.applicant.image}
+                          width={40}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center font-bold text-sm">

@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { Badge } from '@packages/base/components/ui/badge';
-import { Button } from '@packages/base/components/ui/button';
+import { useSession } from "@packages/auth/client";
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { useSession } from '@packages/auth/client';
+} from "@packages/base/components/ui/card";
 
-import { DollarSign, ExternalLink } from 'lucide-react';
-import { useGrantContext } from '../../components/grants/grant-provider';
-import type React from 'react';
-import { memo } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { LoadingPage } from '@/components/loading-states';
+import { DollarSign, ExternalLink } from "lucide-react";
+import type React from "react";
+import { memo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { LoadingPage } from "@/components/loading-states";
+import { useGrantContext } from "../../components/grants/grant-provider";
 
 type FundingInfoProps = {
   minAmount?: number | null;
@@ -67,7 +67,7 @@ const ErrorState: React.FC<{ onRetry: () => void; message?: string }> = ({
 }) => (
   <div className="flex min-h-screen flex-col items-center justify-center">
     <p className="font-sans text-red-400">
-      {message ?? 'Failed to load grant.'}
+      {message ?? "Failed to load grant."}
     </p>
     <Button className="mt-4" onClick={onRetry}>
       Retry
@@ -95,9 +95,9 @@ const OrganizationSection = memo(function OrganizationSection({
           {organization.logo ? (
             // Using <img> to avoid domain config issues in dashboard
             <img
-              src={organization.logo}
               alt={organization.name}
               className="h-10 w-10 rounded-full"
+              src={organization.logo}
             />
           ) : null}
           <div>
@@ -118,9 +118,9 @@ const OrganizationSection = memo(function OrganizationSection({
 
 const formatAmount = (amount?: number | null) => {
   if (!amount) {
-    return 'N/A';
+    return "N/A";
   }
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -132,7 +132,7 @@ const FundingSection = memo(function FundingSection({
   totalFunds,
   token,
 }: FundingInfoProps) {
-  if (!minAmount && !maxAmount && !totalFunds) {
+  if (!(minAmount || maxAmount || totalFunds)) {
     return null;
   }
   return (
@@ -143,8 +143,8 @@ const FundingSection = memo(function FundingSection({
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-white/40" />
             <span className="font-sans text-white">
-              {formatAmount(minAmount)} - {formatAmount(maxAmount)}{' '}
-              {token ?? ''}
+              {formatAmount(minAmount)} - {formatAmount(maxAmount)}{" "}
+              {token ?? ""}
             </span>
           </div>
         ) : null}
@@ -152,7 +152,7 @@ const FundingSection = memo(function FundingSection({
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-white/40" />
             <span className="font-sans text-white">
-              Total Funds: {formatAmount(totalFunds)} {token ?? ''}
+              Total Funds: {formatAmount(totalFunds)} {token ?? ""}
             </span>
           </div>
         ) : null}
@@ -174,8 +174,8 @@ const ExternalApplicationSection = memo(function ExternalApplicationSection({
       <p className="mb-2 font-sans text-sm text-white/60">
         External Application
       </p>
-      <Button className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90" asChild>
-        <a href={applicationUrl} target="_blank" rel="noopener noreferrer">
+      <Button asChild className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90">
+        <a href={applicationUrl} rel="noopener noreferrer" target="_blank">
           <ExternalLink className="mr-2 h-4 w-4" />
           Apply Externally
         </a>
@@ -211,9 +211,9 @@ const SkillsSection = memo(function SkillsSection({
         <div className="flex flex-wrap gap-2">
           {skills.map((skill, index) => (
             <Badge
+              className="border border-white/20 bg-white/10 text-white"
               key={index}
               variant="secondary"
-              className="border border-white/20 bg-white/10 text-white"
             >
               {skill}
             </Badge>
@@ -234,14 +234,14 @@ const ResourcesSection = memo(function ResourcesSection({
     <GlassCard title="Resources">
       <div className="space-y-3">
         {resources.map((resource, index) => (
-          <div key={index} className="flex items-start justify-between">
+          <div className="flex items-start justify-between" key={index}>
             <div>
               <a
-                key={index}
-                href={resource.url}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="flex items-center gap-2 text-white transition-colors hover:text-[#E6007A]"
+                href={resource.url}
+                key={index}
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 {resource.title}
                 <ExternalLink className="h-3 w-3" />
@@ -277,8 +277,8 @@ const GrantOverviewPage = () => {
   if (isError || !grant) {
     return (
       <ErrorState
-        onRetry={refetch}
         message={error instanceof Error ? error.message : undefined}
+        onRetry={refetch}
       />
     );
   }
@@ -299,10 +299,10 @@ const GrantOverviewPage = () => {
         <div className="space-y-6 lg:col-span-4">
           <GlassCard title="Funding">
             <FundingSection
-              minAmount={grant.minAmount}
               maxAmount={grant.maxAmount}
-              totalFunds={grant.totalFunds}
+              minAmount={grant.minAmount}
               token={grant.token}
+              totalFunds={grant.totalFunds}
             />
             {/* <ExternalApplicationSection applicationUrl={grant.applicationUrl} /> */}
           </GlassCard>

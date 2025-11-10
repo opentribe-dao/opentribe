@@ -1,16 +1,17 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "extends": ["ultracite"],
+  "$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
+  "extends": ["ultracite/core", "ultracite/next"],
   "javascript": {
     "globals": []
   },
   "files": {
-    "ignore": [
-      "packages/base/components/ui/**",
-      "packages/base/lib/**",
-      "packages/base/hooks/**",
-      "apps/docs/**/*.json",
-      "apps/email/.react-email/**"
+    "includes": [
+      "**",
+      "!**/packages/base/components/ui",
+      "!**/packages/base/lib",
+      "!**/packages/base/hooks",
+      "!**/apps/docs/**/*.json",
+      "!**/apps/email/.react-email"
     ]
   }
 }

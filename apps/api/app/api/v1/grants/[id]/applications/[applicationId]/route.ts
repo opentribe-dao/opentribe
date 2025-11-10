@@ -1,8 +1,8 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { ViewManager } from "@/lib/views";
 
 export async function OPTIONS() {
@@ -92,7 +92,7 @@ export async function GET(
 
     // Allow organization members or the application creator to view
     const isCreator = application.userId === sessionData.user.id;
-    if (!userMember && !isCreator) {
+    if (!(userMember || isCreator)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

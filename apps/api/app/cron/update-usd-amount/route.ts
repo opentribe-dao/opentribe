@@ -1,7 +1,7 @@
 import { database } from "@packages/db";
 import { exchangeRateService } from "@packages/polkadot/server";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 // GET /cron/update-usd-amount - Update USD amounts for bounties and grants based on current exchange rates
 export const GET = async (request: NextRequest) => {

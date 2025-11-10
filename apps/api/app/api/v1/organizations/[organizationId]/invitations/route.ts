@@ -1,8 +1,8 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 // zod not needed here
 
 export function OPTIONS() {
@@ -117,7 +117,10 @@ export async function DELETE(
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invitation not found" },
+        { status: 404 }
+      );
     }
 
     await database.invitation.delete({ where: { id: invitationId } });

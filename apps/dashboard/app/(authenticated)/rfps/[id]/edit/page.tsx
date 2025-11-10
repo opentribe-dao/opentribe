@@ -1,7 +1,7 @@
 "use client";
 
-import { use } from "react";
 import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { MarkdownEditor } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
@@ -12,7 +12,6 @@ import {
 } from "@packages/base/components/ui/card";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
-import { MarkdownEditor } from "@packages/base";
 import {
   Select,
   SelectContent,
@@ -20,21 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@packages/base/components/ui/select";
-import { Badge } from "@packages/base/components/ui/badge";
-import {
-  ArrowLeft,
-  Loader2,
-  Plus,
-  X,
-  Globe,
-  FileText,
-  Save,
-} from "lucide-react";
-import { useRouter, useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { ArrowLeft, Globe, Loader2, Plus, Save, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Header } from "../../../components/header";
 import { env } from "@/env";
+import { Header } from "../../../components/header";
 
 interface Grant {
   id: string;
@@ -189,7 +179,7 @@ export default function EditRFPPage({
       setLoading(true);
 
       // Validate required fields
-      if (!formData.grantId || !formData.title || !formData.description) {
+      if (!(formData.grantId && formData.title && formData.description)) {
         toast.error("Please fill in all required fields");
         return;
       }
@@ -230,14 +220,14 @@ export default function EditRFPPage({
 
   if (!activeOrg) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-white/60 mb-4">No organization selected</p>
+          <p className="mb-4 text-white/60">No organization selected</p>
           <Button
+            className="bg-[#E6007A] hover:bg-[#E6007A]/90"
             onClick={() =>
               router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`)
             }
-            className="bg-[#E6007A] hover:bg-[#E6007A]/90"
           >
             Create Organization
           </Button>
@@ -248,7 +238,7 @@ export default function EditRFPPage({
 
   if (loadingData || loadingGrants) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -256,20 +246,20 @@ export default function EditRFPPage({
 
   return (
     <>
-      <Header pages={["RFPs", "Edit"]} page="Edit RFP" />
+      <Header page="Edit RFP" pages={["RFPs", "Edit"]} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="mb-4 flex items-center gap-4">
           <Button
-            variant="ghost"
-            onClick={() => router.push(`/rfps/${id}`)}
             className="text-white/60 hover:text-white"
+            onClick={() => router.push(`/rfps/${id}`)}
+            variant="ghost"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to RFP
           </Button>
         </div>
 
-        <Card className="bg-white/5 backdrop-blur-md border-white/10 max-w-4xl mx-auto w-full">
+        <Card className="mx-auto w-full max-w-4xl border-white/10 bg-white/5 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-white">Edit RFP</CardTitle>
             <CardDescription className="text-white/60">
@@ -281,11 +271,11 @@ export default function EditRFPPage({
             <div>
               <Label htmlFor="grant">Parent Grant *</Label>
               <Select
-                value={formData.grantId}
-                onValueChange={(value) => updateFormData("grantId", value)}
                 disabled={loadingGrants}
+                onValueChange={(value) => updateFormData("grantId", value)}
+                value={formData.grantId}
               >
-                <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
+                <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                   <SelectValue placeholder="Select a grant" />
                 </SelectTrigger>
                 <SelectContent>
@@ -302,11 +292,11 @@ export default function EditRFPPage({
             <div>
               <Label htmlFor="title">RFP Title *</Label>
               <Input
+                className="mt-2 border-white/10 bg-white/5 text-white"
                 id="title"
-                value={formData.title}
                 onChange={(e) => updateFormData("title", e.target.value)}
                 placeholder="Enter a clear, descriptive title for your RFP"
-                className="bg-white/5 border-white/10 text-white mt-2"
+                value={formData.title}
               />
             </div>
 
@@ -315,13 +305,13 @@ export default function EditRFPPage({
               <Label htmlFor="description">Description *</Label>
               <div className="mt-2">
                 <MarkdownEditor
-                  value={formData.description}
+                  height={400}
                   onChange={(value) => updateFormData("description", value)}
                   placeholder="Provide a detailed description of what you're looking for..."
-                  height={400}
+                  value={formData.description}
                 />
               </div>
-              <p className="text-sm text-white/60 mt-2">
+              <p className="mt-2 text-sm text-white/60">
                 Be specific about requirements, deliverables, and evaluation
                 criteria
               </p>
@@ -329,59 +319,59 @@ export default function EditRFPPage({
 
             {/* Resources */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <Label>Resources & Links</Label>
                 <Button
+                  className="border-white/20 text-white hover:bg-white/10"
+                  onClick={addResource}
+                  size="sm"
                   type="button"
                   variant="outline"
-                  size="sm"
-                  onClick={addResource}
-                  className="border-white/20 text-white hover:bg-white/10"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Add Resource
                 </Button>
               </div>
               <div className="space-y-3">
                 {formData.resources.map((resource, index) => (
                   <div
+                    className="space-y-3 rounded-lg bg-white/5 p-4"
                     key={index}
-                    className="bg-white/5 rounded-lg p-4 space-y-3"
                   >
                     <div className="flex items-start gap-3">
-                      <Globe className="h-5 w-5 text-white/40 mt-2" />
+                      <Globe className="mt-2 h-5 w-5 text-white/40" />
                       <div className="flex-1 space-y-3">
                         <Input
-                          placeholder="Resource title"
-                          value={resource.title}
+                          className="border-white/10 bg-white/10 text-white"
                           onChange={(e) =>
                             updateResource(index, "title", e.target.value)
                           }
-                          className="bg-white/10 border-white/10 text-white"
+                          placeholder="Resource title"
+                          value={resource.title}
                         />
                         <Input
-                          placeholder="https://example.com"
-                          value={resource.url}
+                          className="border-white/10 bg-white/10 text-white"
                           onChange={(e) =>
                             updateResource(index, "url", e.target.value)
                           }
-                          className="bg-white/10 border-white/10 text-white"
+                          placeholder="https://example.com"
+                          value={resource.url}
                         />
                         <Input
-                          placeholder="Description (optional)"
-                          value={resource.description || ""}
+                          className="border-white/10 bg-white/10 text-white"
                           onChange={(e) =>
                             updateResource(index, "description", e.target.value)
                           }
-                          className="bg-white/10 border-white/10 text-white"
+                          placeholder="Description (optional)"
+                          value={resource.description || ""}
                         />
                       </div>
                       <Button
+                        className="text-red-400 hover:text-red-300"
+                        onClick={() => removeResource(index)}
+                        size="sm"
                         type="button"
                         variant="ghost"
-                        size="sm"
-                        onClick={() => removeResource(index)}
-                        className="text-red-400 hover:text-red-300"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -389,7 +379,7 @@ export default function EditRFPPage({
                   </div>
                 ))}
                 {formData.resources.length === 0 && (
-                  <p className="text-sm text-white/40 text-center py-4">
+                  <p className="py-4 text-center text-sm text-white/40">
                     No resources added yet
                   </p>
                 )}
@@ -400,12 +390,12 @@ export default function EditRFPPage({
             <div>
               <Label htmlFor="status">Status</Label>
               <Select
-                value={formData.status}
                 onValueChange={(value: "OPEN" | "CLOSED" | "COMPLETED") =>
                   updateFormData("status", value)
                 }
+                value={formData.status}
               >
-                <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
+                <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -420,12 +410,12 @@ export default function EditRFPPage({
             <div>
               <Label htmlFor="visibility">Visibility</Label>
               <Select
-                value={formData.visibility}
                 onValueChange={(value: "DRAFT" | "PUBLISHED" | "ARCHIVED") =>
                   updateFormData("visibility", value)
                 }
+                value={formData.visibility}
               >
-                <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
+                <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -434,7 +424,7 @@ export default function EditRFPPage({
                   <SelectItem value="ARCHIVED">Archived</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-sm text-white/60 mt-2">
+              <p className="mt-2 text-sm text-white/60">
                 {formData.visibility === "DRAFT" &&
                   "This RFP is only visible to your organization"}
                 {formData.visibility === "PUBLISHED" &&
@@ -445,33 +435,33 @@ export default function EditRFPPage({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+            <div className="flex items-center justify-between border-white/10 border-t pt-4">
               <Button
-                variant="outline"
-                onClick={() => router.push(`/rfps/${id}`)}
-                disabled={loading}
                 className="border-white/20 text-white hover:bg-white/10"
+                disabled={loading}
+                onClick={() => router.push(`/rfps/${id}`)}
+                variant="outline"
               >
                 Cancel
               </Button>
               <Button
-                onClick={handleSubmit}
+                className="bg-[#E6007A] hover:bg-[#E6007A]/90"
                 disabled={
                   loading ||
                   !formData.grantId ||
                   !formData.title ||
                   !formData.description
                 }
-                className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+                onClick={handleSubmit}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className="mr-2 h-4 w-4" />
                     Save Changes
                   </>
                 )}

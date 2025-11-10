@@ -1,5 +1,5 @@
-import { keys } from "../keys";
 import { redis } from "@packages/security";
+import { keys } from "../keys";
 
 // Exchange rate interfaces (data comes from CoinMarketCap API)
 export interface ExchangeRateQuote {

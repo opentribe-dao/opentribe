@@ -1,345 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prisma Schema Documentation</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          "Helvetica Neue", Arial, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px;
-      }
+    body {
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-      .container {
-        max-width: 1400px;
-        margin: 0 auto;
-      }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
 
-      h1 {
-        color: white;
-        text-align: center;
-        margin-bottom: 30px;
-        font-size: 2.5rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-      }
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
 
-      .controls {
-        text-align: center;
-        margin-bottom: 30px;
-      }
+    .controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
 
-      .btn {
-        background: white;
-        border: none;
-        padding: 10px 20px;
-        margin: 0 5px;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
+    .btn {
+      background: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 0 5px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
 
-      .models-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-      }
+    .models-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
 
-      .model-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        transition: transform 0.3s, box-shadow 0.3s;
-      }
+    .model-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition:
+        transform 0.3s,
+        box-shadow 0.3s;
+    }
 
-      .model-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-      }
+    .model-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
 
-      .model-header {
-        padding: 15px 20px;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: white;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-      }
+    .model-header {
+      padding: 15px 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
 
-      .model-header::after {
-        content: "▼";
-        transition: transform 0.3s;
-        font-size: 0.8rem;
-      }
+    .model-header::after {
+      content: "▼";
+      transition: transform 0.3s;
+      font-size: 0.8rem;
+    }
 
-      .model-header.collapsed::after {
-        transform: rotate(-90deg);
-      }
+    .model-header.collapsed::after {
+      transform: rotate(-90deg);
+    }
 
-      .model-body {
-        padding: 20px;
-        max-height: 600px;
-        overflow-y: auto;
-        transition: max-height 0.3s ease;
-      }
+    .model-body {
+      padding: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+      transition: max-height 0.3s ease;
+    }
 
-      .model-body.collapsed {
-        max-height: 0;
-        padding: 0 20px;
-        overflow: hidden;
-      }
+    .model-body.collapsed {
+      max-height: 0;
+      padding: 0 20px;
+      overflow: hidden;
+    }
 
-      .field-section {
-        margin-bottom: 20px;
-      }
+    .field-section {
+      margin-bottom: 20px;
+    }
 
-      .section-title {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-        border-bottom: 2px solid #e0e0e0;
-      }
+    .section-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #e0e0e0;
+    }
 
-      .field {
-        padding: 8px 12px;
-        margin: 5px 0;
-        background: #f8f9fa;
-        border-radius: 6px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: background 0.2s;
-      }
+    .field {
+      padding: 8px 12px;
+      margin: 5px 0;
+      background: #f8f9fa;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
 
-      .field:hover {
-        background: #e9ecef;
-      }
+    .field:hover {
+      background: #e9ecef;
+    }
 
-      .field-name {
-        font-weight: 500;
-        color: #2c3e50;
-      }
+    .field-name {
+      font-weight: 500;
+      color: #2c3e50;
+    }
 
-      .field-type {
-        color: #7f8c8d;
-        font-size: 0.9rem;
-        font-family: "Courier New", monospace;
-      }
+    .field-type {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      font-family: "Courier New", monospace;
+    }
 
-      .field-modifiers {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-      }
+    .field-modifiers {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
 
-      .modifier {
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: white;
-      }
+    .modifier {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: white;
+    }
 
-      .modifier.primary {
-        background: #ff6b6b;
-      }
-      .modifier.unique {
-        background: #4ecdc4;
-      }
-      .modifier.required {
-        background: #ffd93d;
-        color: #333;
-      }
-      .modifier.optional {
-        background: #95e77e;
-        color: #333;
-      }
-      .modifier.default {
-        background: #a29bfe;
-      }
-      .modifier.list {
-        background: #fd79a8;
-      }
+    .modifier.primary {
+      background: #ff6b6b;
+    }
+    .modifier.unique {
+      background: #4ecdc4;
+    }
+    .modifier.required {
+      background: #ffd93d;
+      color: #333;
+    }
+    .modifier.optional {
+      background: #95e77e;
+      color: #333;
+    }
+    .modifier.default {
+      background: #a29bfe;
+    }
+    .modifier.list {
+      background: #fd79a8;
+    }
 
-      .relation {
-        padding: 10px 12px;
-        margin: 8px 0;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        border-left: 4px solid;
-      }
+    .relation {
+      padding: 10px 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-left: 4px solid;
+    }
 
-      .relation-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
-      }
+    .relation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
 
-      .relation-name {
-        font-weight: 600;
-        color: #2c3e50;
-      }
+    .relation-name {
+      font-weight: 600;
+      color: #2c3e50;
+    }
 
-      .relation-type {
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        background: white;
-        color: #333;
-      }
+    .relation-type {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: white;
+      color: #333;
+    }
 
-      .relation-details {
-        font-size: 0.9rem;
-        color: #5a6c7d;
-        margin-top: 5px;
-      }
+    .relation-details {
+      font-size: 0.9rem;
+      color: #5a6c7d;
+      margin-top: 5px;
+    }
 
-      .enum-section {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        margin-top: 30px;
-      }
+    .enum-section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 30px;
+    }
 
-      .enum-title {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 10px;
-      }
+    .enum-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
 
-      .enum-values {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
+    .enum-values {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
-      .enum-value {
-        padding: 5px 10px;
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        font-size: 0.9rem;
-      }
+    .enum-value {
+      padding: 5px 10px;
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
 
-      /* Model colors */
-      .color-0 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-      .color-1 {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      }
-      .color-2 {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      }
-      .color-3 {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-      }
-      .color-4 {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-      }
-      .color-5 {
-        background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
-      }
-      .color-6 {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      }
-      .color-7 {
-        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-      }
-      .color-8 {
-        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-      }
-      .color-9 {
-        background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-      }
+    /* Model colors */
+    .color-0 {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .color-1 {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .color-2 {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .color-3 {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    .color-4 {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+    .color-5 {
+      background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    }
+    .color-6 {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+    .color-7 {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    }
+    .color-8 {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    }
+    .color-9 {
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    }
 
-      /* Relation border colors */
-      .relation-0 {
-        border-left-color: #667eea;
-      }
-      .relation-1 {
-        border-left-color: #f093fb;
-      }
-      .relation-2 {
-        border-left-color: #4facfe;
-      }
-      .relation-3 {
-        border-left-color: #43e97b;
-      }
-      .relation-4 {
-        border-left-color: #fa709a;
-      }
-      .relation-5 {
-        border-left-color: #30cfd0;
-      }
-      .relation-6 {
-        border-left-color: #fed6e3;
-      }
-      .relation-7 {
-        border-left-color: #ff9a9e;
-      }
-      .relation-8 {
-        border-left-color: #fcb69f;
-      }
-      .relation-9 {
-        border-left-color: #a1c4fd;
-      }
+    /* Relation border colors */
+    .relation-0 {
+      border-left-color: #667eea;
+    }
+    .relation-1 {
+      border-left-color: #f093fb;
+    }
+    .relation-2 {
+      border-left-color: #4facfe;
+    }
+    .relation-3 {
+      border-left-color: #43e97b;
+    }
+    .relation-4 {
+      border-left-color: #fa709a;
+    }
+    .relation-5 {
+      border-left-color: #30cfd0;
+    }
+    .relation-6 {
+      border-left-color: #fed6e3;
+    }
+    .relation-7 {
+      border-left-color: #ff9a9e;
+    }
+    .relation-8 {
+      border-left-color: #fcb69f;
+    }
+    .relation-9 {
+      border-left-color: #a1c4fd;
+    }
 
-      .stats {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      }
+    .stats {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
 
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 15px;
-        text-align: center;
-      }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      text-align: center;
+    }
 
-      .stat-item {
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 8px;
-      }
+    .stat-item {
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
 
-      .stat-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #667eea;
-      }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #667eea;
+    }
 
-      .stat-label {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin-top: 5px;
-      }
+    .stat-label {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-top: 5px;
+    }
     </style>
   </head>
   <body>
@@ -382,1366 +385,1353 @@
     </div>
 
     <script>
-      const schemaData = {
-        models: [
-          {
-            name: "User",
-            tableName: "user",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "name", type: "String", modifiers: [] },
-              { name: "email", type: "String", modifiers: ["@unique"] },
-              {
-                name: "emailVerified",
-                type: "Boolean",
-                modifiers: ["@default(false)"],
-              },
-              { name: "image", type: "String?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-              { name: "role", type: "String", modifiers: ['@default("user")'] },
-              {
-                name: "banned",
-                type: "Boolean",
-                modifiers: ["@default(false)"],
-              },
-              { name: "banReason", type: "String?", modifiers: [] },
-              { name: "banExpires", type: "DateTime?", modifiers: [] },
-              { name: "firstName", type: "String?", modifiers: [] },
-              { name: "lastName", type: "String?", modifiers: [] },
-              { name: "username", type: "String?", modifiers: ["@unique"] },
-              { name: "headline", type: "String?", modifiers: [] },
-              { name: "bio", type: "String?", modifiers: [] },
-              {
-                name: "interests",
-                type: "String[]",
-                modifiers: ["@default([])"],
-              },
-              { name: "location", type: "String?", modifiers: [] },
-              { name: "skills", type: "String[]", modifiers: ["@default([])"] },
-              {
-                name: "walletAddress",
-                type: "String?",
-                modifiers: ["@unique"],
-              },
-              { name: "twitter", type: "String?", modifiers: [] },
-              { name: "discord", type: "String?", modifiers: [] },
-              { name: "github", type: "String?", modifiers: [] },
-              { name: "linkedin", type: "String?", modifiers: [] },
-              { name: "website", type: "String?", modifiers: [] },
-              { name: "telegram", type: "String?", modifiers: [] },
-              { name: "employer", type: "String?", modifiers: [] },
-              { name: "workExperience", type: "String?", modifiers: [] },
-              { name: "cryptoExperience", type: "String?", modifiers: [] },
-              { name: "workPreference", type: "String?", modifiers: [] },
-              {
-                name: "profileCompleted",
-                type: "Boolean",
-                modifiers: ["@default(false)"],
-              },
-              {
-                name: "private",
-                type: "Boolean",
-                modifiers: ["@default(false)"],
-              },
-              { name: "acceptedTOS", type: "DateTime?", modifiers: [] },
-              { name: "preferences", type: "Json?", modifiers: [] },
-              { name: "lastSeen", type: "DateTime?", modifiers: [] },
-            ],
-            relations: [
-              {
-                name: "accounts",
-                type: "Account[]",
-                cardinality: "1-to-many",
-                relatedModel: "Account",
-              },
-              {
-                name: "comments",
-                type: "Comment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Comment",
-              },
-              {
-                name: "curations",
-                type: "Curator[]",
-                cardinality: "1-to-many",
-                relatedModel: "Curator",
-              },
-              {
-                name: "applications",
-                type: "GrantApplication[]",
-                cardinality: "1-to-many",
-                relatedModel: "GrantApplication",
-              },
-              {
-                name: "invitations",
-                type: "Invitation[]",
-                cardinality: "1-to-many",
-                relatedModel: "Invitation",
-              },
-              {
-                name: "likes",
-                type: "Like[]",
-                cardinality: "1-to-many",
-                relatedModel: "Like",
-              },
-              {
-                name: "members",
-                type: "Member[]",
-                cardinality: "1-to-many",
-                relatedModel: "Member",
-              },
-              {
-                name: "notificationSettings",
-                type: "NotificationSetting[]",
-                cardinality: "1-to-many",
-                relatedModel: "NotificationSetting",
-              },
-              {
-                name: "payments",
-                type: "Payment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Payment",
-              },
-              {
-                name: "sessions",
-                type: "Session[]",
-                cardinality: "1-to-many",
-                relatedModel: "Session",
-              },
-              {
-                name: "submissions",
-                type: "Submission[]",
-                cardinality: "1-to-many",
-                relatedModel: "Submission",
-              },
-              {
-                name: "wonSubmissions",
-                type: "Submission[]",
-                cardinality: "1-to-many",
-                relatedModel: "Submission",
-              },
-              {
-                name: "votes",
-                type: "Vote[]",
-                cardinality: "1-to-many",
-                relatedModel: "Vote",
-              },
-            ],
-          },
-          {
-            name: "Session",
-            tableName: "session",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "expiresAt", type: "DateTime", modifiers: [] },
-              { name: "token", type: "String", modifiers: ["@unique"] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-              { name: "ipAddress", type: "String?", modifiers: [] },
-              { name: "userAgent", type: "String?", modifiers: [] },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "activeOrganizationId", type: "String?", modifiers: [] },
-            ],
-            relations: [
-              {
-                name: "user",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "Account",
-            tableName: "account",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "accountId", type: "String", modifiers: [] },
-              { name: "providerId", type: "String", modifiers: [] },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "accessToken", type: "String?", modifiers: [] },
-              { name: "refreshToken", type: "String?", modifiers: [] },
-              { name: "idToken", type: "String?", modifiers: [] },
-              {
-                name: "accessTokenExpiresAt",
-                type: "DateTime?",
-                modifiers: [],
-              },
-              {
-                name: "refreshTokenExpiresAt",
-                type: "DateTime?",
-                modifiers: [],
-              },
-              { name: "scope", type: "String?", modifiers: [] },
-              { name: "password", type: "String?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [
-              {
-                name: "user",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "Verification",
-            tableName: "verification",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "identifier", type: "String", modifiers: [] },
-              { name: "value", type: "String", modifiers: [] },
-              { name: "expiresAt", type: "DateTime", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [],
-          },
-          {
-            name: "Organization",
-            tableName: "organization",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "name", type: "String", modifiers: [] },
-              { name: "slug", type: "String", modifiers: ["@unique"] },
-              { name: "logo", type: "String?", modifiers: [] },
-              { name: "metadata", type: "String?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-              { name: "legalName", type: "String?", modifiers: [] },
-              { name: "headline", type: "String?", modifiers: [] },
-              { name: "description", type: "String?", modifiers: [] },
-              {
-                name: "industry",
-                type: "String[]",
-                modifiers: ["@default([])"],
-              },
-              { name: "twitter", type: "String?", modifiers: [] },
-              { name: "github", type: "String?", modifiers: [] },
-              { name: "linkedin", type: "String?", modifiers: [] },
-              { name: "location", type: "String?", modifiers: [] },
-              { name: "websiteUrl", type: "String?", modifiers: [] },
-              { name: "contact", type: "String?", modifiers: [] },
-              {
-                name: "visibility",
-                type: "OrgVisibilityStatus",
-                modifiers: ["@default(ACTIVE)"],
-              },
-              {
-                name: "isVerified",
-                type: "Boolean",
-                modifiers: ["@default(false)"],
-              },
-            ],
-            relations: [
-              {
-                name: "bounties",
-                type: "Bounty[]",
-                cardinality: "1-to-many",
-                relatedModel: "Bounty",
-              },
-              {
-                name: "grants",
-                type: "Grant[]",
-                cardinality: "1-to-many",
-                relatedModel: "Grant",
-              },
-              {
-                name: "invitations",
-                type: "Invitation[]",
-                cardinality: "1-to-many",
-                relatedModel: "Invitation",
-              },
-              {
-                name: "members",
-                type: "Member[]",
-                cardinality: "1-to-many",
-                relatedModel: "Member",
-              },
-              {
-                name: "payments",
-                type: "Payment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Payment",
-              },
-            ],
-          },
-          {
-            name: "Member",
-            tableName: "member",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "organizationId", type: "String", modifiers: [] },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "role", type: "String", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-            ],
-            relations: [
-              {
-                name: "organization",
-                type: "Organization",
-                cardinality: "many-to-1",
-                relatedModel: "Organization",
-              },
-              {
-                name: "user",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "Invitation",
-            tableName: "invitation",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "organizationId", type: "String", modifiers: [] },
-              { name: "email", type: "String", modifiers: [] },
-              { name: "role", type: "String?", modifiers: [] },
-              {
-                name: "status",
-                type: "String",
-                modifiers: ['@default("pending")'],
-              },
-              { name: "expiresAt", type: "DateTime", modifiers: [] },
-              { name: "inviterId", type: "String", modifiers: [] },
-            ],
-            relations: [
-              {
-                name: "inviter",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-              {
-                name: "organization",
-                type: "Organization",
-                cardinality: "many-to-1",
-                relatedModel: "Organization",
-              },
-            ],
-          },
-          {
-            name: "Grant",
-            tableName: "grant",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "title", type: "String", modifiers: [] },
-              { name: "slug", type: "String", modifiers: ["@unique"] },
-              { name: "logoUrl", type: "String?", modifiers: [] },
-              { name: "bannerUrl", type: "String?", modifiers: [] },
-              { name: "description", type: "String", modifiers: [] },
-              { name: "summary", type: "String?", modifiers: [] },
-              { name: "instructions", type: "String?", modifiers: [] },
-              { name: "resources", type: "Json?", modifiers: [] },
-              { name: "screening", type: "Json?", modifiers: [] },
-              { name: "applicationUrl", type: "String?", modifiers: [] },
-              {
-                name: "token",
-                type: "String?",
-                modifiers: ['@default("DOT")'],
-              },
-              { name: "skills", type: "String[]", modifiers: ["@default([])"] },
-              { name: "organizationId", type: "String", modifiers: [] },
-              { name: "minAmount", type: "Decimal?", modifiers: [] },
-              { name: "minAmountUSD", type: "Decimal?", modifiers: [] },
-              { name: "maxAmount", type: "Decimal?", modifiers: [] },
-              { name: "maxAmountUSD", type: "Decimal?", modifiers: [] },
-              { name: "totalFunds", type: "Decimal?", modifiers: [] },
-              { name: "totalFundsUSD", type: "Decimal?", modifiers: [] },
-              {
-                name: "status",
-                type: "GrantStatus",
-                modifiers: ["@default(OPEN)"],
-              },
-              {
-                name: "visibility",
-                type: "GrantVisibilityStatus?",
-                modifiers: ["@default(DRAFT)"],
-              },
-              {
-                name: "source",
-                type: "GrantSource",
-                modifiers: ["@default(NATIVE)"],
-              },
-              { name: "publishedAt", type: "DateTime?", modifiers: [] },
-              { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
-              {
-                name: "applicationCount",
-                type: "Int",
-                modifiers: ["@default(0)"],
-              },
-              { name: "rfpCount", type: "Int", modifiers: ["@default(0)"] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [
-              {
-                name: "curators",
-                type: "Curator[]",
-                cardinality: "1-to-many",
-                relatedModel: "Curator",
-              },
-              {
-                name: "organization",
-                type: "Organization",
-                cardinality: "many-to-1",
-                relatedModel: "Organization",
-              },
-              {
-                name: "applications",
-                type: "GrantApplication[]",
-                cardinality: "1-to-many",
-                relatedModel: "GrantApplication",
-              },
-              {
-                name: "rfps",
-                type: "RFP[]",
-                cardinality: "1-to-many",
-                relatedModel: "RFP",
-              },
-            ],
-          },
-          {
-            name: "RFP",
-            tableName: "rfp",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "title", type: "String", modifiers: [] },
-              { name: "slug", type: "String", modifiers: ["@unique"] },
-              { name: "description", type: "String", modifiers: [] },
-              { name: "resources", type: "Json?", modifiers: [] },
-              { name: "grantId", type: "String", modifiers: [] },
-              {
-                name: "status",
-                type: "RFPStatus",
-                modifiers: ["@default(OPEN)"],
-              },
-              {
-                name: "visibility",
-                type: "RFPVisibilityStatus",
-                modifiers: ["@default(DRAFT)"],
-              },
-              { name: "publishedAt", type: "DateTime?", modifiers: [] },
-              { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "voteCount", type: "Int", modifiers: ["@default(0)"] },
-              {
-                name: "applicationCount",
-                type: "Int",
-                modifiers: ["@default(0)"],
-              },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [
-              {
-                name: "comments",
-                type: "Comment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Comment",
-              },
-              {
-                name: "applications",
-                type: "GrantApplication[]",
-                cardinality: "1-to-many",
-                relatedModel: "GrantApplication",
-              },
-              {
-                name: "grant",
-                type: "Grant",
-                cardinality: "many-to-1",
-                relatedModel: "Grant",
-              },
-              {
-                name: "votes",
-                type: "Vote[]",
-                cardinality: "1-to-many",
-                relatedModel: "Vote",
-              },
-            ],
-          },
-          {
-            name: "Bounty",
-            tableName: "bounty",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "title", type: "String", modifiers: [] },
-              { name: "slug", type: "String", modifiers: ["@unique"] },
-              { name: "description", type: "String", modifiers: [] },
-              { name: "resources", type: "Json?", modifiers: [] },
-              { name: "screening", type: "Json?", modifiers: [] },
-              { name: "applicationUrl", type: "String?", modifiers: [] },
-              { name: "skills", type: "String[]", modifiers: ["@default([])"] },
-              { name: "organizationId", type: "String", modifiers: [] },
-              { name: "amount", type: "Decimal?", modifiers: [] },
-              { name: "amountUSD", type: "Decimal?", modifiers: [] },
-              { name: "token", type: "String", modifiers: ['@default("DOT")'] },
-              { name: "winnings", type: "Json?", modifiers: [] },
-              {
-                name: "split",
-                type: "CompensationType",
-                modifiers: ["@default(FIXED)"],
-              },
-              {
-                name: "status",
-                type: "BountyStatus",
-                modifiers: ["@default(OPEN)"],
-              },
-              {
-                name: "visibility",
-                type: "BountyVisibilityStatus",
-                modifiers: ["@default(DRAFT)"],
-              },
-              { name: "deadline", type: "DateTime?", modifiers: [] },
-              { name: "publishedAt", type: "DateTime?", modifiers: [] },
-              { name: "winnersAnnouncedAt", type: "DateTime?", modifiers: [] },
-              { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
-              {
-                name: "submissionCount",
-                type: "Int",
-                modifiers: ["@default(0)"],
-              },
-              { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-              { name: "lastReminderSentAt", type: "DateTime?", modifiers: [] },
-              {
-                name: "lastWinnerReminderSentAt",
-                type: "DateTime?",
-                modifiers: [],
-              },
-            ],
-            relations: [
-              {
-                name: "organization",
-                type: "Organization",
-                cardinality: "many-to-1",
-                relatedModel: "Organization",
-              },
-              {
-                name: "comments",
-                type: "Comment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Comment",
-              },
-              {
-                name: "curators",
-                type: "Curator[]",
-                cardinality: "1-to-many",
-                relatedModel: "Curator",
-              },
-              {
-                name: "submissions",
-                type: "Submission[]",
-                cardinality: "1-to-many",
-                relatedModel: "Submission",
-              },
-            ],
-          },
-          {
-            name: "GrantApplication",
-            tableName: "grant_application",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "grantId", type: "String", modifiers: [] },
-              { name: "rfpId", type: "String?", modifiers: [] },
-              { name: "title", type: "String", modifiers: [] },
-              { name: "summary", type: "String?", modifiers: [] },
-              { name: "description", type: "String", modifiers: [] },
-              { name: "timeline", type: "Json?", modifiers: [] },
-              { name: "milestones", type: "Json?", modifiers: [] },
-              { name: "budget", type: "Decimal?", modifiers: [] },
-              { name: "responses", type: "Json?", modifiers: [] },
-              {
-                name: "status",
-                type: "GrantApplicationStatus",
-                modifiers: ["@default(DRAFT)"],
-              },
-              { name: "label", type: "ApplicationLabel?", modifiers: [] },
-              { name: "approverId", type: "String?", modifiers: [] },
-              { name: "notes", type: "String?", modifiers: [] },
-              { name: "likesCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "submittedAt", type: "DateTime?", modifiers: [] },
-              { name: "reviewedAt", type: "DateTime?", modifiers: [] },
-              { name: "decidedAt", type: "DateTime?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [
-              {
-                name: "comments",
-                type: "Comment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Comment",
-              },
-              {
-                name: "grant",
-                type: "Grant",
-                cardinality: "many-to-1",
-                relatedModel: "Grant",
-              },
-              {
-                name: "rfp",
-                type: "RFP?",
-                cardinality: "many-to-1",
-                relatedModel: "RFP",
-              },
-              {
-                name: "applicant",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-              {
-                name: "likes",
-                type: "Like[]",
-                cardinality: "1-to-many",
-                relatedModel: "Like",
-              },
-            ],
-          },
-          {
-            name: "Submission",
-            tableName: "submission",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "bountyId", type: "String", modifiers: [] },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "submissionUrl", type: "String?", modifiers: [] },
-              { name: "bannerUrl", type: "String?", modifiers: [] },
-              { name: "responses", type: "Json?", modifiers: [] },
-              { name: "title", type: "String?", modifiers: [] },
-              { name: "description", type: "String?", modifiers: [] },
-              {
-                name: "status",
-                type: "SubmissionStatus",
-                modifiers: ["@default(DRAFT)"],
-              },
-              { name: "label", type: "SubmissionLabel?", modifiers: [] },
-              { name: "notes", type: "String?", modifiers: [] },
-              {
-                name: "isWinner",
-                type: "Boolean?",
-                modifiers: ["@default(false)"],
-              },
-              {
-                name: "isPaid",
-                type: "Boolean?",
-                modifiers: ["@default(false)"],
-              },
-              { name: "position", type: "Int?", modifiers: [] },
-              { name: "winningAmount", type: "Decimal?", modifiers: [] },
-              { name: "winnerUserId", type: "String?", modifiers: [] },
-              { name: "likesCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
-              { name: "submittedAt", type: "DateTime?", modifiers: [] },
-              { name: "reviewedAt", type: "DateTime?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [
-              {
-                name: "comments",
-                type: "Comment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Comment",
-              },
-              {
-                name: "likes",
-                type: "Like[]",
-                cardinality: "1-to-many",
-                relatedModel: "Like",
-              },
-              {
-                name: "payments",
-                type: "Payment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Payment",
-              },
-              {
-                name: "bounty",
-                type: "Bounty",
-                cardinality: "many-to-1",
-                relatedModel: "Bounty",
-              },
-              {
-                name: "submitter",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-              {
-                name: "winnerUser",
-                type: "User?",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "View",
-            tableName: "view",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "entity", type: "String", modifiers: [] },
-              { name: "userIp", type: "String?", modifiers: [] },
-              { name: "userId", type: "String?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              { name: "exp", type: "DateTime", modifiers: [] },
-            ],
-            relations: [],
-          },
-          {
-            name: "Payment",
-            tableName: "payment",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "submissionId", type: "String", modifiers: [] },
-              { name: "organizationId", type: "String", modifiers: [] },
-              { name: "recipientAddress", type: "String", modifiers: [] },
-              { name: "amount", type: "Decimal", modifiers: [] },
-              { name: "token", type: "String", modifiers: ['@default("DOT")'] },
-              {
-                name: "extrinsicHash",
-                type: "String?",
-                modifiers: ["@unique"],
-              },
-              { name: "blockNumber", type: "Int?", modifiers: [] },
-              {
-                name: "status",
-                type: "PaymentStatus",
-                modifiers: ["@default(PENDING)"],
-              },
-              { name: "paidBy", type: "String", modifiers: [] },
-              { name: "paidAt", type: "DateTime?", modifiers: [] },
-              { name: "verifiedAt", type: "DateTime?", modifiers: [] },
-              { name: "metadata", type: "Json?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [
-              {
-                name: "organization",
-                type: "Organization",
-                cardinality: "many-to-1",
-                relatedModel: "Organization",
-              },
-              {
-                name: "payer",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-              {
-                name: "submission",
-                type: "Submission",
-                cardinality: "many-to-1",
-                relatedModel: "Submission",
-              },
-            ],
-          },
-          {
-            name: "Curator",
-            tableName: "curator",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "grantId", type: "String?", modifiers: [] },
-              { name: "bountyId", type: "String?", modifiers: [] },
-              { name: "contact", type: "String?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-            ],
-            relations: [
-              {
-                name: "bounty",
-                type: "Bounty?",
-                cardinality: "many-to-1",
-                relatedModel: "Bounty",
-              },
-              {
-                name: "grant",
-                type: "Grant?",
-                cardinality: "many-to-1",
-                relatedModel: "Grant",
-              },
-              {
-                name: "user",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "Comment",
-            tableName: "comment",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "body", type: "String", modifiers: [] },
-              { name: "authorId", type: "String", modifiers: [] },
-              { name: "parentId", type: "String?", modifiers: [] },
-              { name: "rfpId", type: "String?", modifiers: [] },
-              { name: "bountyId", type: "String?", modifiers: [] },
-              { name: "applicationId", type: "String?", modifiers: [] },
-              { name: "submissionId", type: "String?", modifiers: [] },
-              {
-                name: "type",
-                type: "CommentType",
-                modifiers: ["@default(NORMAL)"],
-              },
-              {
-                name: "isEdited",
-                type: "Boolean",
-                modifiers: ["@default(false)"],
-              },
-              {
-                name: "isHidden",
-                type: "Boolean",
-                modifiers: ["@default(false)"],
-              },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-              {
-                name: "updatedAt",
-                type: "DateTime",
-                modifiers: ["@updatedAt"],
-              },
-            ],
-            relations: [
-              {
-                name: "application",
-                type: "GrantApplication?",
-                cardinality: "many-to-1",
-                relatedModel: "GrantApplication",
-              },
-              {
-                name: "author",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-              {
-                name: "bounty",
-                type: "Bounty?",
-                cardinality: "many-to-1",
-                relatedModel: "Bounty",
-              },
-              {
-                name: "parent",
-                type: "Comment?",
-                cardinality: "many-to-1",
-                relatedModel: "Comment",
-              },
-              {
-                name: "replies",
-                type: "Comment[]",
-                cardinality: "1-to-many",
-                relatedModel: "Comment",
-              },
-              {
-                name: "rfp",
-                type: "RFP?",
-                cardinality: "many-to-1",
-                relatedModel: "RFP",
-              },
-              {
-                name: "submission",
-                type: "Submission?",
-                cardinality: "many-to-1",
-                relatedModel: "Submission",
-              },
-            ],
-          },
-          {
-            name: "Like",
-            tableName: "like",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "submissionId", type: "String?", modifiers: [] },
-              { name: "applicationId", type: "String?", modifiers: [] },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-            ],
-            relations: [
-              {
-                name: "grantApplication",
-                type: "GrantApplication?",
-                cardinality: "many-to-1",
-                relatedModel: "GrantApplication",
-              },
-              {
-                name: "submission",
-                type: "Submission?",
-                cardinality: "many-to-1",
-                relatedModel: "Submission",
-              },
-              {
-                name: "user",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "Vote",
-            tableName: "vote",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "rfpId", type: "String", modifiers: [] },
-              {
-                name: "direction",
-                type: "VoteDirection",
-                modifiers: ["@default(UP)"],
-              },
-              {
-                name: "createdAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-            ],
-            relations: [
-              {
-                name: "rfp",
-                type: "RFP",
-                cardinality: "many-to-1",
-                relatedModel: "RFP",
-              },
-              {
-                name: "user",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "NotificationSetting",
-            tableName: "notification_setting",
-            fields: [
-              {
-                name: "id",
-                type: "String",
-                modifiers: ["@id", "@default(cuid())"],
-              },
-              { name: "userId", type: "String", modifiers: [] },
-              { name: "channel", type: "NotificationChannel", modifiers: [] },
-              { name: "type", type: "NotificationType", modifiers: [] },
-              {
-                name: "isEnabled",
-                type: "Boolean",
-                modifiers: ["@default(true)"],
-              },
-            ],
-            relations: [
-              {
-                name: "user",
-                type: "User",
-                cardinality: "many-to-1",
-                relatedModel: "User",
-              },
-            ],
-          },
-          {
-            name: "UnsubscribedEmail",
-            tableName: "unsubscribed_email",
-            fields: [
-              { name: "email", type: "String", modifiers: ["@id", "@unique"] },
-              { name: "reason", type: "String?", modifiers: [] },
-              {
-                name: "unsubscribedAt",
-                type: "DateTime",
-                modifiers: ["@default(now())"],
-              },
-            ],
-            relations: [],
-          },
-          {
-            name: "BouncedEmail",
-            tableName: "bounced_email",
-            fields: [
-              { name: "email", type: "String", modifiers: ["@id", "@unique"] },
-              { name: "bounceType", type: "String", modifiers: [] },
-              { name: "lastBouncedAt", type: "DateTime", modifiers: [] },
-              { name: "bounceCount", type: "Int", modifiers: ["@default(1)"] },
-            ],
-            relations: [],
-          },
-        ],
-        enums: [
-          {
-            name: "OrgVisibilityStatus",
-            values: ["ACTIVE", "UNDER_REVIEW", "ARCHIVED", "VERIFIED"],
-          },
-          {
-            name: "BountyVisibilityStatus",
-            values: ["DRAFT", "PUBLISHED", "ARCHIVED"],
-          },
-          {
-            name: "GrantVisibilityStatus",
-            values: ["DRAFT", "PUBLISHED", "ARCHIVED"],
-          },
-          { name: "GrantSource", values: ["NATIVE", "EXTERNAL"] },
-          {
-            name: "ApplicationLabel",
-            values: [
-              "Unreviewed",
-              "Reviewed",
-              "Shortlisted",
-              "Spam",
-              "Pending",
-            ],
-          },
-          {
-            name: "SubmissionLabel",
-            values: [
-              "Unreviewed",
-              "Reviewed",
-              "Shortlisted",
-              "Spam",
-              "Pending",
-            ],
-          },
-          {
-            name: "NotificationType",
-            values: [
-              "GRANT_APP_UPDATE",
-              "BOUNTY_SUBMISSION",
-              "COMMENT_REPLY",
-              "NEW_BOUNTY_MATCHING_SKILLS",
-            ],
-          },
-          {
-            name: "CommentType",
-            values: [
-              "NORMAL",
-              "SUBMISSION",
-              "DEADLINE_EXTENSION",
-              "WINNER_ANNOUNCEMENT",
-            ],
-          },
-          {
-            name: "CompensationType",
-            values: ["FIXED", "EQUAL_SPLIT", "VARIABLE"],
-          },
-          { name: "NotificationChannel", values: ["EMAIL", "IN_APP"] },
-          { name: "RFPStatus", values: ["OPEN", "PAUSED", "CLOSED"] },
-          {
-            name: "RFPVisibilityStatus",
-            values: ["DRAFT", "PUBLISHED", "ARCHIVED"],
-          },
-          {
-            name: "BountyStatus",
-            values: ["OPEN", "REVIEWING", "COMPLETED", "CLOSED", "CANCELLED"],
-          },
-          { name: "GrantStatus", values: ["OPEN", "PAUSED", "CLOSED"] },
-          {
-            name: "GrantApplicationStatus",
-            values: [
-              "DRAFT",
-              "SUBMITTED",
-              "UNDER_REVIEW",
-              "APPROVED",
-              "REJECTED",
-              "WITHDRAWN",
-            ],
-          },
-          {
-            name: "SubmissionStatus",
-            values: ["DRAFT", "SUBMITTED", "APPROVED", "REJECTED", "WITHDRAWN"],
-          },
-          { name: "VoteDirection", values: ["UP", "DOWN"] },
-          {
-            name: "PaymentStatus",
-            values: ["PENDING", "PROCESSING", "CONFIRMED", "FAILED"],
-          },
-        ],
-      };
+    "use strict";
+    const schemaData = {
+      models: [
+        {
+          name: "User",
+          tableName: "user",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "name", type: "String", modifiers: [] },
+            { name: "email", type: "String", modifiers: ["@unique"] },
+            {
+              name: "emailVerified",
+              type: "Boolean",
+              modifiers: ["@default(false)"],
+            },
+            { name: "image", type: "String?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+            { name: "role", type: "String", modifiers: ['@default("user")'] },
+            {
+              name: "banned",
+              type: "Boolean",
+              modifiers: ["@default(false)"],
+            },
+            { name: "banReason", type: "String?", modifiers: [] },
+            { name: "banExpires", type: "DateTime?", modifiers: [] },
+            { name: "firstName", type: "String?", modifiers: [] },
+            { name: "lastName", type: "String?", modifiers: [] },
+            { name: "username", type: "String?", modifiers: ["@unique"] },
+            { name: "headline", type: "String?", modifiers: [] },
+            { name: "bio", type: "String?", modifiers: [] },
+            {
+              name: "interests",
+              type: "String[]",
+              modifiers: ["@default([])"],
+            },
+            { name: "location", type: "String?", modifiers: [] },
+            { name: "skills", type: "String[]", modifiers: ["@default([])"] },
+            {
+              name: "walletAddress",
+              type: "String?",
+              modifiers: ["@unique"],
+            },
+            { name: "twitter", type: "String?", modifiers: [] },
+            { name: "discord", type: "String?", modifiers: [] },
+            { name: "github", type: "String?", modifiers: [] },
+            { name: "linkedin", type: "String?", modifiers: [] },
+            { name: "website", type: "String?", modifiers: [] },
+            { name: "telegram", type: "String?", modifiers: [] },
+            { name: "employer", type: "String?", modifiers: [] },
+            { name: "workExperience", type: "String?", modifiers: [] },
+            { name: "cryptoExperience", type: "String?", modifiers: [] },
+            { name: "workPreference", type: "String?", modifiers: [] },
+            {
+              name: "profileCompleted",
+              type: "Boolean",
+              modifiers: ["@default(false)"],
+            },
+            {
+              name: "private",
+              type: "Boolean",
+              modifiers: ["@default(false)"],
+            },
+            { name: "acceptedTOS", type: "DateTime?", modifiers: [] },
+            { name: "preferences", type: "Json?", modifiers: [] },
+            { name: "lastSeen", type: "DateTime?", modifiers: [] },
+          ],
+          relations: [
+            {
+              name: "accounts",
+              type: "Account[]",
+              cardinality: "1-to-many",
+              relatedModel: "Account",
+            },
+            {
+              name: "comments",
+              type: "Comment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Comment",
+            },
+            {
+              name: "curations",
+              type: "Curator[]",
+              cardinality: "1-to-many",
+              relatedModel: "Curator",
+            },
+            {
+              name: "applications",
+              type: "GrantApplication[]",
+              cardinality: "1-to-many",
+              relatedModel: "GrantApplication",
+            },
+            {
+              name: "invitations",
+              type: "Invitation[]",
+              cardinality: "1-to-many",
+              relatedModel: "Invitation",
+            },
+            {
+              name: "likes",
+              type: "Like[]",
+              cardinality: "1-to-many",
+              relatedModel: "Like",
+            },
+            {
+              name: "members",
+              type: "Member[]",
+              cardinality: "1-to-many",
+              relatedModel: "Member",
+            },
+            {
+              name: "notificationSettings",
+              type: "NotificationSetting[]",
+              cardinality: "1-to-many",
+              relatedModel: "NotificationSetting",
+            },
+            {
+              name: "payments",
+              type: "Payment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Payment",
+            },
+            {
+              name: "sessions",
+              type: "Session[]",
+              cardinality: "1-to-many",
+              relatedModel: "Session",
+            },
+            {
+              name: "submissions",
+              type: "Submission[]",
+              cardinality: "1-to-many",
+              relatedModel: "Submission",
+            },
+            {
+              name: "wonSubmissions",
+              type: "Submission[]",
+              cardinality: "1-to-many",
+              relatedModel: "Submission",
+            },
+            {
+              name: "votes",
+              type: "Vote[]",
+              cardinality: "1-to-many",
+              relatedModel: "Vote",
+            },
+          ],
+        },
+        {
+          name: "Session",
+          tableName: "session",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "expiresAt", type: "DateTime", modifiers: [] },
+            { name: "token", type: "String", modifiers: ["@unique"] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+            { name: "ipAddress", type: "String?", modifiers: [] },
+            { name: "userAgent", type: "String?", modifiers: [] },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "activeOrganizationId", type: "String?", modifiers: [] },
+          ],
+          relations: [
+            {
+              name: "user",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "Account",
+          tableName: "account",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "accountId", type: "String", modifiers: [] },
+            { name: "providerId", type: "String", modifiers: [] },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "accessToken", type: "String?", modifiers: [] },
+            { name: "refreshToken", type: "String?", modifiers: [] },
+            { name: "idToken", type: "String?", modifiers: [] },
+            {
+              name: "accessTokenExpiresAt",
+              type: "DateTime?",
+              modifiers: [],
+            },
+            {
+              name: "refreshTokenExpiresAt",
+              type: "DateTime?",
+              modifiers: [],
+            },
+            { name: "scope", type: "String?", modifiers: [] },
+            { name: "password", type: "String?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [
+            {
+              name: "user",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "Verification",
+          tableName: "verification",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "identifier", type: "String", modifiers: [] },
+            { name: "value", type: "String", modifiers: [] },
+            { name: "expiresAt", type: "DateTime", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [],
+        },
+        {
+          name: "Organization",
+          tableName: "organization",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "name", type: "String", modifiers: [] },
+            { name: "slug", type: "String", modifiers: ["@unique"] },
+            { name: "logo", type: "String?", modifiers: [] },
+            { name: "metadata", type: "String?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+            { name: "legalName", type: "String?", modifiers: [] },
+            { name: "headline", type: "String?", modifiers: [] },
+            { name: "description", type: "String?", modifiers: [] },
+            {
+              name: "industry",
+              type: "String[]",
+              modifiers: ["@default([])"],
+            },
+            { name: "twitter", type: "String?", modifiers: [] },
+            { name: "github", type: "String?", modifiers: [] },
+            { name: "linkedin", type: "String?", modifiers: [] },
+            { name: "location", type: "String?", modifiers: [] },
+            { name: "websiteUrl", type: "String?", modifiers: [] },
+            { name: "contact", type: "String?", modifiers: [] },
+            {
+              name: "visibility",
+              type: "OrgVisibilityStatus",
+              modifiers: ["@default(ACTIVE)"],
+            },
+            {
+              name: "isVerified",
+              type: "Boolean",
+              modifiers: ["@default(false)"],
+            },
+          ],
+          relations: [
+            {
+              name: "bounties",
+              type: "Bounty[]",
+              cardinality: "1-to-many",
+              relatedModel: "Bounty",
+            },
+            {
+              name: "grants",
+              type: "Grant[]",
+              cardinality: "1-to-many",
+              relatedModel: "Grant",
+            },
+            {
+              name: "invitations",
+              type: "Invitation[]",
+              cardinality: "1-to-many",
+              relatedModel: "Invitation",
+            },
+            {
+              name: "members",
+              type: "Member[]",
+              cardinality: "1-to-many",
+              relatedModel: "Member",
+            },
+            {
+              name: "payments",
+              type: "Payment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Payment",
+            },
+          ],
+        },
+        {
+          name: "Member",
+          tableName: "member",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "organizationId", type: "String", modifiers: [] },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "role", type: "String", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+          ],
+          relations: [
+            {
+              name: "organization",
+              type: "Organization",
+              cardinality: "many-to-1",
+              relatedModel: "Organization",
+            },
+            {
+              name: "user",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "Invitation",
+          tableName: "invitation",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "organizationId", type: "String", modifiers: [] },
+            { name: "email", type: "String", modifiers: [] },
+            { name: "role", type: "String?", modifiers: [] },
+            {
+              name: "status",
+              type: "String",
+              modifiers: ['@default("pending")'],
+            },
+            { name: "expiresAt", type: "DateTime", modifiers: [] },
+            { name: "inviterId", type: "String", modifiers: [] },
+          ],
+          relations: [
+            {
+              name: "inviter",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+            {
+              name: "organization",
+              type: "Organization",
+              cardinality: "many-to-1",
+              relatedModel: "Organization",
+            },
+          ],
+        },
+        {
+          name: "Grant",
+          tableName: "grant",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "title", type: "String", modifiers: [] },
+            { name: "slug", type: "String", modifiers: ["@unique"] },
+            { name: "logoUrl", type: "String?", modifiers: [] },
+            { name: "bannerUrl", type: "String?", modifiers: [] },
+            { name: "description", type: "String", modifiers: [] },
+            { name: "summary", type: "String?", modifiers: [] },
+            { name: "instructions", type: "String?", modifiers: [] },
+            { name: "resources", type: "Json?", modifiers: [] },
+            { name: "screening", type: "Json?", modifiers: [] },
+            { name: "applicationUrl", type: "String?", modifiers: [] },
+            {
+              name: "token",
+              type: "String?",
+              modifiers: ['@default("DOT")'],
+            },
+            { name: "skills", type: "String[]", modifiers: ["@default([])"] },
+            { name: "organizationId", type: "String", modifiers: [] },
+            { name: "minAmount", type: "Decimal?", modifiers: [] },
+            { name: "minAmountUSD", type: "Decimal?", modifiers: [] },
+            { name: "maxAmount", type: "Decimal?", modifiers: [] },
+            { name: "maxAmountUSD", type: "Decimal?", modifiers: [] },
+            { name: "totalFunds", type: "Decimal?", modifiers: [] },
+            { name: "totalFundsUSD", type: "Decimal?", modifiers: [] },
+            {
+              name: "status",
+              type: "GrantStatus",
+              modifiers: ["@default(OPEN)"],
+            },
+            {
+              name: "visibility",
+              type: "GrantVisibilityStatus?",
+              modifiers: ["@default(DRAFT)"],
+            },
+            {
+              name: "source",
+              type: "GrantSource",
+              modifiers: ["@default(NATIVE)"],
+            },
+            { name: "publishedAt", type: "DateTime?", modifiers: [] },
+            { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
+            {
+              name: "applicationCount",
+              type: "Int",
+              modifiers: ["@default(0)"],
+            },
+            { name: "rfpCount", type: "Int", modifiers: ["@default(0)"] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [
+            {
+              name: "curators",
+              type: "Curator[]",
+              cardinality: "1-to-many",
+              relatedModel: "Curator",
+            },
+            {
+              name: "organization",
+              type: "Organization",
+              cardinality: "many-to-1",
+              relatedModel: "Organization",
+            },
+            {
+              name: "applications",
+              type: "GrantApplication[]",
+              cardinality: "1-to-many",
+              relatedModel: "GrantApplication",
+            },
+            {
+              name: "rfps",
+              type: "RFP[]",
+              cardinality: "1-to-many",
+              relatedModel: "RFP",
+            },
+          ],
+        },
+        {
+          name: "RFP",
+          tableName: "rfp",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "title", type: "String", modifiers: [] },
+            { name: "slug", type: "String", modifiers: ["@unique"] },
+            { name: "description", type: "String", modifiers: [] },
+            { name: "resources", type: "Json?", modifiers: [] },
+            { name: "grantId", type: "String", modifiers: [] },
+            {
+              name: "status",
+              type: "RFPStatus",
+              modifiers: ["@default(OPEN)"],
+            },
+            {
+              name: "visibility",
+              type: "RFPVisibilityStatus",
+              modifiers: ["@default(DRAFT)"],
+            },
+            { name: "publishedAt", type: "DateTime?", modifiers: [] },
+            { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "voteCount", type: "Int", modifiers: ["@default(0)"] },
+            {
+              name: "applicationCount",
+              type: "Int",
+              modifiers: ["@default(0)"],
+            },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [
+            {
+              name: "comments",
+              type: "Comment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Comment",
+            },
+            {
+              name: "applications",
+              type: "GrantApplication[]",
+              cardinality: "1-to-many",
+              relatedModel: "GrantApplication",
+            },
+            {
+              name: "grant",
+              type: "Grant",
+              cardinality: "many-to-1",
+              relatedModel: "Grant",
+            },
+            {
+              name: "votes",
+              type: "Vote[]",
+              cardinality: "1-to-many",
+              relatedModel: "Vote",
+            },
+          ],
+        },
+        {
+          name: "Bounty",
+          tableName: "bounty",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "title", type: "String", modifiers: [] },
+            { name: "slug", type: "String", modifiers: ["@unique"] },
+            { name: "description", type: "String", modifiers: [] },
+            { name: "resources", type: "Json?", modifiers: [] },
+            { name: "screening", type: "Json?", modifiers: [] },
+            { name: "applicationUrl", type: "String?", modifiers: [] },
+            { name: "skills", type: "String[]", modifiers: ["@default([])"] },
+            { name: "organizationId", type: "String", modifiers: [] },
+            { name: "amount", type: "Decimal?", modifiers: [] },
+            { name: "amountUSD", type: "Decimal?", modifiers: [] },
+            { name: "token", type: "String", modifiers: ['@default("DOT")'] },
+            { name: "winnings", type: "Json?", modifiers: [] },
+            {
+              name: "split",
+              type: "CompensationType",
+              modifiers: ["@default(FIXED)"],
+            },
+            {
+              name: "status",
+              type: "BountyStatus",
+              modifiers: ["@default(OPEN)"],
+            },
+            {
+              name: "visibility",
+              type: "BountyVisibilityStatus",
+              modifiers: ["@default(DRAFT)"],
+            },
+            { name: "deadline", type: "DateTime?", modifiers: [] },
+            { name: "publishedAt", type: "DateTime?", modifiers: [] },
+            { name: "winnersAnnouncedAt", type: "DateTime?", modifiers: [] },
+            { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
+            {
+              name: "submissionCount",
+              type: "Int",
+              modifiers: ["@default(0)"],
+            },
+            { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+            { name: "lastReminderSentAt", type: "DateTime?", modifiers: [] },
+            {
+              name: "lastWinnerReminderSentAt",
+              type: "DateTime?",
+              modifiers: [],
+            },
+          ],
+          relations: [
+            {
+              name: "organization",
+              type: "Organization",
+              cardinality: "many-to-1",
+              relatedModel: "Organization",
+            },
+            {
+              name: "comments",
+              type: "Comment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Comment",
+            },
+            {
+              name: "curators",
+              type: "Curator[]",
+              cardinality: "1-to-many",
+              relatedModel: "Curator",
+            },
+            {
+              name: "submissions",
+              type: "Submission[]",
+              cardinality: "1-to-many",
+              relatedModel: "Submission",
+            },
+          ],
+        },
+        {
+          name: "GrantApplication",
+          tableName: "grant_application",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "grantId", type: "String", modifiers: [] },
+            { name: "rfpId", type: "String?", modifiers: [] },
+            { name: "title", type: "String", modifiers: [] },
+            { name: "summary", type: "String?", modifiers: [] },
+            { name: "description", type: "String", modifiers: [] },
+            { name: "timeline", type: "Json?", modifiers: [] },
+            { name: "milestones", type: "Json?", modifiers: [] },
+            { name: "budget", type: "Decimal?", modifiers: [] },
+            { name: "responses", type: "Json?", modifiers: [] },
+            {
+              name: "status",
+              type: "GrantApplicationStatus",
+              modifiers: ["@default(DRAFT)"],
+            },
+            { name: "label", type: "ApplicationLabel?", modifiers: [] },
+            { name: "approverId", type: "String?", modifiers: [] },
+            { name: "notes", type: "String?", modifiers: [] },
+            { name: "likesCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "submittedAt", type: "DateTime?", modifiers: [] },
+            { name: "reviewedAt", type: "DateTime?", modifiers: [] },
+            { name: "decidedAt", type: "DateTime?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [
+            {
+              name: "comments",
+              type: "Comment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Comment",
+            },
+            {
+              name: "grant",
+              type: "Grant",
+              cardinality: "many-to-1",
+              relatedModel: "Grant",
+            },
+            {
+              name: "rfp",
+              type: "RFP?",
+              cardinality: "many-to-1",
+              relatedModel: "RFP",
+            },
+            {
+              name: "applicant",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+            {
+              name: "likes",
+              type: "Like[]",
+              cardinality: "1-to-many",
+              relatedModel: "Like",
+            },
+          ],
+        },
+        {
+          name: "Submission",
+          tableName: "submission",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "bountyId", type: "String", modifiers: [] },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "submissionUrl", type: "String?", modifiers: [] },
+            { name: "bannerUrl", type: "String?", modifiers: [] },
+            { name: "responses", type: "Json?", modifiers: [] },
+            { name: "title", type: "String?", modifiers: [] },
+            { name: "description", type: "String?", modifiers: [] },
+            {
+              name: "status",
+              type: "SubmissionStatus",
+              modifiers: ["@default(DRAFT)"],
+            },
+            { name: "label", type: "SubmissionLabel?", modifiers: [] },
+            { name: "notes", type: "String?", modifiers: [] },
+            {
+              name: "isWinner",
+              type: "Boolean?",
+              modifiers: ["@default(false)"],
+            },
+            {
+              name: "isPaid",
+              type: "Boolean?",
+              modifiers: ["@default(false)"],
+            },
+            { name: "position", type: "Int?", modifiers: [] },
+            { name: "winningAmount", type: "Decimal?", modifiers: [] },
+            { name: "winnerUserId", type: "String?", modifiers: [] },
+            { name: "likesCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "viewCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "commentCount", type: "Int", modifiers: ["@default(0)"] },
+            { name: "submittedAt", type: "DateTime?", modifiers: [] },
+            { name: "reviewedAt", type: "DateTime?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [
+            {
+              name: "comments",
+              type: "Comment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Comment",
+            },
+            {
+              name: "likes",
+              type: "Like[]",
+              cardinality: "1-to-many",
+              relatedModel: "Like",
+            },
+            {
+              name: "payments",
+              type: "Payment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Payment",
+            },
+            {
+              name: "bounty",
+              type: "Bounty",
+              cardinality: "many-to-1",
+              relatedModel: "Bounty",
+            },
+            {
+              name: "submitter",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+            {
+              name: "winnerUser",
+              type: "User?",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "View",
+          tableName: "view",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "entity", type: "String", modifiers: [] },
+            { name: "userIp", type: "String?", modifiers: [] },
+            { name: "userId", type: "String?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            { name: "exp", type: "DateTime", modifiers: [] },
+          ],
+          relations: [],
+        },
+        {
+          name: "Payment",
+          tableName: "payment",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "submissionId", type: "String", modifiers: [] },
+            { name: "organizationId", type: "String", modifiers: [] },
+            { name: "recipientAddress", type: "String", modifiers: [] },
+            { name: "amount", type: "Decimal", modifiers: [] },
+            { name: "token", type: "String", modifiers: ['@default("DOT")'] },
+            {
+              name: "extrinsicHash",
+              type: "String?",
+              modifiers: ["@unique"],
+            },
+            { name: "blockNumber", type: "Int?", modifiers: [] },
+            {
+              name: "status",
+              type: "PaymentStatus",
+              modifiers: ["@default(PENDING)"],
+            },
+            { name: "paidBy", type: "String", modifiers: [] },
+            { name: "paidAt", type: "DateTime?", modifiers: [] },
+            { name: "verifiedAt", type: "DateTime?", modifiers: [] },
+            { name: "metadata", type: "Json?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [
+            {
+              name: "organization",
+              type: "Organization",
+              cardinality: "many-to-1",
+              relatedModel: "Organization",
+            },
+            {
+              name: "payer",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+            {
+              name: "submission",
+              type: "Submission",
+              cardinality: "many-to-1",
+              relatedModel: "Submission",
+            },
+          ],
+        },
+        {
+          name: "Curator",
+          tableName: "curator",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "grantId", type: "String?", modifiers: [] },
+            { name: "bountyId", type: "String?", modifiers: [] },
+            { name: "contact", type: "String?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+          ],
+          relations: [
+            {
+              name: "bounty",
+              type: "Bounty?",
+              cardinality: "many-to-1",
+              relatedModel: "Bounty",
+            },
+            {
+              name: "grant",
+              type: "Grant?",
+              cardinality: "many-to-1",
+              relatedModel: "Grant",
+            },
+            {
+              name: "user",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "Comment",
+          tableName: "comment",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "body", type: "String", modifiers: [] },
+            { name: "authorId", type: "String", modifiers: [] },
+            { name: "parentId", type: "String?", modifiers: [] },
+            { name: "rfpId", type: "String?", modifiers: [] },
+            { name: "bountyId", type: "String?", modifiers: [] },
+            { name: "applicationId", type: "String?", modifiers: [] },
+            { name: "submissionId", type: "String?", modifiers: [] },
+            {
+              name: "type",
+              type: "CommentType",
+              modifiers: ["@default(NORMAL)"],
+            },
+            {
+              name: "isEdited",
+              type: "Boolean",
+              modifiers: ["@default(false)"],
+            },
+            {
+              name: "isHidden",
+              type: "Boolean",
+              modifiers: ["@default(false)"],
+            },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+            {
+              name: "updatedAt",
+              type: "DateTime",
+              modifiers: ["@updatedAt"],
+            },
+          ],
+          relations: [
+            {
+              name: "application",
+              type: "GrantApplication?",
+              cardinality: "many-to-1",
+              relatedModel: "GrantApplication",
+            },
+            {
+              name: "author",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+            {
+              name: "bounty",
+              type: "Bounty?",
+              cardinality: "many-to-1",
+              relatedModel: "Bounty",
+            },
+            {
+              name: "parent",
+              type: "Comment?",
+              cardinality: "many-to-1",
+              relatedModel: "Comment",
+            },
+            {
+              name: "replies",
+              type: "Comment[]",
+              cardinality: "1-to-many",
+              relatedModel: "Comment",
+            },
+            {
+              name: "rfp",
+              type: "RFP?",
+              cardinality: "many-to-1",
+              relatedModel: "RFP",
+            },
+            {
+              name: "submission",
+              type: "Submission?",
+              cardinality: "many-to-1",
+              relatedModel: "Submission",
+            },
+          ],
+        },
+        {
+          name: "Like",
+          tableName: "like",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "submissionId", type: "String?", modifiers: [] },
+            { name: "applicationId", type: "String?", modifiers: [] },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+          ],
+          relations: [
+            {
+              name: "grantApplication",
+              type: "GrantApplication?",
+              cardinality: "many-to-1",
+              relatedModel: "GrantApplication",
+            },
+            {
+              name: "submission",
+              type: "Submission?",
+              cardinality: "many-to-1",
+              relatedModel: "Submission",
+            },
+            {
+              name: "user",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "Vote",
+          tableName: "vote",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "rfpId", type: "String", modifiers: [] },
+            {
+              name: "direction",
+              type: "VoteDirection",
+              modifiers: ["@default(UP)"],
+            },
+            {
+              name: "createdAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+          ],
+          relations: [
+            {
+              name: "rfp",
+              type: "RFP",
+              cardinality: "many-to-1",
+              relatedModel: "RFP",
+            },
+            {
+              name: "user",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "NotificationSetting",
+          tableName: "notification_setting",
+          fields: [
+            {
+              name: "id",
+              type: "String",
+              modifiers: ["@id", "@default(cuid())"],
+            },
+            { name: "userId", type: "String", modifiers: [] },
+            { name: "channel", type: "NotificationChannel", modifiers: [] },
+            { name: "type", type: "NotificationType", modifiers: [] },
+            {
+              name: "isEnabled",
+              type: "Boolean",
+              modifiers: ["@default(true)"],
+            },
+          ],
+          relations: [
+            {
+              name: "user",
+              type: "User",
+              cardinality: "many-to-1",
+              relatedModel: "User",
+            },
+          ],
+        },
+        {
+          name: "UnsubscribedEmail",
+          tableName: "unsubscribed_email",
+          fields: [
+            { name: "email", type: "String", modifiers: ["@id", "@unique"] },
+            { name: "reason", type: "String?", modifiers: [] },
+            {
+              name: "unsubscribedAt",
+              type: "DateTime",
+              modifiers: ["@default(now())"],
+            },
+          ],
+          relations: [],
+        },
+        {
+          name: "BouncedEmail",
+          tableName: "bounced_email",
+          fields: [
+            { name: "email", type: "String", modifiers: ["@id", "@unique"] },
+            { name: "bounceType", type: "String", modifiers: [] },
+            { name: "lastBouncedAt", type: "DateTime", modifiers: [] },
+            { name: "bounceCount", type: "Int", modifiers: ["@default(1)"] },
+          ],
+          relations: [],
+        },
+      ],
+      enums: [
+        {
+          name: "OrgVisibilityStatus",
+          values: ["ACTIVE", "UNDER_REVIEW", "ARCHIVED", "VERIFIED"],
+        },
+        {
+          name: "BountyVisibilityStatus",
+          values: ["DRAFT", "PUBLISHED", "ARCHIVED"],
+        },
+        {
+          name: "GrantVisibilityStatus",
+          values: ["DRAFT", "PUBLISHED", "ARCHIVED"],
+        },
+        { name: "GrantSource", values: ["NATIVE", "EXTERNAL"] },
+        {
+          name: "ApplicationLabel",
+          values: ["Unreviewed", "Reviewed", "Shortlisted", "Spam", "Pending"],
+        },
+        {
+          name: "SubmissionLabel",
+          values: ["Unreviewed", "Reviewed", "Shortlisted", "Spam", "Pending"],
+        },
+        {
+          name: "NotificationType",
+          values: [
+            "GRANT_APP_UPDATE",
+            "BOUNTY_SUBMISSION",
+            "COMMENT_REPLY",
+            "NEW_BOUNTY_MATCHING_SKILLS",
+          ],
+        },
+        {
+          name: "CommentType",
+          values: [
+            "NORMAL",
+            "SUBMISSION",
+            "DEADLINE_EXTENSION",
+            "WINNER_ANNOUNCEMENT",
+          ],
+        },
+        {
+          name: "CompensationType",
+          values: ["FIXED", "EQUAL_SPLIT", "VARIABLE"],
+        },
+        { name: "NotificationChannel", values: ["EMAIL", "IN_APP"] },
+        { name: "RFPStatus", values: ["OPEN", "PAUSED", "CLOSED"] },
+        {
+          name: "RFPVisibilityStatus",
+          values: ["DRAFT", "PUBLISHED", "ARCHIVED"],
+        },
+        {
+          name: "BountyStatus",
+          values: ["OPEN", "REVIEWING", "COMPLETED", "CLOSED", "CANCELLED"],
+        },
+        { name: "GrantStatus", values: ["OPEN", "PAUSED", "CLOSED"] },
+        {
+          name: "GrantApplicationStatus",
+          values: [
+            "DRAFT",
+            "SUBMITTED",
+            "UNDER_REVIEW",
+            "APPROVED",
+            "REJECTED",
+            "WITHDRAWN",
+          ],
+        },
+        {
+          name: "SubmissionStatus",
+          values: ["DRAFT", "SUBMITTED", "APPROVED", "REJECTED", "WITHDRAWN"],
+        },
+        { name: "VoteDirection", values: ["UP", "DOWN"] },
+        {
+          name: "PaymentStatus",
+          values: ["PENDING", "PROCESSING", "CONFIRMED", "FAILED"],
+        },
+      ],
+    };
 
-      const modelColors = {};
-      schemaData.models.forEach((model, index) => {
-        modelColors[model.name] = index % 10;
-      });
+    const modelColors = {};
+    schemaData.models.forEach((model, index) => {
+      modelColors[model.name] = index % 10;
+    });
 
-      function renderModels() {
-        const container = document.getElementById("modelsGrid");
-        container.innerHTML = "";
+    function renderModels() {
+      const container = document.getElementById("modelsGrid");
+      container.innerHTML = "";
 
-        let totalFields = 0;
-        let totalRelations = 0;
+      let totalFields = 0;
+      let totalRelations = 0;
 
-        schemaData.models.forEach((model, modelIndex) => {
-          totalFields += model.fields.length;
-          totalRelations += model.relations.length;
+      schemaData.models.forEach((model, modelIndex) => {
+        totalFields += model.fields.length;
+        totalRelations += model.relations.length;
 
-          const card = document.createElement("div");
-          card.className = "model-card";
+        const card = document.createElement("div");
+        card.className = "model-card";
 
-          const header = document.createElement("div");
-          header.className = `model-header color-${modelColors[model.name]}`;
-          header.innerHTML = `
+        const header = document.createElement("div");
+        header.className = `model-header color-${modelColors[model.name]}`;
+        header.innerHTML = `
                     <span>${model.name}</span>
                     <span style="font-size: 0.9rem; opacity: 0.9;">📦 ${model.tableName}</span>
                 `;
-          header.onclick = () => toggleModel(header);
+        header.onclick = () => toggleModel(header);
 
-          const body = document.createElement("div");
-          body.className = "model-body";
+        const body = document.createElement("div");
+        body.className = "model-body";
 
-          // Fields section
-          const fieldsSection = document.createElement("div");
-          fieldsSection.className = "field-section";
-          fieldsSection.innerHTML =
-            '<div class="section-title">📋 Fields (' +
-            model.fields.length +
-            ")</div>";
+        // Fields section
+        const fieldsSection = document.createElement("div");
+        fieldsSection.className = "field-section";
+        fieldsSection.innerHTML =
+          '<div class="section-title">📋 Fields (' +
+          model.fields.length +
+          ")</div>";
 
-          model.fields.forEach((field) => {
-            const fieldEl = document.createElement("div");
-            fieldEl.className = "field";
+        model.fields.forEach((field) => {
+          const fieldEl = document.createElement("div");
+          fieldEl.className = "field";
 
-            let modifiersHtml = "";
-            field.modifiers.forEach((mod) => {
-              let modClass = "modifier ";
-              if (mod.includes("@id")) modClass += "primary";
-              else if (mod.includes("@unique")) modClass += "unique";
-              else if (mod.includes("@default")) modClass += "default";
-              else modClass += "modifier";
+          let modifiersHtml = "";
+          field.modifiers.forEach((mod) => {
+            let modClass = "modifier ";
+            if (mod.includes("@id")) modClass += "primary";
+            else if (mod.includes("@unique")) modClass += "unique";
+            else if (mod.includes("@default")) modClass += "default";
+            else modClass += "modifier";
 
-              modifiersHtml += `<span class="${modClass}">${
-                mod.replace("@", "").split("(")[0]
-              }</span>`;
-            });
+            modifiersHtml += `<span class="${modClass}">${
+              mod.replace("@", "").split("(")[0]
+            }</span>`;
+          });
 
-            if (!field.type.includes("?")) {
-              modifiersHtml +=
-                '<span class="modifier required">required</span>';
-            } else {
-              modifiersHtml +=
-                '<span class="modifier optional">optional</span>';
-            }
+          if (field.type.includes("?")) {
+            modifiersHtml += '<span class="modifier optional">optional</span>';
+          } else {
+            modifiersHtml += '<span class="modifier required">required</span>';
+          }
 
-            if (field.type.includes("[]")) {
-              modifiersHtml += '<span class="modifier list">array</span>';
-            }
+          if (field.type.includes("[]")) {
+            modifiersHtml += '<span class="modifier list">array</span>';
+          }
 
-            fieldEl.innerHTML = `
+          fieldEl.innerHTML = `
                         <div>
                             <span class="field-name">${field.name}</span>
                             <span class="field-type">${field.type}</span>
                         </div>
                         <div class="field-modifiers">${modifiersHtml}</div>
                     `;
-            fieldsSection.appendChild(fieldEl);
-          });
+          fieldsSection.appendChild(fieldEl);
+        });
 
-          body.appendChild(fieldsSection);
+        body.appendChild(fieldsSection);
 
-          // Relations section
-          if (model.relations.length > 0) {
-            const relationsSection = document.createElement("div");
-            relationsSection.className = "field-section";
-            relationsSection.innerHTML =
-              '<div class="section-title">🔗 Relations (' +
-              model.relations.length +
-              ")</div>";
+        // Relations section
+        if (model.relations.length > 0) {
+          const relationsSection = document.createElement("div");
+          relationsSection.className = "field-section";
+          relationsSection.innerHTML =
+            '<div class="section-title">🔗 Relations (' +
+            model.relations.length +
+            ")</div>";
 
-            model.relations.forEach((relation) => {
-              const relationEl = document.createElement("div");
-              relationEl.className = `relation relation-${
-                modelColors[relation.relatedModel]
-              }`;
+          model.relations.forEach((relation) => {
+            const relationEl = document.createElement("div");
+            relationEl.className = `relation relation-${
+              modelColors[relation.relatedModel]
+            }`;
 
-              relationEl.innerHTML = `
+            relationEl.innerHTML = `
                             <div class="relation-header">
                                 <span class="relation-name">${relation.name}</span>
                                 <span class="relation-type">${relation.cardinality}</span>
@@ -1750,82 +1740,82 @@
                                 → ${relation.relatedModel} (${relation.type})
                             </div>
                         `;
-              relationsSection.appendChild(relationEl);
-            });
-
-            body.appendChild(relationsSection);
-          }
-
-          card.appendChild(header);
-          card.appendChild(body);
-          container.appendChild(card);
-        });
-
-        // Update stats
-        document.getElementById("modelCount").textContent =
-          schemaData.models.length;
-        document.getElementById("fieldCount").textContent = totalFields;
-        document.getElementById("relationCount").textContent = totalRelations;
-        document.getElementById("enumCount").textContent =
-          schemaData.enums.length;
-      }
-
-      function renderEnums() {
-        const container = document.getElementById("enumsContainer");
-        container.innerHTML = "";
-
-        schemaData.enums.forEach((enumDef) => {
-          const enumDiv = document.createElement("div");
-          enumDiv.style.marginBottom = "15px";
-
-          const title = document.createElement("div");
-          title.className = "enum-title";
-          title.textContent = enumDef.name;
-
-          const values = document.createElement("div");
-          values.className = "enum-values";
-
-          enumDef.values.forEach((value) => {
-            const valueSpan = document.createElement("span");
-            valueSpan.className = "enum-value";
-            valueSpan.textContent = value;
-            values.appendChild(valueSpan);
+            relationsSection.appendChild(relationEl);
           });
 
-          enumDiv.appendChild(title);
-          enumDiv.appendChild(values);
-          container.appendChild(enumDiv);
+          body.appendChild(relationsSection);
+        }
+
+        card.appendChild(header);
+        card.appendChild(body);
+        container.appendChild(card);
+      });
+
+      // Update stats
+      document.getElementById("modelCount").textContent =
+        schemaData.models.length;
+      document.getElementById("fieldCount").textContent = totalFields;
+      document.getElementById("relationCount").textContent = totalRelations;
+      document.getElementById("enumCount").textContent =
+        schemaData.enums.length;
+    }
+
+    function renderEnums() {
+      const container = document.getElementById("enumsContainer");
+      container.innerHTML = "";
+
+      schemaData.enums.forEach((enumDef) => {
+        const enumDiv = document.createElement("div");
+        enumDiv.style.marginBottom = "15px";
+
+        const title = document.createElement("div");
+        title.className = "enum-title";
+        title.textContent = enumDef.name;
+
+        const values = document.createElement("div");
+        values.className = "enum-values";
+
+        enumDef.values.forEach((value) => {
+          const valueSpan = document.createElement("span");
+          valueSpan.className = "enum-value";
+          valueSpan.textContent = value;
+          values.appendChild(valueSpan);
         });
-      }
 
-      function toggleModel(header) {
-        header.classList.toggle("collapsed");
-        header.nextElementSibling.classList.toggle("collapsed");
-      }
+        enumDiv.appendChild(title);
+        enumDiv.appendChild(values);
+        container.appendChild(enumDiv);
+      });
+    }
 
-      function expandAll() {
-        document.querySelectorAll(".model-header").forEach((header) => {
-          header.classList.remove("collapsed");
-          header.nextElementSibling.classList.remove("collapsed");
-        });
-      }
+    function toggleModel(header) {
+      header.classList.toggle("collapsed");
+      header.nextElementSibling.classList.toggle("collapsed");
+    }
 
-      function collapseAll() {
-        document.querySelectorAll(".model-header").forEach((header) => {
-          header.classList.add("collapsed");
-          header.nextElementSibling.classList.add("collapsed");
-        });
-      }
+    function expandAll() {
+      document.querySelectorAll(".model-header").forEach((header) => {
+        header.classList.remove("collapsed");
+        header.nextElementSibling.classList.remove("collapsed");
+      });
+    }
 
-      function toggleEnums() {
-        const enumSection = document.getElementById("enumSection");
-        enumSection.style.display =
-          enumSection.style.display === "none" ? "block" : "none";
-      }
+    function collapseAll() {
+      document.querySelectorAll(".model-header").forEach((header) => {
+        header.classList.add("collapsed");
+        header.nextElementSibling.classList.add("collapsed");
+      });
+    }
 
-      // Initialize
-      renderModels();
-      renderEnums();
+    function toggleEnums() {
+      const enumSection = document.getElementById("enumSection");
+      enumSection.style.display =
+        enumSection.style.display === "none" ? "block" : "none";
+    }
+
+    // Initialize
+    renderModels();
+    renderEnums();
     </script>
   </body>
 </html>

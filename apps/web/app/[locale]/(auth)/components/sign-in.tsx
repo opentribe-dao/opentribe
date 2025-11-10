@@ -15,14 +15,13 @@ import { Input } from "@packages/base/components/ui/input";
 import { parseError } from "@packages/logging/error";
 import { log } from "@packages/logging/log";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import Link from "next/link";
 import { env } from "@/env";
-
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -91,7 +90,7 @@ export const SignIn = ({ onSuccess, redirectTo }: SignInProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="email"
@@ -101,10 +100,10 @@ export const SignIn = ({ onSuccess, redirectTo }: SignInProps) => {
               <FormControl>
                 <Input
                   {...field}
-                  type="email"
-                  placeholder="Enter your email"
                   autoComplete="email"
                   disabled={isLoading}
+                  placeholder="Enter your email"
+                  type="email"
                 />
               </FormControl>
               <FormMessage />
@@ -120,35 +119,35 @@ export const SignIn = ({ onSuccess, redirectTo }: SignInProps) => {
               <div className="flex items-center justify-between">
                 <FormLabel>Password</FormLabel>
                 <Link
-                  href="/forgot-password"
                   className="text-[#E6007A] text-sm hover:underline"
-                  tabIndex={-1}
+                  href="/forgot-password"
                   onClick={() => {
                     if (onSuccess) {
                       onSuccess();
                     }
                   }}
+                  tabIndex={-1}
                 >
                   Forgot password?
                 </Link>
               </div>
               <FormControl>
-                <div className='relative grid-cols-[1fr_auto] items-center gap-x-2'>
+                <div className="relative grid-cols-[1fr_auto] items-center gap-x-2">
                   <Input
                     {...field}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
                     autoComplete="current-password"
-                    disabled={isLoading}
                     className="static"
+                    disabled={isLoading}
+                    placeholder="Enter your password"
+                    type={showPassword ? "text" : "password"}
                   />
                   <Button
-                    type="button"
+                    className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                     // variant="outline"
                     // size="icon"
-                    className='-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent'
-                    onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
+                    onClick={() => setShowPassword(!showPassword)}
+                    type="button"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -166,7 +165,7 @@ export const SignIn = ({ onSuccess, redirectTo }: SignInProps) => {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button className="w-full" disabled={isLoading} type="submit">
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
@@ -10,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@packages/base/components/ui/card";
-import { Badge } from "@packages/base/components/ui/badge";
 import { CreditCard, Package, Receipt } from "lucide-react";
 import { Header } from "../../../../components/header";
 
@@ -24,11 +24,11 @@ export default function BillingPage() {
 
   return (
     <>
-      <Header pages={["Settings"]} page="Billing" />
+      <Header page="Billing" pages={["Settings"]} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="max-w-4xl">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="font-bold text-2xl tracking-tight">
               Billing & Subscription
             </h2>
             <p className="text-muted-foreground">
@@ -55,7 +55,7 @@ export default function BillingPage() {
                   <Package className="h-8 w-8 text-muted-foreground" />
                   <div>
                     <p className="font-medium">Free Tier</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Perfect for getting started with Opentribe
                     </p>
                   </div>
@@ -90,12 +90,12 @@ export default function BillingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="flex items-center gap-3">
                   <CreditCard className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">No payment method</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-medium text-sm">No payment method</p>
+                    <p className="text-muted-foreground text-sm">
                       Add a card to enable paid features
                     </p>
                   </div>
@@ -115,11 +115,11 @@ export default function BillingPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Receipt className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-sm text-muted-foreground">
+                <Receipt className="mb-4 h-12 w-12 text-muted-foreground" />
+                <p className="text-muted-foreground text-sm">
                   No billing history yet
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Your invoices will appear here once you upgrade
                 </p>
               </div>
@@ -128,8 +128,8 @@ export default function BillingPage() {
 
           {/* Organization Billing Notice */}
           {activeOrg && (
-            <div className="mt-6 p-4 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground">
+            <div className="mt-6 rounded-lg bg-muted p-4">
+              <p className="text-muted-foreground text-sm">
                 <strong>Note:</strong> Billing is managed at the organization
                 level. You're viewing billing for{" "}
                 <strong>{activeOrg.name}</strong>.

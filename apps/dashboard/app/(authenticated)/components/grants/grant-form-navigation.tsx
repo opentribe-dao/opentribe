@@ -19,10 +19,10 @@ export function FormNavigation({
   return (
     <div className="flex justify-between pt-4">
       <Button
-        variant="outline"
+        className="border-white/20 text-white hover:bg-white/10"
         onClick={onBack}
         type="button"
-        className="border-white/20 text-white hover:bg-white/10"
+        variant="outline"
       >
         <ChevronLeft className="mr-2 h-4 w-4" />
         {currentStep > 1 ? "Back" : "Cancel"}
@@ -30,19 +30,19 @@ export function FormNavigation({
 
       {currentStep < maxStep ? (
         <Button
-          onClick={onNext}
-          type ="button"
           className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
+          onClick={onNext}
+          type="button"
         >
           Next
           <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       ) : (
         <Button
+          className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
+          disabled={submitting}
           onClick={onSubmit}
           type="button"
-          disabled={submitting}
-          className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
         >
           {submitting ? (
             <>

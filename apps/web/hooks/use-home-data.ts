@@ -1,6 +1,6 @@
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { env } from "@/env";
-import { HOMEPAGE_QUERIES, CACHE_CONFIG } from "@/hooks/react-query";
+import { CACHE_CONFIG, HOMEPAGE_QUERIES } from "@/hooks/react-query";
 
 // Types for homepage data
 export interface HomepageStatsResponse {

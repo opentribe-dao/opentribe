@@ -1,8 +1,8 @@
-import { database } from "@packages/db";
 import { auth } from "@packages/auth/server";
+import type { Prisma } from "@packages/db";
+import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
-import type { Prisma } from "@packages/db";
 import { ViewManager } from "@/lib/views";
 
 // Type for GET API response

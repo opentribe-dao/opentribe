@@ -1,9 +1,9 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { sendOnboardingCompleteEmail } from "@packages/email";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { sendOnboardingCompleteEmail } from "@packages/email";
 
 // Schema for organization creation
 const createOrganizationSchema = z.object({
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       });
 
       // 2. Generate a unique slug from the organization name
-      let baseSlug = validatedData.organization.name
+      const baseSlug = validatedData.organization.name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
@@ -182,8 +182,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20");
+    const page = Number.parseInt(searchParams.get("page") || "1");
+    const limit = Number.parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
     const [organizations, total] = await Promise.all([

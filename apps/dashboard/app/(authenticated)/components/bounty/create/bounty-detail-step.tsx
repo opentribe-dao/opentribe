@@ -1,8 +1,8 @@
-import type { BountyDetails } from '@/hooks/use-bounty';
-import { MarkdownEditor } from '@packages/base';
-import { Input } from '@packages/base/components/ui/input';
-import { Label } from '@packages/base/components/ui/label';
-import SkillsOptions from '@packages/base/components/ui/skills-options';
+import { MarkdownEditor } from "@packages/base";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
+import SkillsOptions from "@packages/base/components/ui/skills-options";
+import type { BountyDetails } from "@/hooks/use-bounty";
 
 interface BountyDetailProps {
   formData: Partial<BountyDetails>;
@@ -24,11 +24,11 @@ export const BountyDetailStepComponent: React.FC<BountyDetailProps> = ({
       <Label htmlFor="title">Bounty Title *</Label>
       <div className="mt-2">
         <Input
-          id="title"
-          value={formData.title}
-          onChange={(e) => updateFormData('title', e.target.value)}
-          placeholder="e.g., Build a Substrate Pallet for NFT Marketplace"
           className="border-white/10 bg-white/5 text-white"
+          id="title"
+          onChange={(e) => updateFormData("title", e.target.value)}
+          placeholder="e.g., Build a Substrate Pallet for NFT Marketplace"
+          value={formData.title}
         />
       </div>
     </div>
@@ -37,10 +37,10 @@ export const BountyDetailStepComponent: React.FC<BountyDetailProps> = ({
       <Label htmlFor="description">Description *</Label>
       <div className="mt-2">
         <MarkdownEditor
-          value={formData.description ?? ''}
-          onChange={(value) => updateFormData('description', value)}
-          placeholder="Describe what you need built, the problem it solves, and any specific requirements..."
           height={350}
+          onChange={(value) => updateFormData("description", value)}
+          placeholder="Describe what you need built, the problem it solves, and any specific requirements..."
+          value={formData.description ?? ""}
         />
       </div>
     </div>
@@ -50,10 +50,10 @@ export const BountyDetailStepComponent: React.FC<BountyDetailProps> = ({
       <div className="mt-2 space-y-3">
         <div className="flex flex-wrap gap-2">
           <SkillsOptions
-            value={formData.skills ?? []}
             onChange={(skills) => {
               addSkill(skills);
             }}
+            value={formData.skills ?? []}
           />
         </div>
       </div>

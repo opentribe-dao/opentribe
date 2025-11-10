@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ViewManager } from "@/lib/views";
 import { database } from "@packages/db";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ViewManager } from "@/lib/views";
 
 describe("ViewManager.extractClientIp", () => {
   it("returns first IP from x-forwarded-for and strips IPv4 port", () => {

@@ -1,9 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { useQuery } from '@tanstack/react-query';
-import { rfpQueryKeys, topQueryKeys } from './react-query';
 import { env } from "@/env";
+import { rfpQueryKeys, topQueryKeys } from "./react-query";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
@@ -177,7 +177,7 @@ export function useTopBounties() {
     queryFn: async (): Promise<TopBounty[]> => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/v1/top/bounties`);
-        
+
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error("Top bounties API endpoint not found");
@@ -242,7 +242,7 @@ export function useRfpsData(filters: RFPsFilters = {}) {
     filters.status,
     filters.sort,
     filters.grant,
-    filters.submission
+    filters.submission,
   ]);
 
   // Fetch initial data
@@ -274,45 +274,64 @@ export function useRfpsData(filters: RFPsFilters = {}) {
       const queryParams = new URLSearchParams();
 
       // Add all filters except page
-      if (filters.search !== undefined && filters.search !== '') {
-        queryParams.append('search', filters.search);
+      if (filters.search !== undefined && filters.search !== "") {
+        queryParams.append("search", filters.search);
       }
-      if (filters.status !== undefined && Array.isArray(filters.status) && filters.status.length > 0) {
-        queryParams.append('status', filters.status.join(','));
+      if (
+        filters.status !== undefined &&
+        Array.isArray(filters.status) &&
+        filters.status.length > 0
+      ) {
+        queryParams.append("status", filters.status.join(","));
       }
-      if (filters.sort !== undefined && filters.sort !== '' && filters.sort !== 'popular') {
-        queryParams.append('sort', filters.sort);
+      if (
+        filters.sort !== undefined &&
+        filters.sort !== "" &&
+        filters.sort !== "popular"
+      ) {
+        queryParams.append("sort", filters.sort);
       }
-      if (filters.grant !== undefined && filters.grant !== '' && filters.grant !== 'all') {
-        queryParams.append('grant', filters.grant);
+      if (
+        filters.grant !== undefined &&
+        filters.grant !== "" &&
+        filters.grant !== "all"
+      ) {
+        queryParams.append("grant", filters.grant);
       }
-      if (filters.submission !== undefined && filters.submission !== '' && filters.submission !== 'highest') {
-        queryParams.append('submission', filters.submission);
+      if (
+        filters.submission !== undefined &&
+        filters.submission !== "" &&
+        filters.submission !== "highest"
+      ) {
+        queryParams.append("submission", filters.submission);
       }
       if (filters.limit) {
-        queryParams.append('limit', filters.limit.toString());
+        queryParams.append("limit", filters.limit.toString());
       }
 
       // Add page parameter
-      queryParams.append('page', nextPage.toString());
+      queryParams.append("page", nextPage.toString());
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/rfps?${queryParams.toString()}`);
-      
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/rfps?${queryParams.toString()}`
+      );
+
       if (!response.ok) {
         throw new Error(`Failed to fetch RFPs (${response.status})`);
       }
-      
+
       const data: RFPsResponse = await response.json();
-      
+
       // Append new RFPs to existing ones
-      setAllRfps(prev => [...prev, ...data.rfps]);
+      setAllRfps((prev) => [...prev, ...data.rfps]);
       setCurrentPage(nextPage);
-      
+
       // Check if there are more pages
       setHasMore(data.pagination.hasMore);
-      
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load more RFPs'));
+      setError(
+        err instanceof Error ? err : new Error("Failed to load more RFPs")
+      );
     } finally {
       setIsLoadingMore(false);
     }
@@ -325,7 +344,7 @@ export function useRfpsData(filters: RFPsFilters = {}) {
     error: error || initialQuery.error,
     hasMore,
     loadMore,
-    refetch: initialQuery.refetch
+    refetch: initialQuery.refetch,
   };
 }
 

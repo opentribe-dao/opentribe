@@ -1,13 +1,13 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GET as getBounty } from "../app/api/v1/bounties/[id]/route";
-import {
-  GET as getBounties,
-  POST as createBounty,
-} from "../app/api/v1/bounties/route";
 import { PATCH as resetWinners } from "../app/api/v1/bounties/[id]/winners/reset/route";
-import { NextRequest } from "next/server";
+import {
+  POST as createBounty,
+  GET as getBounties,
+} from "../app/api/v1/bounties/route";
 
 // Mock database
 vi.mock("@packages/db", () => ({

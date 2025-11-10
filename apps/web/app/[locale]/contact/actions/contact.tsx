@@ -1,15 +1,18 @@
-'use server';
+"use server";
 
-import { env } from '@/env';
-import { resend } from '@packages/email';
-import { ContactTemplate } from '@packages/email/templates/contact';
-import { FROM_EMAIL_ADDRESS, FROM_EMAIL } from '@packages/email/services/email-service';
-import { parseError } from '@packages/logging/error';
+import { resend } from "@packages/email";
+import {
+  FROM_EMAIL,
+  FROM_EMAIL_ADDRESS,
+} from "@packages/email/services/email-service";
+import { ContactTemplate } from "@packages/email/templates/contact";
+import { parseError } from "@packages/logging/error";
 import {
   createRateLimiter,
   slidingWindow,
-} from '@packages/security/rate-limit';
-import { headers } from 'next/headers';
+} from "@packages/security/rate-limit";
+import { headers } from "next/headers";
+import { env } from "@/env";
 
 export const contact = async (
   name: string,
@@ -21,16 +24,16 @@ export const contact = async (
   try {
     if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
       const rateLimiter = createRateLimiter({
-        limiter: slidingWindow(1, '1d'),
+        limiter: slidingWindow(1, "1d"),
       });
       const head = await headers();
-      const ip = head.get('x-forwarded-for');
+      const ip = head.get("x-forwarded-for");
 
       const { success } = await rateLimiter.limit(`contact_form_${ip}`);
 
       if (!success) {
         throw new Error(
-          'You have reached your request limit. Please try again later.'
+          "You have reached your request limit. Please try again later."
         );
       }
     }
@@ -38,9 +41,9 @@ export const contact = async (
     await resend.emails.send({
       from: FROM_EMAIL,
       to: FROM_EMAIL_ADDRESS,
-      subject: 'Contact form submission',
+      subject: "Contact form submission",
       replyTo: email,
-      react: <ContactTemplate name={name} email={email} message={message} />,
+      react: <ContactTemplate email={email} message={message} name={name} />,
     });
 
     return {};

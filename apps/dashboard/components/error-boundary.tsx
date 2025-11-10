@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@packages/base/components/ui/button';
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +8,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { log } from '@packages/logging/log';
-import { AlertCircle, RefreshCw } from 'lucide-react';
-import React, { useEffect } from 'react';
+} from "@packages/base/components/ui/card";
+import { log } from "@packages/logging/log";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import React, { useEffect } from "react";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -37,7 +37,7 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    log.error('ErrorBoundary caught an error:', { error, errorInfo });
+    log.error("ErrorBoundary caught an error:", { error, errorInfo });
   }
 
   reset = () => {
@@ -65,10 +65,13 @@ class ErrorBoundary extends React.Component<
 function DefaultErrorFallback({
   error,
   reset,
-}: { error: Error; reset: () => void }) {
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   useEffect(() => {
     // Log error to monitoring service
-    log.error('Application error:', { error });
+    log.error("Application error:", { error });
   }, [error]);
 
   return (
@@ -90,16 +93,16 @@ function DefaultErrorFallback({
               Error details
             </summary>
             <pre className="mt-2 overflow-auto rounded bg-muted p-2 text-xs">
-              {error.message || 'Unknown error'}
+              {error.message || "Unknown error"}
             </pre>
           </details>
         </CardContent>
         <CardFooter className="flex gap-2">
-          <Button onClick={reset} variant="default" className="gap-2">
+          <Button className="gap-2" onClick={reset} variant="default">
             <RefreshCw className="h-4 w-4" />
             Try again
           </Button>
-          <Button onClick={() => window.location.assign('/')} variant="outline">
+          <Button onClick={() => window.location.assign("/")} variant="outline">
             Go to home
           </Button>
         </CardFooter>

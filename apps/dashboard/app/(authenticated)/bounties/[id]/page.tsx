@@ -1,19 +1,18 @@
-'use client';
+"use client";
 
+import { Badge } from "@packages/base/components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { CalendarIcon, CoinsIcon, ExternalLink, Trophy } from 'lucide-react';
-
-import { useBountyContext } from '../../components/bounty-provider';
-import remarkGfm from 'remark-gfm';
-import ReactMarkdown from 'react-markdown';
-import { Badge } from '@packages/base/components/ui/badge';
-import { getSkillLabel } from '@packages/base/lib/skills';
+} from "@packages/base/components/ui/card";
+import { getSkillLabel } from "@packages/base/lib/skills";
+import { CalendarIcon, CoinsIcon, ExternalLink, Trophy } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useBountyContext } from "../../components/bounty-provider";
 
 export default function BountyOverviewPage() {
   const { bounty, bountyLoading, bountyError } = useBountyContext();
@@ -104,41 +103,41 @@ export default function BountyOverviewPage() {
             <div className="space-y-3">
               {sortedWinnings.map(([position, amount], index) => (
                 <div
-                  key={position}
                   className="flex items-center justify-between rounded-lg bg-white/5 p-3"
+                  key={position}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full ${
                         index === 0
-                          ? 'bg-yellow-500/20'
+                          ? "bg-yellow-500/20"
                           : index === 1
-                            ? 'bg-gray-400/20'
+                            ? "bg-gray-400/20"
                             : index === 2
-                              ? 'bg-orange-600/20'
-                              : 'bg-white/10'
+                              ? "bg-orange-600/20"
+                              : "bg-white/10"
                       }`}
                     >
                       <Trophy
                         className={`h-5 w-5 ${
                           index === 0
-                            ? 'text-yellow-500'
+                            ? "text-yellow-500"
                             : index === 1
-                              ? 'text-gray-400'
+                              ? "text-gray-400"
                               : index === 2
-                                ? 'text-orange-600'
-                                : 'text-white/60'
+                                ? "text-orange-600"
+                                : "text-white/60"
                         }`}
                       />
                     </div>
                     <span className="font-medium text-white">
                       {index === 0
-                        ? '1st'
+                        ? "1st"
                         : index === 1
-                          ? '2nd'
+                          ? "2nd"
                           : index === 2
-                            ? '3rd'
-                            : `${position}th`}{' '}
+                            ? "3rd"
+                            : `${position}th`}{" "}
                       Place
                     </span>
                   </div>
@@ -160,9 +159,9 @@ export default function BountyOverviewPage() {
             <div className="flex flex-wrap gap-2">
               {bounty.skills.map((skill) => (
                 <Badge
+                  className="border-0 bg-white/10 text-white"
                   key={skill}
                   variant="secondary"
-                  className="border-0 bg-white/10 text-white"
                 >
                   {getSkillLabel(skill)}
                 </Badge>
@@ -180,13 +179,13 @@ export default function BountyOverviewPage() {
             <CardContent>
               <div className="space-y-3">
                 {bounty.resources.map((resource, index) => (
-                  <div key={index} className="flex items-start justify-between">
+                  <div className="flex items-start justify-between" key={index}>
                     <div>
                       <a
-                        href={resource.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="flex items-center gap-2 text-white transition-colors hover:text-[#E6007A]"
+                        href={resource.url}
+                        rel="noopener noreferrer"
+                        target="_blank"
                       >
                         {resource.title}
                         <ExternalLink className="h-3 w-3" />
@@ -213,7 +212,7 @@ export default function BountyOverviewPage() {
             <CardContent>
               <div className="space-y-4">
                 {bounty.screening.map((question, index) => (
-                  <div key={index} className="rounded-lg bg-white/5 p-4">
+                  <div className="rounded-lg bg-white/5 p-4" key={index}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="mb-2 flex items-center gap-2">
@@ -222,15 +221,15 @@ export default function BountyOverviewPage() {
                           </span>
                           {question.optional && (
                             <Badge
-                              variant="outline"
                               className="border-white/20 text-white/60 text-xs"
+                              variant="outline"
                             >
                               Optional
                             </Badge>
                           )}
                           <Badge
-                            variant="secondary"
                             className="border-0 bg-white/10 text-white/80 text-xs"
+                            variant="secondary"
                           >
                             {question.type.toUpperCase()}
                           </Badge>
@@ -239,13 +238,13 @@ export default function BountyOverviewPage() {
                           {question.question}
                         </p>
                         <div className="text-white/60 text-xs">
-                          {question.type === 'text' && (
+                          {question.type === "text" && (
                             <span>Text response required</span>
                           )}
-                          {question.type === 'url' && (
+                          {question.type === "url" && (
                             <span>URL/website link required</span>
                           )}
-                          {question.type === 'file' && (
+                          {question.type === "file" && (
                             <span>File upload required</span>
                           )}
                         </div>

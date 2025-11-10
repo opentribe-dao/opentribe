@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Form,
@@ -11,7 +12,6 @@ import {
   FormMessage,
 } from "@packages/base/components/ui/form";
 import { Input } from "@packages/base/components/ui/input";
-import { authClient } from "@packages/auth/client";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -96,10 +96,8 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
 
   return (
     <div className="space-y-4">
-      
-
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="email"
@@ -109,10 +107,10 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
                 <FormControl>
                   <Input
                     {...field}
-                    type="email"
-                    placeholder="Enter your email"
                     autoComplete="email"
                     disabled={isLoading}
+                    placeholder="Enter your email"
+                    type="email"
                   />
                 </FormControl>
                 <FormMessage />
@@ -128,14 +126,14 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
                 <div className="flex items-center justify-between">
                   <FormLabel>Password</FormLabel>
                   <Link
-                    href="/forgot-password"
                     className="text-[#E6007A] text-sm hover:underline"
-                    tabIndex={-1}
+                    href="/forgot-password"
                     onClick={() => {
                       if (onSuccess) {
                         onSuccess();
                       }
                     }}
+                    tabIndex={-1}
                   >
                     Forgot password?
                   </Link>
@@ -144,19 +142,19 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
                   <div className="relative grid-cols-[1fr_auto] items-center gap-x-2">
                     <Input
                       {...field}
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
                       autoComplete="current-password"
-                      disabled={isLoading}
                       className="static"
+                      disabled={isLoading}
+                      placeholder="Enter your password"
+                      type={showPassword ? "text" : "password"}
                     />
                     <Button
-                      type="button"
+                      className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                       // variant="outline"
                       // size="icon"
-                      onClick={() => setShowPassword(!showPassword)}
                       disabled={isLoading}
-                      className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                      type="button"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -174,7 +172,7 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button className="w-full" disabled={isLoading} type="submit">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

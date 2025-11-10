@@ -1,16 +1,16 @@
 "use client";
 
-import { env } from "@/env";
 import { Button } from "@packages/base/components/ui/button";
+import { formatCurrency } from "@packages/base/lib/utils";
 import { ArrowLeft, Calendar, ExternalLink, Trophy, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { env } from "@/env";
 import { CommentSection } from "./comment-section";
-import { useEffect, useState } from "react";
-import { formatCurrency } from "@packages/base/lib/utils";
 
 interface Submission {
   id: string;
@@ -93,7 +93,7 @@ export default function SubmissionDetailPage({
 
   if (isLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-white">Loading...</div>
       </div>
     );
@@ -103,13 +103,12 @@ export default function SubmissionDetailPage({
     notFound();
   }
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-  };
 
   return (
     <div className="min-h-screen">
@@ -117,8 +116,8 @@ export default function SubmissionDetailPage({
       <div className="border-white/10 border-b">
         <div className="container mx-auto px-6 py-4">
           <Link
-            href={`/bounties/${submission.bounty.slug || submission.bounty.id}`}
             className="inline-flex items-center gap-2 text-white/60 transition-colors hover:text-white"
+            href={`/bounties/${submission.bounty.slug || submission.bounty.id}`}
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Bounty
@@ -142,8 +141,8 @@ export default function SubmissionDetailPage({
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
                       <Link
-                        href={`/profile/${submission.submitter.username}`}
                         className="transition-colors hover:text-white"
+                        href={`/profile/${submission.submitter.username}`}
                       >
                         @{submission.submitter.username}
                       </Link>
@@ -162,7 +161,10 @@ export default function SubmissionDetailPage({
                     </div>
                     {submission.winningAmount && (
                       <p className="mt-2 font-bold text-2xl text-green-400">
-                        {formatCurrency(Number(submission.winningAmount), String(submission.bounty.token))}
+                        {formatCurrency(
+                          Number(submission.winningAmount),
+                          String(submission.bounty.token)
+                        )}
                       </p>
                     )}
                   </div>
@@ -172,10 +174,10 @@ export default function SubmissionDetailPage({
               {/* Submission URL */}
               {submission.submissionUrl && (
                 <a
-                  href={submission.submissionUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg bg-pink-600 px-4 py-2 text-white transition-colors hover:bg-pink-700"
+                  href={submission.submissionUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   <ExternalLink className="h-4 w-4" />
                   View Submission
@@ -204,8 +206,8 @@ export default function SubmissionDetailPage({
                 <div className="space-y-4">
                   {submission.answers.map((answer: any, idx: number) => (
                     <div
-                      key={idx}
                       className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                      key={idx}
                     >
                       <h4 className="mb-2 font-medium text-white/80">
                         {answer.question}
@@ -234,11 +236,11 @@ export default function SubmissionDetailPage({
                 <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-600">
                   {submission.submitter.image ? (
                     <Image
-                      src={submission.submitter.image}
                       alt={submission.submitter.username}
-                      width={48}
-                      height={48}
                       className="rounded-full"
+                      height={48}
+                      src={submission.submitter.image}
+                      width={48}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -254,20 +256,20 @@ export default function SubmissionDetailPage({
                     {submission.submitter.lastName}
                   </h4>
                   <Link
-                    href={`/profile/${submission.submitter.username}`}
                     className="text-sm text-white/60 transition-colors hover:text-white"
+                    href={`/profile/${submission.submitter.username}`}
                   >
                     @{submission.submitter.username}
                   </Link>
                 </div>
               </div>
               <Link
-                href={`/profile/${submission.submitter.username}`}
                 className="mt-4 block w-full"
+                href={`/profile/${submission.submitter.username}`}
               >
                 <Button
-                  variant="outline"
                   className="w-full border-white/20 text-white hover:bg-white/10"
+                  variant="outline"
                 >
                   View Profile
                 </Button>
@@ -284,7 +286,10 @@ export default function SubmissionDetailPage({
                 <div className="flex justify-between">
                   <span className="text-white/60">Total Prize</span>
                   <span className="font-medium">
-                    {formatCurrency(Number(submission.bounty.totalAmount), String(submission.bounty.token))}
+                    {formatCurrency(
+                      Number(submission.bounty.totalAmount),
+                      String(submission.bounty.token)
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -301,12 +306,12 @@ export default function SubmissionDetailPage({
                 </div>
               </div>
               <Link
-                href={`/bounties/${submission.bounty.slug || submission.bounty.id}`}
                 className="mt-4 block w-full"
+                href={`/bounties/${submission.bounty.slug || submission.bounty.id}`}
               >
                 <Button
-                  variant="outline"
                   className="w-full border-white/20 text-white hover:bg-white/10"
+                  variant="outline"
                 >
                   View Bounty
                 </Button>

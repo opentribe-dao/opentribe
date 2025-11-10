@@ -1,11 +1,11 @@
 import BaseTemplate from "./base-template";
 import {
   EmailButton,
-  EmailHeading,
-  EmailText,
-  EmailDivider,
   EmailCard,
+  EmailDivider,
+  EmailHeading,
   EmailList,
+  EmailText,
 } from "./components";
 
 interface WelcomeEmailProps {
@@ -29,7 +29,7 @@ export const WelcomeEmail = ({ firstName, url }: WelcomeEmailProps) => (
     <EmailDivider />
 
     <EmailCard>
-      <EmailText className="font-semibold text-lg mb-3">
+      <EmailText className="mb-3 font-semibold text-lg">
         🚀 Quick Start Guide
       </EmailText>
       <EmailList
@@ -46,7 +46,7 @@ export const WelcomeEmail = ({ firstName, url }: WelcomeEmailProps) => (
 
     <EmailDivider />
 
-    <EmailText className="text-sm text-white/60 text-center">
+    <EmailText className="text-center text-sm text-white/60">
       Need help? Check out our getting started guide or reach out to our
       community on Discord.
     </EmailText>

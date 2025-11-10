@@ -55,7 +55,7 @@ export interface Comment {
   id: string;
   body: string;
   author: BaseEmailUser;
-  contextType: 'grant' | 'bounty' | 'rfp' | 'submission' | 'application';
+  contextType: "grant" | "bounty" | "rfp" | "submission" | "application";
   contextTitle: string;
   contextId: string;
 }

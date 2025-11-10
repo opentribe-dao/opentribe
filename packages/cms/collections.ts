@@ -1,11 +1,11 @@
-import { defineCollection, defineConfig } from '@content-collections/core';
-import { compileMDX } from '@content-collections/mdx';
-import { z } from 'zod';
+import { defineCollection, defineConfig } from "@content-collections/core";
+import { compileMDX } from "@content-collections/mdx";
+import { z } from "zod";
 
 const posts = defineCollection({
-  name: 'posts',
-  directory: '../../apps/web/content/blog',
-  include: '**/*.mdx',
+  name: "posts",
+  directory: "../../apps/web/content/blog",
+  include: "**/*.mdx",
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -30,9 +30,9 @@ const posts = defineCollection({
 });
 
 const legals = defineCollection({
-  name: 'legals',
-  directory: '../../apps/web/content/legal',
-  include: '**/*.mdx',
+  name: "legals",
+  directory: "../../apps/web/content/legal",
+  include: "**/*.mdx",
   schema: z.object({
     title: z.string(),
     description: z.string(),

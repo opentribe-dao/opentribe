@@ -1,10 +1,10 @@
 import { auth } from "@packages/auth/server";
-import { URL_REGEX, OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
+import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
+import type { Prisma } from "@packages/db";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import type { Prisma } from "@packages/db";
 import { ViewManager } from "@/lib/views";
 
 // Type for GET API response
@@ -387,13 +387,19 @@ export async function PATCH(
       updateData.totalFunds = validatedData.totalFunds;
     if (validatedData.token !== undefined)
       updateData.token = validatedData.token;
-    if (validatedData.resources !== undefined || validatedData.resourceFiles !== undefined) {
-      const attachments = validatedData.resourceFiles?.map((file) => ({
-        title: "Attachment",
-        url: file,
-        description: undefined,
-      })) ?? [];
-      const existingResources = Array.isArray(grant.resources) ? grant.resources : [];
+    if (
+      validatedData.resources !== undefined ||
+      validatedData.resourceFiles !== undefined
+    ) {
+      const attachments =
+        validatedData.resourceFiles?.map((file) => ({
+          title: "Attachment",
+          url: file,
+          description: undefined,
+        })) ?? [];
+      const existingResources = Array.isArray(grant.resources)
+        ? grant.resources
+        : [];
       updateData.resources = [
         ...(validatedData.resources ?? existingResources),
         ...attachments,

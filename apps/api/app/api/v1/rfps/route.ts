@@ -130,23 +130,23 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: orderBy,
+      orderBy,
       take: limit + 1,
       skip: (page - 1) * limit,
     });
 
-    let hasMore = rfps.length > limit;
+    const hasMore = rfps.length > limit;
 
     if (hasMore) {
       rfps.pop();
     }
 
     return NextResponse.json({
-      rfps: rfps,
+      rfps,
       pagination: {
         page,
         limit,
-        hasMore: hasMore,
+        hasMore,
       },
       filters: {
         search,

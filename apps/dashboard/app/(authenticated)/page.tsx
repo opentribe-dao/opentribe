@@ -1,23 +1,17 @@
-'use client';
+"use client";
 
-import { useActiveOrganization, useSession } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@packages/base/components/ui/card';
-import { Badge } from '@packages/base/components/ui/badge';
-import {
-  ZapIcon,
-} from 'lucide-react';
-import { Header } from './components/header';
-import { useDashboard } from '@/hooks/use-dashboard';
-import { useRouter } from 'next/navigation';
-import { OverviewSkeleton } from '@/components/loading-states';
-import { relativeTime } from '@packages/base/lib/utils';
-import { StatsCard } from '@/components/overview/stats-card';
-import { UrgentActionsCard } from '@/components/overview/urgent-actions-card';
-import { useErrorHandler } from '@/hooks/use-error-handler';
+import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { Badge } from "@packages/base/components/ui/badge";
+import { Button } from "@packages/base/components/ui/button";
+import { Card, CardContent } from "@packages/base/components/ui/card";
+import { relativeTime } from "@packages/base/lib/utils";
+import { ZapIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { OverviewSkeleton } from "@/components/loading-states";
+import { StatsCard } from "@/components/overview/stats-card";
+import { UrgentActionsCard } from "@/components/overview/urgent-actions-card";
+import { useDashboard } from "@/hooks/use-dashboard";
+import { Header } from "./components/header";
 
 const App = () => {
   const { data: session } = useSession();
@@ -40,7 +34,7 @@ const App = () => {
     return (
       <div>
         <p>Error loading dashboard: {error?.message}</p>
-        <button type="button" onClick={() => refetch()}>
+        <button onClick={() => refetch()} type="button">
           Retry
         </button>
       </div>
@@ -58,7 +52,7 @@ const App = () => {
 
   return (
     <>
-      <Header pages={[]} page="Overview" />
+      <Header page="Overview" pages={[]} />
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-3">
@@ -71,9 +65,9 @@ const App = () => {
             value={stats?.submissionsToReview ?? 0}
           />
           <StatsCard
+            prefix="$"
             title="Total awarded"
             value={stats?.totalAwarded ?? 0}
-            prefix="$"
           />
         </div>
 
@@ -87,12 +81,12 @@ const App = () => {
           {urgentActions != null &&
             urgentActions.length > 0 &&
             urgentActions.map((urgentAction, idx) =>
-              urgentAction.type === 'WINNER_ANNOUNCEMENT' ? (
+              urgentAction.type === "WINNER_ANNOUNCEMENT" ? (
                 <Card
-                  key={urgentAction.id || idx}
                   className="border-purple-500/20 bg-gradient-to-r from-purple-600/20 to-purple-600/10"
+                  key={urgentAction.id || idx}
                 >
-                  <CardContent className="flex items-center justify-between px-y-6 ">
+                  <CardContent className="flex items-center justify-between px-y-6">
                     <div className="flex items-center gap-10">
                       <div className="flex h-30 w-30 items-center justify-center rounded-lg bg-white/10">
                         <ZapIcon className="h-5 w-5 text-white" />
@@ -105,11 +99,11 @@ const App = () => {
                           {urgentAction.description}
                         </h3>
                         <Button
-                          variant="secondary"
                           className="my-2 border-0 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
                           onClick={() => {
                             router.push(urgentAction.actionUrl);
                           }}
+                          variant="secondary"
                         >
                           Announce
                         </Button>
@@ -118,7 +112,10 @@ const App = () => {
                   </CardContent>
                 </Card>
               ) : (
-               <UrgentActionsCard key={urgentAction.id || idx} {...urgentAction} />
+                <UrgentActionsCard
+                  key={urgentAction.id || idx}
+                  {...urgentAction}
+                />
               )
             )}
         </div>
@@ -130,12 +127,12 @@ const App = () => {
           {recentActivities != null &&
             recentActivities.length > 0 &&
             recentActivities.map((activity, i) => (
-              <Card key={i} className="border-white/10 bg-zinc-900/50 p-4">
+              <Card className="border-white/10 bg-zinc-900/50 p-4" key={i}>
                 <CardContent className="flex items-center justify-between px-4">
                   <div className="flex items-center gap-4">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E6007A]/20">
                       <span className="font-medium text-[#E6007A] text-xs">
-                        {activity.actorName.charAt(0).toUpperCase()}{' '}
+                        {activity.actorName.charAt(0).toUpperCase()}{" "}
                         {/* use corrent user name refernce from submissions */}
                       </span>
                     </div>
@@ -145,8 +142,8 @@ const App = () => {
                   </div>
                   {
                     <Badge
-                      variant="secondary"
                       className="border-0 bg-green-500 px-2 py-1 text-black"
+                      variant="secondary"
                     >
                       {relativeTime(activity.timestamp)}
                     </Badge>

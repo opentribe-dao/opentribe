@@ -1,9 +1,9 @@
-import { ImageUpload } from '@packages/base';
-import { Label } from '@packages/base/components/ui/label';
-import { Input } from '@packages/base/components/ui/input';
-import { Textarea } from '@packages/base/components/ui/textarea';
-import SkillsOptions from '@packages/base/components/ui/skills-options';
-import { useFormContext } from 'react-hook-form';
+import { ImageUpload } from "@packages/base";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
+import SkillsOptions from "@packages/base/components/ui/skills-options";
+import { Textarea } from "@packages/base/components/ui/textarea";
+import { useFormContext } from "react-hook-form";
 
 interface GrantDetailsFormProps {
   organizationId?: string;
@@ -11,9 +11,9 @@ interface GrantDetailsFormProps {
 
 export function GrantDetailsForm({ organizationId }: GrantDetailsFormProps) {
   const { register, setValue, watch } = useFormContext();
-  const skills = watch('skills') ?? [];
-  const logoUrl = watch('logoUrl');
-  const bannerUrl = watch('bannerUrl');
+  const skills = watch("skills") ?? [];
+  const logoUrl = watch("logoUrl");
+  const bannerUrl = watch("bannerUrl");
 
   return (
     <div className="space-y-6">
@@ -21,7 +21,7 @@ export function GrantDetailsForm({ organizationId }: GrantDetailsFormProps) {
         <Label htmlFor="title">Grant Title *</Label>
         <Input
           id="title"
-          {...register('title', { required: true })}
+          {...register("title", { required: true })}
           className="border-white/10 bg-white/5 text-white"
         />
       </div>
@@ -29,36 +29,36 @@ export function GrantDetailsForm({ organizationId }: GrantDetailsFormProps) {
         <Label htmlFor="summary">Summary</Label>
         <Textarea
           id="summary"
-          {...register('summary')}
-          rows={3}
+          {...register("summary")}
           className="border-white/10 bg-white/5 text-white"
+          rows={3}
         />
       </div>
       <div>
         <Label htmlFor="description">Description *</Label>
         <Textarea
           id="description"
-          {...register('description', { required: true })}
-          rows={6}
+          {...register("description", { required: true })}
           className="border-white/10 bg-white/5 text-white"
+          rows={6}
         />
       </div>
       <div>
         <Label>Application Instructions</Label>
         <Textarea
           id="instructions"
-          {...register('instructions')}
-          rows={4}
+          {...register("instructions")}
           className="border-white/10 bg-white/5 text-white"
+          rows={4}
         />
       </div>
       <div>
         <Label>Grant Logo</Label>
         <ImageUpload
           currentImageUrl={logoUrl}
-          onImageChange={(url) => setValue('logoUrl', url || '')}
-          uploadType="organization-logo"
           entityId={organizationId}
+          onImageChange={(url) => setValue("logoUrl", url || "")}
+          uploadType="organization-logo"
           variant="logo"
         />
       </div>
@@ -66,9 +66,9 @@ export function GrantDetailsForm({ organizationId }: GrantDetailsFormProps) {
         <Label>Grant Banner</Label>
         <ImageUpload
           currentImageUrl={bannerUrl}
-          onImageChange={(url) => setValue('bannerUrl', url || '')}
-          uploadType="grant-banner"
           entityId={organizationId}
+          onImageChange={(url) => setValue("bannerUrl", url || "")}
+          uploadType="grant-banner"
           variant="banner"
         />
       </div>
@@ -76,8 +76,8 @@ export function GrantDetailsForm({ organizationId }: GrantDetailsFormProps) {
         <Label>Skills</Label>
         <div className="mt-2 flex flex-wrap gap-2">
           <SkillsOptions
+            onChange={(skills) => setValue("skills", skills)}
             value={skills}
-            onChange={(skills) => setValue('skills', skills)}
           />
         </div>
       </div>

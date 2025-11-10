@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { createContact } from "@packages/email";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const subscribeSchema = z.object({

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "@packages/auth/client";
+import { ImageUpload } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
@@ -11,8 +12,6 @@ import {
 } from "@packages/base/components/ui/card";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
-import { Textarea } from "@packages/base/components/ui/textarea";
-import { Switch } from "@packages/base/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -20,7 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@packages/base/components/ui/select";
-import { ImageUpload } from "@packages/base";
+import SkillsOptions from "@packages/base/components/ui/skills-options";
+import { Switch } from "@packages/base/components/ui/switch";
+import { Textarea } from "@packages/base/components/ui/textarea";
 import {
   ChevronLeft,
   Github,
@@ -38,7 +39,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
 import { validateWalletAddress } from "../../lib/validations/wallet";
-import SkillsOptions from "@packages/base/components/ui/skills-options";
 
 const WORK_PREFERENCES = [
   "Full-time",
@@ -116,7 +116,7 @@ const EditProfilePage = () => {
             workExperience: user.workExperience || "",
             cryptoExperience: user.cryptoExperience || "",
             workPreference: user.workPreference || "",
-            private: user.private || false,
+            private: user.private,
           });
         }
       } catch (error) {
@@ -129,7 +129,7 @@ const EditProfilePage = () => {
 
     if (!sessionLoading && session?.user) {
       fetchProfile();
-    } else if (!sessionLoading && !session?.user) {
+    } else if (!(sessionLoading || session?.user)) {
       router.push("/");
     }
   }, [session, sessionLoading, router]);
@@ -200,7 +200,7 @@ const EditProfilePage = () => {
 
   if (loading || sessionLoading) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -208,24 +208,24 @@ const EditProfilePage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className='container relative z-10 mx-auto max-w-4xl px-4 py-12'>
+      <div className="container relative z-10 mx-auto max-w-4xl px-4 py-12">
         {/* Header */}
-        <div className='mb-8 flex items-center justify-between'>
+        <div className="mb-8 flex items-center justify-between">
           <div>
             <Link
+              className="mb-4 flex items-center gap-2 text-white/60 hover:text-white"
               href={`/profile/${formData.username || session?.user?.id}`}
-              className='mb-4 flex items-center gap-2 text-white/60 hover:text-white'
             >
               <ChevronLeft className="h-4 w-4" />
               Back to Profile
             </Link>
-            <h1 className='font-bold text-3xl text-white'>Edit Profile</h1>
+            <h1 className="font-bold text-3xl text-white">Edit Profile</h1>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Basic Information */}
-          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+          <Card className="border-white/10 bg-white/5 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-white">Basic Information</CardTitle>
               <CardDescription className="text-white/60">
@@ -235,9 +235,10 @@ const EditProfilePage = () => {
             <CardContent className="space-y-6">
               {/* Avatar */}
               <div>
-                <Label className='mb-4 block text-white'>Profile Picture</Label>
+                <Label className="mb-4 block text-white">Profile Picture</Label>
                 <ImageUpload
                   currentImageUrl={formData.image}
+                  entityId={session?.user?.id}
                   onImageChange={(url) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -245,7 +246,6 @@ const EditProfilePage = () => {
                     }))
                   }
                   uploadType="profile-avatar"
-                  entityId={session?.user?.id}
                   variant="avatar"
                 />
               </div>
@@ -253,47 +253,47 @@ const EditProfilePage = () => {
               {/* Name */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName" className='mb-2 text-white'>
+                  <Label className="mb-2 text-white" htmlFor="firstName">
                     First Name
                   </Label>
                   <Input
+                    className="border-white/10 bg-white/5 text-white"
                     id="firstName"
-                    value={formData.firstName}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
                         firstName: e.target.value,
                       }))
                     }
-                    className='border-white/10 bg-white/5 text-white'
+                    value={formData.firstName}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName" className='mb-2 text-white'>
+                  <Label className="mb-2 text-white" htmlFor="lastName">
                     Last Name
                   </Label>
                   <Input
+                    className="border-white/10 bg-white/5 text-white"
                     id="lastName"
-                    value={formData.lastName}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
                         lastName: e.target.value,
                       }))
                     }
-                    className='border-white/10 bg-white/5 text-white'
+                    value={formData.lastName}
                   />
                 </div>
               </div>
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className='mb-2 text-white'>
+                <Label className="mb-2 text-white" htmlFor="username">
                   Username
                 </Label>
                 <Input
+                  className="border-white/10 bg-white/5 text-white"
                   id="username"
-                  value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -301,21 +301,22 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="johndoe"
-                  className='border-white/10 bg-white/5 text-white'
+                  value={formData.username}
                 />
-                <p className='mt-1 text-white/40 text-xs'>
+                <p className="mt-1 text-white/40 text-xs">
                   Your unique username for your profile URL
                 </p>
               </div>
 
               {/* Headline */}
               <div>
-                <Label htmlFor="headline" className='mb-2 text-white'>
+                <Label className="mb-2 text-white" htmlFor="headline">
                   Headline
                 </Label>
                 <Input
+                  className="border-white/10 bg-white/5 text-white"
                   id="headline"
-                  value={formData.headline}
+                  maxLength={100}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -323,42 +324,41 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="Full Stack Developer | Substrate Enthusiast"
-                  maxLength={100}
-                  className='border-white/10 bg-white/5 text-white'
+                  value={formData.headline}
                 />
               </div>
 
               {/* Bio */}
               <div>
-                <Label htmlFor="bio" className="text-white">
+                <Label className="text-white" htmlFor="bio">
                   Bio
                 </Label>
                 <Textarea
+                  className="mt-2 border-white/10 bg-white/5 text-white"
                   id="bio"
-                  value={formData.bio}
+                  maxLength={500}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, bio: e.target.value }))
                   }
                   placeholder="Tell us about yourself..."
                   rows={4}
-                  maxLength={500}
-                  className='mt-2 border-white/10 bg-white/5 text-white'
+                  value={formData.bio}
                 />
-                <p className='mt-1 text-white/40 text-xs'>
+                <p className="mt-1 text-white/40 text-xs">
                   {formData.bio.length}/500 characters
                 </p>
               </div>
 
               {/* Location */}
               <div>
-                <Label htmlFor="location" className="text-white">
+                <Label className="text-white" htmlFor="location">
                   Location
                 </Label>
                 <div className="relative mt-2">
-                  <MapPin className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                  <MapPin className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                   <Input
+                    className="border-white/10 bg-white/5 pl-10 text-white"
                     id="location"
-                    value={formData.location}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -366,7 +366,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="San Francisco, CA"
-                    className='border-white/10 bg-white/5 pl-10 text-white'
+                    value={formData.location}
                   />
                 </div>
               </div>
@@ -374,7 +374,7 @@ const EditProfilePage = () => {
               {/* Privacy */}
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="private" className="text-white">
+                  <Label className="text-white" htmlFor="private">
                     Private Profile
                   </Label>
                   <p className="text-sm text-white/60">
@@ -382,8 +382,8 @@ const EditProfilePage = () => {
                   </p>
                 </div>
                 <Switch
-                  id="private"
                   checked={formData.private}
+                  id="private"
                   onCheckedChange={(checked) =>
                     setFormData((prev) => ({ ...prev, private: checked }))
                   }
@@ -393,7 +393,7 @@ const EditProfilePage = () => {
           </Card>
 
           {/* Skills */}
-          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+          <Card className="border-white/10 bg-white/5 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-white">Skills</CardTitle>
               <CardDescription className="text-white/60">
@@ -403,21 +403,21 @@ const EditProfilePage = () => {
             <CardContent>
               <div className="space-y-3">
                 <SkillsOptions
-                 value={formData.skills}
                   onChange={(skills) => {
                     if (skills && skills.length > 0) {
-                      setFormData((prev) => ({ ...prev, skills: skills }));
+                      setFormData((prev) => ({ ...prev, skills }));
                     } else {
                       setFormData((prev) => ({ ...prev, skills: [] }));
                     }
                   }}
+                  value={formData.skills}
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Work Information */}
-          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+          <Card className="border-white/10 bg-white/5 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-white">Work Information</CardTitle>
               <CardDescription className="text-white/60">
@@ -426,12 +426,12 @@ const EditProfilePage = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="employer" className='mb-2 text-white'>
+                <Label className="mb-2 text-white" htmlFor="employer">
                   Current Employer
                 </Label>
                 <Input
+                  className="border-white/10 bg-white/5 text-white"
                   id="employer"
-                  value={formData.employer}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -439,17 +439,17 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="Parity Technologies"
-                  className=' border-white/10 bg-white/5 text-white'
+                  value={formData.employer}
                 />
               </div>
 
               <div>
-                <Label htmlFor="workExperience" className="text-white">
+                <Label className="text-white" htmlFor="workExperience">
                   Work Experience
                 </Label>
                 <Textarea
+                  className="mt-2 border-white/10 bg-white/5 text-white"
                   id="workExperience"
-                  value={formData.workExperience}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -458,32 +458,32 @@ const EditProfilePage = () => {
                   }
                   placeholder="Describe your professional experience..."
                   rows={3}
-                  className='mt-2 border-white/10 bg-white/5 text-white'
+                  value={formData.workExperience}
                 />
               </div>
 
               <div>
-                <Label htmlFor="cryptoExperience" className="text-white">
+                <Label className="text-white" htmlFor="cryptoExperience">
                   Crypto Experience Level
                 </Label>
                 <Select
-                  value={formData.cryptoExperience}
                   onValueChange={(value) =>
                     setFormData((prev) => ({
                       ...prev,
                       cryptoExperience: value,
                     }))
                   }
+                  value={formData.cryptoExperience}
                 >
-                  <SelectTrigger className='mt-2 border-white/10 bg-white/5 text-white'>
+                  <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
-                  <SelectContent className='border-white/10 bg-zinc-900'>
+                  <SelectContent className="border-white/10 bg-zinc-900">
                     {CRYPTO_EXPERIENCE.map((level) => (
                       <SelectItem
+                        className="text-white"
                         key={level}
                         value={level}
-                        className="text-white"
                       >
                         {level}
                       </SelectItem>
@@ -493,27 +493,27 @@ const EditProfilePage = () => {
               </div>
 
               <div>
-                <Label htmlFor="workPreference" className="text-white">
+                <Label className="text-white" htmlFor="workPreference">
                   Work Preference
                 </Label>
                 <Select
-                  value={formData.workPreference}
                   onValueChange={(value) =>
                     setFormData((prev) => ({
                       ...prev,
                       workPreference: value,
                     }))
                   }
+                  value={formData.workPreference}
                 >
-                  <SelectTrigger className='mt-2 border-white/10 bg-white/5 text-white'>
+                  <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                     <SelectValue placeholder="Select your work preference" />
                   </SelectTrigger>
-                  <SelectContent className='border-white/10 bg-zinc-900'>
+                  <SelectContent className="border-white/10 bg-zinc-900">
                     {WORK_PREFERENCES.map((pref) => (
                       <SelectItem
+                        className="text-white"
                         key={pref}
                         value={pref}
-                        className="text-white"
                       >
                         {pref}
                       </SelectItem>
@@ -525,7 +525,7 @@ const EditProfilePage = () => {
           </Card>
 
           {/* Social Links */}
-          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+          <Card className="border-white/10 bg-white/5 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-white">Social Links</CardTitle>
               <CardDescription className="text-white/60">
@@ -534,14 +534,14 @@ const EditProfilePage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="twitter" className="text-white">
+                <Label className="text-white" htmlFor="twitter">
                   Twitter
                 </Label>
                 <div className="relative mt-2">
-                  <Twitter className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                  <Twitter className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                   <Input
+                    className="border-white/10 bg-white/5 pl-10 text-white"
                     id="twitter"
-                    value={formData.twitter}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -549,20 +549,20 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className='border-white/10 bg-white/5 pl-10 text-white'
+                    value={formData.twitter}
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="github" className="text-white">
+                <Label className="text-white" htmlFor="github">
                   GitHub
                 </Label>
                 <div className="relative mt-2">
-                  <Github className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                  <Github className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                   <Input
+                    className="border-white/10 bg-white/5 pl-10 text-white"
                     id="github"
-                    value={formData.github}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -570,20 +570,20 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className='border-white/10 bg-white/5 pl-10 text-white'
+                    value={formData.github}
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="linkedin" className="text-white">
+                <Label className="text-white" htmlFor="linkedin">
                   LinkedIn
                 </Label>
                 <div className="relative mt-2">
-                  <Linkedin className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                  <Linkedin className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                   <Input
+                    className="border-white/10 bg-white/5 pl-10 text-white"
                     id="linkedin"
-                    value={formData.linkedin}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -591,21 +591,20 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className='border-white/10 bg-white/5 pl-10 text-white'
+                    value={formData.linkedin}
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="website" className="text-white">
+                <Label className="text-white" htmlFor="website">
                   Website
                 </Label>
                 <div className="relative mt-2">
-                  <Globe className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                  <Globe className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                   <Input
+                    className="border-white/10 bg-white/5 pl-10 text-white"
                     id="website"
-                    type="url"
-                    value={formData.website}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -613,20 +612,21 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="https://example.com"
-                    className='border-white/10 bg-white/5 pl-10 text-white'
+                    type="url"
+                    value={formData.website}
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="telegram" className="text-white">
+                <Label className="text-white" htmlFor="telegram">
                   Telegram
                 </Label>
                 <div className="relative mt-2">
-                  <Send className='-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40' />
+                  <Send className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
                   <Input
+                    className="border-white/10 bg-white/5 pl-10 text-white"
                     id="telegram"
-                    value={formData.telegram}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -634,7 +634,7 @@ const EditProfilePage = () => {
                       }))
                     }
                     placeholder="username"
-                    className='border-white/10 bg-white/5 pl-10 text-white'
+                    value={formData.telegram}
                   />
                 </div>
               </div>
@@ -642,7 +642,7 @@ const EditProfilePage = () => {
           </Card>
 
           {/* Web3 Information */}
-          <Card className='border-white/10 bg-white/5 backdrop-blur-md'>
+          <Card className="border-white/10 bg-white/5 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="text-white">Web3 Information</CardTitle>
               <CardDescription className="text-white/60">
@@ -651,12 +651,12 @@ const EditProfilePage = () => {
             </CardHeader>
             <CardContent>
               <div>
-                <Label htmlFor="walletAddress" className='mb-2 text-white'>
+                <Label className="mb-2 text-white" htmlFor="walletAddress">
                   Wallet Address
                 </Label>
                 <Input
+                  className="border-white/10 bg-white/5 font-mono text-white"
                   id="walletAddress"
-                  value={formData.walletAddress}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -664,7 +664,7 @@ const EditProfilePage = () => {
                     }))
                   }
                   placeholder="Enter your Polkadot or Kusama address"
-                  className='border-white/10 bg-white/5 font-mono text-white'
+                  value={formData.walletAddress}
                 />
                 {formData.walletAddress ? (
                   <p
@@ -681,7 +681,7 @@ const EditProfilePage = () => {
                       : validateWalletAddress(formData.walletAddress).error}
                   </p>
                 ) : (
-                  <p className='mt-1 text-white/40 text-xs'>
+                  <p className="mt-1 text-white/40 text-xs">
                     Your Polkadot, Kusama, or Substrate wallet address
                   </p>
                 )}
@@ -693,26 +693,26 @@ const EditProfilePage = () => {
           <div className="flex justify-end gap-4">
             <Link href={`/profile/${formData.username || session?.user?.id}`}>
               <Button
+                className="border-white/20 text-white hover:bg-white/10"
                 type="button"
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
               >
                 Cancel
               </Button>
             </Link>
             <Button
-              type="submit"
+              className="bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
               disabled={saving}
-              className='bg-[#E6007A] text-white hover:bg-[#E6007A]/90'
+              type="submit"
             >
               {saving ? (
                 <>
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className='mr-2 h-4 w-4' />
+                  <Save className="mr-2 h-4 w-4" />
                   Save Changes
                 </>
               )}

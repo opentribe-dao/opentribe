@@ -1,8 +1,8 @@
 import { database } from "@packages/db";
 import { redis } from "@packages/security/cache";
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GET as getGrantStats } from "../app/api/v1/grants/stats/route";
-import { NextRequest } from "next/server";
 
 // Mock database
 vi.mock("@packages/db", async (importOriginal) => {
@@ -35,7 +35,7 @@ describe("Grant Stats API", () => {
     test("should return grant statistics successfully", async () => {
       // Arrange
       const mockGrantsCount = 25;
-      const mockTotalFunds = 5000000;
+      const mockTotalFunds = 5_000_000;
 
       vi.mocked(redis.get).mockResolvedValue(null); // Cache miss
       vi.mocked(redis.set).mockResolvedValue("OK");
@@ -61,7 +61,7 @@ describe("Grant Stats API", () => {
       expect(response.status).toBe(200);
       expect(data).toEqual({
         total_grants_count: 25,
-        total_funds: 5000000,
+        total_funds: 5_000_000,
       });
 
       // Verify cache was checked and set
@@ -70,7 +70,7 @@ describe("Grant Stats API", () => {
         "grants:stats",
         JSON.stringify({
           total_grants_count: 25,
-          total_funds: 5000000,
+          total_funds: 5_000_000,
         }),
         { ex: 1800 }
       );
@@ -95,7 +95,7 @@ describe("Grant Stats API", () => {
       // Arrange
       const cachedData = {
         total_grants_count: 25,
-        total_funds: 5000000,
+        total_funds: 5_000_000,
       };
 
       vi.mocked(redis.get).mockResolvedValue(JSON.stringify(cachedData));
@@ -187,7 +187,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(10);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFundsUSD: 1000000,
+          totalFundsUSD: 1_000_000,
         },
         _avg: {},
         _count: {},
@@ -215,7 +215,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(10);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFundsUSD: 1000000,
+          totalFundsUSD: 1_000_000,
         },
         _avg: {},
         _count: {},
@@ -302,7 +302,7 @@ describe("Grant Stats API", () => {
     test("should handle large fund amounts", async () => {
       // Arrange
       const mockGrantsCount = 50;
-      const mockTotalFunds = 45000000; // 45 million
+      const mockTotalFunds = 45_000_000; // 45 million
 
       vi.mocked(redis.get).mockResolvedValue(null); // Cache miss
       vi.mocked(redis.set).mockResolvedValue("OK");
@@ -327,7 +327,7 @@ describe("Grant Stats API", () => {
       // Assert
       expect(response.status).toBe(200);
       expect(data.total_grants_count).toBe(50);
-      expect(data.total_funds).toBe(45000000);
+      expect(data.total_funds).toBe(45_000_000);
     });
 
     test("should only count published grants", async () => {
@@ -337,7 +337,7 @@ describe("Grant Stats API", () => {
       vi.mocked(database.grant.count).mockResolvedValue(15);
       vi.mocked(database.grant.aggregate).mockResolvedValue({
         _sum: {
-          totalFundsUSD: 3000000,
+          totalFundsUSD: 3_000_000,
         },
         _avg: {},
         _count: {},

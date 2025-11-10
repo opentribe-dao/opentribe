@@ -1,20 +1,20 @@
 import { resend } from "../index";
 import {
-  VerificationEmail,
-  WelcomeEmail,
-  PasswordResetEmail,
-  OnboardingCompleteEmail,
-  OrgInviteEmail,
-  BountyFirstSubmissionEmail,
   BountyDeadlineReminderEmail,
-  BountyWinnerReminderEmail,
-  BountyWinnerEmail,
+  BountyFirstSubmissionEmail,
   BountySkillMatchEmail,
+  BountyWinnerEmail,
+  BountyWinnerReminderEmail,
+  CommentReplyEmail,
   GrantFirstApplicationEmail,
   GrantStatusUpdateEmail,
-  CommentReplyEmail,
-  WeeklyDigestEmail,
+  OnboardingCompleteEmail,
+  OrgInviteEmail,
+  PasswordResetEmail,
   PaymentConfirmationEmail,
+  VerificationEmail,
+  WeeklyDigestEmail,
+  WelcomeEmail,
 } from "../templates";
 
 const FROM_EMAIL_ADDRESS =
@@ -32,9 +32,8 @@ interface EmailUser {
 }
 
 // Helper to get user display name
-const getUserName = (user: EmailUser) => {
-  return user.firstName || user.username || "there";
-};
+const getUserName = (user: EmailUser) =>
+  user.firstName || user.username || "there";
 
 // Authentication & Onboarding Emails
 
@@ -327,10 +326,10 @@ export async function sendGrantStatusUpdateEmail(
 ) {
   const isApproved = newStatus === "APPROVED";
   const subject = isApproved
-    ? `🎉 Your grant application has been approved!`
+    ? "🎉 Your grant application has been approved!"
     : newStatus === "REJECTED"
-    ? `Grant application update`
-    : `Your application is under review`;
+      ? "Grant application update"
+      : "Your application is under review";
 
   const defaultUrl =
     applicationUrl ||
@@ -338,8 +337,8 @@ export async function sendGrantStatusUpdateEmail(
   const nextSteps = isApproved
     ? "The organization will contact you soon with next steps and funding details."
     : newStatus === "UNDER_REVIEW"
-    ? "Your application is being carefully reviewed. We'll notify you once a decision is made."
-    : undefined;
+      ? "Your application is being carefully reviewed. We'll notify you once a decision is made."
+      : undefined;
 
   return resend.emails.send({
     from: FROM_EMAIL,

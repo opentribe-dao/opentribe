@@ -1,8 +1,8 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function OPTIONS() {
   return NextResponse.json({});

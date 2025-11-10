@@ -18,8 +18,8 @@ export const generateMetadata = async ({ params }: GrantsLayoutProps) => {
     title: dictionary.seo.grants.title,
     description: dictionary.seo.grants.description,
     keywords: dictionary.seo.grants.keywords,
-    image: '/api/og/grants',
-    path: '/grants',
+    image: "/api/og/grants",
+    path: "/grants",
   });
 };
 
@@ -31,7 +31,7 @@ const GrantsLayout = ({ children }: GrantsLayoutProps) => {
     "@type": "ItemList",
     name: "Polkadot Grants",
     description: "Official Polkadot grants and funding programs",
-    url: new URL('/grants', siteUrl).href,
+    url: new URL("/grants", siteUrl).href,
   };
 
   return (

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { CommentThread } from '../../../../components/community/comment-thread';
-import { EmailAuthModal } from '../../../../components/email-auth-modal';
+import { useState } from "react";
+import { CommentThread } from "../../../../components/community/comment-thread";
+import { EmailAuthModal } from "../../../../components/email-auth-modal";
 
 interface CommentSectionProps {
   submissionId: string;
@@ -14,11 +14,11 @@ export function CommentSection({ submissionId }: CommentSectionProps) {
   return (
     <>
       <CommentThread
-        submissionId={submissionId}
         onAuthRequired={() => setShowAuthModal(true)}
+        submissionId={submissionId}
       />
 
-      <EmailAuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+      <EmailAuthModal onOpenChange={setShowAuthModal} open={showAuthModal} />
     </>
   );
 }

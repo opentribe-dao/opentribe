@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
+import { type NextRequest, NextResponse } from "next/server";
 import { env } from "./env";
 
 const trustedOrigins = [
@@ -116,7 +116,7 @@ export default async function middleware(request: NextRequest) {
     // avoid logging very large bodies
     (Number.isFinite(contentLength) ? contentLength <= 1024 * 64 : true);
 
-  let loggedBody: unknown = undefined;
+  let loggedBody: unknown;
   if (shouldTryReadBody) {
     try {
       // Clone before consuming to avoid locking the original stream

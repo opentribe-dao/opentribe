@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { env } from '@/env';
+import { useQuery } from "@tanstack/react-query";
+import { env } from "@/env";
 export interface BountyDetails {
   id: string;
   title: string;
@@ -14,7 +14,7 @@ export interface BountyDetails {
   resources?: Array<{ title: string; url: string; description?: string }>;
   screening?: Array<{
     question: string;
-    type: 'text' | 'url' | 'file';
+    type: "text" | "url" | "file";
     optional: boolean;
   }>;
   status: string;
@@ -66,15 +66,15 @@ export interface Submission {
 
 export function useBounty(bountyId?: string) {
   return useQuery<BountyDetails, Error>({
-    queryKey: ['bounty', bountyId],
+    queryKey: ["bounty", bountyId],
     queryFn: async () => {
       if (!bountyId) {
-        return Promise.reject(new Error('No organization ID'));
+        return Promise.reject(new Error("No organization ID"));
       }
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
       if (!res.ok) {
@@ -94,15 +94,15 @@ export function useBounty(bountyId?: string) {
 
 export function useBountySubmissions(bountyId?: string) {
   return useQuery<Submission, Error>({
-    queryKey: ['bounty-submissions', bountyId],
+    queryKey: ["bounty-submissions", bountyId],
     queryFn: async () => {
       if (!bountyId) {
-        return Promise.reject(new Error('No Bounty ID'));
+        return Promise.reject(new Error("No Bounty ID"));
       }
       const res = await await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
       if (!res.ok) {
@@ -118,5 +118,3 @@ export function useBountySubmissions(bountyId?: string) {
     retry: 2, // retry twice on error
   });
 }
-
-

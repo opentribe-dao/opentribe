@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 export type UploadType =
   | "organization-logo"
@@ -51,7 +51,7 @@ export function useFileUpload(
       const fileExtension = file.name.split(".").pop()?.toLowerCase();
       const allowedTypes =
         options?.allowedTypes || getDefaultAllowedTypes(type);
-      if (!fileExtension || !allowedTypes.includes(fileExtension)) {
+      if (!(fileExtension && allowedTypes.includes(fileExtension))) {
         const error = new Error(
           `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`
         );

@@ -1,12 +1,12 @@
+import { formatCurrency } from "../utils";
 import BaseTemplate from "./base-template";
 import {
   EmailButton,
-  EmailHeading,
-  EmailText,
   EmailCard,
+  EmailHeading,
   EmailHighlight,
+  EmailText,
 } from "./components";
-import { formatCurrency } from "../utils";
 
 interface PaymentConfirmationEmailProps {
   user: {
@@ -48,21 +48,21 @@ export default function PaymentConfirmationEmail({
       </EmailText>
 
       <EmailCard>
-        <EmailText className="font-bold mb-4">Payment Details</EmailText>
+        <EmailText className="mb-4 font-bold">Payment Details</EmailText>
 
         <EmailHighlight
           label="Amount"
-          value={`${formatCurrency(parseFloat(payment.amount))} ${
+          value={`${formatCurrency(Number.parseFloat(payment.amount))} ${
             payment.token
           }`}
         />
 
         <EmailHighlight label="Organization" value={bounty.organization.name} />
 
-        <EmailText className="text-sm text-white/60 mt-4">
+        <EmailText className="mt-4 text-sm text-white/60">
           Transaction ID
         </EmailText>
-        <EmailText className="font-mono text-xs break-all">
+        <EmailText className="break-all font-mono text-xs">
           {payment.transactionId}
         </EmailText>
       </EmailCard>

@@ -1,18 +1,18 @@
 import { auth } from "@packages/auth/server";
-import { database } from "@packages/db";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { z } from "zod";
+import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 import type {
-  User,
+  GrantApplication,
   Member,
   Organization,
-  GrantApplication,
   Submission,
+  User,
 } from "@packages/db";
+import { database } from "@packages/db";
 import { sendOnboardingCompleteEmail } from "@packages/email";
-import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
+import { headers } from "next/headers";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -116,7 +116,7 @@ export async function GET(
     const isOwnProfile = sessionData?.user?.id === user.id;
     const isPublicProfile = !user.private;
 
-    if (!isOwnProfile && !isPublicProfile) {
+    if (!(isOwnProfile || isPublicProfile)) {
       // Return limited data for private profiles
       return NextResponse.json({
         user: {

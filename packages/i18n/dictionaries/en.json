@@ -157,91 +157,178 @@
     },
     "contact": {
       "meta": {
-        "title": "Let's Talk About Your Business",
-        "description": "Schedule a consultation with our team to discuss how we can help streamline your operations and drive growth for your business."
+        "title": "Partner with Polkadot's Premier Talent Marketplace",
+        "description": "List your opportunities on Opentribe and connect with verified builders who are actively shaping the future of the Polkadot ecosystem."
       },
       "hero": {
         "benefits": [
           {
-            "title": "Personalized Consultation",
-            "description": "Get tailored solutions and expert advice specific to your business needs."
+            "title": "Access Vetted Talent Pool",
+            "description": "Tap into a curated network of skilled builders with proven contributions to Polkadot projects."
           },
           {
-            "title": "Seamless Integration",
-            "description": "We seamlessly integrate with your existing systems to ensure a smooth transition and minimal disruption."
+            "title": "Seamless Opportunity Listing",
+            "description": "Post grants, bounties, and RFPs alongside official Polkadot programs and reach the right builders faster."
           },
           {
-            "title": "Expert Guidance",
-            "description": "Our team of experts will guide you through the process, ensuring you get the most out of our platform."
+            "title": "Dedicated Partnership Support",
+            "description": "Get hands-on assistance from our team to maximize engagement and find the perfect contributors for your project."
           }
         ],
         "form": {
-          "title": "Book a meeting",
-          "date": "Date",
-          "firstName": "First name",
-          "lastName": "Last name",
-          "resume": "Upload resume",
-          "cta": "Book the meeting"
+          "title": "Get in Touch",
+          "organizationName": "Organization Name",
+          "contactName": "Your Name",
+          "email": "Work Email",
+          "organizationType": "Organization Type",
+          "inquiryType": "What can we help with?",
+          "message": "Tell us about your project",
+          "acceptsMarketing": "I'd like to receive updates about Opentribe",
+          "cta": "Send Message",
+          "submitting": "Sending...",
+          "success": "Thank you! We'll respond within 24 hours.",
+          "error": "Something went wrong. Please try again.",
+          "responseTime": "We typically respond within 24 hours"
         }
       }
     }
   },
   "seo": {
     "homepage": {
-      "title": "Build, Earn & Grow in the Polkadot Ecosystem",
+      "title": "Opentribe | Build, Earn & Grow in the Polkadot Ecosystem",
       "description": "Discover grants, bounties, and RFPs in the Polkadot ecosystem. Join Opentribe to collaborate, earn rewards, and grow your Web3 career.",
-      "keywords": ["opentribe", "polkadot grants", "web3 bounties", "polkadot jobs", "crypto talent hub", "bounty platform", "web3 Jobs"]
+      "keywords": [
+        "opentribe",
+        "polkadot grants",
+        "web3 bounties",
+        "polkadot jobs",
+        "crypto talent hub",
+        "bounty platform",
+        "web3 Jobs"
+      ]
     },
     "blog": {
       "title": "Opentribe Blog | Updates from the Polkadot Ecosystem",
       "description": "Get the latest updates, insights, and tutorials on grants, bounties, and Web3 talent opportunities in the Polkadot ecosystem.",
-      "keywords": ["polkadot blog", "opentribe news", "web3 updates", "blockchain insights", "polkadot news", "crypto updates"]
+      "keywords": [
+        "polkadot blog",
+        "opentribe news",
+        "web3 updates",
+        "blockchain insights",
+        "polkadot news",
+        "crypto updates"
+      ]
     },
     "bounties": {
       "title": "Opentribe Bounties | Earn Rewards in the Polkadot Ecosystem",
       "description": "Explore open bounties from top Polkadot projects. Complete tasks, earn crypto rewards, and grow your Web3 reputation with Opentribe.",
-      "keywords": ["polkadot bounties", "crypto rewards", "web3 tasks", "opentribe earn", "polkadot bounty", "crypto tasks"]
+      "keywords": [
+        "polkadot bounties",
+        "crypto rewards",
+        "web3 tasks",
+        "opentribe earn",
+        "polkadot bounty",
+        "crypto tasks"
+      ]
     },
     "grants": {
       "title": "Opentribe Grants | Fund Your Ideas on Opentribe",
       "description": "Find and apply for official Polkadot grants. Turn your ideas into reality with structured funding programs on Opentribe.",
-      "keywords": ["polkadot grants", "opentribe grants", "web3 grants funding", "crypto projects", "blockchain development grants"]
+      "keywords": [
+        "polkadot grants",
+        "opentribe grants",
+        "web3 grants funding",
+        "crypto projects",
+        "blockchain development grants"
+      ]
     },
     "rfps": {
       "title": "Opentribe RFPs | Submit and Explore Polkadot Project Ideas",
       "description": "Browse open RFPs in the Polkadot ecosystem. Propose solutions, collaborate with DAOs, and earn through multi-winner opportunities.",
-      "keywords": ["polkadot rfps", "opentribe rfps", "web3 proposals", "request for crypto proposal", "polkadot ideas", "polkadot proposals", "crypto proposals", "web3 proposals"]
+      "keywords": [
+        "polkadot rfps",
+        "opentribe rfps",
+        "web3 proposals",
+        "request for crypto proposal",
+        "polkadot ideas",
+        "polkadot proposals",
+        "crypto proposals",
+        "web3 proposals"
+      ]
     },
     "changelog": {
       "title": "Opentribe Changelog | Platform Updates",
       "description": "Stay up to date with the latest features, releases, and improvements to the Opentribe platform for the Polkadot community.",
-      "keywords": ["opentribe changelog", "opentribe updates", "opentribe platform releases", "opentribe new features", "opentribe version updates"]
+      "keywords": [
+        "opentribe changelog",
+        "opentribe updates",
+        "opentribe platform releases",
+        "opentribe new features",
+        "opentribe version updates"
+      ]
     },
     "contact": {
-      "title": "Contact Opentribe | Get in Touch",
+      "title": "Opentribe | Contact Us",
       "description": "Need help or partnership info? Contact the Opentribe team for support, collaborations, or Polkadot ecosystem opportunities.",
-      "keywords": ["contact opentribe", "opentribe support", "opentribe contact", "opentribe helpdesk", "opentribe get in touch"]
+      "keywords": [
+        "contact opentribe",
+        "opentribe support",
+        "opentribe contact",
+        "opentribe helpdesk",
+        "opentribe get in touch"
+      ]
+    },
+    "support": {
+      "title": "Opentribe | Support",
+      "description": "Get help using Opentribe. Find answers to common questions, contact our team, or join our community.",
+      "keywords": [
+        "opentribe support",
+        "help",
+        "contact support",
+        "faq",
+        "documentation"
+      ]
     },
     "faq": {
       "title": "Opentribe FAQ | Help & Support",
       "description": "Find answers about using Opentribe, applying for grants, joining bounties, and managing projects in the Polkadot ecosystem.",
-      "keywords": ["opentribe faq", "opentribe help and support", "opentribe user guide", "opentribe help center"]
+      "keywords": [
+        "opentribe faq",
+        "opentribe help and support",
+        "opentribe user guide",
+        "opentribe help center"
+      ]
     },
     "legal": {
       "cookiePolicy": {
         "title": "Opentribe Cookie Policy",
         "description": "Read how Opentribe uses cookies to enhance your experience and manage data responsibly in the Polkadot ecosystem.",
-        "keywords": ["cookie policy", "opentribe privacy", "opentribe data", "opentribe cookies"]
+        "keywords": [
+          "cookie policy",
+          "opentribe privacy",
+          "opentribe data",
+          "opentribe cookies"
+        ]
       },
       "privacyPolicy": {
         "title": "Opentribe Privacy Policy",
         "description": "Learn how Opentribe collects, uses, and protects your data while connecting builders and projects in the Polkadot ecosystem.",
-        "keywords": ["privacy and policy", "opentribe data policy", "opentribe user security", "opentribe privacy"]
+        "keywords": [
+          "privacy and policy",
+          "opentribe data policy",
+          "opentribe user security",
+          "opentribe privacy"
+        ]
       },
       "termsOfService": {
         "title": "Opentribe Terms of Service",
         "description": "Review Opentribe's terms for using the platform, posting bounties, and participating in Polkadot ecosystem projects.",
-        "keywords": ["terms of service", "opentribe legal", "opentribe user terms", "opentribe policy"]
+        "keywords": [
+          "terms of service",
+          "opentribe legal",
+          "opentribe user terms",
+          "opentribe policy"
+        ]
       }
     }
   }

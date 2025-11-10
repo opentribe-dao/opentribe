@@ -1,11 +1,18 @@
-import { env } from "@/env";
-import type { MetadataRoute } from "next";
 import { blog, legal } from "@packages/cms";
+import type { MetadataRoute } from "next";
+import { env } from "@/env";
 
 type RouteConfig = {
   path: string;
   priority: number;
-  changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
+  changeFrequency:
+    | "always"
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | "yearly"
+    | "never";
 };
 
 // Only include indexable, public routes with SEO priorities

@@ -6,10 +6,7 @@ import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from "@packages/base/components/ui/card";
 import { Input } from "@packages/base/components/ui/input";
 import {
@@ -31,7 +28,6 @@ import {
   Edit,
   Eye,
   FileText,
-  Filter,
   Loader2,
   MessageSquare,
   Plus,
@@ -42,9 +38,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Header } from "../components/header";
-import { env } from "@/env";
 import { toast } from "sonner";
+import { env } from "@/env";
+import { Header } from "../components/header";
 
 interface RFP {
   id: string;
@@ -180,24 +176,23 @@ export default function RFPsPage() {
     }
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
-  };
 
   if (!activeOrg) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-white/60 mb-4">No organization selected</p>
+          <p className="mb-4 text-white/60">No organization selected</p>
           <Button
+            className="bg-[#E6007A] hover:bg-[#E6007A]/90"
             onClick={() =>
               router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`)
             }
-            className="bg-[#E6007A] hover:bg-[#E6007A]/90"
           >
             Create Organization
           </Button>
@@ -208,42 +203,42 @@ export default function RFPsPage() {
 
   return (
     <>
-      <Header pages={["RFPs"]} page="RFPs" />
+      <Header page="RFPs" pages={["RFPs"]} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">RFPs</h1>
+            <h1 className="font-bold text-2xl text-white">RFPs</h1>
             <p className="text-white/60">
               Manage your organization's Requests for Proposals
             </p>
           </div>
           <Button
-            onClick={() => router.push("/rfps/new")}
             className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+            onClick={() => router.push("/rfps/new")}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Create RFP
           </Button>
         </div>
 
         {/* Filters */}
-        <Card className="bg-white/5 backdrop-blur-md border-white/10">
+        <Card className="border-white/10 bg-white/5 backdrop-blur-md">
           <CardHeader className="pb-4">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 h-4 w-4" />
+                  <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-white/40" />
                   <Input
+                    className="border-white/10 bg-white/5 pl-10 text-white"
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search RFPs..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-white/5 border-white/10 text-white"
                   />
                 </div>
               </div>
               <div className="flex gap-2">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[150px] bg-white/5 border-white/10 text-white">
+                <Select onValueChange={setStatusFilter} value={statusFilter}>
+                  <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -255,10 +250,10 @@ export default function RFPsPage() {
                   </SelectContent>
                 </Select>
                 <Select
-                  value={visibilityFilter}
                   onValueChange={setVisibilityFilter}
+                  value={visibilityFilter}
                 >
-                  <SelectTrigger className="w-[150px] bg-white/5 border-white/10 text-white">
+                  <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -278,16 +273,16 @@ export default function RFPsPage() {
         </Card>
 
         {/* RFPs Table */}
-        <Card className="bg-white/5 backdrop-blur-md border-white/10">
+        <Card className="border-white/10 bg-white/5 backdrop-blur-md">
           <CardContent className="p-0">
             {loading ? (
               <div className="flex items-center justify-center p-8">
                 <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
               </div>
             ) : filteredRfps.length === 0 ? (
-              <div className="text-center p-8">
-                <FileText className="h-12 w-12 text-white/20 mx-auto mb-4" />
-                <p className="text-white/60 mb-4">
+              <div className="p-8 text-center">
+                <FileText className="mx-auto mb-4 h-12 w-12 text-white/20" />
+                <p className="mb-4 text-white/60">
                   {searchTerm ||
                   statusFilter !== "all" ||
                   visibilityFilter !== "all"
@@ -298,10 +293,10 @@ export default function RFPsPage() {
                   statusFilter === "all" &&
                   visibilityFilter === "all" && (
                     <Button
-                      onClick={() => router.push("/rfps/new")}
                       className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+                      onClick={() => router.push("/rfps/new")}
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="mr-2 h-4 w-4" />
                       Create Your First RFP
                     </Button>
                   )}
@@ -314,18 +309,18 @@ export default function RFPsPage() {
                     <TableHead className="text-white">Grant</TableHead>
                     <TableHead className="text-white">Status</TableHead>
                     <TableHead className="text-white">Visibility</TableHead>
-                    <TableHead className="text-white text-center">
+                    <TableHead className="text-center text-white">
                       Stats
                     </TableHead>
                     <TableHead className="text-white">Created</TableHead>
-                    <TableHead className="text-white text-right">
+                    <TableHead className="text-right text-white">
                       Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredRfps.map((rfp) => (
-                    <TableRow key={rfp.id} className="border-white/10">
+                    <TableRow className="border-white/10" key={rfp.id}>
                       <TableCell>
                         <div>
                           <p className="font-medium text-white">{rfp.title}</p>
@@ -334,8 +329,8 @@ export default function RFPsPage() {
                       </TableCell>
                       <TableCell>
                         <Link
-                          href={`/grants/${rfp.grant.id}`}
                           className="text-[#E6007A] hover:underline"
+                          href={`/grants/${rfp.grant.id}`}
                         >
                           {rfp.grant.title}
                         </Link>
@@ -382,26 +377,26 @@ export default function RFPsPage() {
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
                           <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/rfps/${rfp.id}`)}
                             className="text-white/60 hover:text-white"
+                            onClick={() => router.push(`/rfps/${rfp.id}`)}
+                            size="sm"
+                            variant="ghost"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/rfps/${rfp.id}/edit`)}
                             className="text-white/60 hover:text-white"
+                            onClick={() => router.push(`/rfps/${rfp.id}/edit`)}
+                            size="sm"
+                            variant="ghost"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteRFP(rfp.id)}
                             className="text-red-400 hover:text-red-300"
+                            onClick={() => handleDeleteRFP(rfp.id)}
+                            size="sm"
+                            variant="ghost"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

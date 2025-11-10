@@ -1,11 +1,11 @@
-import { env } from "@/env";
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendGrantStatusUpdateEmail } from "@packages/email";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
+import { env } from "@/env";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -70,7 +70,7 @@ export async function PATCH(
     // Check if user is the curator (future implementation)
     const isCurator = false; // TODO: Implement curator assignment
 
-    if (!userMember && !isCurator) {
+    if (!(userMember || isCurator)) {
       return NextResponse.json(
         { error: "You don't have permission to review applications" },
         { status: 403 }

@@ -1,8 +1,8 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { ViewManager } from "@/lib/views";
 
 export async function OPTIONS() {
@@ -118,7 +118,7 @@ export async function GET(
     const winningsArray = submission.bounty.winnings
       ? Object.entries(submission.bounty.winnings as any).map(
           ([position, amount]) => ({
-            position: parseInt(position),
+            position: Number.parseInt(position),
             amount: Number(amount),
           })
         )
@@ -148,8 +148,8 @@ export async function GET(
         slug: submission.bounty.slug,
         title: submission.bounty.title,
         organizationId: submission.bounty.organizationId,
-        winnerCount: winnerCount, // Calculate from winnings
-        totalAmount: totalAmount, // Use amount field
+        winnerCount, // Calculate from winnings
+        totalAmount, // Use amount field
         token: submission.bounty.token,
         winnersAnnouncedAt: submission.bounty.winnersAnnouncedAt,
         winnings: winningsArray,

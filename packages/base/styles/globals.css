@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @source "../**/*.{ts,tsx}";
 
-@plugin '@tailwindcss/typography';
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -79,7 +79,7 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
-  
+
   /* Glass UI specific variables */
   --bg-idle: rgba(255, 255, 255, 0.05);
   --bg-hover: rgba(255, 255, 255, 0.1);
@@ -185,7 +185,12 @@
   body {
     @apply min-h-[100dvh];
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading;
   }
   input::placeholder,
@@ -240,17 +245,17 @@
   .glass {
     @apply backdrop-blur-lg bg-bg-idle border border-white/10;
   }
-  
+
   .glass-hover {
     @apply hover:bg-bg-hover transition-colors;
   }
-  
+
   /* Hover background effect for interactive elements */
   .hover-bg {
     position: relative;
     overflow: hidden;
   }
-  
+
   .hover-bg::before {
     content: "";
     position: absolute;
@@ -259,34 +264,42 @@
     width: 100px;
     height: 100px;
     transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 70%
+    );
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
   }
-  
+
   .hover-bg:hover::before {
     opacity: 1;
   }
-  
+
   /* Radial gradient utilities */
   .bg-gradient-radial {
     background-image: radial-gradient(var(--tw-gradient-stops));
   }
-  
+
   /* Animation delay utility */
   .animation-delay-2000 {
     animation-delay: 2s;
   }
 }
 
-.card-bg{
-  background: linear-gradient(90.77deg, rgba(255, 255, 255, 0.28) -5.34%, rgba(255, 255, 255, 0) 114.33%);
+.card-bg {
+  background: linear-gradient(
+    90.77deg,
+    rgba(255, 255, 255, 0.28) -5.34%,
+    rgba(255, 255, 255, 0) 114.33%
+  );
   backdrop-filter: blur(4px);
 }
 
-.stats-card{
-  background: #A4A4E533;
+.stats-card {
+  background: #a4a4e533;
   border: 1px solid #ffffff4d;
   padding: 18px 10px;
   border-radius: 20px;

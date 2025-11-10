@@ -1,6 +1,4 @@
-import { env } from "@/env";
 import { authMiddleware } from "@packages/auth/middleware";
-import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 import { internationalizationMiddleware } from "@packages/i18n/middleware";
 import {
   noseconeMiddleware,
@@ -8,6 +6,8 @@ import {
   noseconeOptionsWithToolbar,
 } from "@packages/security/middleware";
 import { type NextRequest, NextResponse } from "next/server";
+import { env } from "@/env";
+import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 
 export const config = {
   // matcher tells Next.js which routes to run the middleware on.

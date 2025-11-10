@@ -1,26 +1,26 @@
-import { useEffect, useState } from 'react';
-import { env } from '@/env';
-import type { AppRouter, GrantFormData } from '@/type';
-import type { GrantOrganization } from './use-grant';
+import { useEffect, useState } from "react";
+import { env } from "@/env";
+import type { AppRouter, GrantFormData } from "@/type";
+import type { GrantOrganization } from "./use-grant";
 
 const INITIAL_FORM_DATA: GrantFormData = {
-  title: '',
-  description: '',
-  summary: '',
-  instructions: '',
-  logoUrl: '',
-  bannerUrl: '',
+  title: "",
+  description: "",
+  summary: "",
+  instructions: "",
+  logoUrl: "",
+  bannerUrl: "",
   skills: [],
-  minAmount: '',
-  maxAmount: '',
-  totalFunds: '',
-  token: 'DOT',
-  applicationUrl: '',
+  minAmount: "",
+  maxAmount: "",
+  totalFunds: "",
+  token: "DOT",
+  applicationUrl: "",
   resources: [],
   screening: [],
-  visibility: 'DRAFT',
-  source: 'NATIVE',
-  status: 'OPEN',
+  visibility: "DRAFT",
+  source: "NATIVE",
+  status: "OPEN",
 };
 
 export function useGrantEdit(
@@ -38,7 +38,7 @@ export function useGrantEdit(
     opts: {
       setSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
       router: AppRouter;
-      toast: typeof import('sonner').toast;
+      toast: typeof import("sonner").toast;
     }
   ) => Promise<void>;
 } {
@@ -57,39 +57,39 @@ export function useGrantEdit(
       try {
         const res = await fetch(
           `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
-          { credentials: 'include' }
+          { credentials: "include" }
         );
         if (!res.ok) {
-          throw new Error('Failed to fetch grant');
+          throw new Error("Failed to fetch grant");
         }
         const data = await res.json();
         const grant = data.grant;
         // permission check
         if (grant.organization.id !== activeOrg.id) {
-          setError('You do not have permission to edit this grant.');
+          setError("You do not have permission to edit this grant.");
           return;
         }
         setDefaultValues({
-          title: grant.title ?? '',
-          description: grant.description ?? '',
-          summary: grant.summary ?? '',
-          instructions: grant.instructions ?? '',
-          logoUrl: grant.logoUrl ?? '',
-          bannerUrl: grant.bannerUrl ?? '',
+          title: grant.title ?? "",
+          description: grant.description ?? "",
+          summary: grant.summary ?? "",
+          instructions: grant.instructions ?? "",
+          logoUrl: grant.logoUrl ?? "",
+          bannerUrl: grant.bannerUrl ?? "",
           skills: grant.skills ?? [],
-          minAmount: grant.minAmount?.toString() ?? '',
-          maxAmount: grant.maxAmount?.toString() ?? '',
-          totalFunds: grant.totalFunds?.toString() ?? '',
-          token: grant.token ?? 'DOT',
-          applicationUrl: grant.applicationUrl ?? '',
+          minAmount: grant.minAmount?.toString() ?? "",
+          maxAmount: grant.maxAmount?.toString() ?? "",
+          totalFunds: grant.totalFunds?.toString() ?? "",
+          token: grant.token ?? "DOT",
+          applicationUrl: grant.applicationUrl ?? "",
           resources: grant.resources ?? [],
           screening: grant.screening ?? [],
-          visibility: grant.visibility ?? 'DRAFT',
-          source: grant.source ?? 'NATIVE',
-          status: grant.status ?? 'OPEN',
+          visibility: grant.visibility ?? "DRAFT",
+          source: grant.source ?? "NATIVE",
+          status: grant.status ?? "OPEN",
         });
       } catch (_e) {
-        setError('Failed to load grant details.');
+        setError("Failed to load grant details.");
       } finally {
         setLoading(false);
       }
@@ -106,7 +106,7 @@ export function useGrantEdit(
     }: {
       setSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
       router: AppRouter;
-      toast: typeof import('sonner').toast;
+      toast: typeof import("sonner").toast;
     }
   ): Promise<void> {
     setSubmitting(true);
@@ -122,20 +122,20 @@ export function useGrantEdit(
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
         {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(grantData),
         }
       );
       if (!response.ok) {
-        throw new Error('Failed to update grant');
+        throw new Error("Failed to update grant");
       }
       await response.json();
-      toast.success('Grant updated successfully!');
+      toast.success("Grant updated successfully!");
       router.push(`/grants/${id}`);
     } catch (_err) {
-      toast.error('Failed to update grant. Please try again.');
+      toast.error("Failed to update grant. Please try again.");
     } finally {
       setSubmitting(false);
     }

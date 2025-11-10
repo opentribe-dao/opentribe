@@ -1,11 +1,9 @@
-import { env } from "@/env";
 import { useQuery } from "@tanstack/react-query";
-import { use } from "react";
+import { env } from "@/env";
 
-
-export type GrantStatus = 'OPEN' | 'PAUSED' | 'CLOSED';
-export type GrantVisibilityStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-export type GrantSource = 'NATIVE' | 'EXTERNAL';
+export type GrantStatus = "OPEN" | "PAUSED" | "CLOSED";
+export type GrantVisibilityStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+export type GrantSource = "NATIVE" | "EXTERNAL";
 
 export interface GrantOrganization {
   id: string;
@@ -35,7 +33,7 @@ export interface GrantRFP {
   id: string;
   title: string;
   slug: string;
-  status: 'OPEN' | 'PAUSED' | 'CLOSED';
+  status: "OPEN" | "PAUSED" | "CLOSED";
   _count: {
     votes: number;
     comments: number;
@@ -55,7 +53,13 @@ export interface GrantApplicationApplicant {
 export interface GrantApplication {
   id: string;
   title: string;
-  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN';
+  status:
+    | "DRAFT"
+    | "SUBMITTED"
+    | "UNDER_REVIEW"
+    | "APPROVED"
+    | "REJECTED"
+    | "WITHDRAWN";
   budget?: number | null;
   submittedAt?: string | null;
   applicant: GrantApplicationApplicant;
@@ -94,16 +98,14 @@ export interface Grant {
   applications: GrantApplication[];
 }
 
-
-
 export function useGrant(grantId: string) {
   return useQuery<Grant, Error>({
-    queryKey: ['grant', grantId],
+    queryKey: ["grant", grantId],
     queryFn: async () => {
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${grantId}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
       if (!res.ok) {

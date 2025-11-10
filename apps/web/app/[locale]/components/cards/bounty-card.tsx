@@ -1,9 +1,9 @@
-import Link from "next/link";
-import { Calendar, Users, Clock } from "lucide-react";
-import Image from "next/image";
-import { formatCurrency, getDeadlineInfo } from "@packages/base/lib/utils";
 import { Separator } from "@packages/base/components/ui/separator";
 import { getSkillLabel } from "@packages/base/lib/skills";
+import { formatCurrency, getDeadlineInfo } from "@packages/base/lib/utils";
+import { Calendar, Clock, Users } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface BountyCardProps {
   id: string;
@@ -65,7 +65,6 @@ export function BountyCard({
     }
   };
 
-
   const getStatusColor = (status: string) => {
     switch (status?.toUpperCase()) {
       case "OPEN":
@@ -91,23 +90,23 @@ export function BountyCard({
     typeof organization === "object" && organization?.name
       ? organization.name
       : typeof organization === "string"
-      ? organization
-      : "Unknown Organization";
+        ? organization
+        : "Unknown Organization";
 
   return (
-    <Link href={`/bounties/${slug || id}`} className="group block h-full">
+    <Link className="group block h-full" href={`/bounties/${slug || id}`}>
       {/* TODO: @neeraj removed card-bg, as it was causing issues with the border */}
-      <div className='flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10'>
+      <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10">
         {/* Header */}
 
         <div className="mb-2 flex items-start justify-between">
           <div className="relative mr-2 h-14 w-14 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
             {organization?.logo ? (
               <Image
-                src={organization?.logo}
                 alt={organization?.name}
-                fill
                 className="bg-black object-cover"
+                fill
+                src={organization?.logo}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
@@ -121,7 +120,7 @@ export function BountyCard({
           <div className="min-w-0 flex-1">
             <h3 className="mb-2 line-clamp-2 font-heading font-semibold text-lg text-white transition-colors group-hover:text-pink-300">
               {title || "Untitled Bounty"}
-              <span className={' ml-1 pl-1'}>
+              <span className={"ml-1 pl-1"}>
                 {/* {status ? status.toLowerCase().replace("_", " ") : "unknown"} */}
                 {status?.toUpperCase() === "OPEN" && (
                   <span className="inline-block h-2 w-2 rounded-full bg-green-400" />
@@ -145,7 +144,7 @@ export function BountyCard({
               {/* <DollarSign className="h-6 w-6 text-green-400" /> */}
               <div className="text-right">
                 {safeAmount && (
-                  <div className='font-semibold text-green-400 text-xl'>
+                  <div className="font-semibold text-green-400 text-xl">
                     {formatCurrency(safeAmount, token)}
                   </div>
                 )}
@@ -169,8 +168,8 @@ export function BountyCard({
           <div className="mb-4 flex flex-wrap gap-1">
             {safeSkills.slice(0, 5).map((skill, index) => (
               <span
-                key={index}
                 className="rounded-md bg-pink-500/20 px-2 py-1 text-pink-300 text-xs"
+                key={index}
               >
                 {getSkillLabel(skill)}
               </span>
@@ -190,7 +189,7 @@ export function BountyCard({
               <Users className="h-3 w-3" />
               <span>{safeSubmissionCount} submissions</span>
             </div>
-            <Separator orientation="vertical" className='h-4 bg-white/10' />
+            <Separator className="h-4 bg-white/10" orientation="vertical" />
             {deadline &&
               (() => {
                 const deadlineInfo = getDeadlineInfo(deadline);

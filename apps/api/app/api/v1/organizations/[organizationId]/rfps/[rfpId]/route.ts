@@ -2,8 +2,8 @@ import { auth } from "@packages/auth/server";
 import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 export async function OPTIONS() {
@@ -101,10 +101,10 @@ export async function PATCH(
     }
 
     // Generate new slug if title changes
-    let updateData: any = { ...validatedData };
+    const updateData: any = { ...validatedData };
 
     if (validatedData.title && validatedData.title !== existingRfp.title) {
-      let baseSlug = validatedData.title
+      const baseSlug = validatedData.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");

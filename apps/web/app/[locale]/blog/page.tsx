@@ -1,12 +1,11 @@
-import { blog, type Post } from '@packages/cms';
-import { Image } from '@packages/cms/components/image';
-import { cn } from '@packages/base/lib/utils';
-import { getDictionary } from '@packages/i18n';
-import type { Blog, WithContext } from '@packages/seo/json-ld';
-import { JsonLd } from '@packages/seo/json-ld';
-import { createSiteMetadata } from '@packages/seo/meta';
-import type { Metadata } from 'next';
-import Link from 'next/link';
+import { cn } from "@packages/base/lib/utils";
+import { blog, type Post } from "@packages/cms";
+import { getDictionary } from "@packages/i18n";
+import type { Blog, WithContext } from "@packages/seo/json-ld";
+import { JsonLd } from "@packages/seo/json-ld";
+import { createSiteMetadata } from "@packages/seo/meta";
+import type { Metadata } from "next";
+import Link from "next/link";
 
 type BlogProps = {
   params: Promise<{
@@ -24,8 +23,8 @@ export const generateMetadata = async ({
     title: dictionary.seo.blog.title,
     description: dictionary.seo.blog.description,
     keywords: dictionary.seo.blog.keywords,
-    image: '/api/og/blog',
-    path: '/blog',
+    image: "/api/og/blog",
+    path: "/blog",
   });
 };
 
@@ -35,18 +34,18 @@ const BlogIndex = async ({ params }: BlogProps) => {
   const posts = blog.getPosts();
 
   const jsonLd: WithContext<Blog> = {
-    '@type': 'Blog',
-    '@context': 'https://schema.org',
+    "@type": "Blog",
+    "@context": "https://schema.org",
     name: dictionary.seo.blog.title,
     description: dictionary.seo.blog.description,
     blogPost: posts.slice(0, 10).map((post: Post) => ({
-      '@type': 'BlogPosting',
+      "@type": "BlogPosting",
       headline: post._title,
       description: post.description,
       datePublished: post.date,
       author: {
-        '@type': 'Person',
-        name: post.authors?.[0] || 'Opentribe',
+        "@type": "Person",
+        name: post.authors?.[0] || "Opentribe",
       },
       url: `/blog/${post._slug}`,
     })),
@@ -66,11 +65,11 @@ const BlogIndex = async ({ params }: BlogProps) => {
             {posts && posts.length > 0 ? (
               posts.map((post: Post, index: number) => (
                 <Link
-                  href={`/blog/${post._slug}`}
                   className={cn(
-                    'flex cursor-pointer flex-col gap-4 rounded-lg p-4 hover:bg-white/15 hover:text-white hover:opacity-75 hover:shadow-lg',
-                    !index && 'md:col-span-2'
+                    "flex cursor-pointer flex-col gap-4 rounded-lg p-4 hover:bg-white/15 hover:text-white hover:opacity-75 hover:shadow-lg",
+                    !index && "md:col-span-2"
                   )}
+                  href={`/blog/${post._slug}`}
                   key={post._slug}
                 >
                   {/* <Image
@@ -81,10 +80,10 @@ const BlogIndex = async ({ params }: BlogProps) => {
                   /> */}
                   <div className="flex flex-row items-center gap-4">
                     <p className="text-muted-foreground text-sm">
-                      {new Date(post.date).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
+                      {new Date(post.date).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
                       })}
                     </p>
                   </div>

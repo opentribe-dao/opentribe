@@ -35,8 +35,8 @@ export default function BountiesPage() {
                 status: filtersHook.filters.status || [],
                 sortBy: filtersHook.filters.sortBy || "",
                 priceRange: filtersHook.filters.priceRange || [0, 50_000],
-                hasSubmissions: filtersHook.filters.hasSubmissions,
-                hasDeadline: filtersHook.filters.hasDeadline,
+                hasSubmissions: filtersHook.filters.hasSubmissions ?? false,
+                hasDeadline: filtersHook.filters.hasDeadline ?? false,
               }}
               hasMore={bountiesData.hasMore}
               isLoadingMore={bountiesData.isLoadingMore}
@@ -57,8 +57,8 @@ export default function BountiesPage() {
               skills: filtersHook.filters.skills || [],
               sortBy: filtersHook.filters.sortBy || "",
               priceRange: filtersHook.filters.priceRange || [0, 50_000],
-              hasSubmissions: filtersHook.filters.hasSubmissions,
-              hasDeadline: filtersHook.filters.hasDeadline,
+              hasSubmissions: filtersHook.filters.hasSubmissions ?? false,
+              hasDeadline: filtersHook.filters.hasDeadline ?? false,
             }}
             onClearAllFilters={filtersHook.clearAllFilters}
             onFilterChange={{

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { database } from "@packages/db";
 import { redis } from "@packages/security/cache";
+import { type NextRequest, NextResponse } from "next/server";
 
 interface HomepageStatsResponse {
   platformStats: {
@@ -356,9 +356,9 @@ async function getRecentActivity(): Promise<
 function formatCurrency(amount: number): string {
   if (amount >= 1_000_000) {
     return `$${(amount / 1_000_000).toFixed(1)}M`;
-  } else if (amount >= 1_000) {
-    return `$${(amount / 1_000).toFixed(0)}K`;
-  } else {
-    return `$${amount.toLocaleString()}`;
   }
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(0)}K`;
+  }
+  return `$${amount.toLocaleString()}`;
 }

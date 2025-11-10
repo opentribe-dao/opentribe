@@ -28,7 +28,7 @@ describe("Grant Application System Tests", () => {
         screening: [],
         organizationId: "org-1",
         minAmount: 1000,
-        maxAmount: 10000,
+        maxAmount: 10_000,
       };
 
       const mockApplication = {
@@ -186,7 +186,7 @@ describe("Grant Application System Tests", () => {
         screening: [],
         organizationId: "org-1",
         minAmount: 1000,
-        maxAmount: 10000,
+        maxAmount: 10_000,
       };
 
       const mockMembership = [

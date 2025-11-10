@@ -1,13 +1,14 @@
 "use client";
 
+import { Logo } from "@packages/base/components/logo";
 import { Button } from "@packages/base/components/ui/button";
 import { Input } from "@packages/base/components/ui/input";
-import { Logo } from "@packages/base/components/logo";
-import { Facebook, Twitter, Linkedin, Github, Youtube } from "lucide-react";
+import { Facebook, Github, Linkedin, Twitter, Youtube } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { CookieSettingsTrigger } from "../legal/components/cookie-settings-trigger";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -58,7 +59,7 @@ export const Footer = () => {
   ];
 
   // const categoriesLinks = [
-  //   { title: 'Development', href: '#' }, 
+  //   { title: 'Development', href: '#' },
   //   { title: 'Design', href: '#' },
   //   { title: 'Marketing', href: '#' },
   //   { title: 'Writing', href: '#' },
@@ -70,6 +71,7 @@ export const Footer = () => {
     { title: "Blog", href: "/blog" }, // 200
     { title: "Changelog", href: "/changelog" }, // 404
     { title: "Contact", href: "/contact" }, // 200
+    { title: "Support", href: "/support" }, // 200
   ];
 
   const legalLinks = [
@@ -91,21 +93,21 @@ export const Footer = () => {
               </p>
             </div>
             <form
-              onSubmit={handleSubscribe}
               className="flex w-full gap-2 md:w-auto"
+              onSubmit={handleSubscribe}
             >
               <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
                 className="w-64 border-white/20 bg-white/10 text-white placeholder:text-white/50"
                 disabled={loading}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                type="email"
+                value={email}
               />
               <Button
-                type="submit"
-                disabled={loading}
                 className="-ml-8 whitespace-nowrap bg-pink-600 hover:bg-pink-700"
+                disabled={loading}
+                type="submit"
               >
                 {loading ? "Subscribing..." : "Subscribe →"}
               </Button>
@@ -117,7 +119,7 @@ export const Footer = () => {
         <div className="mb-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Logo and Description */}
           <div>
-            <Link href="/" className="mb-4 flex items-center gap-2">
+            <Link className="mb-4 flex items-center gap-2" href="/">
               <Logo size="md" />
             </Link>
             <p className="mb-4 text-sm text-white/60">
@@ -139,10 +141,10 @@ export const Footer = () => {
                 {communityLinks.map((link) => (
                   <li key={link.title}>
                     <Link
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-sm text-white/60 transition-colors hover:text-white"
+                      href={link.href}
+                      rel="noopener noreferrer"
+                      target="_blank"
                     >
                       {link.title}
                     </Link>
@@ -158,8 +160,8 @@ export const Footer = () => {
                 {aboutLinks.map((link) => (
                   <li key={link.title}>
                     <Link
-                      href={link.href}
                       className="text-sm text-white/60 transition-colors hover:text-white"
+                      href={link.href}
                     >
                       {link.title}
                     </Link>
@@ -175,13 +177,20 @@ export const Footer = () => {
                 {legalLinks.map((link) => (
                   <li key={link.title}>
                     <Link
-                      href={link.href}
                       className="text-sm text-white/60 transition-colors hover:text-white"
+                      href={link.href}
                     >
                       {link.title}
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <CookieSettingsTrigger variant="link">
+                    <span className="text-sm text-white/60 transition-colors hover:text-white">
+                      Cookie Settings
+                    </span>
+                  </CookieSettingsTrigger>
+                </li>
               </ul>
             </div>
           </div>
@@ -194,42 +203,42 @@ export const Footer = () => {
           </p>
           <div className="flex items-center gap-4">
             <Link
-              href="https://x.com/opentribe_io"
-              target="_blank"
-              rel="noopener noreferrer"
               className="text-white/40 transition-colors hover:text-white"
+              href="https://x.com/opentribe_io"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <Twitter className="h-5 w-5" />
             </Link>
             <Link
-              href="https://github.com/opentribe-dao/"
-              target="_blank"
-              rel="noopener noreferrer"
               className="text-white/40 transition-colors hover:text-white"
+              href="https://github.com/opentribe-dao/"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <Github className="h-5 w-5" />
             </Link>
             <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.linkedin.com/company/opentribe-dao/"
               className="text-white/40 transition-colors hover:text-white"
+              href="https://www.linkedin.com/company/opentribe-dao/"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <Linkedin className="h-5 w-5" />
             </Link>
             <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.facebook.com/opentribe.io"
               className="text-white/40 transition-colors hover:text-white"
+              href="https://www.facebook.com/opentribe.io"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <Facebook className="h-5 w-5" />
             </Link>
             <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.youtube.com/@Opentribe_io"
               className="text-white/40 transition-colors hover:text-white"
+              href="https://www.youtube.com/@Opentribe_io"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <Youtube className="h-5 w-5" />
             </Link>

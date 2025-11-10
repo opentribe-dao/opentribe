@@ -1,8 +1,8 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 export async function OPTIONS() {
@@ -89,8 +89,7 @@ export async function PATCH(
       const positionKey = String(validatedData.position);
 
       winningAmount =
-        winningsObj &&
-        Object.prototype.hasOwnProperty.call(winningsObj, positionKey)
+        winningsObj && Object.hasOwn(winningsObj, positionKey)
           ? winningsObj[positionKey]
           : null;
 
@@ -132,7 +131,7 @@ export async function PATCH(
         reviewedAt: new Date(),
         position:
           validatedData.status === "APPROVED" ? validatedData.position : null,
-        winningAmount: winningAmount,
+        winningAmount,
       },
       include: {
         bounty: {

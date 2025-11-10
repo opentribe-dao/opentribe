@@ -1,9 +1,9 @@
-import { ImageResponse } from "next/og";
-import { siteName } from "@packages/seo/config";
-import { env } from "@/env";
 import { formatCurrency } from "@packages/base/lib/utils";
-import type { Grant } from "@/hooks/use-grants-data";
+import { siteName } from "@packages/seo/config";
 import { loadOgAssets } from "@packages/seo/og-assets";
+import { ImageResponse } from "next/og";
+import { env } from "@/env";
+import type { Grant } from "@/hooks/use-grants-data";
 
 export const runtime = "nodejs";
 
@@ -66,160 +66,158 @@ export async function GET(
     : undefined;
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#0a0a0a",
+        backgroundImage: bgDataUrl,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100%",
+          width: 1100,
+          height: 520,
           display: "flex",
-          justifyContent: "center",
+          flexDirection: "row",
+          gap: 40,
           alignItems: "center",
-          backgroundColor: "#0a0a0a",
-          backgroundImage: bgDataUrl,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
         }}
       >
+        {/* Sidebar */}
         <div
           style={{
-            width: 1100,
+            width: 220,
             height: 520,
             display: "flex",
-            flexDirection: "row",
-            gap: 40,
             alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(255,255,255,0.06)",
+            borderRadius: 24,
           }}
         >
-          {/* Sidebar */}
+          {orgLogo ? (
+            <img
+              alt={orgLogo}
+              height={140}
+              src={orgLogo}
+              style={{ borderRadius: 9999 }}
+              width={140}
+            />
+          ) : (
+            <div
+              style={{
+                width: 140,
+                height: 140,
+                borderRadius: 9999,
+                backgroundColor: "rgba(255,255,255,0.12)",
+              }}
+            />
+          )}
+        </div>
+        {/* Main */}
+        <div
+          style={{
+            flex: 1,
+            height: 520,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            gap: 16,
+            padding: 8,
+          }}
+        >
           <div
             style={{
-              width: 220,
-              height: 520,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "rgba(255,255,255,0.06)",
-              borderRadius: 24,
-            }}
-          >
-            {orgLogo ? (
-              <img
-                src={orgLogo}
-                width={140}
-                height={140}
-                alt={orgLogo}
-                style={{ borderRadius: 9999 }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 140,
-                  height: 140,
-                  borderRadius: 9999,
-                  backgroundColor: "rgba(255,255,255,0.12)",
-                }}
-              />
-            )}
-          </div>
-          {/* Main */}
-          <div
-            style={{
-              flex: 1,
-              height: 520,
-              display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
               justifyContent: "space-between",
-              gap: 16,
-              padding: 8,
+              alignItems: "center",
             }}
           >
             <div
               style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
+                fontFamily: "Satoshi",
+                fontWeight: 500,
+                fontSize: 24,
+                color: "#E6007A",
+                letterSpacing: "0.4px",
               }}
             >
-              <div
-                style={{
-                  fontFamily: "Satoshi",
-                  fontWeight: 500,
-                  fontSize: 24,
-                  color: "#E6007A",
-                  letterSpacing: "0.4px",
-                }}
-              >
-                🖋️ Grant
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                {logomarkSrc && (
-                  <img
-                    src={logomarkSrc}
-                    width={32}
-                    height={37}
-                    alt="Opentribe"
-                    style={{ display: "block" }}
-                  />
-                )}
-                <div
-                  style={{
-                    fontFamily: "Chakra Petch",
-                    fontWeight: 700,
-                    fontSize: 26,
-                    color: "rgba(255,255,255,0.85)",
-                    letterSpacing: "4px",
-                  }}
-                >
-                  OPENTRIBE
-                </div>
-              </div>
+              🖋️ Grant
             </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                textAlign: "left",
-                minHeight: 300,
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {logomarkSrc && (
+                <img
+                  alt="Opentribe"
+                  height={37}
+                  src={logomarkSrc}
+                  style={{ display: "block" }}
+                  width={32}
+                />
+              )}
               <div
                 style={{
                   fontFamily: "Chakra Petch",
                   fontWeight: 700,
-                  fontSize: 60,
-                  color: "#fff",
-                  lineHeight: 1.12,
+                  fontSize: 26,
+                  color: "rgba(255,255,255,0.85)",
+                  letterSpacing: "4px",
                 }}
               >
-                {title}
+                OPENTRIBE
               </div>
             </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              textAlign: "left",
+              minHeight: 300,
+            }}
+          >
             <div
               style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                alignItems: "center",
+                fontFamily: "Chakra Petch",
+                fontWeight: 700,
+                fontSize: 60,
+                color: "#fff",
+                lineHeight: 1.12,
               }}
             >
-              <div
-                style={{
-                  fontFamily: "Satoshi",
-                  fontWeight: 600,
-                  fontSize: 28,
-                  color: "rgba(255,255,255,0.92)",
-                }}
-              >
-                {`${range || ""}${range && org ? " | " : ""}${org || ""}`}
-              </div>
+              {title}
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "Satoshi",
+                fontWeight: 600,
+                fontSize: 28,
+                color: "rgba(255,255,255,0.92)",
+              }}
+            >
+              {`${range || ""}${range && org ? " | " : ""}${org || ""}`}
             </div>
           </div>
         </div>
       </div>
-    ),
+    </div>,
     {
       width: 1200,
       height: 630,

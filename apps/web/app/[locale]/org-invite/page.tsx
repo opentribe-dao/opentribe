@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 import { authClient, useSession } from "@packages/auth/client";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
-import { Button } from "@packages/base/components/ui/button";
 import { Alert, AlertDescription } from "@packages/base/components/ui/alert";
+import { Button } from "@packages/base/components/ui/button";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { env } from "@/env";
 
@@ -93,11 +93,11 @@ export default function OrgInvitePage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4">
       <div className="w-full max-w-md space-y-6">
-        <div className="bg-white/5 backdrop-blur-[10px] border border-white/20 rounded-lg p-8">
+        <div className="rounded-lg border border-white/20 bg-white/5 p-8 backdrop-blur-[10px]">
           {status === "loading" && (
             <div className="space-y-4 text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#E6007A]" />
-              <h1 className="font-heading text-2xl font-semibold text-white">
+              <h1 className="font-heading font-semibold text-2xl text-white">
                 Processing Invite
               </h1>
               <p className="text-white/60">
@@ -109,13 +109,13 @@ export default function OrgInvitePage() {
           {status === "success" && (
             <div className="space-y-4 text-center">
               <CheckCircle2 className="mx-auto h-12 w-12 text-green-500" />
-              <h1 className="font-heading text-2xl font-semibold text-white">
+              <h1 className="font-heading font-semibold text-2xl text-white">
                 Invite Accepted!
               </h1>
               <p className="text-white/60">
                 You've successfully joined the organization.
               </p>
-              <p className="text-white/60 text-sm">
+              <p className="text-sm text-white/60">
                 Redirecting to your dashboard...
               </p>
             </div>
@@ -124,20 +124,20 @@ export default function OrgInvitePage() {
           {status === "error" && (
             <div className="space-y-6 text-center">
               <XCircle className="mx-auto h-12 w-12 text-red-500" />
-              <h1 className="font-heading text-2xl font-semibold text-white">
+              <h1 className="font-heading font-semibold text-2xl text-white">
                 Invite Failed
               </h1>
 
-              <Alert className="bg-red-500/10 border-red-500/20">
-                <AlertDescription className="text-red-400 text-left">
+              <Alert className="border-red-500/20 bg-red-500/10">
+                <AlertDescription className="text-left text-red-400">
                   {errorMessage}
                 </AlertDescription>
               </Alert>
 
               <div className="flex flex-col gap-3">
                 <Button
+                  className="w-full bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
                   onClick={() => router.push("/")}
-                  className="w-full bg-[#E6007A] hover:bg-[#E6007A]/90 text-white"
                 >
                   Go to Home
                 </Button>
@@ -147,7 +147,7 @@ export default function OrgInvitePage() {
         </div>
 
         {status === "loading" && (
-          <p className="text-white/40 text-center text-sm">
+          <p className="text-center text-sm text-white/40">
             This should only take a moment
           </p>
         )}

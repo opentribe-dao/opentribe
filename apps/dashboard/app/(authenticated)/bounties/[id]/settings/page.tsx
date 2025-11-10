@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useBountyContext } from '../../../components/bounty-provider';
-import { BountySettingsHeader } from '@/app/(authenticated)/components/bounty/settings/settings-header';
-import { BountySettingsForm } from '@/app/(authenticated)/components/bounty/settings/settings-form';
-import { useBountySettings } from '@/hooks/use-manage-bounty';
+import { BountySettingsForm } from "@/app/(authenticated)/components/bounty/settings/settings-form";
+import { BountySettingsHeader } from "@/app/(authenticated)/components/bounty/settings/settings-header";
+import { useBountySettings } from "@/hooks/use-manage-bounty";
+import { useBountyContext } from "../../../components/bounty-provider";
 
 export default function SettingsPage() {
   const { bounty, bountyLoading, bountyError } = useBountyContext();
@@ -23,7 +23,7 @@ export default function SettingsPage() {
 
   if (bountyLoading) {
     return (
-      <div className='flex min-h-[400px] items-center justify-center'>
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-white/60">Loading bounty settings...</div>
       </div>
     );
@@ -31,7 +31,7 @@ export default function SettingsPage() {
 
   if (bountyError || !bounty) {
     return (
-      <div className='flex min-h-[400px] items-center justify-center'>
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-red-400">Failed to load bounty settings</div>
       </div>
     );
@@ -41,20 +41,20 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <BountySettingsHeader
         hasChanges={hasChanges}
-        isSaving={isSaving}
         isResetting={isResetting}
-        onSave={handleSave}
+        isSaving={isSaving}
         onReset={handleReset}
+        onSave={handleSave}
       />
-      
+
       <BountySettingsForm
-        formData={formData}
         bounty={bounty}
+        formData={formData}
+        onDelete={handleDelete}
+        onToggleDeleteConfirm={() => setShowDeleteConfirm(!showDeleteConfirm)}
+        showDeleteConfirm={showDeleteConfirm}
         updateFormData={updateFormData}
         updateWinnings={updateWinnings}
-        onDelete={handleDelete}
-        showDeleteConfirm={showDeleteConfirm}
-        onToggleDeleteConfirm={() => setShowDeleteConfirm(!showDeleteConfirm)}
       />
     </div>
   );

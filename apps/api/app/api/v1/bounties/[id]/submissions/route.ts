@@ -1,10 +1,10 @@
 import { auth } from "@packages/auth/server";
+import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
+import { sendBountyFirstSubmissionEmail } from "@packages/email";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { sendBountyFirstSubmissionEmail } from "@packages/email";
-import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
@@ -69,7 +69,7 @@ export async function GET(
     // For public bounties, only show submitted submissions
     // For org members, show all submissions
     const whereClause: any = {
-      bountyId: bountyId,
+      bountyId,
     };
 
     if (!isOrgMember) {
@@ -217,7 +217,7 @@ export async function POST(
     // Check if user already has a submission for this bounty
     const existingSubmission = await database.submission.findFirst({
       where: {
-        bountyId: bountyId,
+        bountyId,
         userId: session.user.id,
       },
     });
@@ -254,7 +254,7 @@ export async function POST(
     // Create the submission
     const submission = await database.submission.create({
       data: {
-        bountyId: bountyId,
+        bountyId,
         userId: session.user.id,
         submissionUrl: validatedData.submissionUrl,
         title: validatedData.title || `Submission for ${bounty.title}`,
@@ -288,13 +288,13 @@ export async function POST(
 
     // Check if this is the first submission and send email to org members
     const submissionCount = await database.submission.count({
-      where: { bountyId: bountyId },
+      where: { bountyId },
     });
 
     if (submissionCount === 1) {
       // Get bounty curators
       const bountyCurators = await database.curator.findMany({
-        where: { bountyId: bountyId },
+        where: { bountyId },
         include: {
           user: {
             select: {

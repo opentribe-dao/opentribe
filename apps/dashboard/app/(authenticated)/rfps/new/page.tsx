@@ -1,6 +1,7 @@
 "use client";
 
 import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { MarkdownEditor } from "@packages/base";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
@@ -11,7 +12,6 @@ import {
 } from "@packages/base/components/ui/card";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
-import { MarkdownEditor } from "@packages/base";
 import {
   Select,
   SelectContent,
@@ -19,13 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@packages/base/components/ui/select";
-import { Badge } from "@packages/base/components/ui/badge";
-import { ArrowLeft, Loader2, Plus, X, Globe, FileText } from "lucide-react";
+import { ArrowLeft, Globe, Loader2, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Header } from "../../components/header";
 import { env } from "@/env";
+import { Header } from "../../components/header";
 
 interface Grant {
   id: string;
@@ -137,7 +136,7 @@ export default function CreateRFPPage() {
       setLoading(true);
 
       // Validate required fields
-      if (!formData.grantId || !formData.title || !formData.description) {
+      if (!(formData.grantId && formData.title && formData.description)) {
         toast.error("Please fill in all required fields");
         return;
       }
@@ -182,14 +181,14 @@ export default function CreateRFPPage() {
 
   if (!activeOrg) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-white/60 mb-4">No organization selected</p>
+          <p className="mb-4 text-white/60">No organization selected</p>
           <Button
+            className="bg-[#E6007A] hover:bg-[#E6007A]/90"
             onClick={() =>
               router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`)
             }
-            className="bg-[#E6007A] hover:bg-[#E6007A]/90"
           >
             Create Organization
           </Button>
@@ -200,20 +199,20 @@ export default function CreateRFPPage() {
 
   return (
     <>
-      <Header pages={["RFPs", "Create"]} page="Create RFP" />
+      <Header page="Create RFP" pages={["RFPs", "Create"]} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="mb-4 flex items-center gap-4">
           <Button
-            variant="ghost"
-            onClick={() => router.push("/rfps")}
             className="text-white/60 hover:text-white"
+            onClick={() => router.push("/rfps")}
+            variant="ghost"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to RFPs
           </Button>
         </div>
 
-        <Card className="bg-white/5 backdrop-blur-md border-white/10 max-w-4xl mx-auto w-full">
+        <Card className="mx-auto w-full max-w-4xl border-white/10 bg-white/5 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-white">Create New RFP</CardTitle>
             <CardDescription className="text-white/60">
@@ -225,11 +224,11 @@ export default function CreateRFPPage() {
             <div>
               <Label htmlFor="grant">Parent Grant *</Label>
               <Select
-                value={formData.grantId}
-                onValueChange={(value) => updateFormData("grantId", value)}
                 disabled={loadingGrants}
+                onValueChange={(value) => updateFormData("grantId", value)}
+                value={formData.grantId}
               >
-                <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
+                <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                   <SelectValue placeholder="Select a grant" />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,7 +240,7 @@ export default function CreateRFPPage() {
                 </SelectContent>
               </Select>
               {grants.length === 0 && !loadingGrants && (
-                <p className="text-sm text-yellow-400 mt-2">
+                <p className="mt-2 text-sm text-yellow-400">
                   You need to create an active grant first to create RFPs
                 </p>
               )}
@@ -251,11 +250,11 @@ export default function CreateRFPPage() {
             <div>
               <Label htmlFor="title">RFP Title *</Label>
               <Input
+                className="mt-2 border-white/10 bg-white/5 text-white"
                 id="title"
-                value={formData.title}
                 onChange={(e) => updateFormData("title", e.target.value)}
                 placeholder="Enter a clear, descriptive title for your RFP"
-                className="bg-white/5 border-white/10 text-white mt-2"
+                value={formData.title}
               />
             </div>
 
@@ -264,13 +263,13 @@ export default function CreateRFPPage() {
               <Label htmlFor="description">Description *</Label>
               <div className="mt-2">
                 <MarkdownEditor
-                  value={formData.description}
+                  height={400}
                   onChange={(value) => updateFormData("description", value)}
                   placeholder="Provide a detailed description of what you're looking for..."
-                  height={400}
+                  value={formData.description}
                 />
               </div>
-              <p className="text-sm text-white/60 mt-2">
+              <p className="mt-2 text-sm text-white/60">
                 Be specific about requirements, deliverables, and evaluation
                 criteria
               </p>
@@ -278,59 +277,59 @@ export default function CreateRFPPage() {
 
             {/* Resources */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <Label>Resources & Links</Label>
                 <Button
+                  className="border-white/20 text-white hover:bg-white/10"
+                  onClick={addResource}
+                  size="sm"
                   type="button"
                   variant="outline"
-                  size="sm"
-                  onClick={addResource}
-                  className="border-white/20 text-white hover:bg-white/10"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Add Resource
                 </Button>
               </div>
               <div className="space-y-3">
                 {formData.resources.map((resource, index) => (
                   <div
+                    className="space-y-3 rounded-lg bg-white/5 p-4"
                     key={index}
-                    className="bg-white/5 rounded-lg p-4 space-y-3"
                   >
                     <div className="flex items-start gap-3">
-                      <Globe className="h-5 w-5 text-white/40 mt-2" />
+                      <Globe className="mt-2 h-5 w-5 text-white/40" />
                       <div className="flex-1 space-y-3">
                         <Input
-                          placeholder="Resource title"
-                          value={resource.title}
+                          className="border-white/10 bg-white/10 text-white"
                           onChange={(e) =>
                             updateResource(index, "title", e.target.value)
                           }
-                          className="bg-white/10 border-white/10 text-white"
+                          placeholder="Resource title"
+                          value={resource.title}
                         />
                         <Input
-                          placeholder="https://example.com"
-                          value={resource.url}
+                          className="border-white/10 bg-white/10 text-white"
                           onChange={(e) =>
                             updateResource(index, "url", e.target.value)
                           }
-                          className="bg-white/10 border-white/10 text-white"
+                          placeholder="https://example.com"
+                          value={resource.url}
                         />
                         <Input
-                          placeholder="Description (optional)"
-                          value={resource.description || ""}
+                          className="border-white/10 bg-white/10 text-white"
                           onChange={(e) =>
                             updateResource(index, "description", e.target.value)
                           }
-                          className="bg-white/10 border-white/10 text-white"
+                          placeholder="Description (optional)"
+                          value={resource.description || ""}
                         />
                       </div>
                       <Button
+                        className="text-red-400 hover:text-red-300"
+                        onClick={() => removeResource(index)}
+                        size="sm"
                         type="button"
                         variant="ghost"
-                        size="sm"
-                        onClick={() => removeResource(index)}
-                        className="text-red-400 hover:text-red-300"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -338,7 +337,7 @@ export default function CreateRFPPage() {
                   </div>
                 ))}
                 {formData.resources.length === 0 && (
-                  <p className="text-sm text-white/40 text-center py-4">
+                  <p className="py-4 text-center text-sm text-white/40">
                     No resources added yet
                   </p>
                 )}
@@ -349,12 +348,12 @@ export default function CreateRFPPage() {
             <div>
               <Label htmlFor="status">Status</Label>
               <Select
-                value={formData.status}
                 onValueChange={(value: "OPEN" | "CLOSED" | "COMPLETED") =>
                   updateFormData("status", value)
                 }
+                value={formData.status}
               >
-                <SelectTrigger className="bg-white/5 border-white/10 text-white mt-2">
+                <SelectTrigger className="mt-2 border-white/10 bg-white/5 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -366,25 +365,25 @@ export default function CreateRFPPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+            <div className="flex items-center justify-between border-white/10 border-t pt-4">
               <Button
-                variant="outline"
-                onClick={() => router.push("/rfps")}
-                disabled={loading}
                 className="border-white/20 text-white hover:bg-white/10"
+                disabled={loading}
+                onClick={() => router.push("/rfps")}
+                variant="outline"
               >
                 Cancel
               </Button>
               <div className="flex gap-3">
                 <Button
-                  onClick={() => handleSubmit(false)}
-                  disabled={loading || !formData.grantId}
-                  variant="outline"
                   className="border-white/20 text-white hover:bg-white/10"
+                  disabled={loading || !formData.grantId}
+                  onClick={() => handleSubmit(false)}
+                  variant="outline"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -392,18 +391,18 @@ export default function CreateRFPPage() {
                   )}
                 </Button>
                 <Button
-                  onClick={() => handleSubmit(true)}
+                  className="bg-[#E6007A] hover:bg-[#E6007A]/90"
                   disabled={
                     loading ||
                     !formData.grantId ||
                     !formData.title ||
                     !formData.description
                   }
-                  className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+                  onClick={() => handleSubmit(true)}
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Publishing...
                     </>
                   ) : (

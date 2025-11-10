@@ -4,9 +4,9 @@ import { showBetaFeature } from "@packages/feature-flags";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { GlobalSidebar } from "./components/sidebar";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { env } from "@/env";
+import { GlobalSidebar } from "./components/sidebar";
 
 type AppLayoutProperties = {
   readonly children: ReactNode;

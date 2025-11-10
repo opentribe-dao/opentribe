@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { database } from "@packages/db";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 

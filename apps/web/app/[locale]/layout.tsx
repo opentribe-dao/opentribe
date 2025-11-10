@@ -1,19 +1,19 @@
 import "./styles.css";
+import { AnalyticsProvider } from "@packages/analytics";
 import { BaseProvider } from "@packages/base";
 import { Background } from "@packages/base/components/background";
 import { fonts } from "@packages/base/lib/fonts";
 import { cn } from "@packages/base/lib/utils";
 import { Toolbar } from "@packages/feature-flags/components/toolbar";
 import { getDictionary } from "@packages/i18n";
+import { defaultDescription, defaultKeywords } from "@packages/seo/config";
+import { createSiteMetadata } from "@packages/seo/meta";
+import type { Viewport } from "next";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
-import CookieBanner from "./legal/components/cookie-banner";
-import { SiteLayout } from "./components/site-layout";
 import Providers from "./components/providers";
-import { AnalyticsProvider } from "@packages/analytics";
-import { createSiteMetadata } from "@packages/seo/meta";
-import { defaultDescription, defaultKeywords } from "@packages/seo/config";
-import type { Viewport } from "next";
+import { SiteLayout } from "./components/site-layout";
+import CookieBanner from "./legal/components/cookie-banner";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -28,8 +28,8 @@ const RootLayout = async ({ children, params }: RootLayoutProperties) => {
 
   return (
     <html
-      lang="en"
       className={cn(fonts, "scroll-smooth")}
+      lang="en"
       suppressHydrationWarning
     >
       <body>

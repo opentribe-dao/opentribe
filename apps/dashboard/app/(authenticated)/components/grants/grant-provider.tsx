@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
-
-import { type Grant, useGrant } from '@/hooks/grants/use-grant';
-import type React from 'react';
-import { createContext, useContext } from 'react';
+import type React from "react";
+import { createContext, useContext } from "react";
+import { type Grant, useGrant } from "@/hooks/grants/use-grant";
 
 interface GrantProviderProps {
   grantId: string;
@@ -35,7 +34,7 @@ export const GrantProvider = ({ grantId, children }: GrantProviderProps) => {
 export const useGrantContext = () => {
   const context = useContext(GrantContext);
   if (!context) {
-    throw new Error('useGrantContext must be used within a GrantProvider');
+    throw new Error("useGrantContext must be used within a GrantProvider");
   }
   return context;
 };

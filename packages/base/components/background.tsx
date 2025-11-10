@@ -12,34 +12,34 @@ export function Background() {
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-10 bg-[#0a0a0a]">
+    <div className="-z-10 fixed inset-0 bg-[#0a0a0a]">
       {/* Main gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
 
       {/* Primary color blobs with heavy blur for soft glow effect */}
       <div className="absolute inset-0">
         {/* Pink/Purple glow - top left area */}
-        <div className="absolute -left-[0%] -top-[10%] h-[40vh] w-[40vw] rounded-full bg-gradient-to-br from-[#E6007A]/40 to-purple-700/30 blur-[480px]" />
+        <div className="-left-[0%] -top-[10%] absolute h-[40vh] w-[40vw] rounded-full bg-gradient-to-br from-[#E6007A]/40 to-purple-700/30 blur-[480px]" />
 
         {/* Purple central glow */}
-        <div className="absolute left-[20%] top-[30%] h-[40vh] w-[40vw] rounded-full bg-purple-600/25 blur-[400px]" />
+        <div className="absolute top-[30%] left-[20%] h-[40vh] w-[40vw] rounded-full bg-purple-600/25 blur-[400px]" />
 
         {/* Blue glow - bottom right area */}
-        <div className="absolute -bottom-[10%] -right-[10%] h-[60vh] w-[60vw] rounded-full bg-gradient-to-tl from-blue-600/30 to-blue-800/20 blur-[480px]" />
+        <div className="-bottom-[10%] -right-[10%] absolute h-[60vh] w-[60vw] rounded-full bg-gradient-to-tl from-blue-600/30 to-blue-800/20 blur-[480px]" />
 
         {/* Additional ambient glows */}
-        <div className="absolute left-[70%] top-[10%] h-[30vh] w-[30vw] rounded-full bg-purple-500/20 blur-[80px]" />
-        <div className="absolute bottom-[40%] right-[20%] h-[35vh] w-[35vw] rounded-full bg-blue-500/15 blur-[90px]" />
+        <div className="absolute top-[10%] left-[70%] h-[30vh] w-[30vw] rounded-full bg-purple-500/20 blur-[80px]" />
+        <div className="absolute right-[20%] bottom-[40%] h-[35vh] w-[35vw] rounded-full bg-blue-500/15 blur-[90px]" />
       </div>
 
       {/* Subtle concentric stadium shapes - left side */}
       <div
-        className="absolute -left-[40%] top-[10%] h-[60vh] w-[80vw]"
+        className="-left-[40%] absolute top-[10%] h-[60vh] w-[80vw]"
         style={{ transform: `translateY(${scrollY * 0.05}px)` }}
       >
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100">
           <defs>
-            <linearGradient id="leftGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="leftGradient" x1="0%" x2="100%" y1="0%" y2="0%">
               <stop offset="0%" stopColor="#E6007A" stopOpacity="0" />
               <stop offset="20%" stopColor="#E6007A" stopOpacity="0.15" />
               <stop offset="50%" stopColor="#E6007A" stopOpacity="0.25" />
@@ -49,16 +49,16 @@ export function Background() {
           </defs>
           {[...Array(8)].map((_, i) => (
             <rect
-              key={`left-${i}`}
-              x={`${48 - (i + 1) * 6}%`}
-              y={`${47 - (i + 1) * 4}%`}
-              width={`${(i + 1) * 12}%`}
-              height={`${(i + 1) * 8}%`}
-              rx={`${(i + 1) * 4}%`}
               fill="none"
+              height={`${(i + 1) * 8}%`}
+              key={`left-${i}`}
+              opacity={0.4 - i * 0.05}
+              rx={`${(i + 1) * 4}%`}
               stroke="url(#leftGradient)"
               strokeWidth="0.5"
-              opacity={0.4 - i * 0.05}
+              width={`${(i + 1) * 12}%`}
+              x={`${48 - (i + 1) * 6}%`}
+              y={`${47 - (i + 1) * 4}%`}
             />
           ))}
         </svg>
@@ -66,7 +66,7 @@ export function Background() {
 
       {/* Subtle concentric stadium shapes - right side */}
       <div
-        className="absolute -right-[40%] bottom-[10%] h-[60vh] w-[80vw]"
+        className="-right-[40%] absolute bottom-[10%] h-[60vh] w-[80vw]"
         style={{ transform: `translateY(${-scrollY * 0.05}px)` }}
       >
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100">
@@ -74,8 +74,8 @@ export function Background() {
             <linearGradient
               id="rightGradient"
               x1="0%"
-              y1="0%"
               x2="100%"
+              y1="0%"
               y2="0%"
             >
               <stop offset="0%" stopColor="#3B82F6" stopOpacity="0" />
@@ -87,16 +87,16 @@ export function Background() {
           </defs>
           {[...Array(10)].map((_, i) => (
             <rect
-              key={`right-${i}`}
-              x={`${49 - (i + 1) * 7}%`}
-              y={`${49 - (i + 1) * 5}%`}
-              width={`${(i + 1) * 14}%`}
-              height={`${(i + 1) * 10}%`}
-              rx={`${(i + 1) * 5}%`}
               fill="none"
+              height={`${(i + 1) * 10}%`}
+              key={`right-${i}`}
+              opacity={0.35 - i * 0.035}
+              rx={`${(i + 1) * 5}%`}
               stroke="url(#rightGradient)"
               strokeWidth="0.5"
-              opacity={0.35 - i * 0.035}
+              width={`${(i + 1) * 14}%`}
+              x={`${49 - (i + 1) * 7}%`}
+              y={`${49 - (i + 1) * 5}%`}
             />
           ))}
         </svg>

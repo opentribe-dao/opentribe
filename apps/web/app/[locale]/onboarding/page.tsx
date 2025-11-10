@@ -3,12 +3,12 @@
 import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
 import { Checkbox } from "@packages/base/components/ui/checkbox";
+import { Label } from "@packages/base/components/ui/label";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import builderIllustration from "../../../public/images/builder-illustration.png";
 import organizationIllustration from "../../../public/images/organization-illustration.png";
-import { Label } from "@packages/base/components/ui/label";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function OnboardingPage() {
   >("builder");
 
   useEffect(() => {
-    if (!isPending && !session?.user) {
+    if (!(isPending || session?.user)) {
       // User is not authenticated, redirect to home
       router.push("/");
     }
@@ -102,20 +102,20 @@ export default function OnboardingPage() {
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Builder Option */}
           <button
-            type="button"
-            onClick={() => setSelectedType("builder")}
             className={`relative rounded-xl border-2 p-6 transition-all ${
               selectedType === "builder"
                 ? "border-[#E6007A] bg-[#E6007A]/10"
                 : "border-white/20 bg-white/5 hover:bg-white/10"
             }`}
+            onClick={() => setSelectedType("builder")}
+            type="button"
           >
             <div className="relative mb-4 aspect-square">
               <Image
-                src={builderIllustration}
                 alt="Builder"
-                fill
                 className="object-contain"
+                fill
+                src={builderIllustration}
               />
             </div>
             <p className="font-medium text-white">As Builder</p>
@@ -123,20 +123,20 @@ export default function OnboardingPage() {
 
           {/* Organization Option */}
           <button
-            type="button"
-            onClick={() => setSelectedType("organization")}
             className={`relative rounded-xl border-2 p-6 transition-all ${
               selectedType === "organization"
                 ? "border-[#E6007A] bg-[#E6007A]/10"
                 : "border-white/20 bg-white/5 hover:bg-white/10"
             }`}
+            onClick={() => setSelectedType("organization")}
+            type="button"
           >
             <div className="relative mb-4 aspect-square">
               <Image
-                src={organizationIllustration}
                 alt="Organization"
-                fill
                 className="object-contain"
+                fill
+                src={organizationIllustration}
               />
             </div>
             <p className="font-medium text-white">As Organization</p>
@@ -151,13 +151,13 @@ export default function OnboardingPage() {
             <div className="space-y-3">
               {benefits.map((text) => (
                 <Label
-                  key={text}
                   className="flex cursor-pointer items-center space-x-3"
+                  key={text}
                 >
                   <Checkbox
                     checked={true}
-                    disabled
                     className="border-white/40 data-[state=checked]:border-[#E6007A] data-[state=checked]:bg-[#E6007A]"
+                    disabled
                   />
                   <span className="text-sm text-white/80">{text}</span>
                 </Label>
@@ -168,9 +168,9 @@ export default function OnboardingPage() {
 
         {/* Continue Button */}
         <Button
-          onClick={handleContinue}
-          disabled={!canContinue}
           className="h-12 w-full bg-[#E6007A] font-medium text-white hover:bg-[#E6007A]/90 disabled:opacity-50"
+          disabled={!canContinue}
+          onClick={handleContinue}
         >
           Continue as{" "}
           {selectedType === "organization" ? "Organization" : "Builder"}

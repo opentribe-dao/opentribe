@@ -15,10 +15,23 @@ export const BaseProvider = ({
 
 // Export components
 export { Background } from "./components/background";
-export { MarkdownEditor } from "./components/ui/markdown-editor";
-export type { MarkdownEditorProps } from "./components/ui/markdown-editor";
-export { ImageUpload } from "./components/ui/image-upload";
 export { FileUpload } from "./components/ui/file-upload";
-
+export { ImageUpload } from "./components/ui/image-upload";
+export type { MarkdownEditorProps } from "./components/ui/markdown-editor";
+export { MarkdownEditor } from "./components/ui/markdown-editor";
+export type { CookieCategory, CookieConsent } from "./lib/cookie-consent";
+export {
+  ACCEPT_ALL_CONSENT,
+  acceptAllCookies,
+  DEFAULT_CONSENT,
+  getCookieConsent,
+  hasCategoryConsent,
+  hasConsent,
+  rejectNonEssentialCookies,
+  resetConsent,
+  setCookieConsent,
+  updateCookieConsent,
+  useCookieConsent,
+} from "./lib/cookie-consent";
 // Export lib
 export { skillsOptions } from "./lib/skills";

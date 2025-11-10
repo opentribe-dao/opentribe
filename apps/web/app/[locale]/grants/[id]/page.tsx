@@ -1,28 +1,24 @@
 "use client";
-import { notFound, redirect } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@packages/base/components/ui/button";
+import { ExpandableText } from "@packages/base/components/ui/expandable-text";
+import { ShareButton } from "@packages/base/components/ui/share-button";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
+import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
 import {
-  Share2,
-  MapPin,
   Building2,
   Clock,
-  Mail,
-  ExternalLink,
-  MessageCircle,
-  Heart,
   DollarSign,
+  ExternalLink,
+  Mail,
+  MapPin,
 } from "lucide-react";
-import { env } from "@/env";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Skeleton } from "@packages/base/components/ui/skeleton";
-import { ShareButton } from "@packages/base/components/ui/share-button";
-import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
-import { ExpandableText } from "@packages/base/components/ui/expandable-text";
+import { env } from "@/env";
 
 async function getGrant(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
@@ -121,10 +117,10 @@ export default function GrantDetailPage({
                 <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
                   {grant.organization.logo ? (
                     <Image
-                      src={grant.organization.logo}
                       alt={grant.organization.name}
-                      fill
                       className="h-20 w-20 object-cover"
+                      fill
+                      src={grant.organization.logo}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
@@ -235,7 +231,7 @@ export default function GrantDetailPage({
           <div className="space-y-8 lg:col-span-2">
             {/* About Section */}
             <section>
-              <ExpandableText maxHeight={300} className="py-0">
+              <ExpandableText className="py-0" maxHeight={300}>
                 <h2 className="mb-4 font-bold font-heading text-2xl">
                   About the {grant.title}
                 </h2>
@@ -313,9 +309,9 @@ export default function GrantDetailPage({
                 {getTokenLogo(grant.token) ? (
                   // Show token logo if available
                   <img
-                    src={getTokenLogo(grant.token) || ""}
                     alt={grant.token || "Token"}
-                    className="h-4 w-4 rounded-full object-contain bg-white/10"
+                    className="h-4 w-4 rounded-full bg-white/10 object-contain"
+                    src={getTokenLogo(grant.token) || ""}
                   />
                 ) : (
                   <DollarSign className="h-4 w-4 rounded-full bg-[#DBE7FF] p-0.5 text-black" />
@@ -381,8 +377,8 @@ export default function GrantDetailPage({
               </h3>
               <div className="space-y-3">
                 <a
-                  href={`mailto:grants@${grant.organization.slug}.com`}
                   className="flex items-center gap-2 text-white/80 transition-colors hover:text-white"
+                  href={`mailto:grants@${grant.organization.slug}.com`}
                 >
                   <Mail className="h-4 w-4" />
                   <span className="text-sm">
@@ -391,10 +387,10 @@ export default function GrantDetailPage({
                 </a>
                 {grant.applicationUrl && (
                   <a
-                    href={grant.applicationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="flex items-center gap-2 text-white/80 transition-colors hover:text-white"
+                    href={grant.applicationUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
                     <ExternalLink className="h-4 w-4" />
                     <span className="text-sm">External Application</span>
@@ -412,9 +408,9 @@ export default function GrantDetailPage({
                 <div className="space-y-3">
                   {grant.rfps.map((rfp: any) => (
                     <Link
-                      key={rfp.id}
-                      href={`/rfps/${rfp.slug || rfp.id}`}
                       className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-white/5"
+                      href={`/rfps/${rfp.slug || rfp.id}`}
+                      key={rfp.id}
                     >
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600" />
@@ -443,8 +439,8 @@ export default function GrantDetailPage({
                 <div className="-space-x-2 flex">
                   {grant.applications.map((app: any, idx: number) => (
                     <div
-                      key={idx}
                       className="h-10 w-10 rounded-full border-2 border-[#0a0a0a] bg-gradient-to-br from-pink-500 to-purple-600"
+                      key={idx}
                       title={`${app.applicant.firstName || ""} ${
                         app.applicant.lastName ||
                         app.applicant.username ||
@@ -453,11 +449,11 @@ export default function GrantDetailPage({
                     >
                       {app.applicant.image ? (
                         <Image
-                          src={app.applicant.image}
                           alt="Applicant"
-                          width={40}
-                          height={40}
                           className="rounded-full"
+                          height={40}
+                          src={app.applicant.image}
+                          width={40}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center font-bold text-sm">

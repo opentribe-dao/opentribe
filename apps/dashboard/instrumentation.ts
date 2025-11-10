@@ -1,3 +1,3 @@
-import { initializeSentry } from '@packages/logging/instrumentation';
+import { initializeSentry } from "@packages/logging/instrumentation";
 
 export const register = initializeSentry();

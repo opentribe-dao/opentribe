@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
@@ -19,22 +18,22 @@ import {
   SelectValue,
 } from "@packages/base/components/ui/select";
 import {
+  Award,
+  Calendar,
   CheckCircle,
   ExternalLink,
-  Loader2,
-  Trophy,
-  Calendar,
-  Search,
   Eye,
-  MessageCircle,
   Heart,
-  Award,
+  Loader2,
+  MessageCircle,
+  Search,
+  Trophy,
 } from "lucide-react";
-import { useBountyContext } from "../../../components/bounty-provider";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { set } from "zod/v4-mini";
-import { Badge } from "@packages/base/components/ui/badge";
+import { useBountyContext } from "../../../components/bounty-provider";
 
 export default function SubmissionsPage() {
   const {
@@ -114,24 +113,27 @@ export default function SubmissionsPage() {
   }, [submissions, setSelectedWinners]);
 
   // Filtering
-  const filtered = useMemo(() => {
-    return submissions.filter((s) => {
-      const matchesSearch =
-        searchQuery.trim() === "" ||
-        (s.title &&
-          s.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (s.submitter?.username &&
-          s.submitter.username
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())) ||
-        (s.submitter?.firstName &&
-          s.submitter.firstName
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()));
-      const matchesStatus = statusFilter === "all" || s.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [submissions, searchQuery, statusFilter]);
+  const filtered = useMemo(
+    () =>
+      submissions.filter((s) => {
+        const matchesSearch =
+          searchQuery.trim() === "" ||
+          (s.title &&
+            s.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (s.submitter?.username &&
+            s.submitter.username
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())) ||
+          (s.submitter?.firstName &&
+            s.submitter.firstName
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()));
+        const matchesStatus =
+          statusFilter === "all" || s.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      }),
+    [submissions, searchQuery, statusFilter]
+  );
 
   // Sorting
   const sorted = useMemo(() => {
@@ -198,59 +200,59 @@ export default function SubmissionsPage() {
   };
 
   return (
-    <div className="space-y-6 ">
+    <div className="space-y-6">
       {/* Header with filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <div className="relative sm:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40 z-10" />
+            <Search className="-translate-y-1/2 absolute top-1/2 left-3 z-10 h-4 w-4 text-white/40" />
             <Input
+              className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search title or user"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white/5 border-white/10 pl-10 text-white placeholder:text-white/40"
             />
           </div>
           <Select
-            value={statusFilter}
             onValueChange={(v: any) => setStatusFilter(v)}
+            value={statusFilter}
           >
-            <SelectTrigger className="w-[160px] bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="w-[160px] border-white/10 bg-white/5 text-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-white/10">
-              <SelectItem value="all" className="text-white">
+            <SelectContent className="border-white/10 bg-zinc-900">
+              <SelectItem className="text-white" value="all">
                 All statuses
               </SelectItem>
-              <SelectItem value="SUBMITTED" className="text-white">
+              <SelectItem className="text-white" value="SUBMITTED">
                 Submitted
               </SelectItem>
-              <SelectItem value="UNDER_REVIEW" className="text-white">
+              <SelectItem className="text-white" value="UNDER_REVIEW">
                 Under review
               </SelectItem>
-              <SelectItem value="SELECTED" className="text-white">
+              <SelectItem className="text-white" value="SELECTED">
                 Selected
               </SelectItem>
-              <SelectItem value="REJECTED" className="text-white">
+              <SelectItem className="text-white" value="REJECTED">
                 Rejected
               </SelectItem>
             </SelectContent>
           </Select>
-          <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
-            <SelectTrigger className="w-[160px] bg-white/5 border-white/10 text-white">
+          <Select onValueChange={(v: any) => setSortBy(v)} value={sortBy}>
+            <SelectTrigger className="w-[160px] border-white/10 bg-white/5 text-white">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-white/10">
-              <SelectItem value="newest" className="text-white">
+            <SelectContent className="border-white/10 bg-zinc-900">
+              <SelectItem className="text-white" value="newest">
                 Newest
               </SelectItem>
-              <SelectItem value="oldest" className="text-white">
+              <SelectItem className="text-white" value="oldest">
                 Oldest
               </SelectItem>
-              <SelectItem value="likes" className="text-white">
+              <SelectItem className="text-white" value="likes">
                 Most likes
               </SelectItem>
-              <SelectItem value="comments" className="text-white">
+              <SelectItem className="text-white" value="comments">
                 Most comments
               </SelectItem>
             </SelectContent>
@@ -273,19 +275,19 @@ export default function SubmissionsPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
               {sorted.map((submission) => (
                 <Card
-                  key={submission.id}
                   className={`border-white/10 bg-zinc-900/50 transition-all hover:bg-zinc-800/50 ${
                     submission.isWinner ? "border-green-500/50" : ""
                   }`}
+                  key={submission.id}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         {submission.submitter.image ? (
                           <img
-                            src={submission.submitter.image}
                             alt={submission.submitter.username}
                             className="h-10 w-10 rounded-full"
+                            src={submission.submitter.image}
                           />
                         ) : (
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
@@ -293,14 +295,14 @@ export default function SubmissionsPage() {
                               "A"}
                           </div>
                         )}
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="truncate text-sm font-semibold text-white">
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="truncate font-semibold text-sm text-white">
                             {submission.submitter.firstName ||
                               submission.submitter.username ||
                               "Anonymous"}
                           </CardTitle>
                           {submission.submitter.headline && (
-                            <p className="truncate text-xs text-white/60">
+                            <p className="truncate text-white/60 text-xs">
                               {submission.submitter.headline}
                             </p>
                           )}
@@ -308,7 +310,7 @@ export default function SubmissionsPage() {
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <Badge
-                          className={`rounded px-2 py-1 text-xs font-medium ${getStatusColor(
+                          className={`rounded px-2 py-1 font-medium text-xs ${getStatusColor(
                             submission.status
                           )}`}
                         >
@@ -321,20 +323,20 @@ export default function SubmissionsPage() {
                                 submission.position === 1
                                   ? "text-yellow-500"
                                   : submission.position === 2
-                                  ? "text-gray-400"
-                                  : submission.position === 3
-                                  ? "text-orange-600"
-                                  : "text-white/60"
+                                    ? "text-gray-400"
+                                    : submission.position === 3
+                                      ? "text-orange-600"
+                                      : "text-white/60"
                               }`}
                             />
-                            <span className="text-xs font-medium text-white">
+                            <span className="font-medium text-white text-xs">
                               {submission.position === 1
                                 ? "1st"
                                 : submission.position === 2
-                                ? "2nd"
-                                : submission.position === 3
-                                ? "3rd"
-                                : `${submission.position}th`}
+                                  ? "2nd"
+                                  : submission.position === 3
+                                    ? "3rd"
+                                    : `${submission.position}th`}
                             </span>
                           </div>
                         )}
@@ -344,12 +346,12 @@ export default function SubmissionsPage() {
 
                   <CardContent className="pt-0">
                     {submission.title && (
-                      <h4 className="mb-2 text-sm font-medium text-white">
+                      <h4 className="mb-2 font-medium text-sm text-white">
                         {submission.title}
                       </h4>
                     )}
                     {submission.description && (
-                      <div className="mb-3 line-clamp-3 text-xs text-white/80">
+                      <div className="mb-3 line-clamp-3 text-white/80 text-xs">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {submission.description}
                         </ReactMarkdown>
@@ -357,7 +359,7 @@ export default function SubmissionsPage() {
                     )}
 
                     {/* Stats */}
-                    <div className="mb-4 flex items-center gap-4 text-xs text-white/60">
+                    <div className="mb-4 flex items-center gap-4 text-white/60 text-xs">
                       <div className="flex items-center gap-1">
                         <Heart className="h-3 w-3" />
                         <span>{submission.stats?.likesCount || 0}</span>
@@ -382,9 +384,9 @@ export default function SubmissionsPage() {
                     <div className="flex gap-2">
                       {!bounty.winnersAnnouncedAt && (
                         <Button
-                          size="sm"
-                          className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
                           asChild
+                          className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
+                          size="sm"
                         >
                           <Link
                             href={`/bounties/${bounty.id}/submissions/${submission.id}`}
@@ -396,15 +398,15 @@ export default function SubmissionsPage() {
                       )}
                       {submission.submissionUrl && (
                         <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 border-white/20 text-white hover:bg-white/10"
                           asChild
+                          className="flex-1 border-white/20 text-white hover:bg-white/10"
+                          size="sm"
+                          variant="outline"
                         >
                           <a
                             href={submission.submissionUrl}
-                            target="_blank"
                             rel="noopener noreferrer"
+                            target="_blank"
                           >
                             <ExternalLink className="h-3 w-3" />
                             Open
@@ -419,7 +421,7 @@ export default function SubmissionsPage() {
           </div>
           <div className="w-full lg:w-[30%]">
             {bounty.winnersAnnouncedAt ? (
-              <Card className="bg-green-500/10 border-green-500/30">
+              <Card className="border-green-500/30 bg-green-500/10">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-sm">
@@ -438,20 +440,20 @@ export default function SubmissionsPage() {
                       .sort((a, b) => (a.position || 0) - (b.position || 0))
                       .map((winner) => (
                         <div
-                          key={winner.id}
                           className="rounded-lg bg-white/5 px-3 py-3"
+                          key={winner.id}
                         >
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="flex items-center gap-2 min-w-0">
+                          <div className="mb-4 flex items-center gap-3">
+                            <div className="flex min-w-0 items-center gap-2">
                               <div
                                 className={`flex h-10 w-10 items-center justify-center rounded-full ${
                                   winner.position === 1
                                     ? "bg-yellow-500/20"
                                     : winner.position === 2
-                                    ? "bg-gray-400/20"
-                                    : winner.position === 3
-                                    ? "bg-orange-600/20"
-                                    : "bg-white/10"
+                                      ? "bg-gray-400/20"
+                                      : winner.position === 3
+                                        ? "bg-orange-600/20"
+                                        : "bg-white/10"
                                 }`}
                               >
                                 <Trophy
@@ -459,21 +461,21 @@ export default function SubmissionsPage() {
                                     winner.position === 1
                                       ? "text-yellow-500"
                                       : winner.position === 2
-                                      ? "text-gray-400"
-                                      : winner.position === 3
-                                      ? "text-orange-600"
-                                      : "text-white/60"
+                                        ? "text-gray-400"
+                                        : winner.position === 3
+                                          ? "text-orange-600"
+                                          : "text-white/60"
                                   }`}
                                 />
                               </div>
                               <div className="min-w-0">
-                                <p className="truncate text-sm font-bold text-white">
+                                <p className="truncate font-bold text-sm text-white">
                                   {winner.submitter.firstName ||
                                     winner.submitter.username ||
                                     "Anonymous"}
                                 </p>
                                 <div className="flex items-center gap-2">
-                                  <Badge className="h-5 rounded px-2 text-[10px] bg-white/10 text-white/70 border-0">
+                                  <Badge className="h-5 rounded border-0 bg-white/10 px-2 text-[10px] text-white/70">
                                     {(() => {
                                       if (winner.position === 1) {
                                         return "1st";
@@ -502,8 +504,7 @@ export default function SubmissionsPage() {
                                         return `${winner.position}th`;
                                       }
                                       return "";
-                                    })()}{" "}
-                                    Place
+                                    })()} Place
                                   </Badge>
                                 </div>
                               </div>
@@ -511,7 +512,7 @@ export default function SubmissionsPage() {
 
                             <div className="ml-auto flex items-center gap-3">
                               <div className="text-right">
-                                <p className="text-sm font-semibold text-white leading-tight">
+                                <p className="font-semibold text-sm text-white leading-tight">
                                   {winner.winningAmount} {bounty.token}
                                 </p>
                                 <p className="text-[10px] text-white/60">
@@ -522,7 +523,7 @@ export default function SubmissionsPage() {
                           </div>
 
                           {winner.submitter.walletAddress && (
-                            <div className=" mt-2 rounded bg-black/20 px-2 py-1 mb-4">
+                            <div className="mt-2 mb-4 rounded bg-black/20 px-2 py-1">
                               <p className="text-[10px] text-white/60">
                                 Address
                               </p>
@@ -531,7 +532,7 @@ export default function SubmissionsPage() {
                               </p>
                             </div>
                           )}
-                          <div className="flex justify-center mt-2">
+                          <div className="mt-2 flex justify-center">
                             {winner.payments && winner.payments.length > 0 ? (
                               <Badge className="flex h-6 w-full items-center justify-center border-0 bg-green-500/20 text-green-400">
                                 <CheckCircle className="mr-1 h-3 w-3" />
@@ -539,11 +540,11 @@ export default function SubmissionsPage() {
                               </Badge>
                             ) : (
                               <Button
+                                className="h-7 w-full bg-[#E6007A] px-2 text-white text-xs hover:bg-[#E6007A]/90"
                                 onClick={() => {
                                   setSelectedPaymentSubmission(winner);
                                   setPaymentModalOpen(true);
                                 }}
-                                className="h-7 w-full bg-[#E6007A] px-2 text-xs text-white hover:bg-[#E6007A]/90"
                               >
                                 {/* <DollarSign className="h-3.5 w-3.5 mr-1" /> */}
                                 Mark as Paid
@@ -556,17 +557,17 @@ export default function SubmissionsPage() {
                 </CardContent>
               </Card>
             ) : (
-              <Card className="bg-zinc-900/50 border-white/10 px-0">
+              <Card className="border-white/10 bg-zinc-900/50 px-0">
                 <CardHeader className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold">
+                  <CardTitle className="font-semibold text-sm">
                     Selected Winners
                   </CardTitle>
                   {selectedWinners.size > 0 && (
                     <Button
                       className="text-sm"
+                      disabled={isResetingWinners}
                       onClick={resetWinners}
                       variant={"ghost"}
-                      disabled={isResetingWinners}
                     >
                       {isResetingWinners ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -583,8 +584,8 @@ export default function SubmissionsPage() {
                           const user = winnerData.username;
                           return (
                             <div
-                              key={submissionId}
                               className="mb-2 flex items-center justify-between rounded-lg bg-white/5 p-2 px-3"
+                              key={submissionId}
                             >
                               <div className="flex items-center gap-3">
                                 <div
@@ -592,10 +593,10 @@ export default function SubmissionsPage() {
                                     winnerData.position === 1
                                       ? "bg-yellow-500/20"
                                       : winnerData.position === 2
-                                      ? "bg-gray-400/20"
-                                      : winnerData.position === 3
-                                      ? "bg-orange-600/20"
-                                      : "bg-white/10"
+                                        ? "bg-gray-400/20"
+                                        : winnerData.position === 3
+                                          ? "bg-orange-600/20"
+                                          : "bg-white/10"
                                   }`}
                                 >
                                   <Trophy
@@ -603,10 +604,10 @@ export default function SubmissionsPage() {
                                       winnerData.position === 1
                                         ? "text-yellow-500"
                                         : winnerData.position === 2
-                                        ? "text-gray-400"
-                                        : winnerData.position === 3
-                                        ? "text-orange-600"
-                                        : "text-white/60"
+                                          ? "text-gray-400"
+                                          : winnerData.position === 3
+                                            ? "text-orange-600"
+                                            : "text-white/60"
                                     }`}
                                   />
                                 </div>
@@ -639,8 +640,7 @@ export default function SubmissionsPage() {
                                       return `${winnerData.position}th`;
                                     }
                                     return "";
-                                  })()}{" "}
-                                  Place
+                                  })()} Place
                                 </span>
                               </div>
                               <span className="font-semibold text-white">
@@ -651,7 +651,7 @@ export default function SubmissionsPage() {
                         }
                       )
                     ) : (
-                      <div className=" flex items-center justify-center py-4 text-sm text-white/60">
+                      <div className="flex items-center justify-center py-4 text-sm text-white/60">
                         No Winners Selected{" "}
                       </div>
                     )}
@@ -661,10 +661,10 @@ export default function SubmissionsPage() {
                   submissions.length > 0 &&
                   !bounty.winnersAnnouncedAt && (
                     <Button
-                      size="sm"
-                      className="gap-0 bg-green-600 text-white hover:bg-green-700 mx-6"
-                      onClick={announceWinners}
+                      className="mx-6 gap-0 bg-green-600 text-white hover:bg-green-700"
                       disabled={isAnnouncing || selectedWinners.size === 0}
+                      onClick={announceWinners}
+                      size="sm"
                     >
                       {isAnnouncing ? (
                         <>

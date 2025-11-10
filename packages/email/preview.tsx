@@ -1,43 +1,42 @@
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import fs from 'fs';
-import path from 'path';
-
+import fs from "fs";
+import path from "path";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import BountyDeadlineReminderEmail from "./templates/bounty-deadline-reminder";
+import BountyFirstSubmissionEmail from "./templates/bounty-first-submission";
+import BountySkillMatchEmail from "./templates/bounty-skill-match";
+import BountyWinnerEmail from "./templates/bounty-winner";
+import BountyWinnerReminderEmail from "./templates/bounty-winner-reminder";
+import CommentReplyEmail from "./templates/comment-reply";
+import GrantFirstApplicationEmail from "./templates/grant-first-application";
+import GrantStatusUpdateEmail from "./templates/grant-status-update";
+import OnboardingCompleteEmail from "./templates/onboarding-complete";
+import OrgInviteEmail from "./templates/org-invite";
+import PasswordResetEmail from "./templates/password-reset";
 // Import all templates
-import VerificationEmail from './templates/verification-email';
-import WelcomeEmail from './templates/welcome-email';
-import PasswordResetEmail from './templates/password-reset';
-import OnboardingCompleteEmail from './templates/onboarding-complete';
-import OrgInviteEmail from './templates/org-invite';
-import BountyFirstSubmissionEmail from './templates/bounty-first-submission';
-import BountyDeadlineReminderEmail from './templates/bounty-deadline-reminder';
-import BountyWinnerReminderEmail from './templates/bounty-winner-reminder';
-import BountyWinnerEmail from './templates/bounty-winner';
-import BountySkillMatchEmail from './templates/bounty-skill-match';
-import GrantFirstApplicationEmail from './templates/grant-first-application';
-import GrantStatusUpdateEmail from './templates/grant-status-update';
-import CommentReplyEmail from './templates/comment-reply';
-import WeeklyDigestEmail from './templates/weekly-digest';
+import VerificationEmail from "./templates/verification-email";
+import WeeklyDigestEmail from "./templates/weekly-digest";
+import WelcomeEmail from "./templates/welcome-email";
 
 const templates = [
-  { name: 'verification-email', component: VerificationEmail },
-  { name: 'welcome-email', component: WelcomeEmail },
-  { name: 'password-reset', component: PasswordResetEmail },
-  { name: 'onboarding-complete', component: OnboardingCompleteEmail },
-  { name: 'org-invite', component: OrgInviteEmail },
-  { name: 'bounty-first-submission', component: BountyFirstSubmissionEmail },
-  { name: 'bounty-deadline-reminder', component: BountyDeadlineReminderEmail },
-  { name: 'bounty-winner-reminder', component: BountyWinnerReminderEmail },
-  { name: 'bounty-winner', component: BountyWinnerEmail },
-  { name: 'bounty-skill-match', component: BountySkillMatchEmail },
-  { name: 'grant-first-application', component: GrantFirstApplicationEmail },
-  { name: 'grant-status-update', component: GrantStatusUpdateEmail },
-  { name: 'comment-reply', component: CommentReplyEmail },
-  { name: 'weekly-digest', component: WeeklyDigestEmail },
+  { name: "verification-email", component: VerificationEmail },
+  { name: "welcome-email", component: WelcomeEmail },
+  { name: "password-reset", component: PasswordResetEmail },
+  { name: "onboarding-complete", component: OnboardingCompleteEmail },
+  { name: "org-invite", component: OrgInviteEmail },
+  { name: "bounty-first-submission", component: BountyFirstSubmissionEmail },
+  { name: "bounty-deadline-reminder", component: BountyDeadlineReminderEmail },
+  { name: "bounty-winner-reminder", component: BountyWinnerReminderEmail },
+  { name: "bounty-winner", component: BountyWinnerEmail },
+  { name: "bounty-skill-match", component: BountySkillMatchEmail },
+  { name: "grant-first-application", component: GrantFirstApplicationEmail },
+  { name: "grant-status-update", component: GrantStatusUpdateEmail },
+  { name: "comment-reply", component: CommentReplyEmail },
+  { name: "weekly-digest", component: WeeklyDigestEmail },
 ];
 
 // Create preview directory
-const previewDir = path.join(__dirname, 'preview');
+const previewDir = path.join(__dirname, "preview");
 if (!fs.existsSync(previewDir)) {
   fs.mkdirSync(previewDir, { recursive: true });
 }
@@ -46,7 +45,7 @@ if (!fs.existsSync(previewDir)) {
 templates.forEach(({ name, component }) => {
   const Component = component as any;
   const props = Component.PreviewProps || {};
-  
+
   try {
     const html = renderToStaticMarkup(React.createElement(Component, props));
     const fullHtml = `
@@ -67,7 +66,7 @@ templates.forEach(({ name, component }) => {
   </div>
 </body>
 </html>`;
-    
+
     fs.writeFileSync(path.join(previewDir, `${name}.html`), fullHtml);
     console.log(`✅ Generated preview for ${name}`);
   } catch (error) {
@@ -109,17 +108,23 @@ const indexHtml = `
     <h1>Opentribe Email Templates</h1>
     <p>Click on any template to preview:</p>
     <div class="templates">
-      ${templates.map(({ name }) => `
+      ${templates
+        .map(
+          ({ name }) => `
         <div class="template">
-          <a href="${name}.html" target="_blank">${name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</a>
-          <div class="description">Preview the ${name.replace(/-/g, ' ')} email template</div>
+          <a href="${name}.html" target="_blank">${name.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}</a>
+          <div class="description">Preview the ${name.replace(/-/g, " ")} email template</div>
         </div>
-      `).join('')}
+      `
+        )
+        .join("")}
     </div>
   </div>
 </body>
 </html>`;
 
-fs.writeFileSync(path.join(previewDir, 'index.html'), indexHtml);
-console.log('\n✨ Preview files generated in packages/email/preview/');
-console.log('📧 Open packages/email/preview/index.html in your browser to view all templates');
+fs.writeFileSync(path.join(previewDir, "index.html"), indexHtml);
+console.log("\n✨ Preview files generated in packages/email/preview/");
+console.log(
+  "📧 Open packages/email/preview/index.html in your browser to view all templates"
+);

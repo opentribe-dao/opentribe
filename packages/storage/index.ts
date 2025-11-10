@@ -1,2 +1,2 @@
-export * from '@vercel/blob';
-export * from './utils';
+export * from "@vercel/blob";
+export * from "./utils";

@@ -46,6 +46,4 @@ export const withSentry = (sourceConfig: object): object => {
   return withSentryConfig(configWithTranspile, sentryConfig);
 };
 
-export const withLogging = (config: object): object => {
-  return withLogtail(config);
-};
+export const withLogging = (config: object): object => withLogtail(config);

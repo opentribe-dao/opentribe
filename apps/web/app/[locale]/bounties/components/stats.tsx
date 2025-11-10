@@ -1,11 +1,11 @@
 "use client";
 
-import { env } from "@/env";
 import { Separator } from "@packages/base/components/ui/separator";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { formatCurrency } from "@packages/base/lib/utils";
-import { DollarSign, Briefcase } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { Briefcase, DollarSign } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { env } from "@/env";
 
 interface BountyStatsResponse {
   total_bounties_count: number;
@@ -56,8 +56,8 @@ export function BountyStats() {
 
   return (
     <div className="row-start-1 items-center gap-4 sm:flex md:flex lg:row-start-auto">
-      <div className="stats-card flex justify-around gap-4 text-sm lg:w-full ">
-        <div className="flex items-center gap-2 ">
+      <div className="stats-card flex justify-around gap-4 text-sm lg:w-full">
+        <div className="flex items-center gap-2">
           <Briefcase
             className="rounded-full bg-white/10 p-2"
             style={{ width: "32px", height: "32px" }}
@@ -75,11 +75,11 @@ export function BountyStats() {
         </div>
 
         <Separator
-          orientation="vertical"
           className="h-10 bg-white/10 md:h-16"
+          orientation="vertical"
         />
 
-        <div className="flex items-center gap-2 ">
+        <div className="flex items-center gap-2">
           <DollarSign
             className="rounded-full bg-white/10 p-2"
             style={{ width: "32px", height: "32px" }}

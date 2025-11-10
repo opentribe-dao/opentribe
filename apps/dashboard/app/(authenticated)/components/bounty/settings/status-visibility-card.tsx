@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Card,
@@ -6,17 +6,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Label } from '@packages/base/components/ui/label';
+} from "@packages/base/components/ui/card";
+import { Label } from "@packages/base/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@packages/base/components/ui/select';
-import { Eye, TriangleAlert } from 'lucide-react';
-import type { BountyDetails } from '@/hooks/use-bounty';
+} from "@packages/base/components/ui/select";
+import { Eye, TriangleAlert } from "lucide-react";
+import type { BountyDetails } from "@/hooks/use-bounty";
 
 interface StatusVisibilityCardProps {
   formData: Partial<BountyDetails>;
@@ -33,20 +33,20 @@ export function StatusVisibilityCard({
   updateFormData,
 }: StatusVisibilityCardProps) {
   const renderStatusSelect = () => {
-    if (formData.status === 'OPEN') {
+    if (formData.status === "OPEN") {
       return (
         <Select
+          onValueChange={(value: string) => updateFormData("status", value)}
           value={formData.status}
-          onValueChange={(value: string) => updateFormData('status', value)}
         >
           <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="border-white/10 bg-zinc-900">
-            <SelectItem value="OPEN" className="text-white">
+            <SelectItem className="text-white" value="OPEN">
               Open
             </SelectItem>
-            <SelectItem value="CLOSED" className="text-white">
+            <SelectItem className="text-white" value="CLOSED">
               Closed
             </SelectItem>
           </SelectContent>
@@ -54,20 +54,20 @@ export function StatusVisibilityCard({
       );
     }
 
-    if (formData.status === 'REVIEWING') {
+    if (formData.status === "REVIEWING") {
       return (
         <Select
+          onValueChange={(value: string) => updateFormData("status", value)}
           value={formData.status}
-          onValueChange={(value: string) => updateFormData('status', value)}
         >
           <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="border-white/10 bg-zinc-900">
-            <SelectItem value="REVIEWING" className="text-white">
+            <SelectItem className="text-white" value="REVIEWING">
               Reviewing
             </SelectItem>
-            <SelectItem value="CANCELLED" className="text-white">
+            <SelectItem className="text-white" value="CANCELLED">
               Cancelled
             </SelectItem>
           </SelectContent>
@@ -76,16 +76,16 @@ export function StatusVisibilityCard({
     }
 
     return (
-      <Select value={formData.status} disabled>
+      <Select disabled value={formData.status}>
         <SelectTrigger className="w-full cursor-not-allowed border-white/10 bg-white/5 text-white opacity-60">
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="border-white/10 bg-zinc-900">
-          <SelectItem value={formData.status ?? ''} className="text-white">
+          <SelectItem className="text-white" value={formData.status ?? ""}>
             {formData.status
               ? formData.status.charAt(0) +
                 formData.status.slice(1).toLowerCase()
-              : ''}
+              : ""}
           </SelectItem>
         </SelectContent>
       </Select>
@@ -93,21 +93,21 @@ export function StatusVisibilityCard({
   };
 
   const renderVisibilitySelect = () => {
-    if (bounty.status !== 'OPEN') {
+    if (bounty.status !== "OPEN") {
       return (
-        <Select value={formData.visibility} disabled>
+        <Select disabled value={formData.visibility}>
           <SelectTrigger className="w-full cursor-not-allowed border-white/10 bg-white/5 text-white opacity-60">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="border-white/10 bg-zinc-900">
             <SelectItem
-              value={formData.visibility ?? ''}
               className="text-white"
+              value={formData.visibility ?? ""}
             >
               {formData.visibility
                 ? formData.visibility.charAt(0) +
                   formData.visibility.slice(1).toLowerCase()
-                : ''}
+                : ""}
             </SelectItem>
           </SelectContent>
         </Select>
@@ -115,17 +115,17 @@ export function StatusVisibilityCard({
     }
     return (
       <Select
+        onValueChange={(value: string) => updateFormData("visibility", value)}
         value={formData.visibility}
-        onValueChange={(value: string) => updateFormData('visibility', value)}
       >
         <SelectTrigger className="w-full border-white/10 bg-white/5 text-white">
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="border-white/10 bg-zinc-900">
-          <SelectItem value="DRAFT" className="text-white">
+          <SelectItem className="text-white" value="DRAFT">
             Draft (Private)
           </SelectItem>
-          <SelectItem value="PUBLISHED" className="text-white">
+          <SelectItem className="text-white" value="PUBLISHED">
             Published (Public)
           </SelectItem>
         </SelectContent>
@@ -157,10 +157,10 @@ export function StatusVisibilityCard({
           </div>
         </div>
 
-        {formData.status === 'CLOSED' && bounty.status !== 'CLOSED' && (
+        {formData.status === "CLOSED" && bounty.status !== "CLOSED" && (
           <div className="mt-2 ml-2 flex items-center gap-1 text-[#E6007A] text-xs">
             <TriangleAlert className="size-4" />
-            Warning: Closing the bounty is{' '}
+            Warning: Closing the bounty is{" "}
             <span className="font-semibold">irreversible</span>.
           </div>
         )}

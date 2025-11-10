@@ -1,4 +1,9 @@
-import { Card, CardContent, CardDescription, CardHeader } from "@packages/base/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@packages/base/components/ui/card";
 
 interface StatsCardProps {
   title: string;
@@ -9,15 +14,18 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, prefix, className }: StatsCardProps) {
   return (
-    <Card className={` border border-white/10 bg-white/5 backdrop-blur-md rounded-xl  ${className ?? ""}`}>
+    <Card
+      className={`rounded-xl border border-white/10 bg-white/5 backdrop-blur-md ${className ?? ""}`}
+    >
       <CardHeader className="pb-3">
-        <CardDescription className="text-white/70 text-xl font-extralight">
+        <CardDescription className="font-extralight text-white/70 text-xl">
           {title}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="font-semibold text-3xl text-white">
-          {prefix}{value}
+          {prefix}
+          {value}
         </div>
       </CardContent>
     </Card>

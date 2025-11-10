@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
+import { Button } from "@packages/base/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@packages/base/components/ui/card';
-import { Button } from '@packages/base/components/ui/button';
-import { Input } from '@packages/base/components/ui/input';
-import { AlertTriangle, Trash2 } from 'lucide-react';
-import { Label } from '@packages/base/components/ui/label';
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
+import { Label } from "@packages/base/components/ui/label";
+import { AlertTriangle, Trash2 } from "lucide-react";
 
 interface DangerZoneCardProps {
   onDelete: () => void;
@@ -47,8 +47,8 @@ export function DangerZoneCard({
         <div className="space-y-4">
           <div>
             {/* <h4 className="text-red-400 font-small">Delete Bounty</h4> */}
-            <Label className="text-white/80 ">Delete Bounty</Label>
-            <CardDescription className='mb-3 text-white/60'>
+            <Label className="text-white/80">Delete Bounty</Label>
+            <CardDescription className="mb-3 text-white/60">
               This will permanently delete the bounty and all associated data.
               This action cannot be undone.
             </CardDescription>
@@ -59,22 +59,22 @@ export function DangerZoneCard({
                 </p>
                 <div className="flex items-center gap-2">
                   <Input
-                    placeholder="Type DELETE to confirm"
                     className="border-red-500/50 bg-white/5 text-white placeholder:text-white/40"
                     onKeyDown={(e) => {
                       if (
-                        e.key === 'Enter' &&
-                        e.currentTarget.value === 'DELETE'
+                        e.key === "Enter" &&
+                        e.currentTarget.value === "DELETE"
                       ) {
                         onDelete();
                       }
                     }}
+                    placeholder="Type DELETE to confirm"
                   />
                   <Button
-                    onClick={onToggleDeleteConfirm}
-                    variant="outline"
-                    size="sm"
                     className="border-white/20 text-white hover:bg-white/10"
+                    onClick={onToggleDeleteConfirm}
+                    size="sm"
+                    variant="outline"
                   >
                     Cancel
                   </Button>
@@ -83,8 +83,8 @@ export function DangerZoneCard({
             ) : (
               <Button
                 onClick={onToggleDeleteConfirm}
-                variant="destructive"
                 size="sm"
+                variant="destructive"
               >
                 <Trash2 className="size-4" />
                 Delete Bounty

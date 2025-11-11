@@ -14,6 +14,32 @@ const trustedOrigins = [
   "https://dashboard.dev.opentribe.io",
 ];
 
+// Helper to check if origin is a Vercel preview deployment
+const isVercelPreview = (origin: string): boolean => {
+  return (
+    origin.includes(".vercel.app") &&
+    (origin.includes("opentribe-web") ||
+      origin.includes("opentribe-dashboard") ||
+      origin.includes("opentribe-api"))
+  );
+};
+
+// Helper to check if request origin should be allowed
+const isAllowedOrigin = (origin: string): boolean => {
+  // Always allow trusted origins
+  if (trustedOrigins.includes(origin)) {
+    return true;
+  }
+
+  // In non-production environments, allow Vercel preview deployments
+  const vercelEnv = process.env.VERCEL_ENV; // 'production' | 'preview' | 'development'
+  if (vercelEnv !== "production" && isVercelPreview(origin)) {
+    return true;
+  }
+
+  return false;
+};
+
 const corsOptions: {
   allowedMethods: string[];
   allowedOrigins: string[];
@@ -162,6 +188,32 @@ export default async function middleware(request: NextRequest) {
     startedAtMs,
   });
 
+  // Handle CORS preflight OPTIONS requests
+  if (request.method === "OPTIONS") {
+    const origin = request.headers.get("origin") ?? "";
+    if (corsOptions.allowedOrigins.includes("*") || isAllowedOrigin(origin)) {
+      const response = new NextResponse(null, { status: 204 });
+      response.headers.set("Access-Control-Allow-Origin", origin);
+      response.headers.set(
+        "Access-Control-Allow-Credentials",
+        corsOptions.credentials.toString()
+      );
+      response.headers.set(
+        "Access-Control-Allow-Methods",
+        corsOptions.allowedMethods.join(",")
+      );
+      response.headers.set(
+        "Access-Control-Allow-Headers",
+        corsOptions.allowedHeaders.join(",")
+      );
+      response.headers.set(
+        "Access-Control-Max-Age",
+        corsOptions.maxAge?.toString() ?? ""
+      );
+      return response;
+    }
+  }
+
   // for request path starting with `cron` add an if statement
   if (request.nextUrl.pathname.startsWith("/cron")) {
     // Verify this is called by our cron job (you can add auth here)
@@ -199,10 +251,7 @@ export default async function middleware(request: NextRequest) {
 
   // Allowed origins check
   const origin = request.headers.get("origin") ?? "";
-  if (
-    corsOptions.allowedOrigins.includes("*") ||
-    corsOptions.allowedOrigins.includes(origin)
-  ) {
+  if (corsOptions.allowedOrigins.includes("*") || isAllowedOrigin(origin)) {
     response.headers.set("Access-Control-Allow-Origin", origin);
   }
 

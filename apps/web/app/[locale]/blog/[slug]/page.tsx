@@ -1,27 +1,26 @@
-import { Sidebar } from '@/app/[locale]/components/sidebar';
-import { env } from '@/env';
-import { blog, type Post } from '@packages/cms';
-import { Body } from '@packages/cms/components/body';
-import { CodeBlock } from '@packages/cms/components/code-block';
-import { Image } from '@packages/cms/components/image';
-import { TableOfContents } from '@packages/cms/components/toc';
-import { createBreadcrumbSchema } from '@packages/seo/breadcrumbs';
-import { JsonLd } from '@packages/seo/json-ld';
-import { createDetailMetadata } from '@packages/seo/meta';
-import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import type React from 'react';
+import { blog, type Post } from "@packages/cms";
+import { Body } from "@packages/cms/components/body";
+import { CodeBlock } from "@packages/cms/components/code-block";
+import { TableOfContents } from "@packages/cms/components/toc";
+import { createBreadcrumbSchema } from "@packages/seo/breadcrumbs";
+import { JsonLd } from "@packages/seo/json-ld";
+import { createDetailMetadata } from "@packages/seo/meta";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type React from "react";
+import { Sidebar } from "@/app/[locale]/components/sidebar";
+import { env } from "@/env";
 
 const getBaseUrl = () => {
   if (env.VERCEL_PROJECT_PRODUCTION_URL) {
-    const protocol = env.VERCEL_PROJECT_PRODUCTION_URL.startsWith('https')
-      ? 'https'
-      : 'http';
+    const protocol = env.VERCEL_PROJECT_PRODUCTION_URL.startsWith("https")
+      ? "https"
+      : "http";
     return `${protocol}://${env.VERCEL_PROJECT_PRODUCTION_URL}`;
   }
-  return 'https://opentribe.io';
+  return "https://opentribe.io";
 };
 
 type BlogPostProperties = {
@@ -51,7 +50,7 @@ export const generateMetadata = async ({
 export const generateStaticParams = () => {
   const posts = blog.getPosts();
   return posts.map(({ _slug }: Post) => ({
-    locale: 'en',
+    locale: "en",
     slug: _slug,
   }));
 };
@@ -65,8 +64,8 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
   }
 
   const breadcrumbSchema = createBreadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'Blog', path: '/blog' },
+    { name: "Home", path: "/" },
+    { name: "Blog", path: "/blog" },
     { name: page._title, path: `/blog/${page._slug}` },
   ]);
 
@@ -79,13 +78,13 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
     <>
       <JsonLd
         code={{
-          '@type': 'BlogPosting',
-          '@context': 'https://schema.org',
+          "@type": "BlogPosting",
+          "@context": "https://schema.org",
           datePublished: page.date,
           description: page.description,
           mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': `${getBaseUrl()}/blog/${page._slug}`,
+            "@type": "WebPage",
+            "@id": `${getBaseUrl()}/blog/${page._slug}`,
           },
           headline: page._title,
           image: page.image,
@@ -94,10 +93,10 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
           isAccessibleForFree: true,
           wordCount,
           publisher: {
-            '@type': 'Organization',
-            name: 'Opentribe',
+            "@type": "Organization",
+            name: "Opentribe",
             logo: {
-              '@type': 'ImageObject',
+              "@type": "ImageObject",
               url: `${getBaseUrl()}/images/opentribe-logo.png`,
             },
           },
@@ -132,25 +131,26 @@ const BlogPost = async ({ params }: BlogPostProperties) => {
               ) : undefined} */}
               <div className="mx-auto max-w-prose">
                 <Body
-                  content={page.body}
                   components={{
-                    pre: ({ children, ...props }: { children: React.ReactNode } & React.ComponentProps<'pre'>) => {
-                      return (
-                        <CodeBlock {...props}>
-                          {children}
-                        </CodeBlock>
-                      );
-                    },
+                    pre: ({
+                      children,
+                      ...props
+                    }: {
+                      children: React.ReactNode;
+                    } & React.ComponentProps<"pre">) => (
+                      <CodeBlock {...props}>{children}</CodeBlock>
+                    ),
                   }}
+                  content={page.body}
                 />
               </div>
             </div>
           </div>
           <div className="sticky top-24 hidden shrink-0 md:block">
             <Sidebar
-              toc={<TableOfContents data={page.content} />}
-              readingTime={`${page.readingTime} min read`}
               date={new Date(page.date)}
+              readingTime={`${page.readingTime} min read`}
+              toc={<TableOfContents data={page.content} />}
             />
           </div>
         </div>

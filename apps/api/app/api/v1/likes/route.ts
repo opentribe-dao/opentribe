@@ -129,7 +129,7 @@ export async function DELETE(request: NextRequest) {
     const applicationId = searchParams.get("applicationId");
     const submissionId = searchParams.get("submissionId");
 
-    if (!applicationId && !submissionId) {
+    if (!(applicationId || submissionId)) {
       return NextResponse.json(
         { error: "Either applicationId or submissionId must be provided" },
         { status: 400 }

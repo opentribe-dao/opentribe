@@ -1,6 +1,6 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
-import { ExchangeRateService } from "../../src/exchange";
 import { redis } from "@packages/security";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ExchangeRateService } from "../../src/exchange";
 
 // Mock the keys module
 vi.mock("../../keys", () => ({
@@ -59,8 +59,8 @@ describe("ExchangeRateService", () => {
             date_added: "2020-08-19T00:00:00.000Z",
             tags: [],
             max_supply: null,
-            circulating_supply: 1628662950.317541,
-            total_supply: 1628662950.317541,
+            circulating_supply: 1_628_662_950.317_541,
+            total_supply: 1_628_662_950.317_541,
             is_active: 1,
             infinite_supply: true,
             platform: null,
@@ -72,18 +72,18 @@ describe("ExchangeRateService", () => {
             last_updated: "2025-10-19T22:06:00.000Z",
             quote: {
               USDC: {
-                price: 3.026780285518709,
-                volume_24h: 202480043.34659576,
+                price: 3.026_780_285_518_709,
+                volume_24h: 202_480_043.346_595_76,
                 volume_change_24h: 31.939,
-                percent_change_1h: -0.19548129,
-                percent_change_24h: 2.97401577,
-                percent_change_7d: -6.78044459,
-                percent_change_30d: -31.37369402,
-                percent_change_60d: -22.28070233,
-                percent_change_90d: -32.5747406,
-                market_cap: 4929604909.77587,
+                percent_change_1h: -0.195_481_29,
+                percent_change_24h: 2.974_015_77,
+                percent_change_7d: -6.780_444_59,
+                percent_change_30d: -31.373_694_02,
+                percent_change_60d: -22.280_702_33,
+                percent_change_90d: -32.574_740_6,
+                market_cap: 4_929_604_909.775_87,
                 market_cap_dominance: 0.1336,
-                fully_diluted_market_cap: 4929604909.775712,
+                fully_diluted_market_cap: 4_929_604_909.775_712,
                 tvl: null,
                 last_updated: "2025-10-19T22:05:00.000Z",
               },
@@ -98,31 +98,31 @@ describe("ExchangeRateService", () => {
             date_added: "2019-12-12T00:00:00.000Z",
             tags: [],
             max_supply: null,
-            circulating_supply: 17147795.80049305,
-            total_supply: 17147795.80049305,
+            circulating_supply: 17_147_795.800_493_05,
+            total_supply: 17_147_795.800_493_05,
             is_active: 1,
             infinite_supply: true,
             platform: null,
             cmc_rank: 190,
             is_fiat: 0,
-            self_reported_circulating_supply: 24283.68,
-            self_reported_market_cap: 267620.93244255404,
+            self_reported_circulating_supply: 24_283.68,
+            self_reported_market_cap: 267_620.932_442_554_04,
             tvl_ratio: null,
             last_updated: "2025-10-19T22:06:00.000Z",
             quote: {
               USDC: {
-                price: 11.02030753052754,
-                volume_24h: 11094675.614328552,
+                price: 11.020_307_530_527_54,
+                volume_24h: 11_094_675.614_328_552,
                 volume_change_24h: 7.5248,
-                percent_change_1h: -0.38633674,
-                percent_change_24h: 4.51520298,
-                percent_change_7d: -5.68440729,
-                percent_change_30d: -30.17027485,
-                percent_change_60d: -25.03821439,
-                percent_change_90d: -35.90295659,
-                market_cap: 188973983.1921221,
+                percent_change_1h: -0.386_336_74,
+                percent_change_24h: 4.515_202_98,
+                percent_change_7d: -5.684_407_29,
+                percent_change_30d: -30.170_274_85,
+                percent_change_60d: -25.038_214_39,
+                percent_change_90d: -35.902_956_59,
+                market_cap: 188_973_983.192_122_1,
                 market_cap_dominance: 0.0051,
-                fully_diluted_market_cap: 188973983.1969904,
+                fully_diluted_market_cap: 188_973_983.196_990_4,
                 tvl: null,
                 last_updated: "2025-10-19T22:05:00.000Z",
               },
@@ -139,19 +139,19 @@ describe("ExchangeRateService", () => {
       const rates = await service.getExchangeRates(["DOT", "KSM"]);
 
       expect(rates).toEqual({
-        DOT: 3.026780285518709,
-        KSM: 11.02030753052754,
+        DOT: 3.026_780_285_518_709,
+        KSM: 11.020_307_530_527_54,
       });
 
       // Verify Redis caching was called
       expect(redis.set).toHaveBeenCalledWith(
         "exchange:rates:DOT",
-        3.026780285518709,
+        3.026_780_285_518_709,
         { ex: 1800 }
       );
       expect(redis.set).toHaveBeenCalledWith(
         "exchange:rates:KSM",
-        11.02030753052754,
+        11.020_307_530_527_54,
         { ex: 1800 }
       );
     });
@@ -160,7 +160,7 @@ describe("ExchangeRateService", () => {
       // Mock Redis to return cached value for DOT
       vi.mocked(redis.get).mockImplementation((key) => {
         if (key === "exchange:rates:DOT") {
-          return Promise.resolve(3.026780285518709);
+          return Promise.resolve(3.026_780_285_518_709);
         }
         return Promise.resolve(null);
       });
@@ -183,8 +183,8 @@ describe("ExchangeRateService", () => {
             date_added: "2020-08-19T00:00:00.000Z",
             tags: [],
             max_supply: null,
-            circulating_supply: 1628662950.317541,
-            total_supply: 1628662950.317541,
+            circulating_supply: 1_628_662_950.317_541,
+            total_supply: 1_628_662_950.317_541,
             is_active: 1,
             infinite_supply: true,
             platform: null,
@@ -196,18 +196,18 @@ describe("ExchangeRateService", () => {
             last_updated: "2025-10-19T22:06:00.000Z",
             quote: {
               USDC: {
-                price: 3.026780285518709,
-                volume_24h: 202480043.34659576,
+                price: 3.026_780_285_518_709,
+                volume_24h: 202_480_043.346_595_76,
                 volume_change_24h: 31.939,
-                percent_change_1h: -0.19548129,
-                percent_change_24h: 2.97401577,
-                percent_change_7d: -6.78044459,
-                percent_change_30d: -31.37369402,
-                percent_change_60d: -22.28070233,
-                percent_change_90d: -32.5747406,
-                market_cap: 4929604909.77587,
+                percent_change_1h: -0.195_481_29,
+                percent_change_24h: 2.974_015_77,
+                percent_change_7d: -6.780_444_59,
+                percent_change_30d: -31.373_694_02,
+                percent_change_60d: -22.280_702_33,
+                percent_change_90d: -32.574_740_6,
+                market_cap: 4_929_604_909.775_87,
                 market_cap_dominance: 0.1336,
-                fully_diluted_market_cap: 4929604909.775712,
+                fully_diluted_market_cap: 4_929_604_909.775_712,
                 tvl: null,
                 last_updated: "2025-10-19T22:05:00.000Z",
               },
@@ -223,12 +223,12 @@ describe("ExchangeRateService", () => {
 
       // First call should check cache (miss) and fetch from API
       const rates1 = await service.getExchangeRates(["DOT"]);
-      expect(rates1).toEqual({ DOT: 3.026780285518709 });
+      expect(rates1).toEqual({ DOT: 3.026_780_285_518_709 });
       expect(redis.get).toHaveBeenCalledWith("exchange:rates:DOT");
 
       // Second call should use cached value
       const rates2 = await service.getExchangeRates(["DOT"]);
-      expect(rates2).toEqual({ DOT: 3.026780285518709 });
+      expect(rates2).toEqual({ DOT: 3.026_780_285_518_709 });
       // Should not call fetch since we have cached value
       expect(fetch).toHaveBeenCalledTimes(0);
     });
@@ -255,8 +255,8 @@ describe("ExchangeRateService", () => {
             date_added: "2020-08-19T00:00:00.000Z",
             tags: [],
             max_supply: null,
-            circulating_supply: 1628662950.317541,
-            total_supply: 1628662950.317541,
+            circulating_supply: 1_628_662_950.317_541,
+            total_supply: 1_628_662_950.317_541,
             is_active: 1,
             infinite_supply: true,
             platform: null,
@@ -268,18 +268,18 @@ describe("ExchangeRateService", () => {
             last_updated: "2025-10-19T22:06:00.000Z",
             quote: {
               USDC: {
-                price: 3.026780285518709,
-                volume_24h: 202480043.34659576,
+                price: 3.026_780_285_518_709,
+                volume_24h: 202_480_043.346_595_76,
                 volume_change_24h: 31.939,
-                percent_change_1h: -0.19548129,
-                percent_change_24h: 2.97401577,
-                percent_change_7d: -6.78044459,
-                percent_change_30d: -31.37369402,
-                percent_change_60d: -22.28070233,
-                percent_change_90d: -32.5747406,
-                market_cap: 4929604909.77587,
+                percent_change_1h: -0.195_481_29,
+                percent_change_24h: 2.974_015_77,
+                percent_change_7d: -6.780_444_59,
+                percent_change_30d: -31.373_694_02,
+                percent_change_60d: -22.280_702_33,
+                percent_change_90d: -32.574_740_6,
+                market_cap: 4_929_604_909.775_87,
                 market_cap_dominance: 0.1336,
-                fully_diluted_market_cap: 4929604909.775712,
+                fully_diluted_market_cap: 4_929_604_909.775_712,
                 tvl: null,
                 last_updated: "2025-10-19T22:05:00.000Z",
               },
@@ -295,7 +295,7 @@ describe("ExchangeRateService", () => {
 
       const rate = await service.getExchangeRate("DOT");
 
-      expect(rate).toBe(3.026780285518709);
+      expect(rate).toBe(3.026_780_285_518_709);
     });
   });
 
@@ -325,8 +325,8 @@ describe("ExchangeRateService", () => {
             date_added: "2020-08-19T00:00:00.000Z",
             tags: [],
             max_supply: null,
-            circulating_supply: 1628662950.317541,
-            total_supply: 1628662950.317541,
+            circulating_supply: 1_628_662_950.317_541,
+            total_supply: 1_628_662_950.317_541,
             is_active: 1,
             infinite_supply: true,
             platform: null,
@@ -338,18 +338,18 @@ describe("ExchangeRateService", () => {
             last_updated: "2025-10-19T22:06:00.000Z",
             quote: {
               USDC: {
-                price: 3.026780285518709,
-                volume_24h: 202480043.34659576,
+                price: 3.026_780_285_518_709,
+                volume_24h: 202_480_043.346_595_76,
                 volume_change_24h: 31.939,
-                percent_change_1h: -0.19548129,
-                percent_change_24h: 2.97401577,
-                percent_change_7d: -6.78044459,
-                percent_change_30d: -31.37369402,
-                percent_change_60d: -22.28070233,
-                percent_change_90d: -32.5747406,
-                market_cap: 4929604909.77587,
+                percent_change_1h: -0.195_481_29,
+                percent_change_24h: 2.974_015_77,
+                percent_change_7d: -6.780_444_59,
+                percent_change_30d: -31.373_694_02,
+                percent_change_60d: -22.280_702_33,
+                percent_change_90d: -32.574_740_6,
+                market_cap: 4_929_604_909.775_87,
                 market_cap_dominance: 0.1336,
-                fully_diluted_market_cap: 4929604909.775712,
+                fully_diluted_market_cap: 4_929_604_909.775_712,
                 tvl: null,
                 last_updated: "2025-10-19T22:05:00.000Z",
               },

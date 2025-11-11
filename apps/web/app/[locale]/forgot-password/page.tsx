@@ -1,24 +1,29 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { authClient } from '@packages/auth/client';
-import { Button } from '@packages/base/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@packages/base/components/ui/card';
-import { Input } from '@packages/base/components/ui/input';
-import { Loader2, Mail } from 'lucide-react';
+import { authClient } from "@packages/auth/client";
+import { Button } from "@packages/base/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
+import { Loader2, Mail } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const result = await authClient.forgetPassword({
@@ -27,13 +32,13 @@ export default function ForgotPasswordPage() {
       });
 
       if (result.error) {
-        setError(result.error.message || 'Failed to send reset email');
+        setError(result.error.message || "Failed to send reset email");
       } else {
         setIsSuccess(true);
       }
     } catch (err) {
-      setError('An unexpected error occurred');
-      console.error('Forgot password error:', err);
+      setError("An unexpected error occurred");
+      console.error("Forgot password error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -54,12 +59,13 @@ export default function ForgotPasswordPage() {
               We've sent a password reset link to <strong>{email}</strong>
             </p>
             <p className="text-center text-sm text-white/60">
-              Please check your email and follow the instructions to reset your password.
+              Please check your email and follow the instructions to reset your
+              password.
             </p>
             <Button
+              className="w-full"
               onClick={() => router.back()}
               variant="outline"
-              className="w-full"
             >
               Back to Home
             </Button>
@@ -76,30 +82,29 @@ export default function ForgotPasswordPage() {
           <CardTitle className="text-center">Forgot Password?</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <p className="text-sm text-white/60">
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we'll send you a link to reset your
+              password.
             </p>
-            
+
             <div>
               <Input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
                 disabled={isLoading}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email address"
+                required
+                type="email"
+                value={email}
               />
             </div>
 
-            {error && (
-              <p className="text-sm text-red-500">{error}</p>
-            )}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <Button
-              type="submit"
-              disabled={isLoading || !email}
               className="w-full"
+              disabled={isLoading || !email}
+              type="submit"
             >
               {isLoading ? (
                 <>
@@ -107,15 +112,15 @@ export default function ForgotPasswordPage() {
                   Sending...
                 </>
               ) : (
-                'Send Reset Link'
+                "Send Reset Link"
               )}
             </Button>
 
             <Button
+              className="w-full"
+              onClick={() => router.back()}
               type="button"
               variant="ghost"
-              onClick={() => router.back()}
-              className="w-full"
             >
               Back to Home
             </Button>

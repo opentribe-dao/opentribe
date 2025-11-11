@@ -1,1 +1,1 @@
-export { default } from '@packages/cms/collections';
+export { default } from "@packages/cms/collections";

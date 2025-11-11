@@ -1,15 +1,15 @@
 import { database } from "@packages/db";
+import {
+  createContact,
+  sendOrgInviteEmail,
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+  sendWelcomeEmail,
+} from "@packages/email";
 import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, customSession, organization } from "better-auth/plugins";
-import {
-  sendVerificationEmail,
-  sendPasswordResetEmail,
-  sendOrgInviteEmail,
-  sendWelcomeEmail,
-  createContact,
-} from "@packages/email";
 
 export const trustedOrigins = [
   "http://localhost:3000",
@@ -226,7 +226,7 @@ const authOptions = {
           const inviter = data.inviter?.user;
           const organization = data.organization;
 
-          if (!inviter || !organization) {
+          if (!(inviter && organization)) {
             throw new Error("Missing inviter or organization data");
           }
 

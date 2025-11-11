@@ -1,108 +1,171 @@
-
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Templates Preview</title>
-  <style>
-    body { font-family: system-ui; margin: 0; padding: 20px; background: #0a0a0a; color: white; }
-    .container { max-width: 800px; margin: 0 auto; }
-    h1 { color: #E6007A; }
-    .templates { display: grid; gap: 20px; margin-top: 40px; }
-    .template { 
-      background: rgba(255,255,255,0.05); 
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px; 
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Templates Preview</title>
+    <style>
+    body {
+      font-family: system-ui;
+      margin: 0;
+      padding: 20px;
+      background: #0a0a0a;
+      color: white;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #e6007a;
+    }
+    .templates {
+      display: grid;
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .template {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
       padding: 20px;
       transition: all 0.2s;
     }
-    .template:hover { 
-      background: rgba(255,255,255,0.1);
-      border-color: #E6007A;
+    .template:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #e6007a;
     }
-    a { color: #E6007A; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .description { color: rgba(255,255,255,0.6); margin-top: 8px; font-size: 14px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Opentribe Email Templates</h1>
-    <p>Click on any template to preview:</p>
-    <div class="templates">
-      
+    a {
+      color: #e6007a;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .description {
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Opentribe Email Templates</h1>
+      <p>Click on any template to preview:</p>
+      <div class="templates">
         <div class="template">
-          <a href="verification-email.html" target="_blank">Verification Email</a>
-          <div class="description">Preview the verification email email template</div>
+          <a href="verification-email.html" target="_blank"
+            >Verification Email</a
+          >
+          <div class="description">
+            Preview the verification email email template
+          </div>
         </div>
-      
+
         <div class="template">
           <a href="welcome-email.html" target="_blank">Welcome Email</a>
-          <div class="description">Preview the welcome email email template</div>
+          <div class="description">
+            Preview the welcome email email template
+          </div>
         </div>
-      
+
         <div class="template">
           <a href="password-reset.html" target="_blank">Password Reset</a>
-          <div class="description">Preview the password reset email template</div>
+          <div class="description">
+            Preview the password reset email template
+          </div>
         </div>
-      
+
         <div class="template">
-          <a href="onboarding-complete.html" target="_blank">Onboarding Complete</a>
-          <div class="description">Preview the onboarding complete email template</div>
+          <a href="onboarding-complete.html" target="_blank"
+            >Onboarding Complete</a
+          >
+          <div class="description">
+            Preview the onboarding complete email template
+          </div>
         </div>
-      
+
         <div class="template">
           <a href="org-invite.html" target="_blank">Org Invite</a>
           <div class="description">Preview the org invite email template</div>
         </div>
-      
+
         <div class="template">
-          <a href="bounty-first-submission.html" target="_blank">Bounty First Submission</a>
-          <div class="description">Preview the bounty first submission email template</div>
+          <a href="bounty-first-submission.html" target="_blank"
+            >Bounty First Submission</a
+          >
+          <div class="description">
+            Preview the bounty first submission email template
+          </div>
         </div>
-      
+
         <div class="template">
-          <a href="bounty-deadline-reminder.html" target="_blank">Bounty Deadline Reminder</a>
-          <div class="description">Preview the bounty deadline reminder email template</div>
+          <a href="bounty-deadline-reminder.html" target="_blank"
+            >Bounty Deadline Reminder</a
+          >
+          <div class="description">
+            Preview the bounty deadline reminder email template
+          </div>
         </div>
-      
+
         <div class="template">
-          <a href="bounty-winner-reminder.html" target="_blank">Bounty Winner Reminder</a>
-          <div class="description">Preview the bounty winner reminder email template</div>
+          <a href="bounty-winner-reminder.html" target="_blank"
+            >Bounty Winner Reminder</a
+          >
+          <div class="description">
+            Preview the bounty winner reminder email template
+          </div>
         </div>
-      
+
         <div class="template">
           <a href="bounty-winner.html" target="_blank">Bounty Winner</a>
-          <div class="description">Preview the bounty winner email template</div>
+          <div class="description">
+            Preview the bounty winner email template
+          </div>
         </div>
-      
+
         <div class="template">
-          <a href="bounty-skill-match.html" target="_blank">Bounty Skill Match</a>
-          <div class="description">Preview the bounty skill match email template</div>
+          <a href="bounty-skill-match.html" target="_blank"
+            >Bounty Skill Match</a
+          >
+          <div class="description">
+            Preview the bounty skill match email template
+          </div>
         </div>
-      
+
         <div class="template">
-          <a href="grant-first-application.html" target="_blank">Grant First Application</a>
-          <div class="description">Preview the grant first application email template</div>
+          <a href="grant-first-application.html" target="_blank"
+            >Grant First Application</a
+          >
+          <div class="description">
+            Preview the grant first application email template
+          </div>
         </div>
-      
+
         <div class="template">
-          <a href="grant-status-update.html" target="_blank">Grant Status Update</a>
-          <div class="description">Preview the grant status update email template</div>
+          <a href="grant-status-update.html" target="_blank"
+            >Grant Status Update</a
+          >
+          <div class="description">
+            Preview the grant status update email template
+          </div>
         </div>
-      
+
         <div class="template">
           <a href="comment-reply.html" target="_blank">Comment Reply</a>
-          <div class="description">Preview the comment reply email template</div>
+          <div class="description">
+            Preview the comment reply email template
+          </div>
         </div>
-      
+
         <div class="template">
           <a href="weekly-digest.html" target="_blank">Weekly Digest</a>
-          <div class="description">Preview the weekly digest email template</div>
+          <div class="description">
+            Preview the weekly digest email template
+          </div>
         </div>
-      
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

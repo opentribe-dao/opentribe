@@ -1,12 +1,11 @@
 import { database } from "@packages/db";
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
-  GET as getGrants,
   POST as createGrant,
+  GET as getGrants,
   OPTIONS as optionsGrant,
 } from "../app/api/v1/grants/route";
-import { NextRequest } from "next/server";
-import { z } from "zod";
 
 // Mock database
 vi.mock("@packages/db", () => ({
@@ -60,7 +59,7 @@ describe("Grant Management", () => {
       skills: ["React", "TypeScript"],
       minAmount: 1000,
       maxAmount: 5000,
-      totalFunds: 10000,
+      totalFunds: 10_000,
       token: "DOT",
       resources: [
         {
@@ -572,7 +571,7 @@ describe("Grant Management", () => {
       skills: ["React", "TypeScript"],
       minAmount: 1000,
       maxAmount: 5000,
-      totalFunds: 10000,
+      totalFunds: 10_000,
       token: "DOT",
       resources: [
         {
@@ -623,7 +622,7 @@ describe("Grant Management", () => {
         skills: ["React", "TypeScript"],
         minAmount: 1000,
         maxAmount: 5000,
-        totalFunds: 10000,
+        totalFunds: 10_000,
         token: "DOT",
         resources: [
           {

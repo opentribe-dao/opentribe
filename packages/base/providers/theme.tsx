@@ -1,5 +1,5 @@
-import type { ThemeProviderProps } from 'next-themes';
-import { ThemeProvider as NextThemeProvider } from 'next-themes';
+import type { ThemeProviderProps } from "next-themes";
+import { ThemeProvider as NextThemeProvider } from "next-themes";
 
 export const ThemeProvider = ({
   children,
@@ -8,8 +8,8 @@ export const ThemeProvider = ({
   <NextThemeProvider
     attribute="class"
     defaultTheme="dark"
-    forcedTheme="dark"
     disableTransitionOnChange
+    forcedTheme="dark"
     {...properties}
   >
     {children}

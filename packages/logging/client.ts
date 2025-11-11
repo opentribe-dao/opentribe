@@ -4,7 +4,7 @@
  * https://docs.sentry.io/platforms/javascript/guides/nextjs/
  */
 
-import { init, replayIntegration, feedbackIntegration } from "@sentry/nextjs";
+import { feedbackIntegration, init, replayIntegration } from "@sentry/nextjs";
 import { keys } from "./keys";
 
 export const initializeSentryClient = (): ReturnType<typeof init> =>

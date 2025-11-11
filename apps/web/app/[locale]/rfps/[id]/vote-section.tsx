@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { VoteButtons } from '../../components/community/vote-buttons';
-import { AuthModal } from '../../components/auth-modal';
+import { useState } from "react";
+import { AuthModal } from "../../components/auth-modal";
+import { VoteButtons } from "../../components/community/vote-buttons";
 
 interface VoteSectionProps {
   rfpId: string;
@@ -15,13 +15,13 @@ export function VoteSection({ rfpId, initialVoteCount }: VoteSectionProps) {
   return (
     <>
       <VoteButtons
-        rfpId={rfpId}
         initialCount={initialVoteCount}
-        orientation="horizontal"
-        size="lg"
         onAuthRequired={() => setShowAuthModal(true)}
+        orientation="horizontal"
+        rfpId={rfpId}
+        size="lg"
       />
-      
+
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}

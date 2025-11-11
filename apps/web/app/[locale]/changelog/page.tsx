@@ -24,37 +24,38 @@ export type ChangelogEntry = {
 const changelogEntries: ChangelogEntry[] = [
   {
     version: "Version 1.0.0",
-    date: "09 November 2025",
-    title: "Major feature release with enhanced functionality",
+    date: "November 2025",
+    title: "Platform Launch - Production Ready",
     description:
-      "A major update with new features, comprehensive SEO enhancements, improved branding, and numerous bug fixes to improve platform stability and user experience.",
+      "First production release of Opentribe with legal compliance, enhanced features, and comprehensive improvements. This release includes GDPR cookie consent, contact & support system, grant management enhancements, SEO improvements, and full CI/CD deployment pipeline.",
     items: [
+      "Added: Cookie consent banner with GDPR compliance and privacy controls",
+      "Added: Legal pages (Privacy Policy, Terms of Service, Cookie Policy)",
+      "Added: Contact form and support page with email integration",
       "Added: Resource file uploads for grants",
-      "Added: New Opentribe branding system (logomark, wordmark components)",
-      "Added: View tracking and analytics",
-      "Added: Empty state components for bounties, grants, RFPs",
-      "Added: ShareButton component",
-      "Added: Visibility filters for content types",
-      "Added: Comprehensive SEO enhancements (OG images, breadcrumbs, sitemap, article schema)",
-      "Added: Health check API with detailed responses",
-      "Changed: Grant creation flow with stepper navigation and react-hook-form",
-      "Changed: Grant editing interface with improved form handling",
-      "Changed: Organization switcher functionality",
-      "Changed: Dashboard and web app branding",
-      "Fixed: Prisma Neon adapter compatibility (Prisma 6.19.0)",
-      "Fixed: OG image proportions and metadata alignment",
-      "Fixed: Empty state loading logic",
-      "Fixed: SEO asset bundling for Vercel",
+      "Added: Share functionality for bounties, grants, and RFPs",
+      "Added: View tracking and analytics system",
+      "Added: Empty state components for better UX",
+      "Added: New Opentribe branding (logomark, wordmark, PWA icons)",
+      "Changed: Refreshed all 17 transactional email templates",
+      "Changed: Complete grant management workflow with stepper navigation",
+      "Changed: Comprehensive SEO enhancements (OG images, breadcrumbs, sitemap)",
+      "Changed: Enhanced organization switcher functionality",
+      "Fixed: Authentication and redirect issues",
       "Fixed: Static generation with cookies",
-      "Dependencies: Prisma 6.19.0, lucide-react 0.552.0, @biomejs/biome 2.3.2",
+      "Fixed: OG image assets for Vercel production",
+      "Fixed: API visibility filtering",
+      "Infrastructure: Prisma 6.19.0, Sentry monitoring, PostHog analytics",
+      "Infrastructure: Multi-project CI/CD deployment pipeline",
+      "Infrastructure: Ultracite linting v6.3.2, repo-wide formatting",
     ],
   },
   {
     version: "Version 0.1.0",
     date: "24 October 2025",
-    title: "Initial production deployment",
+    title: "Initial Beta Release",
     description:
-      "First production release with core platform features, monitoring capabilities, and foundational infrastructure improvements.",
+      "First production deployment with core platform features, monitoring capabilities, and foundational infrastructure improvements.",
     items: [
       "Sentry integration and monitoring",
       "Next.js upgrade to 15.5.6",
@@ -104,11 +105,11 @@ const Changelog = async ({ params }: ChangelogProps) => {
         <div className="mx-auto mt-16 max-w-3xl space-y-16 md:mt-24 md:space-y-24">
           {changelogEntries.map((entry, index) => (
             <div
-              key={index}
               className="relative flex flex-col gap-4 md:flex-row md:gap-16"
+              key={index}
             >
               <div className="top-8 flex h-min w-64 shrink-0 items-center gap-4 md:sticky">
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="text-xs" variant="secondary">
                   {entry.version}
                 </Badge>
                 <span className="font-medium text-muted-foreground text-xs">
@@ -125,7 +126,7 @@ const Changelog = async ({ params }: ChangelogProps) => {
                 {entry.items && entry.items.length > 0 && (
                   <ul className="mt-4 ml-4 space-y-1.5 text-muted-foreground text-sm md:text-base">
                     {entry.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="list-disc">
+                      <li className="list-disc" key={itemIndex}>
                         {item}
                       </li>
                     ))}
@@ -133,19 +134,19 @@ const Changelog = async ({ params }: ChangelogProps) => {
                 )}
                 {entry.image && (
                   <Image
-                    src={entry.image}
                     alt={`${entry.version} visual`}
-                    width={800}
-                    height={400}
                     className="mt-8 w-full rounded-lg object-cover"
+                    height={400}
+                    src={entry.image}
+                    width={800}
                   />
                 )}
                 {entry.button && (
-                  <Button variant="link" className="mt-4 self-end" asChild>
+                  <Button asChild className="mt-4 self-end" variant="link">
                     <a
                       href={entry.button.url}
-                      target="_blank"
                       rel="noopener noreferrer"
+                      target="_blank"
                     >
                       {entry.button.text} <ArrowUpRight className="h-4 w-4" />
                     </a>

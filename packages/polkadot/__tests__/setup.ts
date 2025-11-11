@@ -1,4 +1,4 @@
-import { vi, beforeEach } from 'vitest';
+import { beforeEach, vi } from "vitest";
 
 // Mock fetch globally for Subscan API tests
 global.fetch = vi.fn();

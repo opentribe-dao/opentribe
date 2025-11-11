@@ -1,6 +1,5 @@
 "use client";
 
-import { env } from "@/env";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUp } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
@@ -21,6 +20,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { env } from "@/env";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -93,7 +93,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="name"
@@ -103,10 +103,10 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
               <FormControl>
                 <Input
                   {...field}
-                  type="text"
-                  placeholder="Enter your full name"
                   autoComplete="name"
                   disabled={isLoading}
+                  placeholder="Enter your full name"
+                  type="text"
                 />
               </FormControl>
               <FormMessage />
@@ -123,10 +123,10 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
               <FormControl>
                 <Input
                   {...field}
-                  type="email"
-                  placeholder="Enter your email"
                   autoComplete="email"
                   disabled={isLoading}
+                  placeholder="Enter your email"
+                  type="email"
                 />
               </FormControl>
               <FormMessage />
@@ -144,19 +144,19 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
                 <div className="relative grid-cols-[1fr_auto] items-center gap-x-2">
                   <Input
                     {...field}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create a secure password"
                     autoComplete="new-password"
-                    disabled={isLoading}
                     className="static"
+                    disabled={isLoading}
+                    placeholder="Create a secure password"
+                    type={showPassword ? "text" : "password"}
                   />
                   <Button
-                    type="button"
+                    className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                     // variant="outline"
                     // size="icon"
-                    onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
-                    className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    type="button"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -174,7 +174,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button className="w-full" disabled={isLoading} type="submit">
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

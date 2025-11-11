@@ -40,14 +40,14 @@ export class ViewManager {
       const cfIp = headers.get("cf-connecting-ip");
       if (cfIp) return normalize(cfIp);
     } catch {}
-    return undefined;
+    return;
   }
 
   async recordViewForEntity(
     entity: string
   ): Promise<{ created: boolean } | { created: boolean; error: string }> {
     const [entityType, entityId] = entity.split(":");
-    if (!entityType || !entityId) {
+    if (!(entityType && entityId)) {
       return {
         created: false,
         error: "Invalid entity format. Expected 'type:id'",

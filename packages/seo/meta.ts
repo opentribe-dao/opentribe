@@ -41,7 +41,9 @@ export function createSiteMetadata(
 ): Metadata {
   const baseUrl = getSiteUrl();
   const parsedTitle = `${clampTitle(partial.title)} | ${siteName}`;
-  const pageUrl = partial.path ? new URL(partial.path, baseUrl).href : baseUrl.href;
+  const pageUrl = partial.path
+    ? new URL(partial.path, baseUrl).href
+    : baseUrl.href;
 
   const defaults: Metadata = {
     title: parsedTitle,

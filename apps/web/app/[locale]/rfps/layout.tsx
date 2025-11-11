@@ -18,8 +18,8 @@ export const generateMetadata = async ({ params }: RfpsLayoutProps) => {
     title: dictionary.seo.rfps.title,
     description: dictionary.seo.rfps.description,
     keywords: dictionary.seo.rfps.keywords,
-    image: '/api/og/rfps',
-    path: '/rfps',
+    image: "/api/og/rfps",
+    path: "/rfps",
   });
 };
 
@@ -31,7 +31,7 @@ const RfpsLayout = ({ children }: RfpsLayoutProps) => {
     "@type": "ItemList",
     name: "Polkadot RFPs",
     description: "Open RFPs and project proposals in the Polkadot ecosystem",
-    url: new URL('/rfps', siteUrl).href,
+    url: new URL("/rfps", siteUrl).href,
   };
 
   return (

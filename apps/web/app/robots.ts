@@ -1,6 +1,6 @@
-import { env } from "@/env";
-import type { MetadataRoute } from "next";
 import languine from "@packages/i18n/languine.json";
+import type { MetadataRoute } from "next";
+import { env } from "@/env";
 
 const url = new URL(env.NEXT_PUBLIC_WEB_URL);
 

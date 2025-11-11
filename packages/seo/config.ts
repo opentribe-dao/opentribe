@@ -4,7 +4,8 @@ export const siteName = "Opentribe";
 export const author = { name: "Opentribe", url: "https://opentribe.io" };
 export const publisher = "Opentribe";
 export const twitterHandle = "@opentribe_io";
-export const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || undefined;
+export const facebookAppId =
+  process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || undefined;
 
 export const defaultDescription =
   "Opentribe is a talent marketplace connecting builders with grants, bounties, and RFPs across the Polkadot ecosystem. Discover opportunities, build your profile, and get recognized.";

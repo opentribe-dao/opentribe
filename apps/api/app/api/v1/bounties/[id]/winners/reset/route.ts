@@ -1,8 +1,8 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -57,7 +57,7 @@ export async function PATCH(
     // Find all approved submissions for this bounty
     const approvedSubmissions = await database.submission.findMany({
       where: {
-        bountyId: bountyId,
+        bountyId,
         status: "APPROVED",
       },
       select: {
@@ -86,7 +86,7 @@ export async function PATCH(
     // Reset all approved submissions to submitted status
     const resetResult = await database.submission.updateMany({
       where: {
-        bountyId: bountyId,
+        bountyId,
         status: "APPROVED",
       },
       data: {

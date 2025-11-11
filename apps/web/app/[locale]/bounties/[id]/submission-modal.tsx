@@ -1,21 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@packages/base/components/ui/button';
+import { Button } from "@packages/base/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@packages/base/components/ui/dialog';
-import { X, Calendar, ExternalLink, Trophy, User } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { CommentSection } from './submissions/[submissionId]/comment-section';
-import { env } from '@/env';
-import { formatCurrency } from '@packages/base/lib/utils';
+} from "@packages/base/components/ui/dialog";
+import { formatCurrency } from "@packages/base/lib/utils";
+import { Calendar, ExternalLink, Trophy, User, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { env } from "@/env";
+import { CommentSection } from "./submissions/[submissionId]/comment-section";
 
 interface SubmissionModalProps {
   bountyId: string;
@@ -46,28 +45,26 @@ export function SubmissionModal({
       .catch(() => setIsLoading(false));
   }, [bountyId, submissionId]);
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-  };
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <Dialog onOpenChange={onClose} open={true}>
       <DialogContent
         className="max-h-[90vh] max-w-4xl overflow-y-auto border-white/10 bg-black/95 backdrop-blur-xl"
         showCloseButton={false}
       >
-        
-        <DialogHeader className='relative flex-row items-center justify-between'>
-        <DialogTitle>{'Submission Details'}</DialogTitle>
+        <DialogHeader className="relative flex-row items-center justify-between">
+          <DialogTitle>{"Submission Details"}</DialogTitle>
           <Button
-            variant="ghost"
-            size="icon"
             className="absolute top-0 right-0"
             onClick={onClose}
+            size="icon"
+            variant="ghost"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -91,8 +88,8 @@ export function SubmissionModal({
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4" />
                         <Link
-                          href={`/profile/${submission.submitter.username}`}
                           className="transition-colors hover:text-white"
+                          href={`/profile/${submission.submitter.username}`}
                         >
                           @{submission.submitter.username}
                         </Link>
@@ -125,10 +122,10 @@ export function SubmissionModal({
               {/* Submission URL */}
               {submission.submissionUrl && (
                 <a
-                  href={submission.submissionUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg bg-pink-600 px-4 py-2 text-white transition-colors hover:bg-pink-700"
+                  href={submission.submissionUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   <ExternalLink className="h-4 w-4" />
                   View Submission
@@ -141,7 +138,7 @@ export function SubmissionModal({
               <h3 className="mb-3 font-semibold text-lg">Description</h3>
               <div className="prose prose-invert prose-sm max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {submission.description || 'No description provided.'}
+                  {submission.description || "No description provided."}
                 </ReactMarkdown>
               </div>
             </section>
@@ -155,8 +152,8 @@ export function SubmissionModal({
                 <div className="space-y-3">
                   {submission.answers.map((answer: any, idx: number) => (
                     <div
-                      key={idx}
                       className="rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm"
+                      key={idx}
                     >
                       <h4 className="mb-1 font-medium text-sm text-white/80">
                         {answer.question}
@@ -171,8 +168,8 @@ export function SubmissionModal({
             {/* View Full Page Link */}
             <div className="flex justify-end border-white/10 border-t pt-4">
               <Link
-                href={`/bounties/${bountyId}/submissions/${submissionId}`}
                 className="text-pink-400 text-sm transition-colors hover:text-pink-300"
+                href={`/bounties/${bountyId}/submissions/${submissionId}`}
               >
                 View full page →
               </Link>

@@ -1,9 +1,9 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { sendGrantFirstApplicationEmail } from "@packages/email";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { sendGrantFirstApplicationEmail } from "@packages/email";
 
 // Schema for grant application creation
 const createApplicationSchema = z.object({
@@ -42,7 +42,12 @@ export async function GET(
 
     // Check if grant exists and is published
     const grant = await database.grant.findFirst({
-      where: { OR: [{ id: grantId }, { slug: { equals: grantId, mode: "insensitive" } }] },
+      where: {
+        OR: [
+          { id: grantId },
+          { slug: { equals: grantId, mode: "insensitive" } },
+        ],
+      },
       select: {
         id: true,
         slug: true,
@@ -68,7 +73,7 @@ export async function GET(
     // Fetch applications (only submitted ones for public view)
     const applications = await database.grantApplication.findMany({
       where: {
-        grantId: grantId,
+        grantId,
         status: {
           not: "DRAFT",
         },
@@ -136,7 +141,12 @@ export async function POST(
 
     // Check if grant exists and is open
     const grant = await database.grant.findFirst({
-      where: { OR: [{ id: grantId }, { slug: { equals: grantId, mode: "insensitive" } }] },
+      where: {
+        OR: [
+          { id: grantId },
+          { slug: { equals: grantId, mode: "insensitive" } },
+        ],
+      },
       select: {
         id: true,
         slug: true,

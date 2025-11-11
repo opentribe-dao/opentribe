@@ -9,6 +9,8 @@ jobs:
   update-production:
     name: Update Production Branch
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to push to production branch
 
     steps:
       - name: Checkout code

@@ -1,0 +1,65 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+jobs:
+  deploy:
+    name: Deploy ${{ matrix.app.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app:
+          - name: web
+            path: apps/web
+            project_id: VERCEL_WEB_PROJECT_ID
+          - name: dashboard
+            path: apps/dashboard
+            project_id: VERCEL_DASHBOARD_PROJECT_ID
+          - name: api
+            path: apps/api
+            project_id: VERCEL_API_PROJECT_ID
+      max-parallel: 1  # Deploy sequentially to avoid .vercel config conflicts
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.app.project_id] }}
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.app.project_id] }}
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.app.project_id] }}
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

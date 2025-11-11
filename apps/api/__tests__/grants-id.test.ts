@@ -1,8 +1,8 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GET as getGrant } from "../app/api/v1/grants/[id]/route";
-import { NextRequest } from "next/server";
 
 // Mock database
 vi.mock("@packages/db", () => ({

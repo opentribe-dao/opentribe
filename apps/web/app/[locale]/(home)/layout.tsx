@@ -18,8 +18,8 @@ export const generateMetadata = async ({ params }: HomeLayoutProps) => {
     title: dictionary.seo.homepage.title,
     description: dictionary.seo.homepage.description,
     keywords: dictionary.seo.homepage.keywords,
-    image: '/api/og',
-    path: '/',
+    image: "/api/og",
+    path: "/",
   });
 };
 
@@ -31,15 +31,14 @@ const HomeLayout = ({ children }: HomeLayoutProps) => {
     "@type": "Organization",
     name: "Opentribe",
     url: siteUrl.href,
-    logo: new URL('/icon.png', siteUrl).href,
-    description: "The centralized talent marketplace for the Polkadot ecosystem, connecting organizations with skilled contributors through grants, bounties, and RFPs.",
-    sameAs: [
-      "https://twitter.com/opentribe_io",
-    ],
+    logo: new URL("/icon.png", siteUrl).href,
+    description:
+      "The centralized talent marketplace for the Polkadot ecosystem, connecting organizations with skilled contributors through grants, bounties, and RFPs.",
+    sameAs: ["https://twitter.com/opentribe_io"],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Customer Support",
-      url: new URL('/contact', siteUrl).href,
+      url: new URL("/contact", siteUrl).href,
     },
   };
 

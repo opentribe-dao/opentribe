@@ -1,10 +1,8 @@
 "use client";
 
-import { env } from "@/env";
-import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 import { useSession } from "@packages/auth/client";
-import { Button } from "@packages/base/components/ui/button";
 import { Logo } from "@packages/base/components/logo";
+import { Button } from "@packages/base/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@packages/base/components/ui/dropdown-menu";
+import type { Dictionary } from "@packages/i18n";
 import {
+  BookOpen,
   Building2,
   ChevronDown,
   HelpCircle,
@@ -23,14 +23,13 @@ import {
   Settings,
   User,
   X,
-  BookOpen,
 } from "lucide-react";
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-
-import type { Dictionary } from "@packages/i18n";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { env } from "@/env";
+import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 import { AuthModal } from "../auth-modal";
 
 type HeaderProps = {
@@ -115,16 +114,16 @@ const UserMenu = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
           className="flex h-auto items-center gap-2 rounded-lg p-2 hover:bg-white/10"
+          variant="ghost"
         >
           {user.image ? (
             <Image
-              src={user.image}
               alt={`${displayName} avatar`}
-              width={32}
-              height={32}
               className="h-8 w-8 rounded-full"
+              height={32}
+              src={user.image}
+              width={32}
             />
           ) : (
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-600 font-medium text-white text-xs">
@@ -136,8 +135,8 @@ const UserMenu = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-56 border-white/10 bg-black/90 text-white"
         align="end"
+        className="w-56 border-white/10 bg-black/90 text-white"
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
@@ -148,8 +147,8 @@ const UserMenu = ({
         <DropdownMenuSeparator className="bg-white/10" />
         <DropdownMenuItem asChild>
           <Link
-            href={profileHref}
             className="cursor-pointer focus:bg-white/10 focus:text-white"
+            href={profileHref}
           >
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
@@ -157,8 +156,8 @@ const UserMenu = ({
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link
-            href="/settings"
             className="cursor-pointer focus:bg-white/10 focus:text-white"
+            href="/settings"
           >
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
@@ -178,8 +177,8 @@ const UserMenu = ({
         ) : (
           <DropdownMenuItem asChild>
             <Link
-              href="/onboarding/organization"
               className="cursor-pointer focus:bg-white/10 focus:text-white"
+              href="/onboarding/organization"
             >
               <Building2 className="mr-2 h-4 w-4" />
               <span>Create Organization</span>
@@ -188,10 +187,10 @@ const UserMenu = ({
         )}
         <DropdownMenuItem asChild>
           <a
-            href={env.NEXT_PUBLIC_DOCS_URL || "https://docs.opentribe.io"}
-            target="_blank"
-            rel="noopener noreferrer"
             className="cursor-pointer focus:bg-white/10 focus:text-white"
+            href={env.NEXT_PUBLIC_DOCS_URL || "https://docs.opentribe.io"}
+            rel="noopener noreferrer"
+            target="_blank"
           >
             <BookOpen className="mr-2 h-4 w-4" />
             <span>Documentation</span>
@@ -199,10 +198,10 @@ const UserMenu = ({
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <a
-            href={env.NEXT_PUBLIC_DOCS_URL || "https://docs.opentribe.io"}
-            target="_blank"
-            rel="noopener noreferrer"
             className="cursor-pointer focus:bg-white/10 focus:text-white"
+            href={env.NEXT_PUBLIC_DOCS_URL || "https://docs.opentribe.io"}
+            rel="noopener noreferrer"
+            target="_blank"
           >
             <HelpCircle className="mr-2 h-4 w-4" />
             <span>Help & Support</span>
@@ -210,8 +209,8 @@ const UserMenu = ({
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-white/10" />
         <DropdownMenuItem
-          onClick={onSignOut}
           className="text-red-400 focus:bg-white/10 focus:text-red-400"
+          onClick={onSignOut}
         >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sign out</span>
@@ -263,20 +262,20 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
     <header className="sticky top-0 left-0 z-40 w-full border-white/10 border-b bg-black/90 backdrop-blur-xl">
       <div className="container relative mx-auto flex min-h-20 flex-row items-center justify-between px-4">
         <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-2">
+          <Link className="flex items-center gap-2" href="/">
             <Logo size="md" />
           </Link>
         </div>
         <nav className="hidden items-center gap-6 md:flex">
           {navigationItems.map((item) => (
             <Link
-              key={item.title}
-              href={item.href}
               className={`text-sm transition-colors ${
                 isActive(item.href)
                   ? "font-medium text-white"
                   : "text-white/70 hover:text-white"
               }`}
+              href={item.href}
+              key={item.title}
             >
               {item.title}
             </Link>
@@ -284,14 +283,14 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
         </nav>
         <div className="flex items-center gap-4">
           {session?.user ? (
-            <UserMenu user={session.user} onSignOut={handleSignOut} />
+            <UserMenu onSignOut={handleSignOut} user={session.user} />
           ) : (
             <>
               <AuthModal>
                 <Button
+                  className="rounded-full font-bold font-heading text-base"
                   size="lg"
                   variant="secondary"
-                  className="rounded-full font-bold font-heading text-base"
                 >
                   Login / Sign Up
                 </Button>
@@ -300,7 +299,7 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
           )}
         </div>
         <div className="flex w-12 shrink items-end justify-end lg:hidden">
-          <Button variant="ghost" onClick={() => setOpen(!isOpen)}>
+          <Button onClick={() => setOpen(!isOpen)} variant="ghost">
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           {isOpen && (
@@ -310,18 +309,18 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
                   <div className="flex flex-col gap-2">
                     {item.href ? (
                       <Link
-                        href={item.href}
-                        onClick={() => setOpen(!isOpen)}
                         className={`flex items-center justify-between px-4 ${
                           isActive(item.href) ? "text-white" : ""
                         }`}
-                        target={
-                          item.href.startsWith("http") ? "_blank" : undefined
-                        }
+                        href={item.href}
+                        onClick={() => setOpen(!isOpen)}
                         rel={
                           item.href.startsWith("http")
                             ? "noopener noreferrer"
                             : undefined
+                        }
+                        target={
+                          item.href.startsWith("http") ? "_blank" : undefined
                         }
                       >
                         <span className="text-lg">{item.title}</span>

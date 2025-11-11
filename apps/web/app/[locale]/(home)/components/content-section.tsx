@@ -1,8 +1,5 @@
 "use client";
 
-import type React from "react";
-import Link from "next/link";
-import { Skeleton } from "@packages/base/components/ui/skeleton";
 import {
   Empty,
   EmptyContent,
@@ -10,6 +7,9 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@packages/base/components/ui/empty";
+import { Skeleton } from "@packages/base/components/ui/skeleton";
+import Link from "next/link";
+import type React from "react";
 import { BountyCard } from "../../components/cards/bounty-card";
 import { GrantCard } from "../../components/cards/grant-card";
 import { RFPCard } from "../../components/cards/rfp-card";
@@ -54,45 +54,36 @@ function ContentBlock({
 }: ContentBlockProps) {
   return (
     <div>
-      <div className='mb-6 flex items-center justify-between'>
-        <h2 className='font-bold font-heading text-2xl text-white'>{title}</h2>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="font-bold font-heading text-2xl text-white">{title}</h2>
         <Link
+          className="text-pink-400 transition-colors hover:text-pink-300"
           href={viewAllHref}
-          className='text-pink-400 transition-colors hover:text-pink-300'
         >
           View All →
         </Link>
       </div>
 
       {error ? (
-        <div className='rounded-lg border border-red-500/20 bg-red-500/10 p-6'>
+        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-6">
           <p className="text-red-400">Failed to load {title.toLowerCase()}</p>
-          <p className='mt-1 text-red-300/80 text-sm'>{error.message}</p>
+          <p className="mt-1 text-red-300/80 text-sm">{error.message}</p>
         </div>
       ) : loading ? (
         <div className={gridClassName}>
           {title === "Grants"
             ? // Grants loading skeleton (card grid)
               [1, 2, 3, 4, 5, 6].map((i) => (
-                <Skeleton
-                  key={i}
-                  className="h-[466px] rounded-2xl"
-                />
+                <Skeleton className="h-[466px] rounded-2xl" key={i} />
               ))
             : title === "RFPs"
               ? // RFPs loading skeleton (list items)
                 [1, 2].map((i) => (
-                  <Skeleton
-                    key={i}
-                    className="h-32 rounded-lg"
-                  />
+                  <Skeleton className="h-32 rounded-lg" key={i} />
                 ))
               : // Bounties loading skeleton (list items)
                 [1, 2, 3].map((i) => (
-                  <Skeleton
-                    key={i}
-                    className="h-48 rounded-lg"
-                  />
+                  <Skeleton className="h-48 rounded-lg" key={i} />
                 ))}
         </div>
       ) : items.length === 0 ? null : (
@@ -126,98 +117,98 @@ export function ContentSection({
         </Empty>
       ) : (
         <>
-      {/* Bounties Section */}
-      {bounties.length > 0 || loading.bounties || error.bounties ? (
-        <ContentBlock
-          title="Bounties"
-          viewAllHref="/en/bounties"
-          items={bounties}
-          loading={loading.bounties}
-          error={error.bounties}
-          renderItem={(bounty) => (
-            <BountyCard
-              key={bounty.id}
-              id={bounty.id}
-              slug={bounty.slug}
-              title={bounty.title}
-              organization={bounty.organization || "Unknown Organization"}
-              amount={
-                typeof bounty.amount === "string"
-                  ? Number.parseFloat(bounty.amount)
-                  : (bounty.amount ?? 0)
-              }
-              amountUSD={bounty.amountUSD}
-              token={bounty.token || "DOT"}
-              deadline={bounty.deadline}
-              submissionCount={bounty.submissionCount || 0}
-              status={bounty.status || "OPEN"}
-              description={bounty.description || "No description available"}
-              skills={bounty.skills}
-              createdAt={bounty.createdAt || new Date().toISOString()}
-              winnersAnnouncedAt={bounty.winnersAnnouncedAt}
+          {/* Bounties Section */}
+          {bounties.length > 0 || loading.bounties || error.bounties ? (
+            <ContentBlock
+              emptyMessage="No bounties available"
+              error={error.bounties}
+              items={bounties}
+              loading={loading.bounties}
+              renderItem={(bounty) => (
+                <BountyCard
+                  amount={
+                    typeof bounty.amount === "string"
+                      ? Number.parseFloat(bounty.amount)
+                      : (bounty.amount ?? 0)
+                  }
+                  amountUSD={bounty.amountUSD}
+                  createdAt={bounty.createdAt || new Date().toISOString()}
+                  deadline={bounty.deadline}
+                  description={bounty.description || "No description available"}
+                  id={bounty.id}
+                  key={bounty.id}
+                  organization={bounty.organization || "Unknown Organization"}
+                  skills={bounty.skills}
+                  slug={bounty.slug}
+                  status={bounty.status || "OPEN"}
+                  submissionCount={bounty.submissionCount || 0}
+                  title={bounty.title}
+                  token={bounty.token || "DOT"}
+                  winnersAnnouncedAt={bounty.winnersAnnouncedAt}
+                />
+              )}
+              title="Bounties"
+              viewAllHref="/en/bounties"
             />
-          )}
-          emptyMessage="No bounties available"
-        />
-      ) : null}
+          ) : null}
 
-      {/* Grants Section */}
-      {grants.length > 0 || loading.grants || error.grants ? (
-        <ContentBlock
-          title="Grants"
-          viewAllHref="/en/grants"
-          items={grants}
-          loading={loading.grants}
-          error={error.grants}
-          gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6"
-          renderItem={(grant) => (
-            <GrantCard
-              key={grant.id}
-              id={grant.id}
-              slug={grant.slug}
-              title={grant.title}
-              organization={grant.organization}
-              bannerUrl={grant.bannerUrl}
-              minAmount={grant.minAmount}
-              maxAmount={grant.maxAmount}
-              token={grant.token}
-              rfpCount={grant.rfpCount}
-              applicationCount={grant.applicationCount}
-              status={grant.status}
-              summary={grant.summary}
-              skills={grant.skills}
-              createdAt={grant.createdAt}
+          {/* Grants Section */}
+          {grants.length > 0 || loading.grants || error.grants ? (
+            <ContentBlock
+              emptyMessage="No grants available"
+              error={error.grants}
+              gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6"
+              items={grants}
+              loading={loading.grants}
+              renderItem={(grant) => (
+                <GrantCard
+                  applicationCount={grant.applicationCount}
+                  bannerUrl={grant.bannerUrl}
+                  createdAt={grant.createdAt}
+                  id={grant.id}
+                  key={grant.id}
+                  maxAmount={grant.maxAmount}
+                  minAmount={grant.minAmount}
+                  organization={grant.organization}
+                  rfpCount={grant.rfpCount}
+                  skills={grant.skills}
+                  slug={grant.slug}
+                  status={grant.status}
+                  summary={grant.summary}
+                  title={grant.title}
+                  token={grant.token}
+                />
+              )}
+              title="Grants"
+              viewAllHref="/en/grants"
             />
-          )}
-          emptyMessage="No grants available"
-        />
-      ) : null}
+          ) : null}
 
-      {/* RFPs Section */}
-      {rfps.length > 0 || loading.rfps || error.rfps ? (
-        <ContentBlock
-          title="RFPs"
-          viewAllHref="/en/rfps"
-          items={rfps}
-          loading={loading.rfps}
-          error={error.rfps}
-          gridClassName="space-y-4"
-          renderItem={(rfp) => (
-            <RFPCard
-              key={rfp.id}
-              id={rfp.id}
-              slug={rfp.slug}
-              title={rfp.title}
-              grant={rfp.grant}
-              voteCount={rfp.voteCount}
-              commentCount={rfp.commentCount}
-              status={rfp.status}
-              description={rfp.description}
+          {/* RFPs Section */}
+          {rfps.length > 0 || loading.rfps || error.rfps ? (
+            <ContentBlock
+              emptyMessage="No RFPs available"
+              error={error.rfps}
+              gridClassName="space-y-4"
+              items={rfps}
+              loading={loading.rfps}
+              renderItem={(rfp) => (
+                <RFPCard
+                  commentCount={rfp.commentCount}
+                  description={rfp.description}
+                  grant={rfp.grant}
+                  id={rfp.id}
+                  key={rfp.id}
+                  slug={rfp.slug}
+                  status={rfp.status}
+                  title={rfp.title}
+                  voteCount={rfp.voteCount}
+                />
+              )}
+              title="RFPs"
+              viewAllHref="/en/rfps"
             />
-          )}
-          emptyMessage="No RFPs available"
-        />
-      ) : null}
+          ) : null}
         </>
       )}
     </div>

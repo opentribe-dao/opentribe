@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Form,
@@ -11,7 +12,6 @@ import {
   FormMessage,
 } from "@packages/base/components/ui/form";
 import { Input } from "@packages/base/components/ui/input";
-import { authClient } from "@packages/auth/client";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -56,7 +56,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
         email: data.email,
         password: data.password,
         // @TODO: @itsyogesh fix this, after sign up, it redirects to signin instead of verify-email
-        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/verify-email`
+        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/verify-email`,
       });
 
       if (result.error) {
@@ -91,9 +91,8 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
 
   return (
     <div className="space-y-4">
-      
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="name"
@@ -103,10 +102,10 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
                 <FormControl>
                   <Input
                     {...field}
-                    type="text"
-                    placeholder="Enter your full name"
                     autoComplete="name"
                     disabled={isLoading}
+                    placeholder="Enter your full name"
+                    type="text"
                   />
                 </FormControl>
                 <FormMessage />
@@ -123,10 +122,10 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
                 <FormControl>
                   <Input
                     {...field}
-                    type="email"
-                    placeholder="Enter your email"
                     autoComplete="email"
                     disabled={isLoading}
+                    placeholder="Enter your email"
+                    type="email"
                   />
                 </FormControl>
                 <FormMessage />
@@ -144,19 +143,19 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
                   <div className="relative grid-cols-[1fr_auto] items-center gap-x-2">
                     <Input
                       {...field}
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Create a secure password"
                       autoComplete="new-password"
-                      disabled={isLoading}
                       className="static"
+                      disabled={isLoading}
+                      placeholder="Create a secure password"
+                      type={showPassword ? "text" : "password"}
                     />
                     <Button
-                      type="button"
+                      className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                       // variant="outline"
                       // size="icon"
-                      onClick={() => setShowPassword(!showPassword)}
                       disabled={isLoading}
-                      className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                      type="button"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -174,7 +173,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button className="w-full" disabled={isLoading} type="submit">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -186,7 +185,6 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
           </Button>
         </form>
       </Form>
-
     </div>
   );
 };

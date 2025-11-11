@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { CommentThread } from '../../components/community/comment-thread';
-import { EmailAuthModal } from '../../components/email-auth-modal';
+import { useState } from "react";
+import { CommentThread } from "../../components/community/comment-thread";
+import { EmailAuthModal } from "../../components/email-auth-modal";
 
 interface CommentSectionProps {
   bountyId: string;
@@ -18,7 +18,7 @@ export function CommentSection({ bountyId }: CommentSectionProps) {
         onAuthRequired={() => setShowAuthModal(true)}
       />
 
-      <EmailAuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+      <EmailAuthModal onOpenChange={setShowAuthModal} open={showAuthModal} />
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useActiveOrganization } from "@packages/auth/client";
 import { auth } from "@packages/auth/server";
-import { type User, database } from "@packages/db";
+import { database, type User } from "@packages/db";
 import { headers } from "next/headers";
 
 export const getUsers = async (

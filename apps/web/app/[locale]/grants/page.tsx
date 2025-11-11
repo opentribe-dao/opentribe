@@ -1,11 +1,14 @@
 "use client";
-import { GrantsHeroSection } from "./components/hero-section";
-import { GrantsContentSection } from "./components/content-section";
-import { GrantsSidebar } from "./components/sidebar";
-import { useGrantsFilters } from "@/hooks/use-grants-filters";
-import { useGrantsData, useGrantsSkills, useTopRFPs } from "@/hooks/use-grants-data";
 import { useState } from "react";
-
+import {
+  useGrantsData,
+  useGrantsSkills,
+  useTopRFPs,
+} from "@/hooks/use-grants-data";
+import { useGrantsFilters } from "@/hooks/use-grants-filters";
+import { GrantsContentSection } from "./components/content-section";
+import { GrantsHeroSection } from "./components/hero-section";
+import { GrantsSidebar } from "./components/sidebar";
 
 export default function GrantsPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -19,57 +22,60 @@ export default function GrantsPage() {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <GrantsHeroSection
-          searchQuery={filtersHook.filters.search || ''}
-          showMobileFilters={showMobileFilters}
           activeFiltersCount={filtersHook.activeFiltersCount}
-          onSearchChange={(value) => filtersHook.updateFilter('search', value)}
-          onSearchSubmit={(query) => filtersHook.updateFilter('search', query)}
+          onSearchChange={(value) => filtersHook.updateFilter("search", value)}
+          onSearchSubmit={(query) => filtersHook.updateFilter("search", query)}
           onToggleMobileFilters={() => setShowMobileFilters(!showMobileFilters)}
+          searchQuery={filtersHook.filters.search || ""}
+          showMobileFilters={showMobileFilters}
         />
 
-        <div className='grid grid-cols-1 gap-8 lg:grid-cols-4'>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <GrantsContentSection
-            grants={grantsData.grants}
-            loading={grantsData.isLoading}
+            activeFiltersCount={filtersHook.activeFiltersCount}
             error={grantsData.error}
-            selectedSkills={filtersHook.filters.skills || []}
-            skillsOptions={(skillsQuery.data || []).map((s) => s.skill)}
             filters={{
-              status: filtersHook.filters.status || ['open'],
-              sortBy: filtersHook.filters.sortBy || 'newest',
-              priceRange: filtersHook.filters.priceRange || [0, 100000],
+              status: filtersHook.filters.status || ["open"],
+              sortBy: filtersHook.filters.sortBy || "newest",
+              priceRange: filtersHook.filters.priceRange || [0, 100_000],
             }}
+            grants={grantsData.grants}
             hasMore={grantsData.hasMore}
             isLoadingMore={grantsData.isLoadingMore}
-            activeFiltersCount={filtersHook.activeFiltersCount}
-            onSkillToggle={filtersHook.toggleSkill}
+            loading={grantsData.isLoading}
             onClearAllFilters={filtersHook.clearAllFilters}
             onLoadMore={grantsData.loadMore}
             onRetry={() => grantsData.refetch()}
+            onSkillToggle={filtersHook.toggleSkill}
+            selectedSkills={filtersHook.filters.skills || []}
+            skillsOptions={(skillsQuery.data || []).map((s) => s.skill)}
             topRFPs={topRFPsQuery.data || []}
-            topRFPsLoading={topRFPsQuery.isLoading}
             topRFPsError={topRFPsQuery.error}
+            topRFPsLoading={topRFPsQuery.isLoading}
           />
 
           <GrantsSidebar
-            filters={{
-              status: filtersHook.filters.status || ['open'],
-              sortBy: filtersHook.filters.sortBy || 'newest',
-              priceRange: filtersHook.filters.priceRange || [0, 100000],
-            }}
             activeFiltersCount={filtersHook.activeFiltersCount}
-            showMobileFilters={showMobileFilters}
-            topRFPs={topRFPsQuery.data || []}
-            topRFPsLoading={topRFPsQuery.isLoading}
-            topRFPsError={topRFPsQuery.error}
+            filters={{
+              status: filtersHook.filters.status || ["open"],
+              sortBy: filtersHook.filters.sortBy || "newest",
+              priceRange: filtersHook.filters.priceRange || [0, 100_000],
+            }}
+            onClearAllFilters={filtersHook.clearAllFilters}
             onFilterChange={{
-              onSortChange: (value) => filtersHook.updateFilter('sortBy', value),
-              onStatusChange: (value) => filtersHook.updateFilter('status', value),
-              onPriceRangeChange: (value) => filtersHook.updateFilter('priceRange', value),
+              onSortChange: (value) =>
+                filtersHook.updateFilter("sortBy", value),
+              onStatusChange: (value) =>
+                filtersHook.updateFilter("status", value),
+              onPriceRangeChange: (value) =>
+                filtersHook.updateFilter("priceRange", value),
               onMobileFiltersToggle: (show) => setShowMobileFilters(show),
             }}
             onStatusToggle={filtersHook.toggleStatus}
-            onClearAllFilters={filtersHook.clearAllFilters}
+            showMobileFilters={showMobileFilters}
+            topRFPs={topRFPsQuery.data || []}
+            topRFPsError={topRFPsQuery.error}
+            topRFPsLoading={topRFPsQuery.isLoading}
           />
         </div>
       </div>

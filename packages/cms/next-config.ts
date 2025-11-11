@@ -1,1 +1,1 @@
-export { withContentCollections as withCMS } from '@content-collections/next';
+export { withContentCollections as withCMS } from "@content-collections/next";

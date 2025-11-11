@@ -30,12 +30,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
-import { Header } from "../../components/header";
 import { env } from "@/env";
+import { Header } from "../../components/header";
 
 interface RFPDetails {
   id: string;
@@ -187,17 +187,16 @@ export default function RFPDetailPage() {
     }
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",
     });
-  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
@@ -209,64 +208,64 @@ export default function RFPDetailPage() {
 
   return (
     <>
-      <Header pages={["RFPs", rfp.title]} page={rfp.title} />
+      <Header page={rfp.title} pages={["RFPs", rfp.title]} />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <Button
-            variant="ghost"
-            onClick={() => router.push("/rfps")}
             className="text-white/60 hover:text-white"
+            onClick={() => router.push("/rfps")}
+            variant="ghost"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to RFPs
           </Button>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              className="border-white/20 text-white hover:bg-white/10"
               onClick={() =>
                 window.open(
                   `${env.NEXT_PUBLIC_WEB_URL}/rfps/${rfp.slug}`,
                   "_blank"
                 )
               }
-              className="border-white/20 text-white hover:bg-white/10"
+              variant="outline"
             >
-              <Eye className="h-4 w-4 mr-2" />
+              <Eye className="mr-2 h-4 w-4" />
               View Public Page
             </Button>
             <Button
-              variant="outline"
-              onClick={() => router.push(`/rfps/${rfp.id}/edit`)}
               className="border-white/20 text-white hover:bg-white/10"
+              onClick={() => router.push(`/rfps/${rfp.id}/edit`)}
+              variant="outline"
             >
-              <Edit className="h-4 w-4 mr-2" />
+              <Edit className="mr-2 h-4 w-4" />
               Edit
             </Button>
             <Button
-              variant="outline"
-              onClick={handleDelete}
               className="border-red-500/20 text-red-400 hover:bg-red-500/10"
+              onClick={handleDelete}
+              variant="outline"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </Button>
           </div>
         </div>
 
         {/* RFP Header */}
-        <Card className="bg-white/5 backdrop-blur-md border-white/10">
+        <Card className="border-white/10 bg-white/5 backdrop-blur-md">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="text-2xl text-white mb-2">
+                <CardTitle className="mb-2 text-2xl text-white">
                   {rfp.title}
                 </CardTitle>
                 <CardDescription className="text-white/60">
                   <div className="flex items-center gap-4">
                     <span>Grant: </span>
                     <Link
-                      href={`/grants/${rfp.grant.id}`}
                       className="text-[#E6007A] hover:underline"
+                      href={`/grants/${rfp.grant.id}`}
                     >
                       {rfp.grant.title}
                     </Link>
@@ -287,37 +286,37 @@ export default function RFPDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-4 gap-4">
-              <div className="bg-white/5 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center gap-2 text-white/60 mb-1">
+              <div className="rounded-lg bg-white/5 p-4 text-center">
+                <div className="mb-1 flex items-center justify-center gap-2 text-white/60">
                   <Eye className="h-4 w-4" />
                   <span className="text-sm">Views</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{rfp.viewCount}</p>
+                <p className="font-bold text-2xl text-white">{rfp.viewCount}</p>
               </div>
-              <div className="bg-white/5 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center gap-2 text-white/60 mb-1">
+              <div className="rounded-lg bg-white/5 p-4 text-center">
+                <div className="mb-1 flex items-center justify-center gap-2 text-white/60">
                   <MessageSquare className="h-4 w-4" />
                   <span className="text-sm">Comments</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="font-bold text-2xl text-white">
                   {rfp._count.comments}
                 </p>
               </div>
-              <div className="bg-white/5 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center gap-2 text-white/60 mb-1">
+              <div className="rounded-lg bg-white/5 p-4 text-center">
+                <div className="mb-1 flex items-center justify-center gap-2 text-white/60">
                   <ThumbsUp className="h-4 w-4" />
                   <span className="text-sm">Votes</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="font-bold text-2xl text-white">
                   {rfp._count.votes}
                 </p>
               </div>
-              <div className="bg-white/5 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center gap-2 text-white/60 mb-1">
+              <div className="rounded-lg bg-white/5 p-4 text-center">
+                <div className="mb-1 flex items-center justify-center gap-2 text-white/60">
                   <FileText className="h-4 w-4" />
                   <span className="text-sm">Applications</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="font-bold text-2xl text-white">
                   {rfp._count.applications}
                 </p>
               </div>
@@ -326,37 +325,37 @@ export default function RFPDetailPage() {
         </Card>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white/10 border-white/20">
+        <Tabs onValueChange={setActiveTab} value={activeTab}>
+          <TabsList className="border-white/20 bg-white/10">
             <TabsTrigger
-              value="overview"
               className="data-[state=active]:bg-white/20"
+              value="overview"
             >
               Overview
             </TabsTrigger>
             <TabsTrigger
-              value="applications"
               className="data-[state=active]:bg-white/20"
+              value="applications"
             >
               Applications ({rfp._count.applications})
             </TabsTrigger>
             <TabsTrigger
-              value="comments"
               className="data-[state=active]:bg-white/20"
+              value="comments"
             >
               Comments ({rfp._count.comments})
             </TabsTrigger>
             <TabsTrigger
-              value="settings"
               className="data-[state=active]:bg-white/20"
+              value="settings"
             >
               Settings
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent className="space-y-6" value="overview">
             {/* Description */}
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
               <CardHeader>
                 <CardTitle className="text-white">Description</CardTitle>
               </CardHeader>
@@ -371,7 +370,7 @@ export default function RFPDetailPage() {
 
             {/* Resources */}
             {rfp.resources && rfp.resources.length > 0 && (
-              <Card className="bg-white/5 backdrop-blur-md border-white/10">
+              <Card className="border-white/10 bg-white/5 backdrop-blur-md">
                 <CardHeader>
                   <CardTitle className="text-white">
                     Resources & Links
@@ -380,19 +379,19 @@ export default function RFPDetailPage() {
                 <CardContent>
                   <div className="space-y-3">
                     {rfp.resources.map((resource, index) => (
-                      <div key={index} className="flex items-start gap-3">
-                        <Globe className="h-5 w-5 text-white/40 mt-0.5" />
+                      <div className="flex items-start gap-3" key={index}>
+                        <Globe className="mt-0.5 h-5 w-5 text-white/40" />
                         <div>
                           <a
+                            className="font-medium text-[#E6007A] hover:underline"
                             href={resource.url}
-                            target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[#E6007A] hover:underline font-medium"
+                            target="_blank"
                           >
                             {resource.title}
                           </a>
                           {resource.description && (
-                            <p className="text-sm text-white/60 mt-1">
+                            <p className="mt-1 text-sm text-white/60">
                               {resource.description}
                             </p>
                           )}
@@ -405,7 +404,7 @@ export default function RFPDetailPage() {
             )}
 
             {/* Metadata */}
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
               <CardHeader>
                 <CardTitle className="text-white">Details</CardTitle>
               </CardHeader>
@@ -413,27 +412,27 @@ export default function RFPDetailPage() {
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
                     <dt className="text-sm text-white/60">Created</dt>
-                    <dd className="text-white mt-1">
+                    <dd className="mt-1 text-white">
                       {formatDate(rfp.createdAt)}
                     </dd>
                   </div>
                   {rfp.publishedAt && (
                     <div>
                       <dt className="text-sm text-white/60">Published</dt>
-                      <dd className="text-white mt-1">
+                      <dd className="mt-1 text-white">
                         {formatDate(rfp.publishedAt)}
                       </dd>
                     </div>
                   )}
                   <div>
                     <dt className="text-sm text-white/60">Slug</dt>
-                    <dd className="text-white mt-1 font-mono text-sm">
+                    <dd className="mt-1 font-mono text-sm text-white">
                       /{rfp.slug}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm text-white/60">Organization</dt>
-                    <dd className="text-white mt-1">
+                    <dd className="mt-1 text-white">
                       {rfp.grant.organization.name}
                     </dd>
                   </div>
@@ -443,17 +442,17 @@ export default function RFPDetailPage() {
           </TabsContent>
 
           <TabsContent value="applications">
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
               <CardContent className="p-6">
                 {rfp.applications && rfp.applications.length > 0 ? (
                   <div className="space-y-4">
                     {rfp.applications.map((application) => (
                       <div
+                        className="flex items-center justify-between rounded-lg bg-white/5 p-4"
                         key={application.id}
-                        className="flex items-center justify-between p-4 bg-white/5 rounded-lg"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 flex items-center justify-center text-white font-bold">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
                             {application.applicant.name.charAt(0)}
                           </div>
                           <div>
@@ -473,8 +472,8 @@ export default function RFPDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                  <div className="py-8 text-center">
+                    <Users className="mx-auto mb-4 h-12 w-12 text-white/20" />
                     <p className="text-white/60">No applications yet</p>
                   </div>
                 )}
@@ -483,25 +482,25 @@ export default function RFPDetailPage() {
           </TabsContent>
 
           <TabsContent value="comments">
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
               <CardContent className="p-6">
                 {rfp.comments && rfp.comments.length > 0 ? (
                   <div className="space-y-4">
                     {rfp.comments.map((comment) => (
                       <div
+                        className="border-white/10 border-b pb-4 last:border-0"
                         key={comment.id}
-                        className="border-b border-white/10 pb-4 last:border-0"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-sm text-white">
                             {comment.author.name.charAt(0)}
                           </div>
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="mb-1 flex items-center gap-2">
                               <p className="font-medium text-white">
                                 {comment.author.name}
                               </p>
-                              <span className="text-xs text-white/40">
+                              <span className="text-white/40 text-xs">
                                 {formatDate(comment.createdAt)}
                               </span>
                             </div>
@@ -512,8 +511,8 @@ export default function RFPDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <MessageSquare className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                  <div className="py-8 text-center">
+                    <MessageSquare className="mx-auto mb-4 h-12 w-12 text-white/20" />
                     <p className="text-white/60">No comments yet</p>
                   </div>
                 )}
@@ -522,7 +521,7 @@ export default function RFPDetailPage() {
           </TabsContent>
 
           <TabsContent value="settings">
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
+            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
               <CardHeader>
                 <CardTitle className="text-white">RFP Settings</CardTitle>
                 <CardDescription className="text-white/60">
@@ -530,17 +529,17 @@ export default function RFPDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-                  <p className="text-yellow-400 text-sm">
+                <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4">
+                  <p className="text-sm text-yellow-400">
                     Settings management is available in the edit page
                   </p>
                 </div>
                 <div className="flex gap-3">
                   <Button
-                    onClick={() => router.push(`/rfps/${rfp.id}/edit`)}
                     className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+                    onClick={() => router.push(`/rfps/${rfp.id}/edit`)}
                   >
-                    <Edit className="h-4 w-4 mr-2" />
+                    <Edit className="mr-2 h-4 w-4" />
                     Edit RFP
                   </Button>
                 </div>

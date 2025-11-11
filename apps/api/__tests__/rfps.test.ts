@@ -1,10 +1,10 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { POST as createRFP } from "../app/api/v1/organizations/[organizationId]/rfps/route";
 import { GET as getRFP } from "../app/api/v1/rfps/[id]/route";
 import { GET as getRFPs } from "../app/api/v1/rfps/route";
-import { NextRequest } from "next/server";
 
 // Mock database (align with route usage: rFP, member, grant)
 vi.mock("@packages/db", () => ({
@@ -540,16 +540,17 @@ describe("RFP Flow", () => {
       };
 
       // Mock transaction to return the RFP
-      vi.mocked(database.$transaction).mockImplementation(async (callback) => {
-        return await callback({
-          rFP: {
-            create: vi.fn().mockResolvedValue(mockRFP),
-          },
-          grant: {
-            update: vi.fn().mockResolvedValue({}),
-          },
-        } as any);
-      });
+      vi.mocked(database.$transaction).mockImplementation(
+        async (callback) =>
+          await callback({
+            rFP: {
+              create: vi.fn().mockResolvedValue(mockRFP),
+            },
+            grant: {
+              update: vi.fn().mockResolvedValue({}),
+            },
+          } as any)
+      );
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
       // Member with required role

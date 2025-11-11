@@ -230,12 +230,12 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: orderBy,
+      orderBy,
       take: limit + 1,
       skip: (page - 1) * limit,
     });
 
-    let hasMore = grants.length > limit;
+    const hasMore = grants.length > limit;
 
     if (hasMore) {
       grants.pop();
@@ -260,7 +260,7 @@ export async function GET(request: NextRequest) {
         pagination: {
           page,
           limit,
-          hasMore: hasMore,
+          hasMore,
         },
         filters: {
           search,
@@ -341,7 +341,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate a unique slug from the title
-    let baseSlug = validatedData.title
+    const baseSlug = validatedData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
@@ -386,17 +386,16 @@ export async function POST(request: NextRequest) {
         maxAmount: validatedData.maxAmount,
         totalFunds: validatedData.totalFunds,
         token: validatedData.token,
-        resources:
-          validatedData.resourceFiles?.length
-            ? [
-                ...(validatedData.resources ?? []),
-                ...validatedData.resourceFiles.map((file) => ({
-                  title: "Attachment",
-                  url: file,
-                  description: undefined,
-                })),
-              ]
-            : validatedData.resources || undefined,
+        resources: validatedData.resourceFiles?.length
+          ? [
+              ...(validatedData.resources ?? []),
+              ...validatedData.resourceFiles.map((file) => ({
+                title: "Attachment",
+                url: file,
+                description: undefined,
+              })),
+            ]
+          : validatedData.resources || undefined,
         screening: validatedData.screening || undefined,
         applicationUrl: validatedData.applicationUrl,
         visibility: validatedData.visibility,

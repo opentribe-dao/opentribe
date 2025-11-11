@@ -1,1 +1,1 @@
-export { POST, GET } from '@packages/auth/handlers';
+export { GET, POST } from "@packages/auth/handlers";

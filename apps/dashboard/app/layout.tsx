@@ -1,13 +1,12 @@
 import "./styles.css";
-import { BaseProvider, Background } from "@packages/base";
+import { AnalyticsProvider } from "@packages/analytics";
+import { Background, BaseProvider } from "@packages/base";
 import { fonts } from "@packages/base/lib/fonts";
 import { cn } from "@packages/base/lib/utils";
 import { Toolbar } from "@packages/feature-flags/components/toolbar";
-import { AnalyticsProvider } from "@packages/analytics";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import ReactQueryProvider from "../components/react-query-provider";
-import type { Metadata, Viewport } from "next";
-import { getSiteUrl } from "@packages/seo/config";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
@@ -15,8 +14,8 @@ type RootLayoutProperties = {
 
 const RootLayout = ({ children }: RootLayoutProperties) => (
   <html
-    lang="en"
     className={cn(fonts, "dark scroll-smooth")}
+    lang="en"
     suppressHydrationWarning
   >
     <body className="min-h-screen">
@@ -33,19 +32,22 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
 
 export default RootLayout;
 
-const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || "https://dashboard.opentribe.io";
+const dashboardUrl =
+  process.env.NEXT_PUBLIC_DASHBOARD_URL || "https://dashboard.opentribe.io";
 
 export const metadata: Metadata = {
   metadataBase: new URL(dashboardUrl),
   title: "Opentribe Dashboard | Empower Polkadot Builders",
-  description: "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
+  description:
+    "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
   robots: {
     index: false,
     follow: false,
   },
   openGraph: {
     title: "Opentribe Dashboard | Empower Polkadot Builders",
-    description: "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
+    description:
+      "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
     url: dashboardUrl,
     type: "website",
     siteName: "Opentribe Dashboard",
@@ -61,7 +63,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Opentribe Dashboard | Empower Polkadot Builders",
-    description: "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
+    description:
+      "Your platform to create and manage grants, bounties, and RFPs in the Polkadot ecosystem. Discover talent, fund innovation, and drive ecosystem growth.",
     images: ["/api/og"],
   },
 };

@@ -1,14 +1,254 @@
-@import 'tailwindcss';
-@import 'fumadocs-ui/css/shadcn.css';
-@import 'fumadocs-ui/css/preset.css';
+@import "tailwindcss";
+@import "fumadocs-ui/css/shadcn.css";
+@import "fumadocs-ui/css/preset.css";
 
-/* Custom theme variables for Turbocamp branding */
+/* Tailwind v4 theme configuration */
+@theme {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+}
+
+/* Opentribe Theme - Matching main site branding */
 :root {
-  --fd-primary: 217.2 91.2% 59.8%;
-  --fd-primary-foreground: 222.2 47.4% 11.2%;
+  /* Light theme (fallback - Opentribe is dark-only) */
+  --fd-background: 0 0% 100%;
+  --fd-foreground: 0 0% 14.5%;
+  --fd-card: 0 0% 100%;
+  --fd-card-foreground: 0 0% 14.5%;
+  --fd-popover: 0 0% 100%;
+  --fd-popover-foreground: 0 0% 14.5%;
+  --fd-primary: 0 0% 20.5%;
+  --fd-primary-foreground: 0 0% 98.5%;
+  --fd-secondary: 0 0% 97%;
+  --fd-secondary-foreground: 0 0% 20.5%;
+  --fd-muted: 0 0% 97%;
+  --fd-muted-foreground: 0 0% 55.6%;
+  --fd-accent: 0 0% 97%;
+  --fd-accent-foreground: 0 0% 20.5%;
+  --fd-destructive: 27.325 24.5% 57.7%;
+  --fd-destructive-foreground: 27.325 24.5% 57.7%;
+  --fd-border: 0 0% 92.2%;
+  --fd-input: 0 0% 92.2%;
+  --fd-ring: 0 0% 70.8%;
+}
+
+/* Force dark mode - background always stays dark */
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: #0a0a0a;
+  color: white;
+}
+
+/* Typography - Chakra Petch for headings, Satoshi for body */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+/* Ensure body uses Satoshi */
+body {
+  font-family: var(--font-sans);
+}
+
+/* Animated gradient background matching main site */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: #0a0a0a;
+  background-image:
+    radial-gradient(
+      ellipse at -20% 0%,
+      rgba(230, 0, 122, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 20% 30%,
+      rgba(147, 51, 234, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 120% 120%,
+      rgba(37, 99, 235, 0.12) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 70% 10%,
+      rgba(168, 85, 247, 0.08) 0%,
+      transparent 40%
+    );
+  background-size: 100% 100%;
+  animation: gradientShift 20s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position:
+      0% 0%,
+      20% 30%,
+      120% 120%,
+      70% 10%;
+  }
+  50% {
+    background-position:
+      10% 10%,
+      30% 40%,
+      110% 110%,
+      80% 20%;
+  }
 }
 
 .dark {
-  --fd-primary: 217.2 91.2% 59.8%;
-  --fd-primary-foreground: 210 40% 98%;
+  /* Polkadot Pink + Glass Morphism Theme */
+  --fd-background: 0 0% 14.5%;
+  --fd-foreground: 0 0% 98.5%;
+  --fd-card: 0 0% 14.5%;
+  --fd-card-foreground: 0 0% 98.5%;
+  --fd-popover: 0 0% 14.5%;
+  --fd-popover-foreground: 0 0% 98.5%;
+  --fd-primary: 359.9961 24.2868% 59.91%; /* Polkadot Pink #E6007A */
+  --fd-primary-foreground: 0 0% 98.5%;
+  --fd-secondary: 0 0% 26.9%;
+  --fd-secondary-foreground: 0 0% 98.5%;
+  --fd-muted: 0 0% 26.9%;
+  --fd-muted-foreground: 0 0% 70.8%;
+  --fd-accent: 0 0% 26.9%;
+  --fd-accent-foreground: 0 0% 98.5%;
+  --fd-destructive: 25.723 14.1% 39.6%;
+  --fd-destructive-foreground: 25.331 23.7% 63.7%;
+  --fd-border: 0 0% 26.9%;
+  --fd-input: 0 0% 26.9%;
+  --fd-ring: 359.9961 24.2868% 59.91%; /* Pink ring */
+  --fd-success: 162.48 17% 69.6%; /* Green for active states */
+
+  /* Glass UI specific variables */
+  --bg-idle: rgba(255, 255, 255, 0.05);
+  --bg-hover: rgba(255, 255, 255, 0.1);
+  --bg-active: rgba(255, 255, 255, 0.15);
+  --bg-disabled: rgba(255, 255, 255, 0.02);
+  --text-primary: rgba(255, 255, 255, 1);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+}
+
+/* Glass UI Effects for Documentation */
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-lg bg-white/5 border border-white/10;
+  }
+
+  .glass-hover {
+    @apply hover:bg-white/10 transition-colors;
+  }
+
+  .card-glass {
+    background: linear-gradient(
+      90.77deg,
+      rgba(255, 255, 255, 0.08) -5.34%,
+      rgba(255, 255, 255, 0.02) 114.33%
+    );
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Apply glassmorphism to Fumadocs components */
+@layer base {
+  /* Sidebar glassmorphism */
+  [data-sidebar] {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+
+  /* Move banner to top of sidebar above search */
+  #nd-sidebar > div.flex.flex-col > a[href="/"] {
+    order: -1 !important;
+    font-size: 20px !important; /* text-xl for proper ratio (28px logo / 20px text = 1.4) */
+  }
+
+  #nd-sidebar > div.flex.flex-col > button {
+    order: 1 !important;
+  }
+
+  /* Main content area */
+  [data-content] {
+    background: transparent !important;
+  }
+
+  /* Cards and callouts */
+  [data-card],
+  .fd-card {
+    background: linear-gradient(
+      90.77deg,
+      rgba(255, 255, 255, 0.08) -5.34%,
+      rgba(255, 255, 255, 0.02) 114.33%
+    ) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Navigation items hover */
+  [data-sidebar] a:hover,
+  [data-sidebar] button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Search bar */
+  [data-search-dialog] {
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+
+  /* Popover and dropdown menus */
+  [data-popover],
+  [data-dropdown-menu] {
+    background: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* TOC (Table of Contents) */
+  [data-toc] {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px !important;
+  }
+
+  /* Code blocks */
+  pre {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Tables */
+  table {
+    background: rgba(255, 255, 255, 0.02) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  table thead {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  table td,
+  table th {
+    border-color: rgba(255, 255, 255, 0.05) !important;
+  }
 }

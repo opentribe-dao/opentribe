@@ -1,156 +1,343 @@
 ---
 title: Installation
-description: Set up your development environment for Turbocamp
+description: Set up your local Opentribe development environment
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps } from 'fumadocs-ui/components/steps';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# Installation
+
+Get Opentribe running locally for development or self-hosting.
 
 ## Prerequisites
 
-Before getting started with Turbocamp, make sure you have the following installed:
+Before getting started with Opentribe, ensure you have:
 
-- **Node.js** (v18 or higher)
-- **pnpm** (recommended package manager)
-- **PostgreSQL** (for local development)
-- **Git** (for version control)
+- **Node.js** v18+ (v22 recommended)
+- **pnpm** v8+ (required package manager)
+- **PostgreSQL** v15+ (database)
+- **Git** (version control)
 
 <Callout type="info">
-  Turbocamp uses pnpm for package management. While npm and yarn will work, pnpm is recommended for optimal performance.
+  Opentribe is a monorepo using Turborepo and pnpm workspaces. pnpm is required - npm and yarn are not supported.
 </Callout>
 
 ## Quick Start
 
 <Steps>
 
-### Clone the Repository
+<Step title="Clone the Repository">
 
 ```bash
-git clone https://github.com/turbocamp/turbocamp.git
-cd turbocamp
+git clone git@github.com:opentribe-dao/opentribe.git
+cd opentribe
 ```
 
-### Install Dependencies
+</Step>
+
+<Step title="Install Dependencies">
 
 ```bash
 pnpm install
 ```
 
-This will install all dependencies for the monorepo, including all apps and packages.
+This installs dependencies for all packages and apps in the monorepo.
 
-### Set Up Environment Variables
+</Step>
 
-Create environment files for each application:
+<Step title="Set Up Database">
 
-```bash
-# Root environment file
-cp .env.example .env.local
-
-# API environment file
-cp apps/api/.env.example apps/api/.env.local
-
-# Web app environment file
-cp apps/web/.env.example apps/web/.env.local
-
-# Dashboard environment file
-cp apps/dashboard/.env.example apps/dashboard/.env.local
-```
-
-### Set Up Database
-
-Create a local PostgreSQL database:
+Create a PostgreSQL database:
 
 ```bash
-createdb turbocamp
+createdb opentribe
 ```
 
-Update the database URL in `packages/db/.env`:
+Or using psql:
+```sql
+CREATE DATABASE opentribe;
+```
+
+</Step>
+
+<Step title="Configure Environment Variables">
+
+Create `.env.local` files in each app directory:
+
+<Tabs>
+<Tab value="web" label="apps/web/.env.local">
 
 ```bash
-DATABASE_URL="postgresql://username@localhost:5432/turbocamp"
+# Database
+DATABASE_URL="postgresql://[user]@localhost:5432/opentribe"
+
+# Auth
+BETTER_AUTH_SECRET="generate-random-32-char-string"
+BETTER_AUTH_URL="http://localhost:3002"
+
+# API
+NEXT_PUBLIC_API_URL="http://localhost:3002"
+
+# Optional: OAuth providers
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
 ```
 
-Run database migrations:
+</Tab>
+
+<Tab value="dashboard" label="apps/dashboard/.env.local">
 
 ```bash
-pnpm migrate
+# Database
+DATABASE_URL="postgresql://[user]@localhost:5432/opentribe"
+
+# Auth
+BETTER_AUTH_SECRET="same-as-web"
+BETTER_AUTH_URL="http://localhost:3002"
+
+# API
+NEXT_PUBLIC_API_URL="http://localhost:3002"
 ```
 
-### Start Development Servers
+</Tab>
 
-Start all applications in development mode:
+<Tab value="api" label="apps/api/.env.local">
+
+```bash
+# Database
+DATABASE_URL="postgresql://[user]@localhost:5432/opentribe"
+
+# Auth
+BETTER_AUTH_SECRET="same-as-web"
+BETTER_AUTH_URL="http://localhost:3002"
+
+# Subscan (for payment verification)
+SUBSCAN_API_KEY="optional-for-payment-verification"
+
+# Email (optional)
+RESEND_API_KEY=""
+EMAIL_FROM="noreply@opentribe.io"
+```
+
+</Tab>
+</Tabs>
+
+</Step>
+
+<Step title="Set Up Database Schema">
+
+Navigate to the database package and push the schema:
+
+```bash
+cd packages/db
+pnpm db:push
+```
+
+</Step>
+
+<Step title="Seed Test Data">
+
+The API server must be running before seeding:
+
+```bash
+# Terminal 1: Start the API server
+pnpm dev
+
+# Terminal 2: Seed the database
+pnpm db:seed:auth  # Creates test users with proper auth
+pnpm db:seed       # Creates organizations, bounties, etc.
+```
+
+</Step>
+
+<Step title="Start Development Servers">
 
 ```bash
 pnpm dev
 ```
 
-This will start:
-- **Web app**: http://localhost:3000
-- **Dashboard**: http://localhost:3001
-- **API server**: http://localhost:3002
-- **Email templates**: http://localhost:3003
-- **Documentation**: http://localhost:3004
+This starts all services:
+- Web: http://localhost:3000
+- Dashboard: http://localhost:3001
+- API: http://localhost:3002
+- Docs: http://localhost:3004
+
+</Step>
 
 </Steps>
 
-## Development Commands
+## Test Accounts
 
-Here are the most commonly used commands:
+After seeding, use these accounts to test:
 
+| Email | Password | Role | Description |
+|-------|----------|------|-------------|
+| `alice.rust@example.com` | `password123` | Builder | Rust developer profile |
+| `bob.ui@example.com` | `password123` | Builder | UI/UX designer profile |
+| `david.w3f@example.com` | `password123` | Org Admin | Web3 Foundation admin |
+| `emma.moonbeam@example.com` | `password123` | Org Admin | Moonbeam admin |
+| `admin@opentribe.io` | `admin123` | Superadmin | Platform administrator |
+
+## Project Structure
+
+```
+opentribe/
+├── apps/
+│   ├── web/          # Public website (opentribe.io)
+│   ├── dashboard/    # Authenticated dashboard
+│   ├── api/          # REST API server
+│   └── docs/         # Documentation site
+├── packages/
+│   ├── auth/         # Better Auth configuration
+│   ├── db/           # Prisma schema and client
+│   ├── base/         # UI components (shadcn/ui)
+│   ├── email/        # Email templates
+│   ├── polkadot/     # Blockchain utilities
+│   └── types/        # Shared TypeScript types
+```
+
+## Common Commands
+
+### Development
 ```bash
-# Start all development servers
-pnpm dev
+pnpm dev          # Start all services
+pnpm build        # Build all packages
+pnpm test         # Run tests
+pnpm lint         # Lint code
+pnpm format       # Format with Biome
+```
 
-# Build all applications
-pnpm build
-
-# Run tests
-pnpm test
-
-# Lint code
-pnpm lint
-
-# Format code
-pnpm format
-
-# Type checking
-pnpm typecheck
-
-# Database commands
+### Database
+```bash
+pnpm db:push      # Push schema changes
 pnpm db:studio    # Open Prisma Studio
-pnpm migrate      # Run database migrations
-
-# Clean installation
-pnpm clean        # Remove all node_modules
-pnpm install      # Reinstall dependencies
+pnpm db:seed      # Seed test data
+pnpm migrate      # Format, generate, push schema
 ```
 
 ## Troubleshooting
 
-### Port Already in Use
+### Port Conflicts
 
-If you get port errors, make sure no other applications are running on the default ports (3000-3004).
+If ports are already in use, you can change them:
+
+```bash
+# apps/web/package.json
+"dev": "next dev -p 3005"  # Change port
+
+# Update corresponding NEXT_PUBLIC_API_URL in .env.local
+```
 
 ### Database Connection Issues
 
-1. Ensure PostgreSQL is running
-2. Check database URL in environment files
-3. Verify database exists: `psql -l | grep turbocamp`
+Ensure PostgreSQL is running:
 
-### Build Errors
+```bash
+# macOS with Homebrew
+brew services start postgresql@15
 
-1. Clear build cache: `pnpm clean`
-2. Reinstall dependencies: `pnpm install`
-3. Check Node.js version: `node --version`
+# Linux
+sudo systemctl start postgresql
 
-<Callout type="tip">
-  For more detailed troubleshooting, see the [Troubleshooting](/docs/troubleshooting/common-issues) section.
-</Callout>
+# Check connection
+psql -U postgres -d opentribe
+```
+
+### Authentication Errors
+
+1. Ensure `BETTER_AUTH_SECRET` is the same across all apps
+2. Check `BETTER_AUTH_URL` points to the API server
+3. For OAuth, ensure redirect URLs are configured correctly
+
+### Missing Dependencies
+
+If you see module not found errors:
+
+```bash
+# Clear node_modules and reinstall
+pnpm clean
+pnpm install
+
+# Rebuild packages
+pnpm build --filter=@packages/*
+```
+
+### Seed Data Issues
+
+The auth seeder requires the API server to be running:
+
+```bash
+# Terminal 1
+cd apps/api && pnpm dev
+
+# Terminal 2 (different terminal)
+pnpm db:seed:auth
+```
+
+## Docker Setup (Optional)
+
+For containerized development:
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: opentribe
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+
+Run with:
+```bash
+docker compose up -d
+```
+
+## Production Deployment
+
+For production deployment:
+
+1. **Database**: Use a managed PostgreSQL service (Neon, Supabase, etc.)
+2. **Hosting**: Deploy to Vercel (recommended) or any Node.js host
+3. **Environment**: Set production environment variables
+4. **Auth**: Configure production OAuth redirect URLs
+5. **API**: Ensure CORS is configured for your domains
+
+See our [deployment guide](/docs/deployment) for detailed instructions.
+
+## VS Code Setup
+
+Recommended extensions:
+
+```json
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "prisma.prisma",
+    "dbaeumer.vscode-eslint",
+    "biomejs.biome",
+    "unifiedjs.vscode-mdx"
+  ]
+}
+```
 
 ## Next Steps
 
-Now that you have Turbocamp running locally, you can:
-
-1. [Configure environment variables](/docs/getting-started/environment-variables)
-2. [Set up authentication](/docs/setup/authentication)
-3. [Explore the project structure](/docs/getting-started/project-structure)
+- [Understand the project structure](/docs/getting-started/project-structure)
+- [Configure environment variables](/docs/getting-started/environment-variables)
+- [Set up authentication](/docs/setup/authentication)
+- [Explore the API](/docs/api/overview)

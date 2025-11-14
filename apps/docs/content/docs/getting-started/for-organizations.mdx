@@ -1,0 +1,367 @@
+---
+title: Getting Started for Organizations
+description: Post opportunities and find talent on Opentribe
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Getting Started for Organizations
+
+Welcome to Opentribe! This guide will help your organization start posting bounties, grants, and RFPs to find talented builders in the Polkadot ecosystem.
+
+## What You Can Do on Opentribe
+
+As an organization, you can:
+
+- **Post Bounties**: Create tasks with fixed rewards for specific work
+- **Offer Grants**: Fund larger projects and initiatives
+- **Create RFPs**: Request proposals from the community
+- **Manage Your Team**: Invite members and assign roles
+- **Track Submissions**: Review work and select winners
+- **Verify Payments**: Record and track payments to builders
+
+## Getting Started
+
+<Steps>
+
+<Step title="Create Your Account">
+
+1. Go to [opentribe.io](https://opentribe.io)
+2. Click "Sign In" and choose email/password, Google, or GitHub
+3. Complete your profile with basic organization or founder information
+
+</Step>
+
+<Step title="Access Your Dashboard">
+
+After signing up on opentribe.io and choosing "Organization" during onboarding:
+
+1. **First time**: You'll be automatically redirected to the dashboard at [admin.opentribe.io](https://admin.opentribe.io)
+2. **Returning users**: When logged into opentribe.io, access the dashboard via:
+   - Click your profile dropdown → "Go to Dashboard"
+   - Or directly visit [admin.opentribe.io](https://admin.opentribe.io)
+
+<Callout type="info">
+  The dashboard (admin.opentribe.io) is exclusively for organizations to manage bounties, grants, and RFPs. Builders use the main website (opentribe.io) to track their work.
+</Callout>
+
+<Callout type="warning">
+  If you try to access the dashboard without a valid session, you'll be redirected to opentribe.io/sign-in.
+</Callout>
+
+</Step>
+
+<Step title="Create Your Organization">
+
+1. Navigate to Dashboard → Organizations
+2. Click "Create Organization"
+3. Fill in your organization details:
+   - **Name**: Your organization's name
+   - **Handle**: Unique identifier (e.g., @moonbeam)
+   - **Description**: What your organization does
+   - **Logo**: Upload your organization logo
+   - **Website**: Your main website
+   - **Social Links**: Twitter, Discord, Telegram
+
+<Callout type="info">
+  Each user can create up to 5 organizations. Choose meaningful names as they cannot be changed later.
+</Callout>
+
+</Step>
+
+<Step title="Invite Team Members">
+
+After creating your organization:
+
+1. Go to Organization Settings → Team
+2. Click "Invite Member"
+3. Enter their email address
+4. Select their role:
+   - **Owner**: Full control (transfer ownership, delete org)
+   - **Admin**: Manage everything except ownership
+   - **Member**: Post opportunities, review submissions
+
+Team members will receive an invitation email to join.
+
+</Step>
+
+<Step title="Post Your First Opportunity">
+
+Choose the type of opportunity to post:
+
+### Bounties
+Best for specific tasks with clear deliverables:
+- Development work
+- Design projects
+- Content creation
+- Community tasks
+
+### Grants
+Best for funding larger initiatives:
+- Protocol development
+- Infrastructure projects
+- Research initiatives
+- Long-term contributions
+
+### RFPs
+Best for gathering proposals:
+- Solution exploration
+- Community input
+- Strategic initiatives
+
+</Step>
+
+</Steps>
+
+## Posting a Bounty
+
+### Creating Your Bounty
+
+1. Navigate to Dashboard → Bounties
+2. Click "Create Bounty"
+3. Fill in the details:
+
+**Basic Information:**
+- **Title**: Clear, descriptive title
+- **Description**: Detailed requirements (supports Markdown)
+- **Skills Required**: Select relevant skills
+- **Deadline**: When submissions are due
+
+**Rewards:**
+- **Total Reward**: Amount to be distributed
+- **Token**: DOT or any Asset Hub asset you've budgeted
+- **Winner Structure**: Single or multi-winner
+
+**Multi-Winner Example:**
+```
+1st Place: $1,000
+2nd Place: $500
+3rd Place: $250
+```
+
+### Best Practices for Bounties
+
+✅ **Do:**
+- Write clear, specific requirements
+- Include examples of expected deliverables
+- Set realistic deadlines (minimum 1 week)
+- Respond to questions promptly
+- Provide feedback to submissions
+
+❌ **Don't:**
+- Post vague or ambiguous requirements
+- Change requirements after posting
+- Set unrealistic deadlines
+- Ignore builder questions
+
+## Managing Submissions
+
+### Review Process
+
+1. **Monitor Submissions**
+   - Check your dashboard regularly
+   - Review as submissions come in
+   - Ask clarifying questions if needed
+
+2. **Evaluate Work**
+   - Compare against requirements
+   - Consider quality and creativity
+   - Check for completeness
+
+3. **Select Winners**
+   - Click "Select Winner" on chosen submission(s)
+   - Add feedback for transparency
+   - Notify winners through the platform
+
+### Communication
+
+- **Comments**: Use the comment system for public Q&A
+- **Updates**: Post updates if requirements change
+- **Feedback**: Provide constructive feedback to all participants
+
+## Payment Process
+
+<Callout type="info">
+  You stay in full control of your funds. Send payments directly from your organization's wallet to the builder, then add the transaction hash to Opentribe for tracking.
+</Callout>
+
+### How to Pay Builders
+
+<Steps>
+
+<Step title="Get Winner's Address">
+After selecting a winner, find their wallet address in their profile or submission details.
+</Step>
+
+<Step title="Send Payment from Your Wallet">
+1. Open your organization's wallet (Talisman, SubWallet, etc.)
+2. Send the agreed amount to the builder's address
+3. Save the transaction hash
+</Step>
+
+<Step title="Record Payment on Opentribe">
+1. Return to the bounty/grant page
+2. Click "Record Payment"
+3. Enter:
+   - Amount sent
+   - Token used
+   - Transaction hash
+4. Submit for verification
+</Step>
+
+<Step title="Automatic Verification">
+Opentribe automatically verifies the transaction on-chain and updates the payment status.
+</Step>
+
+</Steps>
+
+See our [payment guide](/docs/payments/making-payments) for detailed instructions.
+
+## Organization Dashboard
+
+Your dashboard provides:
+
+### Overview
+- Active opportunities
+- Pending submissions
+- Payment status
+- Team activity
+
+### Analytics
+- Submission trends
+- Builder engagement
+- Payment history
+- Skill distribution
+
+### Management Tools
+- Bulk actions
+- Export capabilities
+- Team permissions
+- Payment tracking
+
+## Posting Grants
+
+Grants are for larger, longer-term projects:
+
+### Grant Structure
+- **Funding Amount**: Total grant size
+- **Milestones**: Break down into phases
+- **Requirements**: Technical specifications
+- **Timeline**: Expected completion date
+- **Evaluation Criteria**: How applications are judged
+
+### Application Review
+1. Set review period (typically 2-4 weeks)
+2. Evaluate applications against criteria
+3. Request additional information if needed
+4. Select grant recipient(s)
+5. Set up milestone payments
+
+## Creating RFPs
+
+Request for Proposals gather community input:
+
+### RFP Components
+- **Problem Statement**: What needs solving
+- **Requirements**: Minimum viable solution
+- **Budget Range**: Expected funding
+- **Selection Criteria**: How proposals are evaluated
+- **Voting Period**: When community can vote
+
+### Community Engagement
+- Enable voting for community input
+- Respond to comments and questions
+- Share RFPs on social media
+- Highlight selected proposals
+
+## Best Practices
+
+### Building Your Reputation
+
+1. **Be Responsive**: Reply to questions within 24-48 hours
+2. **Pay Promptly**: Send payments within stated timeline
+3. **Provide Feedback**: Help builders improve
+4. **Be Transparent**: Clear requirements and fair selection
+
+### Attracting Quality Builders
+
+- **Competitive Rewards**: Research market rates
+- **Clear Scope**: Detailed requirements reduce confusion
+- **Skill Matching**: Tag appropriate skills
+- **Portfolio Examples**: Show what you're looking for
+- **Promote Opportunities**: Share on social channels
+
+### Common Mistakes to Avoid
+
+❌ **Vague Descriptions**: "Build something cool" doesn't work
+❌ **Unrealistic Timelines**: Quality work takes time
+❌ **Changing Requirements**: Stick to original scope
+❌ **Delayed Payments**: Damages reputation
+❌ **No Feedback**: Builders appreciate communication
+
+## Frequently Asked Questions
+
+### How much should we offer for bounties?
+
+Research similar tasks on Opentribe and other platforms. Consider:
+- Complexity of work
+- Required expertise
+- Time investment
+- Market rates
+
+### Can we cancel a bounty?
+
+Active bounties with submissions should not be cancelled. If you must cancel, communicate clearly with participants and consider partial rewards for work done.
+
+### How do we handle disputes?
+
+1. Communicate directly with the builder
+2. Refer to original requirements
+3. Seek mediation from Opentribe team if needed
+4. Document all communications
+
+### Can we pay in tokens other than DOT?
+
+Yes! Asset Hub supports various tokens including USDC and USDT. Just specify the payment token in your bounty description and record the payment hash when you pay.
+
+### How do we build a talent pipeline?
+
+- Post regularly to build relationships
+- Provide good experiences for builders
+- Offer both small and large opportunities
+- Create a mix of bounties and grants
+- Engage with your builder community
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Post Your First Bounty"
+    description="Create a bounty to find talent"
+    href="/docs/features/bounties"
+  />
+  <Card
+    title="Payment Guide"
+    description="Learn about payment verification"
+    href="/docs/payments/making-payments"
+  />
+  <Card
+    title="Team Management"
+    description="Invite and manage team members"
+    href="/docs/features/organizations"
+  />
+  <Card
+    title="API Integration"
+    description="Integrate with your tools"
+    href="/docs/api/overview"
+  />
+</Cards>
+
+## Need Help?
+
+- Join our [Discord community](https://discord.gg/opentribe)
+- Email support at support@opentribe.io
+- Check our [FAQ section](/docs/help/faq)
+- Browse [video tutorials](/docs/help/tutorials)

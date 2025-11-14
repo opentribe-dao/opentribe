@@ -129,8 +129,8 @@ body::before {
   --fd-accent-foreground: 0 0% 98.5%;
   --fd-destructive: 25.723 14.1% 39.6%;
   --fd-destructive-foreground: 25.331 23.7% 63.7%;
-  --fd-border: 0 0% 26.9%;
-  --fd-input: 0 0% 26.9%;
+  --fd-border: 0 0% 15%; /* Much more subtle border color */
+  --fd-input: 0 0% 20%;
   --fd-ring: 359.9961 24.2868% 59.91%; /* Pink ring */
   --fd-success: 162.48 17% 69.6%; /* Green for active states */
 
@@ -189,8 +189,8 @@ body::before {
     background: transparent !important;
   }
 
-  /* Cards and callouts */
-  [data-card],
+  /* Cards and callouts - exclude anchor links */
+  [data-card]:not(a),
   .fd-card {
     background: linear-gradient(
       90.77deg,

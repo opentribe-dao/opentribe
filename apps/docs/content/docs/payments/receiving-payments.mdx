@@ -1,0 +1,204 @@
+---
+title: Receiving Payments as a Builder
+description: How to receive payments for your work on Opentribe
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Receiving Payments as a Builder
+
+As a builder on Opentribe, you receive payments directly from organizations to your Polkadot wallet. Here's everything you need to know.
+
+<Callout type="info">
+  As a builder, you track payments through your profile on opentribe.io (not the organization dashboard at admin.opentribe.io).
+</Callout>
+
+## Before You Begin
+
+<Callout type="warning">
+  Add your Polkadot address to your profile settings. Organizations need this address to send you payments.
+</Callout>
+
+### Prerequisites
+
+1. ✅ **Polkadot Wallet**: Set up and secure (see [Wallet Setup Guide](/docs/getting-started/setup-wallet))
+2. ✅ **Wallet Address in Profile**: Added to your Opentribe profile
+3. ✅ **Completed Work**: Submitted and selected as winner
+
+## Payment Process
+
+### Step 1: Win an Opportunity
+
+1. Submit your work to a bounty or apply for a grant
+2. Organization reviews submissions/applications
+3. You're selected as a winner
+4. You'll receive a notification of your selection
+
+### Step 2: Organization Sends Payment
+
+After selecting you as a winner, the organization:
+
+1. **Goes to their own wallet** (not through Opentribe)
+2. **Sends payment directly** to your wallet address
+3. **Records the payment** on Opentribe with the transaction hash
+
+<Callout type="info">
+  Opentribe does not process this payment. The organization sends funds directly from their wallet to yours on the blockchain.
+</Callout>
+
+### Step 3: Payment Confirmation
+
+Once the organization records the payment:
+
+1. **Check your profile on Opentribe** for payment status
+2. **Verify the transaction hash** - click to view on Subscan
+3. **Check your wallet** for the received funds
+4. **Confirmation email** sent when payment is verified
+
+## Tracking Your Payments
+
+### On Your Opentribe Profile
+
+Navigate to **Your Profile → Payments** on opentribe.io to see:
+
+- **Pending Payments**: Won opportunities awaiting payment
+- **Completed Payments**: Verified on-chain transactions
+- **Payment History**: All your received payments
+
+Each payment entry shows:
+- Organization name
+- Bounty/Grant title
+- Amount and token
+- Status (Pending/Verified/Failed)
+- Transaction hash (link to Subscan)
+- Date
+
+### In Your Wallet
+
+Check your wallet app (Talisman, SubWallet, etc.) for:
+- Incoming transactions
+- Current balance
+- Transaction history
+
+## Payment Timeline
+
+Typical payment timeline after winning:
+
+| Stage | Typical Duration | What Happens |
+|-------|-----------------|--------------|
+| **Selection** | Day 0 | You're selected as winner |
+| **Processing** | 1-7 days | Organization prepares payment |
+| **Payment Sent** | Day 2-7 | Organization sends from their wallet |
+| **Blockchain Confirmation** | 6-12 seconds | Transaction confirms on-chain |
+| **Opentribe Verification** | 1-5 minutes | Automatic verification via Subscan |
+
+<Callout type="info">
+  Payment timing depends on the organization's internal processes. Some pay immediately, others have weekly/monthly payment cycles.
+</Callout>
+
+## Verifying Your Payment
+
+### Method 1: Through Opentribe
+
+1. Go to your payment in your profile on opentribe.io
+2. Click the transaction hash
+3. You'll be redirected to Subscan
+4. Verify:
+   - Sender address (organization)
+   - Receiver address (your wallet)
+   - Amount and token
+   - Success status
+
+### Method 2: Direct Blockchain Check
+
+1. Copy the transaction hash from Opentribe
+2. Go to [Subscan.io](https://subscan.io)
+3. Paste the hash in the search box
+4. Review transaction details
+
+### Method 3: In Your Wallet
+
+1. Open your wallet app
+2. Check transaction history
+3. Match the amount and sender
+
+## Common Payment Tokens
+
+Organizations typically pay in DOT, USDC, USDT, or other tokens available on Asset Hub.
+
+The payment token should be specified in the bounty or grant description.
+
+## What If Payment Is Delayed?
+
+If payment hasn't arrived after the expected timeline:
+
+### 1. Check Payment Status
+- Review status on your profile at opentribe.io
+- Look for any notes from the organization
+
+### 2. Verify Your Wallet Address
+- Ensure your profile has the correct address
+- Check for any typos or errors
+
+### 3. Contact the Organization
+- Use Opentribe messaging (if available)
+- Reach out via their listed contact methods
+- Be professional and provide:
+  - Opportunity title
+  - Selection date
+  - Your wallet address
+
+### 4. Contact Opentribe Support
+If you can't resolve with the organization:
+- Email support with details
+- Include opportunity link
+- Provide timeline of events
+
+## Tax Considerations
+
+<Callout type="warning">
+  **Tax Responsibility**: As an independent contractor, you're responsible for reporting income and paying taxes according to your local regulations.
+</Callout>
+
+Consider:
+- Keeping records of all payments
+- Transaction hashes serve as proof
+- Consult a tax professional
+- Some jurisdictions tax crypto income differently
+
+## Security Best Practices
+
+### Protect Your Wallet
+- Never share your private keys/seed phrase
+- Use hardware wallets for large amounts
+- Keep wallet software updated
+- Enable all security features
+
+### Verify Before Trusting
+- Always verify transaction hashes
+- Double-check sender addresses
+- Confirm amounts match agreements
+- Be wary of phishing attempts
+
+## Frequently Asked Questions
+
+### Can Opentribe reverse or cancel a payment?
+No. Opentribe doesn't process payments. Once a blockchain transaction is confirmed, it cannot be reversed.
+
+### What if I provided the wrong wallet address?
+Contact the organization immediately. If payment hasn't been sent, they can update the address. If already sent, the funds cannot be recovered.
+
+### How long do I have to wait for payment?
+This varies by organization. Check the opportunity description for payment terms. Most organizations pay within 1-2 weeks of selection.
+
+### Can I request payment in a different token?
+You'll need to discuss this with the organization directly. Opentribe doesn't control payment terms.
+
+### What if the payment amount is wrong?
+Contact the organization to resolve. Provide the transaction hash and explain the discrepancy.
+
+## Next Steps
+
+- [Set up your wallet](/docs/getting-started/setup-wallet)
+- [Browse opportunities](/docs/getting-started/for-builders)
+- [Learn about verification](/docs/payments/verification)

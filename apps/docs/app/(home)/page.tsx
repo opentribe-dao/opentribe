@@ -113,11 +113,6 @@ export default function HomePage() {
                         title="Payment System"
                         description="How direct payments work"
                     />
-                    <QuickLink
-                        href="/docs/api/overview"
-                        title="API Reference"
-                        description="Integrate with Opentribe"
-                    />
                 </div>
             </section>
         </main>

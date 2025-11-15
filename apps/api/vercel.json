@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "npx scripts/skip-ci.js",
+  "ignoreCommand": "node scripts/skip-ci.js",
   "crons": [
     {
       "path": "/cron/bounty-deadline-passed",

@@ -1,463 +1,389 @@
 ---
 title: Environment Variables
-description: Complete guide to configuring type-safe environment variables for all Turbocamp applications
+description: Configure environment variables for Opentribe applications
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
-## Overview
+# Environment Variables
 
-Turbocamp uses a **type-safe environment variable system** powered by [@t3-oss/env-nextjs](https://env.t3.gg/). This ensures all environment variables are validated at build time and provides full TypeScript support throughout your application.
+Opentribe uses environment variables to configure various services and integrations. Each application in the monorepo has its own `.env.local` file.
 
-<Callout type="info">
-  **Type Safety First**: All environment variables are validated using Zod
-  schemas and accessed through typed `env` objects. Never use `process.env`
-  directly!
+<Callout type="warning">
+  Never commit `.env.local` files to version control. Use `.env.example` as templates.
 </Callout>
 
-## Type-Safe Environment System
+## Configuration by Application
 
-### How It Works
+<Tabs>
 
-Each package and app defines its environment variables in a `keys.ts` file:
+<Tab value="web" label="apps/web">
 
-```typescript
-// packages/auth/keys.ts
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+### Web Application Environment Variables
 
-export const keys = () =>
-  createEnv({
-    server: {
-      BETTER_AUTH_SECRET: z.string().min(32),
-      BETTER_AUTH_URL: z.url().optional(),
-    },
-    client: {
-      NEXT_PUBLIC_BETTER_AUTH_URL: z.url(),
-    },
-    runtimeEnv: {
-      BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
-      BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
-      NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-    },
-  });
+```bash
+# apps/web/.env.local
+
+# Database (PostgreSQL)
+DATABASE_URL="postgresql://username@localhost:5432/opentribe"
+
+# Authentication
+BETTER_AUTH_SECRET="your-random-32-character-secret-here"
+BETTER_AUTH_URL="http://localhost:3002"
+
+# API Configuration
+NEXT_PUBLIC_API_URL="http://localhost:3002"
+NEXT_PUBLIC_WEB_URL="http://localhost:3000"
+
+# OAuth Providers (Optional)
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+
+# Analytics (Optional)
+NEXT_PUBLIC_GA_ID="G-XXXXXXXXXX"
+NEXT_PUBLIC_MIXPANEL_TOKEN="your-mixpanel-token"
 ```
 
-### Using Environment Variables
+</Tab>
 
-Always import and use the typed `env` object:
+<Tab value="dashboard" label="apps/dashboard">
 
-```typescript
-// ✅ CORRECT - Type-safe access
-import { env } from "@/env";
+### Dashboard Environment Variables
 
-if (env.VERCEL) {
-  // This is type-safe and validated
-}
+```bash
+# apps/dashboard/.env.local
 
-// ❌ WRONG - Never do this
-if (process.env.VERCEL) {
-  // This bypasses type safety
-}
+# Database (PostgreSQL)
+DATABASE_URL="postgresql://username@localhost:5432/opentribe"
+
+# Authentication (must match other apps)
+BETTER_AUTH_SECRET="same-secret-as-web-app"
+BETTER_AUTH_URL="http://localhost:3002"
+
+# API Configuration
+NEXT_PUBLIC_API_URL="http://localhost:3002"
+NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
+
+# Feature Flags (Optional)
+NEXT_PUBLIC_ENABLE_ANALYTICS="true"
+NEXT_PUBLIC_ENABLE_NOTIFICATIONS="true"
 ```
 
-## Environment Structure
+</Tab>
 
-Each application in the monorepo has its own environment file:
+<Tab value="api" label="apps/api">
 
+### API Server Environment Variables
+
+```bash
+# apps/api/.env.local
+
+# Database (PostgreSQL)
+DATABASE_URL="postgresql://username@localhost:5432/opentribe"
+
+# Authentication (must match other apps)
+BETTER_AUTH_SECRET="same-secret-as-web-app"
+BETTER_AUTH_URL="http://localhost:3002"
+
+# Blockchain Integration
+SUBSCAN_API_KEY="your-subscan-api-key"  # For payment verification
+SUBSCAN_API_URL="https://polkadot.api.subscan.io"
+
+# Email Service (Resend)
+RESEND_API_KEY="re_xxxxxxxxxx"
+EMAIL_FROM="noreply@opentribe.io"
+EMAIL_REPLY_TO="support@opentribe.io"
+
+# CORS Configuration
+CORS_ORIGINS="http://localhost:3000,http://localhost:3001"
+
+# Rate Limiting
+RATE_LIMIT_WINDOW="60000"  # 1 minute in ms
+RATE_LIMIT_MAX="100"        # Max requests per window
+
+# Webhook Secret (Optional)
+WEBHOOK_SECRET="your-webhook-secret"
+
+# File Storage (Optional)
+UPLOAD_DIR="./uploads"
+MAX_FILE_SIZE="10485760"  # 10MB in bytes
 ```
-apps/
-├── api/.env.local          # API server configuration
-├── dashboard/.env.local    # Dashboard app configuration
-├── web/.env.local          # Web app configuration
-└── docs/.env.local         # Documentation site configuration
 
-packages/
-├── db/.env                 # Database configuration
-└── i18n/.env.local         # Internationalization configuration
+</Tab>
+
+<Tab value="docs" label="apps/docs">
+
+### Documentation Environment Variables
+
+```bash
+# apps/docs/.env.local
+
+# Documentation specific (minimal configuration)
+NEXT_PUBLIC_DOCS_URL="http://localhost:3004"
+NEXT_PUBLIC_API_URL="http://localhost:3002"
+
+# Search Integration (Optional)
+ALGOLIA_APP_ID="your-algolia-app-id"
+ALGOLIA_API_KEY="your-algolia-api-key"
+ALGOLIA_INDEX_NAME="opentribe-docs"
 ```
+
+</Tab>
+
+</Tabs>
 
 ## Core Environment Variables
 
-### Authentication (packages/auth)
+### Database Configuration
+
+All applications need database access:
 
 ```bash
-# Required: Better Auth secret (min 32 characters)
-BETTER_AUTH_SECRET="your-32-character-secret-key-here"
-
-# Better Auth URL
-BETTER_AUTH_URL="http://localhost:3002"
-
-# Optional: Additional trusted origins for CORS
-ADDITIONAL_TRUSTED_ORIGINS="http://localhost:3003,http://localhost:3004"
-
-# Client-side auth URLs
-NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
+DATABASE_URL="postgresql://[user]:[password]@[host]:[port]/[database]"
 ```
 
-Generate a secure secret:
+**Format breakdown:**
+- `user`: PostgreSQL username
+- `password`: PostgreSQL password (optional for local)
+- `host`: Database host (localhost for development)
+- `port`: PostgreSQL port (default 5432)
+- `database`: Database name (opentribe)
+
+**Examples:**
+```bash
+# Local development (no password)
+DATABASE_URL="postgresql://postgres@localhost:5432/opentribe"
+
+# Local development (with password)
+DATABASE_URL="postgresql://postgres:mypassword@localhost:5432/opentribe"
+
+# Production (Neon)
+DATABASE_URL="postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/opentribe?sslmode=require"
+```
+
+### Authentication Configuration
+
+<Callout type="error">
+  **Critical**: All apps MUST use the same `BETTER_AUTH_SECRET` for session sharing to work!
+</Callout>
 
 ```bash
+# Generate a secure secret (32+ characters)
 openssl rand -base64 32
+
+# Use the same secret in all apps
+BETTER_AUTH_SECRET="your-generated-secret-here"
+BETTER_AUTH_URL="http://localhost:3002"  # Points to API server
 ```
 
-<Callout type="warn">
-  The `BETTER_AUTH_SECRET` must be identical across all applications for session
-  sharing to work properly.
-</Callout>
+### OAuth Provider Setup
 
-### Database (packages/db)
+#### Google OAuth
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add redirect URIs:
+   - `http://localhost:3002/api/auth/callback/google` (development)
+   - `https://api.opentribe.io/api/auth/callback/google` (production)
 
 ```bash
-# Required: PostgreSQL connection URL
-DATABASE_URL="postgresql://username:password@localhost:5432/turbocamp?schema=public"
+GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="GOCSPX-xxx"
 ```
 
-<Tabs>
-<Tab title="Local Development" value="local">
-```bash
-# Local PostgreSQL
-DATABASE_URL="postgresql://postgres@localhost:5432/turbocamp"
+#### GitHub OAuth
 
-# With password
-
-DATABASE_URL="postgresql://postgres:password@localhost:5432/turbocamp"
-
-````
-</Tab>
-<Tab title="Neon (Cloud)" value="neon">
-```bash
-# Neon database URL (get from Neon dashboard)
-DATABASE_URL="postgresql://username:password@ep-xxx.region.aws.neon.tech/turbocamp?sslmode=require"
-````
-
-</Tab>
-<Tab title="Supabase" value="supabase">
-```bash
-# Supabase database URL (get from Supabase dashboard)
-DATABASE_URL="postgresql://username:password@db.project.supabase.co:5432/postgres"
-```
-</Tab>
-</Tabs>
-
-### Application URLs (tooling/next-config)
+1. Go to GitHub Settings → Developer settings → OAuth Apps
+2. Create new OAuth App
+3. Set Authorization callback URL:
+   - `http://localhost:3002/api/auth/callback/github` (development)
+   - `https://api.opentribe.io/api/auth/callback/github` (production)
 
 ```bash
-# Required: Application URLs
-NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
-NEXT_PUBLIC_WEB_URL="http://localhost:3000"
-
-# Optional: API and docs URLs
-NEXT_PUBLIC_API_URL="http://localhost:3002"
-NEXT_PUBLIC_DOCS_URL="http://localhost:3004"
-
-# Build/deployment variables
-ANALYZE="true"              # Enable bundle analysis
-VERCEL="1"                  # Set by Vercel automatically
-VERCEL_PROJECT_PRODUCTION_URL="your-app.vercel.app"
-NEXT_RUNTIME="nodejs"       # or "edge"
+GITHUB_CLIENT_ID="Iv1.xxx"
+GITHUB_CLIENT_SECRET="xxx"
 ```
 
-## Service Integrations
+### Blockchain Integration
 
-### Email Service (packages/email)
+For payment verification via Subscan:
 
 ```bash
-# Required: Resend configuration
-RESEND_FROM="noreply@yourdomain.com"
-RESEND_TOKEN="re_xxxxxxxxxxxxxxxx"
+# Get API key from https://pro.subscan.io/
+SUBSCAN_API_KEY="your-api-key"
+SUBSCAN_API_URL="https://polkadot.api.subscan.io"
+
+# Network configuration
+POLKADOT_NETWORK="polkadot"  # or "kusama", "westend" for testing
 ```
 
-### Payments (packages/payments)
+### Email Configuration
+
+Using Resend for transactional emails:
 
 ```bash
-# Required: Stripe configuration
-STRIPE_SECRET_KEY="sk_test_xxxxxxxxxxxxxxxx"
+# Get API key from https://resend.com
+RESEND_API_KEY="re_xxxxxxxxxx"
+EMAIL_FROM="Opentribe <noreply@opentribe.io>"
+EMAIL_REPLY_TO="support@opentribe.io"
 
-# Optional: Webhook secret for Stripe events
-STRIPE_WEBHOOK_SECRET="whsec_xxxxxxxxxxxxxxxx"
+# Email settings
+EMAIL_ENABLED="true"
+EMAIL_PREVIEW="false"  # Set to true to preview emails in development
 ```
 
-### Analytics (packages/analytics)
+## Production Environment Variables
+
+### Additional Production Variables
 
 ```bash
-# Required: PostHog configuration
-NEXT_PUBLIC_POSTHOG_KEY="phc_xxxxxxxxxxxxxxxx"
-NEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"
+# apps/web/.env.production
+NODE_ENV="production"
+NEXT_PUBLIC_API_URL="https://api.opentribe.io"
+NEXT_PUBLIC_WEB_URL="https://opentribe.io"
 
-# Optional: Google Analytics
-NEXT_PUBLIC_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
+# apps/dashboard/.env.production
+NEXT_PUBLIC_API_URL="https://api.opentribe.io"
+NEXT_PUBLIC_DASHBOARD_URL="https://admin.opentribe.io"
+
+# apps/api/.env.production
+CORS_ORIGINS="https://opentribe.io,https://admin.opentribe.io"
+RATE_LIMIT_MAX="60"  # Stricter in production
+
+# Security headers
+SECURE_COOKIES="true"
+CSRF_PROTECTION="true"
 ```
 
-### Error Tracking (packages/logging)
+### Vercel Environment Variables
 
+When deploying to Vercel:
+
+1. Go to Project Settings → Environment Variables
+2. Add each variable for the appropriate environment
+3. Use different values for Preview and Production
+
+**Important Vercel variables:**
 ```bash
-# Optional: Sentry configuration
-SENTRY_ORG="your-org"
-SENTRY_PROJECT="your-project"
-NEXT_PUBLIC_SENTRY_DSN="https://xxxxxxxx@sentry.io/xxxxxxxx"
+# Automatically set by Vercel
+VERCEL_URL          # The deployment URL
+VERCEL_ENV          # "production", "preview", or "development"
+NEXT_PUBLIC_VERCEL_URL  # Public deployment URL
 ```
 
-### Rate Limiting (packages/security)
+## Environment Variable Security
 
-```bash
-# Optional: Upstash Redis for rate limiting
-UPSTASH_REDIS_REST_URL="https://xxxxxxxx.upstash.io"
-UPSTASH_REDIS_REST_TOKEN="xxxxxxxxxxxxxxxx"
-```
+### Best Practices
 
-### Feature Flags (packages/feature-flags)
+1. **Never commit secrets**: Use `.gitignore` for all `.env*` files
+2. **Use strong secrets**: Generate with `openssl rand -base64 32`
+3. **Rotate regularly**: Change production secrets periodically
+4. **Limit access**: Use environment-specific values
+5. **Validate variables**: Check required vars at startup
 
-```bash
-# Optional: Feature flags secret
-FLAGS_SECRET="your-feature-flags-secret"
-```
+### Secret Management
 
-### AI Integration (packages/ai)
+For production, consider using:
+- **Vercel Secrets**: Built-in secret management
+- **AWS Secrets Manager**: For AWS deployments
+- **HashiCorp Vault**: Enterprise secret management
+- **dotenv-vault**: Encrypted environment sync
 
-```bash
-# Optional: OpenAI API key
-OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxx"
-```
+### Required vs Optional
 
-### File Storage (packages/storage)
+**Required for all apps:**
+- `DATABASE_URL`
+- `BETTER_AUTH_SECRET`
+- `BETTER_AUTH_URL`
 
-```bash
-# Optional: Vercel Blob storage
-BLOB_READ_WRITE_TOKEN="vercel_blob_xxxxxxxx"
-```
+**Required for API:**
+- `RESEND_API_KEY` (if email enabled)
+- `SUBSCAN_API_KEY` (for payment verification)
 
-### Internationalization (packages/i18n)
-
-```bash
-# Optional: Languine project ID for translations
-LANGUINE_PROJECT_ID="your-project-id"
-```
-
-## Application Examples
-
-### API App (.env.local)
-
-```bash
-# Database
-DATABASE_URL="postgresql://postgres@localhost:5432/turbocamp"
-
-# Authentication
-BETTER_AUTH_SECRET="your-32-character-secret"
-BETTER_AUTH_URL="http://localhost:3002"
-
-# Optional services
-RESEND_FROM="noreply@localhost"
-RESEND_TOKEN="re_test_xxxxxxxx"
-STRIPE_SECRET_KEY="sk_test_xxxxxxxx"
-UPSTASH_REDIS_REST_URL="https://xxxxxxxx.upstash.io"
-UPSTASH_REDIS_REST_TOKEN="xxxxxxxxxxxxxxxx"
-```
-
-### Dashboard App (.env.local)
-
-```bash
-# Authentication
-BETTER_AUTH_SECRET="your-32-character-secret"
-BETTER_AUTH_URL="http://localhost:3002"
-NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
-
-# Application URLs
-NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
-NEXT_PUBLIC_WEB_URL="http://localhost:3000"
-
-# Analytics
-NEXT_PUBLIC_POSTHOG_KEY="phc_xxxxxxxx"
-NEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"
-```
-
-### Web App (.env.local)
-
-```bash
-# Authentication
-BETTER_AUTH_URL="http://localhost:3002"
-NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3002"
-
-# Application URLs
-NEXT_PUBLIC_WEB_URL="http://localhost:3000"
-NEXT_PUBLIC_DASHBOARD_URL="http://localhost:3001"
-
-# Analytics
-NEXT_PUBLIC_POSTHOG_KEY="phc_xxxxxxxx"
-NEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"
-```
-
-## Adding New Environment Variables
-
-To add a new environment variable:
-
-1. **Define the schema** in the appropriate `keys.ts` file:
-
-```typescript
-// packages/your-package/keys.ts
-export const keys = () =>
-  createEnv({
-    server: {
-      MY_NEW_VAR: z.string().min(1),
-    },
-    runtimeEnv: {
-      MY_NEW_VAR: process.env.MY_NEW_VAR,
-    },
-  });
-```
-
-2. **Import the keys** in the app's `env.ts`:
-
-```typescript
-// apps/your-app/env.ts
-import { keys as yourPackageKeys } from "@packages/your-package/keys";
-
-export const env = createEnv({
-  extends: [
-    yourPackageKeys(),
-    // ... other keys
-  ],
-});
-```
-
-3. **Use the typed env** in your code:
-
-```typescript
-import { env } from "@/env";
-
-console.log(env.MY_NEW_VAR); // Type-safe!
-```
-
-## Quick Setup Script
-
-We've created a convenient setup script that automatically creates all required environment files with proper configuration:
-
-```bash
-# Run the setup script (Recommended)
-./scripts/setup-env.sh
-```
-
-This script will:
-
-- Generate a secure Better Auth secret
-- Create all necessary `.env` files for each app and package
-- Set up database connections and authentication URLs
-- Include commented examples for optional services
-
-<details>
-<summary>Manual Setup (Alternative)</summary>
-
-If you prefer to set up environment files manually, you can copy the example files and configure them:
-
-```bash
-# Copy example files (if they exist)
-cp apps/api/.env.example apps/api/.env.local
-cp apps/dashboard/.env.example apps/dashboard/.env.local
-cp apps/web/.env.example apps/web/.env.local
-cp packages/db/.env.example packages/db/.env
-
-# Or create them manually following the examples in the automated script
-```
-
-</details>
-
-## Validation & Type Safety
-
-### Build-Time Validation
-
-The @t3-oss/env package validates all environment variables at build time:
-
-```bash
-# Missing required variables will fail the build
-Error: Missing required environment variable: BETTER_AUTH_SECRET
-```
-
-### Runtime Type Safety
-
-All environment variables are fully typed:
-
-```typescript
-env.BETTER_AUTH_SECRET; // string
-env.NEXT_PUBLIC_POSTHOG_KEY; // string
-env.ANALYZE; // string | undefined
-env.NEXT_RUNTIME; // "nodejs" | "edge" | undefined
-```
-
-### Custom Validation
-
-Add custom validation rules:
-
-```typescript
-// Validate email format
-RESEND_FROM: z.string().email(),
-
-// Validate URL format
-BETTER_AUTH_URL: z.url(),
-
-// Validate specific prefixes
-STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
-
-// Validate minimum length
-BETTER_AUTH_SECRET: z.string().min(32),
-```
-
-## Security Best Practices
-
-<Callout type="error" title="Security Rules">
-  1. **Never commit `.env` files** - They're in `.gitignore` for a reason 2.
-  **Use different secrets per environment** - Dev, staging, and production
-  should have unique values 3. **Rotate secrets regularly** - Especially after
-  team member changes 4. **Use secret managers in production** - AWS Secrets
-  Manager, Vercel, etc. 5. **Limit access** - Only necessary team members should
-  have production secrets
-</Callout>
-
-### Client vs Server Variables
-
-- **Server variables**: Can contain secrets, only available server-side
-- **Client variables**: Must start with `NEXT_PUBLIC_`, visible in browser
-
-```typescript
-// Server-only (secret)
-BETTER_AUTH_SECRET = "secret-key";
-
-// Client-side (public)
-NEXT_PUBLIC_API_URL = "https://api.example.com";
-```
+**Optional enhancements:**
+- OAuth providers (Google, GitHub)
+- Analytics (GA, Mixpanel)
+- Search (Algolia)
 
 ## Troubleshooting
 
 ### Common Issues
 
-<Callout type="error" title="Build fails with missing env var">
-  Ensure the variable is: 1. Defined in the appropriate `keys.ts` file 2. Added
-  to the `runtimeEnv` object 3. Present in your `.env` file 4. Properly imported
-  in the app's `env.ts`
-</Callout>
+#### "Missing environment variable" error
 
-<Callout type="error" title="TypeScript doesn't recognize env variable">
-  1. Check that you're importing from `@/env`, not using `process.env` 2. Ensure
-  the variable is defined in the schema 3. Restart your TypeScript server (VS
-  Code: Cmd+Shift+P → "Restart TS Server")
-</Callout>
+```bash
+# Check if variable is set
+echo $DATABASE_URL
 
-<Callout type="error" title="Variable works locally but not in production">
-  1. Verify the variable is set in your deployment platform 2. Check for typos
-  in variable names 3. Ensure build-time variables are available during build 4.
-  Remember: Client variables need `NEXT_PUBLIC_` prefix
-</Callout>
-
-### Debug Environment Variables
-
-```typescript
-// Debug all loaded environment variables (dev only!)
-if (process.env.VERCEL_TARGET_ENV === "dev") {
-  console.log("Loaded env:", env);
-}
+# Source the env file (development only)
+source .env.local
 ```
 
-<Callout type="info">
-  **Need help?** Check the specific package's `keys.ts` file to see all
-  available environment variables and their validation rules.
-</Callout>
+#### Session not working across apps
+
+Ensure all apps use:
+- Same `BETTER_AUTH_SECRET`
+- Same `BETTER_AUTH_URL`
+- Correct `DATABASE_URL`
+
+#### OAuth redirect mismatch
+
+Check that redirect URIs match exactly:
+- No trailing slashes
+- Correct protocol (http/https)
+- Correct port numbers
+
+#### Payment verification failing
+
+Verify Subscan API:
+- API key is valid
+- Correct network selected
+- API endpoint accessible
+
+## Development Tips
+
+### Using .env.example
+
+Create `.env.example` files as templates:
+
+```bash
+# .env.example
+DATABASE_URL="postgresql://username@localhost:5432/opentribe"
+BETTER_AUTH_SECRET="generate-me"
+# Add other required variables with placeholder values
+```
+
+### Loading Order
+
+Environment variables are loaded in this order:
+1. `.env` (shared)
+2. `.env.local` (local overrides, gitignored)
+3. `.env.[NODE_ENV]` (environment-specific)
+4. `.env.[NODE_ENV].local` (local environment overrides)
+
+### Validation
+
+Use zod for runtime validation:
+
+```typescript
+import { z } from 'zod'
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  BETTER_AUTH_SECRET: z.string().min(32),
+  // ... other variables
+})
+
+export const env = envSchema.parse(process.env)
+```
+
+## Next Steps
+
+- [Set up authentication](/docs/setup/authentication)
+- [Configure database](/docs/setup/database)
+- [Deploy to production](/docs/deployment)

@@ -1,0 +1,255 @@
+---
+title: Making Payments as an Organization
+description: How to pay builders for completed work
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Making Payments as an Organization
+
+As an organization on Opentribe, you're responsible for paying builders directly from your wallet. This guide explains the process and best practices.
+
+## Payment Workflow Overview
+
+<Callout type="info">
+  Stay self-custodial: send payments straight from your organization's wallet, then log the transaction hash in Opentribe so builders (and your team) see transparent, on-chain proof.
+</Callout>
+
+## Step-by-Step Payment Process
+
+### Step 1: Select Winners
+
+1. Review submissions on your organization dashboard
+2. Select winner(s) for your bounty or grant
+3. Confirm selections in Opentribe
+4. System notifies winners of their selection
+
+### Step 2: Prepare for Payment
+
+Before sending payment, ensure you have:
+
+- ✅ **Builder's wallet address** (from their Opentribe profile)
+- ✅ **Agreed amount and token** (DOT or any Asset Hub asset you listed in the bounty)
+- ✅ **Sufficient balance** in your organization wallet
+- ✅ **Transaction fees** (small amount of DOT for fees)
+
+### Step 3: Send Payment (Off-Platform)
+
+1. **Open your organization's wallet**
+   - Talisman, SubWallet, Polkadot.js, or any Polkadot wallet
+   - This happens outside of Opentribe
+
+2. **Create a new transaction**
+   - Recipient: Builder's wallet address
+   - Amount: Agreed payment amount
+   - Token: DOT or another Asset Hub asset (as agreed)
+
+3. **Review and confirm**
+   - Double-check the address (transactions are irreversible)
+   - Verify amount and token
+   - Account for transaction fees
+
+4. **Send the transaction**
+   - Authorize with your wallet
+   - Wait for blockchain confirmation (6-12 seconds)
+   - **Save the transaction hash** (you'll need this)
+
+### Step 4: Record Payment on Opentribe
+
+After the blockchain transaction is confirmed:
+
+1. **Return to Opentribe dashboard**
+2. **Navigate to the bounty/grant**
+3. **Click "Record Payment"**
+4. **Enter payment details**:
+   ```
+   - Amount: [Amount sent]
+   - Token: [DOT or other Asset Hub asset]
+   - Transaction Hash: [0x... from your wallet]
+   - Recipient Address: [Builder's address]
+   ```
+5. **Submit the record**
+
+### Step 5: Automatic Verification
+
+Once you submit the payment record:
+
+1. Opentribe queries Subscan API
+2. Verifies the transaction exists on-chain
+3. Confirms it was successful
+4. Updates payment status to "Verified" ✓
+5. Notifies the builder of payment
+
+## Managing Multiple Payments
+
+### For Multi-Winner Bounties
+
+When paying multiple winners:
+
+1. **Prepare a payment list**
+   - Winner names
+   - Wallet addresses
+   - Payment amounts
+   - tokens to use
+
+2. **Send payments individually**
+   - Most wallets don't support batch payments to different addresses
+   - Send each payment separately
+   - Keep track of transaction hashes
+
+3. **Record each payment**
+   - Record each transaction on Opentribe
+   - Include correct hash for each winner
+   - Verification happens automatically
+
+### Payment Tracking
+
+Your organization dashboard shows:
+- **Pending Payments**: Winners selected but not paid
+- **Processing**: Payments sent, awaiting verification
+- **Completed**: Verified on-chain payments
+- **Payment History**: Complete record of all payments
+
+## Best Practices
+
+### Before Posting Opportunities
+
+1. **Specify payment terms clearly**
+   - Token to be used
+   - Payment timeline
+   - Any conditions or milestones
+
+2. **Ensure funding availability**
+   - Have funds ready before posting
+   - Account for all winners (multi-winner bounties)
+   - Include buffer for transaction fees
+
+### Address Management
+
+- **Always copy-paste addresses** (never type manually)
+- **Verify first/last characters** before sending
+- **Send test transaction** for large amounts
+- **Save frequently used addresses** in your wallet
+
+### Record Keeping
+
+- **Record payments promptly** after sending
+- **Keep transaction hashes** for your records
+- **Document payment dates** for accounting
+- **Export payment history** regularly
+
+## Payment Verification
+
+All payments are automatically verified:
+
+| Status | Meaning | Action Required |
+|--------|---------|-----------------|
+| **Pending** | Payment recorded, verification in progress | Wait 1-5 minutes |
+| **Verified** ✓ | Transaction confirmed on-chain | None - payment complete |
+| **Failed** | Transaction failed on blockchain | Resend payment |
+| **Unverified** | Cannot find transaction | Check hash accuracy |
+
+## Common Issues and Solutions
+
+### "Transaction Hash Not Found"
+
+**Possible causes:**
+- Transaction still processing (wait 2-3 minutes)
+- Incorrect hash copied
+- Transaction on different network
+
+**Solution:**
+- Verify hash in your wallet
+- Ensure you're on Polkadot/Asset Hub
+- Re-copy and submit hash
+
+### "Payment Verification Failed"
+
+**Possible causes:**
+- Transaction failed on-chain
+- Insufficient balance
+- Network issues
+
+**Solution:**
+- Check transaction status in your wallet
+- Verify you have sufficient balance
+- Retry the payment
+
+### "Wrong Payment Amount"
+
+**If you haven't sent yet:**
+- Simply send the correct amount
+
+**If already sent:**
+- Send additional payment for the difference
+- Record both transactions
+- Add note explaining the correction
+
+## Payment Tokens
+
+Asset Hub lets you handle both native DOT and registered foreign assets (including parachain tokens or bridged stablecoins). [Source](https://docs.polkadot.com/polkadot-protocol/architecture/system-chains/asset-hub/)
+
+### DOT (Polkadot Native Token)
+- Most common payment method
+- Doubles as the fee token for Asset Hub transfers
+- Supported by every Polkadot wallet
+
+### Registered Assets (Parachain Tokens or Stablecoins)
+- Use your ecosystem token or bridged assets after registering them on Asset Hub
+- Ideal for USD-pegged payouts or community-aligned incentives
+- Still require a small amount of DOT in the paying wallet to cover transaction fees
+
+## Tax and Compliance
+
+<Callout type="warning">
+  Organizations are responsible for their own tax and compliance obligations when making payments to builders.
+</Callout>
+
+Consider:
+- **Tax reporting** requirements in your jurisdiction
+- **Contractor vs employee** classifications
+- **Record keeping** for audits
+- **KYC/AML** requirements if applicable
+
+## Security Recommendations
+
+### Wallet Security
+- Use multi-signature wallets for organization funds
+- Require multiple approvals for large payments
+- Use hardware wallets for significant amounts
+- Regular security audits
+
+### Payment Authorization
+- Establish clear approval processes
+- Document who can authorize payments
+- Set payment limits by role
+- Regular review of payment authorities
+
+### Fraud Prevention
+- Verify builder identities when needed
+- Check work deliverables before payment
+- Use milestone payments for large projects
+- Keep detailed records of all transactions
+
+## Frequently Asked Questions
+
+### Can we automate payments?
+Currently, payments must be sent manually from your wallet. Opentribe provides verification and tracking, but doesn't process transactions.
+
+### What if we sent to the wrong address?
+Blockchain transactions are irreversible. Always double-check addresses before sending. If funds are sent to the wrong address, they cannot be recovered.
+
+### Can we pay in other tokens?
+Yes. As long as the asset exists on Asset Hub (native or foreign), you can pay in it—just record the transaction hash so the payout can be verified.
+
+### How quickly should we pay?
+Best practice is to pay within 7-14 days of selecting winners. Specify your payment timeline in the opportunity description.
+
+### Can we request refunds?
+Opentribe doesn't handle funds, so refunds would need to be arranged directly with the builder. Blockchain transactions themselves cannot be reversed.
+
+## Next Steps
+
+- [Post your first bounty](/docs/getting-started/for-organizations)
+- [Understand payment verification](/docs/payments/verification)
+- [Learn about multi-winner bounties](/docs/features/bounties)

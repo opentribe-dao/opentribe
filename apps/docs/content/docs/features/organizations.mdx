@@ -1,286 +1,368 @@
 ---
 title: Organizations
-description: Multi-tenant organization management for your SaaS
+description: How organizations work on Opentribe
 icon: Building2
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Cards, Card } from 'fumadocs-ui/components/card';
 
 # Organizations
 
-Turbocamp includes a comprehensive multi-tenant organization system built with Better Auth's organization plugin. This allows your users to create teams, invite members, and manage permissions.
+Organizations on Opentribe represent teams, DAOs, projects, and companies that post opportunities for builders in the Polkadot ecosystem.
 
 ## Overview
 
-The organization system provides:
+Organizations can:
 
-- **Multi-tenant Architecture** - Users can belong to multiple organizations
-- **Role-Based Access Control** - Owner, admin, and member roles
-- **Team Management** - Invite, remove, and manage team members
-- **Organization Switching** - Seamless context switching
-- **Scoped Resources** - Data isolation between organizations
+- **Post Opportunities** - Create bounties, grants, and RFPs
+- **Manage Teams** - Invite members with different roles
+- **Review Submissions** - Evaluate work and select winners
+- **Track Payments** - Record and verify on-chain payments
+- **Build Reputation** - Establish trust with the builder community
 
 <Callout type="info">
-  Organizations are limited to 5 per user and 100 members per organization by default. These limits can be adjusted in the auth configuration.
+  Each user can create up to 5 organizations. Organizations can have unlimited members with different permission levels.
 </Callout>
 
-## Key Features
+## Organization Types
 
-### Organization Creation
+### Parachains
+Polkadot parachains posting developer bounties and ecosystem grants:
+- Moonbeam
+- Acala
+- Astar
+- Phala
+- Bifrost
 
-Users can create organizations with:
-- Custom organization name
-- URL-friendly slug
-- Logo upload (coming soon)
-- Metadata storage for custom fields
+### DAOs & Collectives
+Decentralized organizations managing community initiatives:
+- Treasury-funded projects
+- Community bounties
+- Governance proposals
+- Ambassador programs
 
-### Member Management
+### Grant Programs
+Official grant programs distributing funding:
+- Web3 Foundation Grants
+- Polkadot Treasury
+- Parachain grant programs
+- Ecosystem funds
 
-Organization owners and admins can:
-- Invite new members via email
-- Assign roles (admin or member)
-- Remove members
-- Update member permissions
+### Projects & Startups
+Teams building on Polkadot seeking talent:
+- DeFi protocols
+- Infrastructure projects
+- NFT platforms
+- Gaming studios
 
-### Role Hierarchy
-
-<Tabs items={['Owner', 'Admin', 'Member']}>
-  <Tab value="Owner">
-    - Full control over organization
-    - Can delete the organization
-    - Can manage all members and roles
-    - Cannot be removed by others
-  </Tab>
-  <Tab value="Admin">
-    - Can invite and remove members
-    - Can change member roles (except owner)
-    - Can update organization settings
-    - Cannot delete the organization
-  </Tab>
-  <Tab value="Member">
-    - Basic access to organization resources
-    - Cannot manage other members
-    - Cannot change organization settings
-    - Can leave the organization
-  </Tab>
-</Tabs>
-
-## Implementation Guide
-
-### Creating an Organization
+## Creating an Organization
 
 <Steps>
-  <Step>
-    Navigate to the dashboard and click "Create Organization" in the sidebar
-  </Step>
-  <Step>
-    Enter organization details:
-    ```typescript
-    const result = await organization.create({
-      name: "Acme Inc",
-      slug: "acme-inc", // Optional, auto-generated if not provided
-    });
-    ```
-  </Step>
-  <Step>
-    The new organization is automatically set as active:
-    ```typescript
-    await organization.setActive({
-      organizationId: result.data.id,
-    });
-    ```
-  </Step>
+
+<Step title="Navigate to Organizations">
+Go to Dashboard → Organizations and click "Create Organization"
+</Step>
+
+<Step title="Fill in Details">
+Provide your organization information:
+- **Name**: Your organization's display name
+- **Handle**: Unique identifier (e.g., @moonbeam)
+- **Description**: What your organization does
+- **Logo**: Upload your logo (PNG, JPG, SVG)
+- **Website**: Your main website URL
+</Step>
+
+<Step title="Add Social Links">
+Connect your social presence:
+- Twitter/X
+- Discord
+- Telegram
+- GitHub
+</Step>
+
+<Step title="Configure Settings">
+Set up your organization preferences:
+- Default payment tokens
+- Notification settings
+- Public/private visibility
+</Step>
+
 </Steps>
+
+## Team Roles & Permissions
+
+Organizations have three role levels:
+
+### Owner
+- Full organization control
+- Can delete organization
+- Can transfer ownership
+- All admin permissions
+
+### Admin
+- Post and manage opportunities
+- Invite/remove members
+- Review submissions
+- Record payments
+- Edit organization settings
+- Cannot delete org or change owner
+
+### Member
+- Post opportunities
+- Review submissions
+- Comment on submissions
+- View organization analytics
+- Cannot manage team or settings
+
+<Callout type="warning">
+  Only organization owners can delete an organization or transfer ownership. Choose your initial owner carefully.
+</Callout>
+
+## Managing Your Team
+
+### Inviting Members
+
+<Tabs>
+<Tab value="email" label="By Email">
+
+1. Go to Organization Settings → Team
+2. Click "Invite Member"
+3. Enter email address
+4. Select role (Admin or Member)
+5. Add optional message
+6. Send invitation
+
+The invitee will receive an email with a link to join.
+
+</Tab>
+
+<Tab value="link" label="By Link">
+
+1. Go to Organization Settings → Team
+2. Click "Create Invite Link"
+3. Select role for link
+4. Set expiration (optional)
+5. Share the link
+
+Anyone with the link can join with the specified role.
+
+</Tab>
+</Tabs>
 
 ### Managing Members
 
-#### Inviting Members
+From the Team page, you can:
+- View all members and their roles
+- Change member roles
+- Remove members
+- View member activity
+- Resend invitations
 
+## Organization Dashboard
+
+Your organization dashboard provides comprehensive insights:
+
+### Overview Section
+- **Active Opportunities**: Current bounties, grants, RFPs
+- **Pending Review**: Submissions awaiting evaluation
+- **Recent Activity**: Latest submissions and comments
+- **Payment Status**: Pending and completed payments
+
+### Analytics
+Track your organization's impact:
+
+```
+Total Opportunities Posted: 47
+Total Builders Engaged: 234
+Total Paid Out: $45,670
+Average Response Time: 2.3 days
+```
+
+### Metrics Available
+- Submission trends over time
+- Popular skills among applicants
+- Payment distribution
+- Builder retention rate
+- Geographic distribution
+- Token preferences
+
+## Posting as an Organization
+
+When creating opportunities, they're automatically associated with your active organization:
+
+### Bounties
+- Single or multi-winner
+- Fixed rewards
+- Skill requirements
+- Deadline-driven
+
+### Grants
+- Milestone-based funding
+- Application process
+- Larger budgets
+- Longer timelines
+
+### RFPs
+- Community proposals
+- Voting enabled
+- Open discussion
+- Flexible selection
+
+## Organization Reputation
+
+Build trust with builders through:
+
+### Verified Status
+- Confirm organization identity
+- Link official website
+- Verify social accounts
+- Increases builder confidence
+
+### Reputation Metrics
+- Payment speed
+- Response rate
+- Fair selection
+- Builder ratings
+- Complete rate
+
+### Best Practices
+✅ **Respond quickly** to questions and submissions
+✅ **Pay promptly** after selecting winners
+✅ **Provide feedback** on submissions
+✅ **Clear requirements** in opportunity descriptions
+✅ **Fair selection** process
+
+## Payment Management
+
+Organizations handle payments directly:
+
+1. **Select Winners** - Choose successful submissions
+2. **Send Payment** - Use your wallet (external to Opentribe)
+3. **Record Transaction** - Add transaction hash to Opentribe
+4. **Automatic Verification** - Opentribe verifies on-chain
+
+See our [payment guide](/docs/payments/making-payments) for details.
+
+## Organization API
+
+Integrate Opentribe with your tools:
+
+### Available Endpoints
 ```typescript
-await organization.inviteMember({
-  organizationId: activeOrg.id,
-  email: "colleague@example.com",
-  role: "member", // or "admin"
-});
+GET    /api/v1/organizations/:id
+POST   /api/v1/organizations
+PUT    /api/v1/organizations/:id
+DELETE /api/v1/organizations/:id
+GET    /api/v1/organizations/:id/members
+POST   /api/v1/organizations/:id/invite
+GET    /api/v1/organizations/:id/opportunities
+GET    /api/v1/organizations/:id/dashboard
 ```
 
-<Callout type="warning">
-  Email invitations require email service configuration. Until configured, invitations are logged to the console.
-</Callout>
+### Webhooks
+Get notified about:
+- New submissions
+- Comments on opportunities
+- Payment confirmations
+- Member changes
 
-#### Updating Member Roles
+## Common Use Cases
 
-```typescript
-await organization.updateMemberRole({
-  organizationId: activeOrg.id,
-  memberIdOrEmail: memberId,
-  role: "admin",
-});
-```
+### For Parachains
+1. Post developer bounties for integrations
+2. Fund ecosystem projects through grants
+3. Create RFPs for protocol improvements
+4. Reward community contributions
 
-#### Removing Members
+### For DAOs
+1. Distribute treasury funds
+2. Manage community initiatives
+3. Coordinate contributor payments
+4. Track work completion
 
-```typescript
-await organization.removeMember({
-  organizationId: activeOrg.id,
-  memberIdOrEmail: memberId,
-});
-```
+### For Grant Programs
+1. Streamline application process
+2. Track milestone completion
+3. Verify payment disbursements
+4. Build grantee pipeline
 
-### Organization Switching
+## Switching Organizations
 
-The organization switcher is available in the dashboard sidebar:
+If you belong to multiple organizations:
 
-```typescript
-// Get list of user's organizations
-const { data: organizations } = useListOrganizations();
+1. Click organization name in dashboard
+2. Select different organization
+3. Context switches immediately
+4. All actions now under selected org
 
-// Get current active organization
-const { data: activeOrg } = useActiveOrganization();
+## Organization Settings
 
-// Switch to a different organization
-await organization.setActive({
-  organizationId: orgId,
-});
-```
+Configure your organization:
 
-## Database Schema
+### General Settings
+- Organization name and handle
+- Description and logo
+- Website and social links
+- Public/private visibility
 
-The organization system uses these Prisma models:
+### Payment Preferences
+- Default payment tokens
+- Payment timelines
+- Verification requirements
 
-```prisma
-model Organization {
-  id          String       @id
-  name        String
-  slug        String?
-  logo        String?
-  createdAt   DateTime
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
-  
-  @@unique([slug])
-}
+### Notifications
+- Email notifications
+- Submission alerts
+- Payment reminders
+- Team updates
 
-model Member {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(...)
-  userId         String
-  user           User         @relation(...)
-  role           String
-  createdAt      DateTime
-}
+### Security
+- Two-factor authentication
+- IP restrictions
+- Audit logs
+- Data export
 
-model Invitation {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(...)
-  email          String
-  role           String?
-  status         String
-  expiresAt      DateTime
-  inviterId      String
-  user           User         @relation(...)
-}
-```
+## Frequently Asked Questions
 
-## API Endpoints
+### Can I change my organization's handle?
+No, handles are permanent identifiers. Choose carefully when creating.
 
-Better Auth automatically provides these endpoints:
+### How many organizations can I create?
+Each user can create up to 5 organizations.
 
-- `POST /api/auth/organization.create` - Create new organization
-- `POST /api/auth/organization.update` - Update organization details
-- `POST /api/auth/organization.delete` - Delete organization
-- `POST /api/auth/organization.setActive` - Switch active organization
-- `POST /api/auth/organization.inviteMember` - Send invitation
-- `POST /api/auth/organization.removeMember` - Remove member
-- `POST /api/auth/organization.updateMemberRole` - Change member role
-- `GET /api/auth/organization.getFullOrganization` - Get organization with members
+### Can I transfer an organization?
+Yes, owners can transfer ownership to another member through settings.
 
-## Configuration
+### What happens if I delete an organization?
+All associated data (opportunities, submissions) is permanently deleted. Active opportunities should be completed first.
 
-Organizations are configured in `packages/auth/server.ts`:
-
-```typescript
-import { organization } from 'better-auth/plugins';
-
-export const auth = betterAuth({
-  plugins: [
-    organization({
-      allowUserToCreateOrganization: true,
-      organizationLimit: 5,
-      membershipLimit: 100,
-      creatorRole: 'owner',
-      sendInvitationEmail: async (data) => {
-        // Implement email sending
-        await sendEmail({
-          to: data.email,
-          subject: `Invitation to join ${data.organization.name}`,
-          // ... email template
-        });
-      },
-    }),
-  ],
-});
-```
-
-## Best Practices
-
-1. **Scope All Resources** - Always filter data by organization ID
-2. **Check Permissions** - Verify user roles before allowing actions
-3. **Handle Edge Cases** - Users with no organizations, deleted organizations
-4. **Audit Logging** - Track organization changes for compliance
-5. **Rate Limiting** - Prevent abuse of invitation system
-
-## Troubleshooting
-
-### Common Issues
-
-<Tabs items={['No Organizations', 'Permission Denied', 'Invitation Failed']}>
-  <Tab value="No Organizations">
-    **Problem**: User sees "No Organization" after sign up
-    
-    **Solution**: Redirect new users to `/organization/new` or auto-create a default organization:
-    ```typescript
-    if (!activeOrg && organizations.length === 0) {
-      router.push('/organization/new');
-    }
-    ```
-  </Tab>
-  <Tab value="Permission Denied">
-    **Problem**: User cannot perform organization actions
-    
-    **Solution**: Check user role in the organization:
-    ```typescript
-    const member = organization.members.find(m => m.userId === user.id);
-    if (member.role !== 'owner' && member.role !== 'admin') {
-      throw new Error('Insufficient permissions');
-    }
-    ```
-  </Tab>
-  <Tab value="Invitation Failed">
-    **Problem**: Email invitations not being sent
-    
-    **Solution**: Configure email service in auth settings:
-    ```typescript
-    sendInvitationEmail: async (data) => {
-      // Ensure email service is configured
-      if (!process.env.RESEND_API_KEY) {
-        console.log('Email invitation:', data);
-        return;
-      }
-      // Send actual email
-    }
-    ```
-  </Tab>
-</Tabs>
+### Can organizations be verified?
+Yes, contact support for verification. This adds a badge and increases builder trust.
 
 ## Next Steps
 
-- [Set up email service](/docs/setup/email) for invitations
-- [Configure billing](/docs/features/billing) per organization
-- [Implement webhooks](/docs/api/webhooks) for organization events
-- [Add custom roles](/docs/advanced/custom-roles) beyond owner/admin/member
+<Cards>
+  <Card
+    title="Post Your First Bounty"
+    description="Start finding talented builders"
+    href="/docs/getting-started/for-organizations"
+  />
+  <Card
+    title="Payment Guide"
+    description="Learn about payment verification"
+    href="/docs/payments/making-payments"
+  />
+  <Card
+    title="API Documentation"
+    description="Integrate with your tools"
+    href="/docs/api/organizations"
+  />
+  <Card
+    title="Best Practices"
+    description="Build a strong reputation"
+    href="/docs/guides/organization-success"
+  />
+</Cards>

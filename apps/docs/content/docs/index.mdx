@@ -1,118 +1,115 @@
 ---
-title: Welcome to Turbocamp
-description: The comprehensive SaaS starter template for modern web applications
+title: Welcome to Opentribe
+description: The talent marketplace for the Polkadot ecosystem
 ---
 
 import { Card, Cards } from 'fumadocs-ui/components/card';
 
 ## Introduction
 
-Turbocamp is a comprehensive SaaS starter template built with modern web technologies. It provides everything you need to launch your SaaS application quickly and efficiently.
+Opentribe is a talent marketplace connecting builders with opportunities across the Polkadot ecosystem. Find grants, bounties, and RFPs all in one place.
 
 ### Key Features
 
-- 🔐 **Authentication** - Complete auth system with Better Auth
-- 💳 **Payments** - Stripe integration for subscriptions
-- 🗄️ **Database** - Prisma ORM with PostgreSQL
-- 📧 **Email** - React Email templates with Resend
-- 📊 **Analytics** - PostHog integration for user tracking
-- 🌍 **i18n** - Multi-language support
-- 🎨 **UI Components** - shadcn/ui design system
-- 📱 **Responsive** - Mobile-first design approach
+- 🎯 **Bounties**: Find paid work from organizations across Polkadot
+- 💰 **Grants**: Apply for funding to build ecosystem projects
+- 📢 **RFPs**: Vote on and create Request for Proposals
+- ✅ **Payment Verification**: Track and verify on-chain payments
+- 🏢 **Organizations**: Manage teams and post opportunities
+- 🔐 **Wallet Integration**: Connect your wallet to receive payments
+- 🌐 **Ecosystem Hub**: All opportunities in one place
+- 📱 **Multi-Winner Support**: Collaborative bounties with multiple winners
 
-## Architecture Overview
+## Who is Opentribe For?
 
-Turbocamp follows a monorepo structure using Turborepo for optimal build performance and code sharing.
+### For Builders
 
-### Applications
+Find opportunities to earn while contributing to the Polkadot ecosystem:
 
 <Cards>
-  <Card 
-    title="Web App" 
-    description="Marketing site with auth modal and content management"
-    href="/docs/apps/web"
+  <Card
+    title="Developers"
+    description="Smart contracts, parachains, dApps, infrastructure"
   />
-  <Card 
-    title="Dashboard" 
-    description="Main SaaS application for authenticated users"
-    href="/docs/apps/dashboard"
+  <Card
+    title="Designers"
+    description="UI/UX, branding, graphics, motion design"
   />
-  <Card 
-    title="API Server" 
-    description="Centralized backend serving all clients"
-    href="/docs/apps/api"
+  <Card
+    title="Writers"
+    description="Technical docs, tutorials, blog posts, whitepapers"
   />
-  <Card 
-    title="Documentation" 
-    description="This documentation site built with Fumadocs"
-    href="/docs/apps/docs"
+  <Card
+    title="Community Builders"
+    description="Social media, moderation, events, outreach"
   />
 </Cards>
 
-### Core Packages
+### For Organizations
+
+Post bounties, manage grants, and discover talent:
 
 <Cards>
-  <Card 
-    title="Authentication" 
-    description="Better Auth integration with session management"
-    href="/docs/packages/auth"
+  <Card
+    title="Parachains"
+    description="Find developers and community support"
   />
-  <Card 
-    title="Database" 
-    description="Prisma ORM with PostgreSQL and migrations"
-    href="/docs/packages/database"
+  <Card
+    title="DAOs"
+    description="Distribute tasks and manage contributors"
   />
-  <Card 
-    title="UI Components" 
-    description="Shared design system based on shadcn/ui"
-    href="/docs/packages/ui"
+  <Card
+    title="Projects"
+    description="Get design, dev, and content work done"
   />
-  <Card 
-    title="Email" 
-    description="React Email templates and sending logic"
-    href="/docs/packages/email"
+  <Card
+    title="Grant Programs"
+    description="Manage applications and fund builders"
   />
 </Cards>
 
-## Quick Start
+## How It Works
 
-Get started with Turbocamp in minutes:
+### Discover Opportunities
 
-```bash
-# Clone the repository
-git clone https://github.com/turbocamp/turbocamp.git
+Browse bounties, grants, and RFPs from across the Polkadot ecosystem - all aggregated in one platform.
 
-# Install dependencies
-pnpm install
+### Submit Your Work
 
-# Set up environment variables
-cp .env.example .env.local
+Apply for grants or submit your work to bounties. Track your submissions in your profile (builders) or dashboard (organizations).
 
-# Run development servers
-pnpm dev
-```
+### Get Paid
 
-## What's Next?
+Organizations send payments directly to your Polkadot wallet. Opentribe verifies and tracks all payments on-chain for transparency.
+
+## Payment Transparency
+
+Opentribe provides **transparent payment verification**:
+
+- ✅ **On-chain Verification**: All payments verified via blockchain
+- 📊 **Payment Tracking**: See payment status and history
+- 🔍 **Transaction Proof**: Verify any payment on Subscan
+- 💰 **Flexible Tokens**: Organizations pay in DOT or any registered Asset Hub asset
+- 🌍 **Direct Payments**: Organizations pay builders directly
+
+Learn more in our [payment documentation](/docs/payments/overview).
+
+## Get Started
 
 <Cards>
-  <Card 
-    title="Installation" 
-    description="Set up your development environment"
-    href="/docs/getting-started/installation"
+  <Card
+    title="For Builders"
+    description="Start finding and winning opportunities"
+    href="/docs/getting-started/for-builders"
   />
-  <Card 
-    title="Configuration" 
-    description="Configure environment variables and services"
-    href="/docs/getting-started/environment-variables"
+  <Card
+    title="For Organizations"
+    description="Post your first bounty"
+    href="/docs/getting-started/for-organizations"
   />
-  <Card 
-    title="Authentication Setup" 
-    description="Set up user authentication with Better Auth"
-    href="/docs/setup/authentication"
-  />
-  <Card 
-    title="Database Setup" 
-    description="Configure PostgreSQL and run migrations"
-    href="/docs/setup/database"
+  <Card
+    title="How Payments Work"
+    description="Learn about direct payments and verification"
+    href="/docs/payments/overview"
   />
 </Cards>

@@ -1,0 +1,87 @@
+---
+title: Payment Wallets & Asset Hub
+description: How organizations and builders use wallets for payments
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Payment Wallets & Asset Hub
+
+Many organizations in the Polkadot ecosystem use Asset Hub to manage and send payments. It's a system parachain that supports DOT, USDC, USDT, and other tokens.
+
+## What is Asset Hub?
+
+Asset Hub is Polkadot's official parachain for managing tokens and assets. Think of it as a shared wallet system where:
+- Organizations can hold multiple types of tokens
+- Payments are fast and secure
+- All transactions are publicly visible
+
+<Callout type="info">
+  Organizations send payments directly from their Asset Hub wallets to builders. Opentribe doesn't process these payments - we just verify they happened.
+</Callout>
+
+## How Payments Work
+
+1. **Organization selects a winner** on Opentribe
+2. **Organization sends payment** directly from their wallet to the builder's wallet
+3. **Organization records the transaction hash** on Opentribe
+4. **Opentribe verifies** the payment happened on-chain
+
+## For Organizations: Using Asset Hub
+
+If your organization uses Asset Hub to manage funds, here's a simple guide:
+
+<Steps>
+
+<Step title="Check Your Balance">
+Open your wallet (Talisman, SubWallet, or Polkadot.js) and switch to Asset Hub to see your available tokens.
+</Step>
+
+<Step title="Send Payment to Builder">
+Copy the builder's address from their Opentribe profile, enter the amount, and send the payment.
+</Step>
+
+<Step title="Record on Opentribe">
+After sending, copy the transaction hash and record it on the bounty/grant page in Opentribe.
+</Step>
+
+</Steps>
+
+## For Builders: Receiving Asset Hub Payments
+
+When you receive payments from organizations:
+
+1. **Check your wallet**: Switch to Asset Hub network to see incoming payments
+2. **View on Subscan**: Click the transaction hash in Opentribe to see details on [Subscan](https://assethub-polkadot.subscan.io/)
+3. **Multiple tokens**: You might receive DOT, USDC, USDT, or other tokens depending on what the organization uses
+
+## Common Asset Hub Tokens
+
+Organizations typically pay in:
+- **DOT**: Native Polkadot token
+- **USDC**: USD stablecoin
+- **USDT**: Tether stablecoin
+- **Other tokens**: Various parachain tokens
+
+## Important Notes
+
+- Asset Hub accounts need a small amount of DOT (~0.1) to stay active
+- Transaction fees are minimal (less than 0.01 DOT)
+- All payments are final once confirmed on-chain
+
+## Troubleshooting
+
+| Issue | Solution |
+| --- | --- |
+| Can't see payment in wallet | Switch your wallet to Asset Hub network |
+| Transaction not showing | Wait a few moments or check Subscan directly |
+| Wrong token received | Contact the organization to clarify |
+| Balance not updating | Refresh your wallet or reconnect |
+
+## Next Steps
+
+- [Common Payment Tokens](/docs/payments/supported-tokens)
+- [Making Payments](/docs/payments/making-payments)
+- [Receiving Payments](/docs/payments/receiving-payments)
+- [Payment Verification](/docs/payments/verification)

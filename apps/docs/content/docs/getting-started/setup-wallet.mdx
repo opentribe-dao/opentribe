@@ -1,0 +1,458 @@
+---
+title: Wallet Setup Guide
+description: How to set up a Polkadot wallet for receiving payments on Opentribe
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+## Overview
+
+To receive bounty payments on Opentribe, you need a Polkadot wallet. This guide will help you choose the right wallet and set it up correctly.
+
+<Callout type="info">
+  Most organizations pay through Polkadot's Asset Hub, which supports DOT, USDC, USDT, and other tokens. All recommended wallets work with Asset Hub.
+</Callout>
+
+## Choosing Your Wallet
+
+Opentribe works with all major Polkadot wallets. Here are the three most popular options:
+
+### Wallet Comparison
+
+| Feature | Talisman | SubWallet | Polkadot.js |
+|---------|----------|-----------|-------------|
+| **Best For** | Desktop users, DeFi | Mobile + Desktop | Power users |
+| **Ease of Use** | ⭐⭐⭐⭐⭐ Very easy | ⭐⭐⭐⭐⭐ Very easy | ⭐⭐⭐ Technical |
+| **Platforms** | Browser Extension | Browser + Mobile + Web | Browser Extension |
+| **Asset Hub Support** | ✅ Native | ✅ Native | ✅ Native |
+| **Mobile** | ❌ Desktop only | ✅ iOS + Android | ❌ Desktop only |
+| **Networks Supported** | 900+ | 150+ | All Polkadot |
+| **Hardware Wallet** | ✅ Ledger | ✅ Ledger, Keystone, Vault | ✅ Ledger |
+| **Staking** | ✅ Built-in | ✅ Built-in | Via Staking Dashboard |
+| **Open Source** | ✅ Yes | ✅ Yes | ✅ Yes |
+
+### Our Recommendations
+
+**For Most Users:**
+- **Talisman** or **SubWallet** - Both are user-friendly and secure
+
+**For Mobile Users:**
+- **SubWallet** - Full mobile app for iOS and Android
+
+**For Technical Users:**
+- **Polkadot.js Extension** - Lightweight and simple
+
+<Callout type="warning">
+  All three wallets are non-custodial, meaning YOU control your private keys. Never share your seed phrase with anyone, including Opentribe support.
+</Callout>
+
+## Installing Your Wallet
+
+<Tabs items={['Talisman', 'SubWallet', 'Polkadot.js']}>
+  <Tab value="Talisman">
+    ## Install Talisman Wallet
+
+    <Steps>
+
+    <Step title="Visit Talisman Website">
+    Go to [talisman.xyz](https://talisman.xyz)
+    </Step>
+
+    <Step title="Download Extension">
+    Click "Download" and choose your browser:
+    - Chrome
+    - Firefox
+    - Brave
+    - Edge
+    - Arc
+    </Step>
+
+    <Step title="Install Extension">
+    1. Click "Add to [Browser]"
+    2. Confirm the installation
+    3. The Talisman icon will appear in your browser toolbar
+    </Step>
+
+    <Step title="Create Your Wallet">
+    1. Click the Talisman icon
+    2. Choose "Create New Wallet"
+    3. Set a strong password (you'll need this to unlock Talisman)
+    4. Click "Continue"
+    </Step>
+
+    <Step title="Backup Your Seed Phrase">
+    **CRITICAL STEP:**
+
+    1. Write down your 12-word seed phrase
+    2. Store it somewhere safe (NOT on your computer)
+    3. Never share it with anyone
+    4. Confirm your seed phrase by selecting words in order
+
+    <Callout type="error">
+      Your seed phrase is the ONLY way to recover your wallet if you lose access. If you lose it, your funds are gone forever. If someone else gets it, they can steal your funds.
+    </Callout>
+    </Step>
+
+    <Step title="You're Ready to Go">
+    You now have a Polkadot account. Click on "Polkadot" in Talisman to see your address.
+    </Step>
+
+    </Steps>
+
+    ## Finding Your Polkadot Address in Talisman
+
+    1. Open Talisman extension
+    2. Make sure you're on the "Polkadot" network (top dropdown)
+    3. Click on your account name
+    4. Click the copy icon next to your address
+    5. Your address starts with `1` (for Polkadot mainnet)
+
+  </Tab>
+
+  <Tab value="SubWallet">
+    ## Install SubWallet
+
+    <Steps>
+
+    <Step title="Choose Your Platform">
+    **Browser Extension:**
+    - Visit [subwallet.app](https://subwallet.app)
+    - Click "Download"
+    - Available for Chrome, Firefox, Brave, Edge
+
+    **Mobile App:**
+    - iOS: Download from App Store
+    - Android: Download from Google Play
+
+    **Web Dashboard:**
+    - Visit [web.subwallet.app](https://web.subwallet.app)
+    - Requires browser extension to be installed first
+    </Step>
+
+    <Step title="Install the Extension (Desktop)">
+    1. Click "Add to [Browser]"
+    2. Confirm installation
+    3. SubWallet icon appears in toolbar
+    </Step>
+
+    <Step title="Create Your Wallet">
+    1. Click SubWallet icon
+    2. Choose "Create a new account"
+    3. Set a master password (protects all your accounts)
+    4. Select "Create with new seed phrase"
+    </Step>
+
+    <Step title="Back Up the Seed Phrase">
+    **VERY IMPORTANT:**
+
+    1. SubWallet shows your 12-word seed phrase
+    2. Write it down on paper
+    3. Store in a secure location
+    4. Never take a screenshot or save digitally
+    5. Verify your seed phrase
+
+    <Callout type="error">
+      SubWallet uses a single master password for multiple seed phrases. Your seed phrase is still the ultimate backup - don't lose it!
+    </Callout>
+    </Step>
+
+    <Step title="Enable Networks">
+    1. SubWallet supports 150+ networks
+    2. Make sure "Polkadot" and "Polkadot Asset Hub" are enabled
+    3. You can add more networks later
+    </Step>
+
+    <Step title="You're All Set">
+    Your SubWallet is ready. You can now manage Polkadot assets.
+    </Step>
+
+    </Steps>
+
+    ## Finding Your Address in SubWallet
+
+    1. Open SubWallet
+    2. Click on your account at the top
+    3. Select "Polkadot" network from the list
+    4. Click the copy icon next to your address
+    5. Address starts with `1`
+
+    ## Mobile Setup (iOS/Android)
+
+    The mobile app setup is similar:
+
+    1. Download SubWallet from App Store or Google Play
+    2. Open the app
+    3. Tap "Create new account"
+    4. Follow the same seed phrase backup process
+    5. Enable Polkadot and Asset Hub networks
+
+  </Tab>
+
+  <Tab value="Polkadot.js">
+    ## Install Polkadot.js Extension
+
+    <Callout type="info">
+      Polkadot.js extension is the official wallet from Parity (creators of Polkadot). It's lightweight but more technical than alternatives.
+    </Callout>
+
+    <Steps>
+
+    <Step title="Visit Polkadot.js Apps">
+    Go to [polkadot.js.org/extension/](https://polkadot.js.org/extension/)
+    </Step>
+
+    <Step title="Download for Your Browser">
+    Available for:
+    - Chrome/Brave
+    - Firefox
+    </Step>
+
+    <Step title="Install Extension">
+    1. Click "Add to [Browser]"
+    2. Confirm installation
+    3. Click the extension icon to open
+    </Step>
+
+    <Step title="Create an Account">
+    1. Click "+" (plus icon)
+    2. Choose "Create new account"
+    3. Your seed phrase is displayed immediately
+    </Step>
+
+    <Step title="Save Seed Phrase">
+    **DO THIS BEFORE CONTINUING:**
+
+    1. Write down all 12 words in order
+    2. Store securely offline
+    3. Check the box confirming you've saved it
+
+    <Callout type="error">
+      Polkadot.js shows your seed phrase immediately. If you don't save it now, you may never see it again.
+    </Callout>
+    </Step>
+
+    <Step title="Name & Secure the Account">
+    1. Give your account a descriptive name
+    2. Set a strong password
+    3. Click "Add the account with the generated seed"
+    </Step>
+
+    <Step title="You're Done">
+    Your Polkadot account is ready to use.
+    </Step>
+
+    </Steps>
+
+    ## Finding Your Address
+
+    1. Click the Polkadot.js extension icon
+    2. Your account name is listed
+    3. Click the three dots next to your account
+    4. Select "Copy address"
+    5. Your Polkadot address is copied (starts with `1`)
+
+  </Tab>
+</Tabs>
+
+## Adding Your Wallet to Opentribe
+
+Once you have your wallet set up, add the address to your Opentribe profile:
+
+<Steps>
+
+<Step title="Copy Your Polkadot Address">
+Use the instructions above for your chosen wallet to copy your address.
+
+<Callout type="warning">
+  Make sure you're copying your **Polkadot** address (starts with `1`), not Kusama (capital letters) or another chain.
+</Callout>
+</Step>
+
+<Step title="Log into Opentribe">
+Go to [opentribe.io](https://opentribe.io) and sign in.
+</Step>
+
+<Step title="Open Profile Settings">
+1. Click your profile icon (top right)  
+2. Select "Settings" or "Profile"  
+3. Find the "Wallet Address" field
+</Step>
+
+<Step title="Paste & Save">
+1. Paste your Polkadot address  
+2. Opentribe validates the format  
+3. Click "Save Changes" and you're ready to get paid
+</Step>
+
+</Steps>
+
+## Viewing Your Asset Hub Balances
+
+To see your DOT and other tokens:
+
+### In Talisman:
+- Switch the network dropdown to "Asset Hub"
+
+### In SubWallet:
+- Enable "Polkadot Asset Hub" in network settings
+
+### In Polkadot.js:
+- Use [Polkadot.js Apps](https://polkadot.js.org/apps/)
+- Connect to "Polkadot Asset Hub"
+
+## Security Best Practices
+
+<Callout type="error">
+  Following these security practices is critical to keeping your funds safe.
+</Callout>
+
+### Seed Phrase Security
+
+**DO:**
+- ✅ Write your seed phrase on paper
+- ✅ Store in a safe place (safe, bank vault)
+- ✅ Consider using a metal backup for fire/water protection
+- ✅ Test your seed phrase recovery
+
+**DON'T:**
+- ❌ Save seed phrase digitally (no screenshots, no cloud storage)
+- ❌ Share with anyone (even Opentribe support)
+- ❌ Email or message your seed phrase
+- ❌ Type it into any website except your wallet
+
+### Password Best Practices
+
+- Use a unique, strong password for your wallet
+- Different from your email or Opentribe password
+- Consider using a password manager
+- Enable biometric unlock on mobile if available
+
+### Wallet Safety
+
+- Only download wallets from official websites:
+  - Talisman: [talisman.xyz](https://talisman.xyz)
+  - SubWallet: [subwallet.app](https://subwallet.app)
+  - Polkadot.js: [polkadot.js.org/extension/](https://polkadot.js.org/extension/)
+- Verify browser extension before installing
+- Be cautious of phishing websites
+- Never enter your seed phrase on any website
+
+### Hardware Wallets (Advanced)
+
+For large amounts, consider a hardware wallet:
+
+- **Ledger Nano S/X** - Supported by all three wallets
+- **Keystone** - Supported by SubWallet
+- **Polkadot Vault** - Supported by SubWallet
+
+Hardware wallets store your private keys offline, providing maximum security.
+
+## Common Issues
+
+### Can't See an Asset Hub Balance
+
+**Solution:**
+1. Make sure you're connected to the Asset Hub network
+2. In Talisman: Switch to "Asset Hub - Polkadot"
+3. In SubWallet: Enable Asset Hub in network settings
+4. Wallets need a small amount of DOT (~0.1) for the account to be active
+
+### Address Starts with Different Letter
+
+**Issue:** Address doesn't start with `1`
+
+**Solution:**
+- Polkadot addresses start with `1`
+- Kusama addresses start with capital letters
+- Make sure you're copying the Polkadot address, not Kusama
+- The same seed phrase generates different addresses for different networks
+
+### Lost Access to Wallet
+
+**With Seed Phrase:**
+1. Install wallet on a new device
+2. Choose "Import from seed phrase"
+3. Enter your 12-word seed phrase
+4. Your account is recovered
+
+**Without Seed Phrase:**
+- Unfortunately, your wallet cannot be recovered
+- This is why backing up your seed phrase is critical
+
+### Wallet Extension Not Detected
+
+**Solution:**
+1. Refresh the webpage
+2. Make sure extension is installed and unlocked
+3. Check if extension has permission for the site
+4. Try a different browser
+5. Reinstall extension if necessary
+
+## Testing Your Wallet
+
+Before receiving large payments, test with a small amount:
+
+<Steps>
+
+<Step title="Get Test DOT">
+1. Use a faucet or buy a small amount of DOT on an exchange  
+2. Send ~1 DOT to your wallet as a test
+</Step>
+
+<Step title="Verify Receipt">
+1. Check your wallet balance  
+2. Look for the transaction on Subscan: [assethub-polkadot.subscan.io](https://assethub-polkadot.subscan.io/)  
+3. Confirm you can see the balance
+</Step>
+
+<Step title="Practice Sending (Optional)">
+1. Send a tiny amount (0.01 DOT) to another address  
+2. Make sure you understand the process  
+3. Check the transaction fee
+</Step>
+
+</Steps>
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="For Builders Guide"
+    description="Complete getting started guide for builders"
+    href="/docs/getting-started/for-builders"
+  />
+  <Card
+    title="Receiving Payments"
+    description="How to receive your first bounty payment"
+    href="/docs/payments/receiving-payments"
+  />
+  <Card
+    title="Payment Wallets"
+    description="Learn about wallets and Asset Hub"
+    href="/docs/payments/payment-wallets"
+  />
+  <Card
+    title="Common Payment Tokens"
+    description="See which tokens organizations typically use"
+    href="/docs/payments/supported-tokens"
+  />
+</Cards>
+
+## Need Help?
+
+If you're having trouble setting up your wallet:
+
+1. Check the [FAQ section](/docs/help/faq)
+2. Visit wallet-specific help:
+   - [Talisman Docs](https://docs.talisman.xyz/)
+   - [SubWallet Docs](https://docs.subwallet.app/)
+   - [Polkadot.js Guide](https://wiki.polkadot.network/docs/learn-account-generation)
+3. Contact Opentribe support: support@opentribe.io
+4. Join our Discord for community help
+
+<Callout type="info">
+  Remember: Legitimate support will NEVER ask for your seed phrase or private keys. If someone does, it's a scam.
+</Callout>

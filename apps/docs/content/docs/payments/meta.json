@@ -1,0 +1,11 @@
+{
+  "title": "Payments",
+  "pages": [
+    "overview",
+    "payment-wallets",
+    "supported-tokens",
+    "receiving-payments",
+    "making-payments",
+    "verification"
+  ]
+}

@@ -1,0 +1,113 @@
+---
+title: How Payments Work
+description: Understanding Opentribe's role in the payment process
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# How Payments Work on Opentribe
+
+Opentribe is a **talent marketplace** that connects builders with opportunities. We surface every bounty, grant, and RFP in one place and keep payment history transparent—while you stay fully self-custodial.
+
+## You Stay in Control of Funds
+
+<Callout type="info">
+  Opentribe never holds, transfers, or escrows funds. Organizations pay builders directly from their own wallets, and Opentribe verifies that the on-chain transaction happened.
+</Callout>
+
+## The Payment Flow
+
+Here's how payments actually work on Opentribe:
+
+### 1. Opportunity Completion
+- Builder submits work to a bounty or gets approved for a grant
+- Organization reviews and selects winners
+- Winner selection is recorded on Opentribe
+
+### 2. Direct Payment (Off-Platform)
+- Organization goes to **their own wallet** (Talisman, SubWallet, Polkadot.js, etc.)
+- Organization sends payment **directly** to the builder's wallet address
+- This transaction happens entirely on the Polkadot/Asset Hub blockchain
+- Opentribe is not involved in this step
+
+### 3. Payment Recording
+- After sending payment, the organization returns to Opentribe
+- Organization records the payment details:
+  - Amount sent
+  - Token used (DOT or another Asset Hub asset)
+  - Transaction hash (extrinsic hash) from the blockchain
+- This creates a payment record in Opentribe's database
+
+### 4. Payment Verification
+- Opentribe automatically verifies the transaction using Subscan API
+- We check:
+  - Transaction exists on-chain
+  - Transaction was successful
+  - It was a balance transfer
+- Verification status is displayed to both parties
+
+## What Opentribe Provides
+
+### For Builders
+- **Visibility**: See payment status and transaction details
+- **Verification**: Confirm payments were made on-chain
+- **Records**: Track all payments received across opportunities
+- **Trust**: On-chain verification provides transparency
+
+### For Organizations
+- **Record Keeping**: Document all payments made
+- **Compliance**: Maintain records of disbursements
+- **Transparency**: Show payment history to community
+- **Verification**: Prove payments were completed
+
+## Payment Verification
+
+When an organization records a payment, Opentribe:
+
+1. **Stores the transaction hash** provided by the organization
+2. **Queries Subscan API** to verify the transaction
+3. **Updates payment status** based on blockchain confirmation
+4. **Displays verification badge** when confirmed
+
+You can always verify any payment independently by:
+- Clicking the transaction hash to view on Subscan
+- Checking the blockchain directly using any explorer
+- Verifying sender/receiver addresses match
+
+## Common Questions
+
+### Why doesn't Opentribe process payments directly?
+
+Opentribe focuses on being the best talent marketplace for discovering opportunities. By not handling payments, we:
+- Keep the platform simple and focused
+- Avoid regulatory complexity
+- Let organizations use their preferred payment methods
+- Maintain decentralization principles
+
+### What if an organization doesn't pay?
+
+Since payments happen directly between parties:
+- Check the payment status on Opentribe
+- Verify the transaction hash on Subscan if provided
+- Contact the organization directly
+- Report issues to the Opentribe team for mediation support
+
+### Can I trust the payment records?
+
+All payment records are verified against the actual blockchain:
+- Transaction hashes can't be faked (they're verified on-chain)
+- Subscan provides independent verification
+- The blockchain is immutable and transparent
+- Anyone can verify any transaction independently
+
+## Supported Tokens
+
+Organizations typically pay in DOT (Polkadot’s native token) or any other asset that’s registered on Asset Hub—foreign parachain tokens and bridged stablecoins can all be managed there. [Source](https://docs.polkadot.com/polkadot-protocol/architecture/system-chains/asset-hub/)
+
+Document the token inside your bounty/grant so builders know what to expect.
+
+## Next Steps
+
+- [For Builders: Receiving Payments](/docs/payments/receiving-payments)
+- [For Organizations: Making Payments](/docs/payments/making-payments)
+- [Understanding Payment Verification](/docs/payments/verification)

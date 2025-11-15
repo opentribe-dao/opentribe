@@ -29,7 +29,7 @@ Opentribe is a centralized talent marketplace for the Polkadot ecosystem, servin
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript (strict mode)
 - **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: Better Auth (wallet, Google, GitHub)
+- **Authentication**: Better Auth (email/password, Google, GitHub)
 - **Styling**: Tailwind CSS + Glass UI design system
 - **Deployment**: Vercel
 - **Monorepo**: Turborepo with pnpm workspaces

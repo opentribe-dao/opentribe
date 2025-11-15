@@ -33,7 +33,11 @@ export default function PaymentConfirmationEmail({
   bounty,
   payment,
 }: PaymentConfirmationEmailProps) {
-  const displayName = user.firstName || user.username || "Winner";
+  const displayName =
+    user?.firstName ||
+    (user as { name?: string })?.name ||
+    user?.username ||
+    "Winner";
   const subscanUrl = `https://polkadot.subscan.io/extrinsic/${payment.transactionId}`;
 
   return (
@@ -80,3 +84,23 @@ export default function PaymentConfirmationEmail({
     </BaseTemplate>
   );
 }
+
+PaymentConfirmationEmail.PreviewProps = {
+  user: {
+    email: "builder@example.com",
+    firstName: "Sora",
+    username: "sora",
+  },
+  bounty: {
+    id: "bounty-123",
+    title: "Build an Opentribe dashboard widget",
+    organization: {
+      name: "Polkadot Labs",
+    },
+  },
+  payment: {
+    amount: "1500",
+    token: "USDC",
+    transactionId: "0x1234567890abcdef",
+  },
+};

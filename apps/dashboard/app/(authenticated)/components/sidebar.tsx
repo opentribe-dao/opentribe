@@ -1,5 +1,5 @@
 "use client";
-import { useActiveOrganization, useSession } from "@packages/auth/client";
+import { useActiveOrganization } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
 import {
   Sidebar,
@@ -13,7 +13,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@packages/base/components/ui/sidebar";
 import { cn } from "@packages/base/lib/utils";
 import {
@@ -76,8 +75,9 @@ const useNavData = () => {
       },
       {
         title: "Help",
-        url: "/help",
+        url: `${env.NEXT_PUBLIC_WEB_URL}/support`,
         icon: HelpCircleIcon,
+        isExternal: true,
       },
       {
         title: "Sign out",
@@ -89,17 +89,14 @@ const useNavData = () => {
 };
 
 export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
-  const sidebar = useSidebar();
   const data = useNavData();
-  const { data: session } = useSession();
-  const { data: activeOrg } = useActiveOrganization();
 
   const handleSignOut = async () => {
     try {
       const { signOut } = await import("@packages/auth/client");
       await signOut();
       redirect(`${env.NEXT_PUBLIC_WEB_URL}/sign-in`);
-    } catch (error) {
+    } catch {
       redirect(`${env.NEXT_PUBLIC_WEB_URL}/sign-in`);
     }
   };
@@ -166,30 +163,59 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
 
         <SidebarFooter className="border-white/10 border-t p-3">
           <SidebarMenu>
-            {data.bottomActions.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  asChild
-                  className="w-full justify-start rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
-                >
-                  {item.url === "/sign-out" ? (
-                    <button
-                      className="flex w-full items-center"
-                      onClick={handleSignOut}
-                      type="button"
+            {data.bottomActions.map((item) => {
+              const actionItem = item as typeof item & { isExternal?: boolean };
+
+              if (item.url === "/sign-out") {
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      className="w-full justify-start rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
                     >
-                      <item.icon className="mr-3 h-4 w-4" />
-                      <span>{item.title}</span>
-                    </button>
-                  ) : (
+                      <button
+                        className="flex w-full items-center"
+                        onClick={handleSignOut}
+                        type="button"
+                      >
+                        <item.icon className="mr-3 h-4 w-4" />
+                        <span>{item.title}</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              }
+
+              if (actionItem.isExternal) {
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      className="w-full justify-start rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
+                    >
+                      <a href={item.url}>
+                        <item.icon className="mr-3 h-4 w-4" />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              }
+
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    className="w-full justify-start rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
+                  >
                     <Link href={item.url}>
                       <item.icon className="mr-3 h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>

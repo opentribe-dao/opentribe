@@ -1,0 +1,25 @@
+<svg width="240" height="32" viewBox="0 0 240 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wordmarkGradient" x1="0" y1="16" x2="240" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="white" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <style type="text/css"><![CDATA[
+      @font-face {
+        font-family: 'OpentribeWordmark';
+        src: url('https://opentribe.io/fonts/ChakraPetch-Bold.ttf') format('truetype');
+        font-weight: 700;
+        font-display: swap;
+      }
+      .wordmark {
+        font-family: 'OpentribeWordmark', 'Chakra Petch', 'Arial', sans-serif;
+        font-weight: 700;
+        font-size: 22px;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        fill: url(#wordmarkGradient);
+      }
+    ]]></style>
+  </defs>
+  <text x="0" y="24" class="wordmark">Opentribe</text>
+</svg>

@@ -83,7 +83,7 @@ const authOptions = {
       enabled: true,
       domain:
         process.env.VERCEL_TARGET_ENV === "production" ||
-        process.env.VERCEL_TARGET_ENV === "dev"
+        process.env.VERCEL_TARGET_ENV === "staging"
           ? ".opentribe.io"
           : "localhost",
     },

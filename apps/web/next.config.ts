@@ -74,7 +74,7 @@ nextConfig.images.remotePatterns.push(
 
 if (
   process.env.VERCEL_TARGET_ENV === "production" ||
-  process.env.VERCEL_TARGET_ENV === "dev"
+  process.env.VERCEL_TARGET_ENV === "staging"
 ) {
   const redirects: NextConfig["redirects"] = async () => [
     {

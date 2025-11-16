@@ -1,21 +1,75 @@
+import type { CSSProperties, ReactNode } from "react";
 import {
   Body,
-  Container,
   Head,
   Html,
   Img,
   Link,
   Preview,
-  Section,
   Tailwind,
   Text,
 } from "@react-email/components";
 
-interface BaseTemplateProps {
+const BASE_URL = process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io";
+const LOGOMARK_URL = `${BASE_URL}/logomark.png`;
+const WORDMARK_URL = `${BASE_URL}/wordmark-dark.png`;
+
+const colorSchemeStyles = `
+  :root {
+    color-scheme: dark;
+    supported-color-schemes: dark;
+  }
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #040308 !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #040308 !important;
+      color: #ffffff !important;
+    }
+  }
+`;
+
+const outerCellStyle: CSSProperties = {
+  padding: "36px 16px 48px",
+  backgroundColor: "#040308",
+  backgroundImage:
+    "radial-gradient(circle at top, rgba(230, 0, 122, 0.12), rgba(4,3,8,0.96) 55%)",
+};
+
+const innerTableStyle: CSSProperties = {
+  width: "100%",
+  maxWidth: "600px",
+  borderSpacing: 0,
+};
+
+const cardTableStyle: CSSProperties = {
+  width: "100%",
+  borderSpacing: 0,
+  backgroundColor: "#11101b",
+  borderRadius: "28px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "0 35px 120px rgba(0,0,0,0.55)",
+};
+
+const cardCellStyle: CSSProperties = {
+  padding: "40px 44px",
+  borderRadius: "28px",
+};
+
+const footerTextStyle: CSSProperties = {
+  color: "rgba(255,255,255,0.45)",
+  fontSize: "13px",
+  lineHeight: "20px",
+};
+
+type BaseTemplateProps = {
   readonly preview: string;
-  readonly children: React.ReactNode;
+  readonly children: ReactNode;
   readonly unsubscribeUrl?: string;
-}
+};
 
 export const BaseTemplate = ({
   preview,
@@ -24,80 +78,135 @@ export const BaseTemplate = ({
 }: BaseTemplateProps) => (
   <Tailwind>
     <Html>
-      <Head />
+      <Head>
+        <meta name="color-scheme" content="dark" />
+        <meta name="supported-color-schemes" content="dark" />
+        <style>{colorSchemeStyles}</style>
+      </Head>
       <Preview>{preview}</Preview>
       <Body
         className="bg-black font-sans"
+        data-ogsc="dark"
         style={{
-          backgroundColor: "#0a0a0a",
-          backgroundImage:
-            "linear-gradient(135deg, rgba(147, 51, 234, 0.08) 0%, rgba(0, 0, 0, 0) 30%, rgba(59, 130, 246, 0.08) 100%)",
+          margin: 0,
+          padding: 0,
+          width: "100%",
+          backgroundColor: "#040308",
         }}
       >
-        <Container
-          className="mx-auto max-w-[600px] py-12"
-          style={{
-            background:
-              "radial-gradient(ellipse 800px 400px at 50% 0%, rgba(230, 0, 122, 0.04), transparent)",
-          }}
+        <table
+          cellPadding="0"
+          cellSpacing="0"
+          role="presentation"
+          width="100%"
+          style={{ width: "100%", borderSpacing: 0 }}
         >
-          {/* Header */}
-          <Section className="mb-8 text-center">
-            <table align="center" style={{ margin: "0 auto" }}>
-              <tr>
-                <td align="center">
-                  <Img
-                    alt="Opentribe Logo"
-                    height="28"
-                    src="https://opentribe.io/logomark.png"
-                    style={{ display: "inline-block", verticalAlign: "middle" }}
-                    width="28"
-                  />
-                </td>
-                <td align="center" style={{ paddingLeft: "4px" }}>
-                  <span
-                    style={{
-                      background:
-                        "linear-gradient(to right, rgba(255, 255, 255, 0.35), white)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                      fontWeight: "bold",
-                      fontSize: "20px",
-                      letterSpacing: "0.25em",
-                      fontFamily: "Arial, sans-serif",
-                    }}
-                  >
-                    OPENTRIBE
-                  </span>
-                </td>
-              </tr>
-            </table>
-          </Section>
+          <tbody>
+            <tr>
+              <td align="center" style={outerCellStyle}>
+                <table
+                  cellPadding="0"
+                  cellSpacing="0"
+                  role="presentation"
+                  style={innerTableStyle}
+                >
+                  <tbody>
+                    {/* Header */}
+                    <tr>
+                      <td align="center" style={{ paddingBottom: "28px" }}>
+                        <table
+                          cellPadding="0"
+                          cellSpacing="0"
+                          role="presentation"
+                          style={{ margin: "0 auto" }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td style={{ paddingRight: "6px" }}>
+                                <Img
+                                  alt="Opentribe logomark"
+                                  height="28"
+                                  src={LOGOMARK_URL}
+                                  width="28"
+                                  style={{
+                                    display: "block",
+                                    border: "0",
+                                    outline: "none",
+                                    height: "28px",
+                                    width: "28px",
+                                  }}
+                                />
+                              </td>
+                              <td>
+                                <Img
+                                  alt="Opentribe"
+                                  height="16"
+                                  src={WORDMARK_URL}
+                                  width="160"
+                                  style={{
+                                    display: "block",
+                                    border: "0",
+                                    outline: "none",
+                                    height: "16px",
+                                    width: "160px",
+                                  }}
+                                />
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
 
-          {/* Main Content */}
-          <Section className="rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
-            {children}
-          </Section>
+                    {/* Card */}
+                    <tr>
+                      <td>
+                        <table
+                          cellPadding="0"
+                          cellSpacing="0"
+                          role="presentation"
+                          style={cardTableStyle}
+                        >
+                          <tbody>
+                            <tr>
+                              <td style={cardCellStyle}>{children}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
 
-          {/* Footer */}
-          <Section className="mt-8 text-center">
-            <Text className="text-sm text-white/40">
-              © {new Date().getFullYear()} Opentribe. All rights reserved.
-            </Text>
-            <Text className="mt-2 text-sm text-white/40">
-              The Talent Layer for Polkadot Ecosystem
-            </Text>
-            {unsubscribeUrl && (
-              <Link
-                className="mt-4 inline-block text-sm text-white/40 underline"
-                href={unsubscribeUrl}
-              >
-                Unsubscribe from these emails
-              </Link>
-            )}
-          </Section>
-        </Container>
+                    {/* Footer */}
+                    <tr>
+                      <td align="center" style={{ paddingTop: "32px" }}>
+                        <Text style={footerTextStyle}>
+                          © {new Date().getFullYear()} Opentribe. All rights
+                          reserved.
+                        </Text>
+                        <Text style={{ ...footerTextStyle, marginTop: "4px" }}>
+                          The Talent Layer for Polkadot Ecosystem
+                        </Text>
+                        {unsubscribeUrl && (
+                          <Link
+                            href={unsubscribeUrl}
+                            style={{
+                              ...footerTextStyle,
+                              display: "inline-block",
+                              marginTop: "12px",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            Unsubscribe from these emails
+                          </Link>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </Body>
     </Html>
   </Tailwind>

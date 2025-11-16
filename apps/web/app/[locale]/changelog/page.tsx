@@ -23,8 +23,23 @@ export type ChangelogEntry = {
 // Sample changelog entries
 const changelogEntries: ChangelogEntry[] = [
   {
+    version: "Version 1.0.1",
+    date: "17 November 2025",
+    title: "Email & Documentation Enhancements - Bug Fixes & Improvements",
+    description:
+      "This release focuses on email template improvements with dark mode support, documentation site enhancements, and various bug fixes and infrastructure updates.",
+    items: [
+      "Added: Dark mode support for email templates (BaseTemplate and PaymentConfirmationEmail)",
+      "Changed: Replaced SVG logo with Img component in emails for improved rendering",
+      "Changed: Enhanced documentation site layout with Open Graph support",
+      "Changed: Refined global CSS for improved aesthetics",
+      "Changed: Removed API overview references from documentation",
+      "Infrastructure: Documentation site improvements and content updates",
+    ],
+  },
+  {
     version: "Version 1.0.0",
-    date: "November 2025",
+    date: "11 November 2025",
     title: "Platform Launch - Production Ready",
     description:
       "First production release of Opentribe with legal compliance, enhanced features, and comprehensive improvements. This release includes GDPR cookie consent, contact & support system, grant management enhancements, SEO improvements, and full CI/CD deployment pipeline.",

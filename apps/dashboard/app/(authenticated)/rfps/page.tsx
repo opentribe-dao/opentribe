@@ -63,8 +63,8 @@ interface RFP {
 const STATUSES = [
   { value: "all", label: "All Status" },
   { value: "OPEN", label: "Open" },
+  { value: "PAUSED", label: "Paused" },
   { value: "CLOSED", label: "Closed" },
-  { value: "COMPLETED", label: "Completed" },
 ];
 
 const VISIBILITIES = [
@@ -129,10 +129,10 @@ export default function RFPsPage() {
     switch (status) {
       case "OPEN":
         return "bg-green-500/20 text-green-400";
+      case "PAUSED":
+        return "bg-yellow-500/20 text-yellow-400";
       case "CLOSED":
         return "bg-red-500/20 text-red-400";
-      case "COMPLETED":
-        return "bg-blue-500/20 text-blue-400";
       default:
         return "bg-white/10 text-white/60";
     }

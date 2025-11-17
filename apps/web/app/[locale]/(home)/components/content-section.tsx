@@ -132,7 +132,7 @@ export function ContentSection({
                       : (bounty.amount ?? 0)
                   }
                   amountUSD={bounty.amountUSD}
-                  createdAt={bounty.createdAt || new Date().toISOString()}
+                  commentCount={bounty.commentCount || 0}
                   deadline={bounty.deadline}
                   description={bounty.description || "No description available"}
                   id={bounty.id}

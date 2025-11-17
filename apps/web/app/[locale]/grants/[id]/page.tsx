@@ -231,7 +231,7 @@ export default function GrantDetailPage({
           <div className="space-y-8 lg:col-span-2">
             {/* About Section */}
             <section>
-              <ExpandableText className="py-0" maxHeight={300}>
+              <ExpandableText className="py-0" maxHeight={300} mobileOnly>
                 <h2 className="mb-4 font-bold font-heading text-2xl">
                   About the {grant.title}
                 </h2>

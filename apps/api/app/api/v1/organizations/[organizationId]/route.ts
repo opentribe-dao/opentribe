@@ -104,13 +104,15 @@ export async function PATCH(
     const updateSchema = z.object({
       name: z.string().min(1).max(100).optional(),
       slug: z.string().min(3).max(50).optional(),
-      email: z.string().email().optional().nullable(),
-      website: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
+      email: z.email().optional().nullable(),
+      websiteUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
       twitter: z.string().optional().nullable(),
-      instagram: z.string().optional().nullable(),
-      shortDescription: z.string().max(200).optional().nullable(),
-      longDescription: z.string().optional().nullable(),
+      linkedin: z.string().optional().nullable(),
+      description: z.string().max(500).optional().nullable(),
       logo: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
+      location: z.string().min(1).max(100).optional().nullable(),
+      industry: z.string().min(1).optional().nullable(),
+      type: z.string().min(1).optional().nullable(),
     });
 
     const body = await request.json();
@@ -133,10 +135,18 @@ export async function PATCH(
       }
     }
 
+    const { type, industry, ...rest } = validatedData;
+
     const updatedOrganization = await database.organization.update({
       where: { id: organizationId },
       data: {
-        ...validatedData,
+        ...rest,
+        ...(typeof industry === "string" && industry.trim().length > 0
+          ? { industry: [industry] }
+          : {}),
+        ...(typeof type === "string" && type.trim().length > 0
+          ? { metadata: JSON.stringify({ type }) }
+          : {}),
         updatedAt: new Date(),
       },
       include: {

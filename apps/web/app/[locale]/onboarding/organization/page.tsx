@@ -42,6 +42,27 @@ const INDUSTRIES = [
   { value: "other", label: "Other" },
 ];
 
+const fallbackString = (...values: Array<string | undefined | null>) => {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value;
+    }
+  }
+  return "";
+};
+
+const getNameParts = (fullName?: string | null) => {
+  if (!fullName) {
+    return { firstName: "", lastName: "" };
+  }
+
+  const [first, ...rest] = fullName.split(" ").filter(Boolean);
+  return {
+    firstName: first ?? "",
+    lastName: rest.join(" "),
+  };
+};
+
 // interface TeamMember {
 //   id: string;
 //   name: string;
@@ -97,30 +118,27 @@ function OrganizationOnboardingPageContent() {
   }, [session, sessionLoading, router]);
 
   useEffect(() => {
-    // Pre-fill form with user profile data when it loads
-    if (userProfile) {
-      setFormData((prev) => ({
-        ...prev,
-        firstName:
-          userProfile.firstName ||
-          (userProfile.name ? userProfile.name.split(" ")[0] : ""),
-        lastName:
-          userProfile.lastName ||
-          (userProfile.name
-            ? userProfile.name.split(" ").slice(1).join(" ")
-            : ""),
-        username: userProfile.username || "",
-        location: userProfile.location || "",
-        walletAddress: userProfile.walletAddress || "",
-        website: userProfile.website || "",
-        twitter: userProfile.twitter || "",
-        linkedin: userProfile.linkedin || "",
-      }));
+    if (!userProfile) {
+      return;
+    }
 
-      // If user has completed profile, skip to step 2
-      if (userProfile.profileCompleted) {
-        setCurrentStep(2);
-      }
+    const { firstName: derivedFirstName, lastName: derivedLastName } =
+      getNameParts(userProfile.name);
+
+    setFormData((prev) => ({
+      ...prev,
+      firstName: fallbackString(userProfile.firstName, derivedFirstName),
+      lastName: fallbackString(userProfile.lastName, derivedLastName),
+      username: fallbackString(userProfile.username),
+      location: fallbackString(userProfile.location),
+      walletAddress: fallbackString(userProfile.walletAddress),
+      website: fallbackString(userProfile.website),
+      twitter: fallbackString(userProfile.twitter),
+      linkedin: fallbackString(userProfile.linkedin),
+    }));
+
+    if (userProfile.profileCompleted) {
+      setCurrentStep(2);
     }
   }, [userProfile]);
 
@@ -626,6 +644,7 @@ function OrganizationOnboardingPageContent() {
                 <Textarea
                   className="border-white/20 bg-white/5 text-white placeholder:text-white/40"
                   id="organizationDescription"
+                  maxLength={1000}
                   onChange={(e) =>
                     handleInputChange("organizationDescription", e.target.value)
                   }

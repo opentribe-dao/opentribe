@@ -68,7 +68,7 @@ function BountiesContentSectionComponent({
                 ))
               : skillsOptions.map((skill) => (
                   <button
-                    className={`flex-shrink-0 whitespace-nowrap rounded-lg border px-3 py-1.5 font-medium text-sm transition-all duration-200 ${
+                    className={`shrink-0 whitespace-nowrap rounded-lg border px-3 py-1.5 font-medium text-sm transition-all duration-200 ${
                       selectedSkills.includes(skill)
                         ? "border-pink-400 bg-pink-500/20 text-pink-300"
                         : "border-white/20 bg-white/10 text-white/70 hover:border-pink-400/50 hover:bg-white/20"
@@ -138,7 +138,7 @@ function BountiesContentSectionComponent({
                 <BountyCard
                   amount={bounty.amount}
                   amountUSD={bounty.amountUSD || null}
-                  createdAt={bounty.createdAt}
+                  commentCount={bounty.commentCount || 0}
                   deadline={bounty.deadline}
                   description={bounty.description || "No description available"}
                   id={bounty.id}

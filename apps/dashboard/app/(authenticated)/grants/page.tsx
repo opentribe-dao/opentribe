@@ -22,10 +22,10 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { env } from "@/env";
 import { Header } from "../components/header";
+import { NoOrganizationFallback } from "../components/no-organization-fallback";
 
 interface Grant {
   id: string;
@@ -64,7 +64,6 @@ interface Grant {
 const GrantsPage = () => {
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterSource, setFilterSource] = useState("all");
@@ -74,7 +73,10 @@ const GrantsPage = () => {
 
   useEffect(() => {
     const fetchGrants = async () => {
-      if (!activeOrg) return;
+      if (!activeOrg) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const response = await fetch(
@@ -174,6 +176,10 @@ const GrantsPage = () => {
     );
   }
 
+  if (!activeOrg) {
+    return <NoOrganizationFallback />;
+  }
+
   return (
     <>
       <Header page="Grants" pages={["Overview"]} />
@@ -192,7 +198,7 @@ const GrantsPage = () => {
         {/* Search and Filters */}
         <div className="flex items-center gap-4">
           <div className="relative max-w-md flex-1">
-            <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+            <Search className="-translate-y-1/2 absolute top-1/2 left-3 z-10 h-4 w-4 text-white/40" />
             <Input
               className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -217,14 +223,6 @@ const GrantsPage = () => {
               </SelectItem>
             </SelectContent>
           </Select>
-
-          <Button
-            className="border-white/10 text-white/60 hover:bg-white/5"
-            size="icon"
-            variant="outline"
-          >
-            <Filter className="h-4 w-4" />
-          </Button>
 
           <Select onValueChange={setSortBy} value={sortBy}>
             <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">

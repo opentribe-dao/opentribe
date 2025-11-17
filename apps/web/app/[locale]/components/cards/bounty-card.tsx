@@ -1,7 +1,7 @@
 import { Separator } from "@packages/base/components/ui/separator";
 import { getSkillLabel } from "@packages/base/lib/skills";
 import { formatCurrency, getDeadlineInfo } from "@packages/base/lib/utils";
-import { Calendar, Clock, Users } from "lucide-react";
+import { Clock, MessageSquare, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,8 +24,8 @@ interface BountyCardProps {
   variant?: "default" | "list";
   amountUSD: number | null;
   description?: string;
-  createdAt: string;
   winnersAnnouncedAt: string | null;
+  commentCount: number;
 }
 
 export function BountyCard({
@@ -38,32 +38,11 @@ export function BountyCard({
   deadline,
   submissionCount,
   skills,
-  createdAt,
   status,
+  commentCount,
 }: BountyCardProps) {
   // Ensure skills is always an array
   const safeSkills = Array.isArray(skills) ? skills : [];
-
-  const formatDate = (date: string) => {
-    if (!date) return "No date";
-    try {
-      // Handle both Date objects and date strings
-      const dateObj = new Date(date);
-
-      // Check if the date is valid
-      if (Number.isNaN(dateObj.getTime())) {
-        return "Invalid date";
-      }
-
-      return dateObj.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch {
-      return "Invalid date";
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status?.toUpperCase()) {
@@ -85,6 +64,8 @@ export function BountyCard({
   const safeAmount = Number(amount);
   const safeSubmissionCount =
     typeof submissionCount === "number" ? submissionCount : 0;
+  const safeCommentCount =
+    typeof commentCount === "number" ? commentCount : 0;
 
   const organizationName =
     typeof organization === "object" && organization?.name
@@ -205,12 +186,10 @@ export function BountyCard({
                 );
               })()}
           </div>
-          {createdAt && (
-            <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              <span>{formatDate(createdAt)}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <MessageSquare className="h-3 w-3" />
+            <span>{safeCommentCount} comments</span>
+          </div>
         </div>
       </div>
     </Link>

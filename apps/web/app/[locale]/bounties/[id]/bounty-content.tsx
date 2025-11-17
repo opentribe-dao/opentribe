@@ -112,7 +112,7 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
     <>
       {/* Description */}
       <section>
-        <ExpandableText className="py-0" maxHeight={300}>
+        <ExpandableText className="py-0" maxHeight={300} mobileOnly>
           <h2 className="mb-4 font-bold font-heading text-2xl">Description</h2>
           <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-white/5 prose-headings:font-heading prose-code:text-pink-400 prose-li:text-white/80 prose-p:text-white/80 prose-strong:text-white">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -122,8 +122,40 @@ export function BountyContent({ bounty, children }: BountyContentProps) {
         </ExpandableText>
       </section>
 
+      {/* Resources */}
+      {Array.isArray(bounty.resources) && bounty.resources.length > 0 && (
+        <section>
+          <h2 className="mb-4 font-bold font-heading text-2xl">Resources</h2>
+          <div className="space-y-3">
+            {bounty.resources.map((resource: any, idx: number) => (
+              <a
+                className="block rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+                href={resource.url}
+                key={resource.url ?? idx}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-white">{resource.title}</p>
+                    {resource.description && (
+                      <p className="mt-1 text-sm text-white/70">
+                        {resource.description}
+                      </p>
+                    )}
+                  </div>
+                  <span className="whitespace-nowrap font-medium text-pink-400 text-sm">
+                    Visit →
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Acceptance Criteria */}
-      {bounty.screening && (
+      {Array.isArray(bounty.screening) && bounty.screening.length > 0 && (
         <section>
           <h2 className="mb-4 font-bold font-heading text-2xl">
             Acceptance Criteria

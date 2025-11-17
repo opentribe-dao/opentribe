@@ -22,10 +22,10 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { env } from "@/env";
 import { Header } from "../components/header";
+import { NoOrganizationFallback } from "../components/no-organization-fallback";
 
 interface Grant {
   id: string;
@@ -64,7 +64,6 @@ interface Grant {
 const GrantsPage = () => {
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterSource, setFilterSource] = useState("all");
@@ -74,7 +73,10 @@ const GrantsPage = () => {
 
   useEffect(() => {
     const fetchGrants = async () => {
-      if (!activeOrg) return;
+      if (!activeOrg) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const response = await fetch(
@@ -172,6 +174,10 @@ const GrantsPage = () => {
         <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
       </div>
     );
+  }
+
+  if (!activeOrg) {
+    return <NoOrganizationFallback />;
   }
 
   return (

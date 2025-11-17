@@ -25,7 +25,6 @@ import {
   TableRow,
 } from "@packages/base/components/ui/table";
 import {
-  Edit,
   Eye,
   FileText,
   Loader2,
@@ -33,7 +32,6 @@ import {
   Plus,
   Search,
   ThumbsUp,
-  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -41,6 +39,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
 import { Header } from "../components/header";
+import { NoOrganizationFallback } from "../components/no-organization-fallback";
 
 interface RFP {
   id: string;
@@ -64,8 +63,8 @@ interface RFP {
 const STATUSES = [
   { value: "all", label: "All Status" },
   { value: "OPEN", label: "Open" },
+  { value: "PAUSED", label: "Paused" },
   { value: "CLOSED", label: "Closed" },
-  { value: "COMPLETED", label: "Completed" },
 ];
 
 const VISIBILITIES = [
@@ -115,30 +114,6 @@ export default function RFPsPage() {
     }
   };
 
-  const handleDeleteRFP = async (rfpId: string) => {
-    if (!confirm("Are you sure you want to delete this RFP?")) return;
-
-    try {
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg?.id}/rfps/${rfpId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete RFP");
-      }
-
-      toast.success("RFP deleted successfully");
-      fetchRFPs();
-    } catch (error) {
-      console.error("Error deleting RFP:", error);
-      toast.error("Failed to delete RFP");
-    }
-  };
-
   const filteredRfps = rfps.filter((rfp) => {
     const matchesSearch =
       rfp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -154,10 +129,10 @@ export default function RFPsPage() {
     switch (status) {
       case "OPEN":
         return "bg-green-500/20 text-green-400";
+      case "PAUSED":
+        return "bg-yellow-500/20 text-yellow-400";
       case "CLOSED":
         return "bg-red-500/20 text-red-400";
-      case "COMPLETED":
-        return "bg-blue-500/20 text-blue-400";
       default:
         return "bg-white/10 text-white/60";
     }
@@ -166,13 +141,13 @@ export default function RFPsPage() {
   const getVisibilityColor = (visibility: string) => {
     switch (visibility) {
       case "PUBLISHED":
-        return "bg-green-500/20 text-green-400";
+        return "bg-transparent text-green-400";
       case "DRAFT":
-        return "bg-yellow-500/20 text-yellow-400";
+        return "bg-transparent text-yellow-400";
       case "ARCHIVED":
-        return "bg-gray-500/20 text-gray-400";
+        return "bg-transparent text-gray-400";
       default:
-        return "bg-white/10 text-white/60";
+        return "bg-transparent text-white/60";
     }
   };
 
@@ -184,21 +159,7 @@ export default function RFPsPage() {
     });
 
   if (!activeOrg) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <p className="mb-4 text-white/60">No organization selected</p>
-          <Button
-            className="bg-[#E6007A] hover:bg-[#E6007A]/90"
-            onClick={() =>
-              router.push(`${env.NEXT_PUBLIC_WEB_URL}/onboarding/organization`)
-            }
-          >
-            Create Organization
-          </Button>
-        </div>
-      </div>
-    );
+    return <NoOrganizationFallback />;
   }
 
   return (
@@ -273,22 +234,27 @@ export default function RFPsPage() {
         </Card>
 
         {/* RFPs Table */}
-        <Card className="border-white/10 bg-white/5 backdrop-blur-md">
-          <CardContent className="p-0">
-            {loading ? (
+        {(() => {
+          const hasFilters =
+            searchTerm ||
+            statusFilter !== "all" ||
+            visibilityFilter !== "all";
+          const emptyMessage = hasFilters
+            ? "No RFPs found matching your filters"
+            : "No RFPs created yet";
+
+          let content: React.ReactNode;
+          if (loading) {
+            content = (
               <div className="flex items-center justify-center p-8">
                 <Loader2 className="h-8 w-8 animate-spin text-[#E6007A]" />
               </div>
-            ) : filteredRfps.length === 0 ? (
+            );
+          } else if (filteredRfps.length === 0) {
+            content = (
               <div className="p-8 text-center">
                 <FileText className="mx-auto mb-4 h-12 w-12 text-white/20" />
-                <p className="mb-4 text-white/60">
-                  {searchTerm ||
-                  statusFilter !== "all" ||
-                  visibilityFilter !== "all"
-                    ? "No RFPs found matching your filters"
-                    : "No RFPs created yet"}
-                </p>
+                <p className="mb-4 text-white/60">{emptyMessage}</p>
                 {!searchTerm &&
                   statusFilter === "all" &&
                   visibilityFilter === "all" && (
@@ -301,48 +267,51 @@ export default function RFPsPage() {
                     </Button>
                   )}
               </div>
-            ) : (
+            );
+          } else {
+            content = (
               <Table>
                 <TableHeader>
                   <TableRow className="border-white/10">
-                    <TableHead className="text-white">RFP</TableHead>
-                    <TableHead className="text-white">Grant</TableHead>
-                    <TableHead className="text-white">Status</TableHead>
-                    <TableHead className="text-white">Visibility</TableHead>
-                    <TableHead className="text-center text-white">
-                      Stats
+                    <TableHead className="px-6 py-3 text-white">RFP</TableHead>
+                    <TableHead className="px-6 py-3 text-white">GRANT</TableHead>
+                    <TableHead className="px-6 py-3 text-white">STATUS</TableHead>
+                    <TableHead className="px-6 py-3 text-white">VISIBILITY</TableHead>
+                    <TableHead className="px-6 py-3 text-center text-white">
+                      STATS
                     </TableHead>
-                    <TableHead className="text-white">Created</TableHead>
-                    <TableHead className="text-right text-white">
-                      Actions
-                    </TableHead>
+                    <TableHead className="px-6 py-3 text-white">CREATED</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredRfps.map((rfp) => (
-                    <TableRow className="border-white/10" key={rfp.id}>
-                      <TableCell>
+                    <TableRow
+                      className="cursor-pointer border-white/10 transition-colors hover:bg-white/5"
+                      key={rfp.id}
+                      onClick={() => router.push(`/rfps/${rfp.id}`)}
+                    >
+                      <TableCell className="px-6 py-3">
                         <div>
                           <p className="font-medium text-white">{rfp.title}</p>
-                          <p className="text-sm text-white/60">/{rfp.slug}</p>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-6 py-3">
                         <Link
                           className="text-[#E6007A] hover:underline"
                           href={`/grants/${rfp.grant.id}`}
+                          onClick={(e) => e.stopPropagation()}
                         >
                           {rfp.grant.title}
                         </Link>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-6 py-3">
                         <Badge
                           className={`${getStatusColor(rfp.status)} border-0`}
                         >
                           {rfp.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-6 py-3">
                         <Badge
                           className={`${getVisibilityColor(
                             rfp.visibility
@@ -351,8 +320,8 @@ export default function RFPsPage() {
                           {rfp.visibility}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-4 text-sm text-white/60">
+                      <TableCell className="px-6 py-3 text-center">
+                        <div className="flex items-center justify-center gap-4 text-sm text-white/60">
                           <div className="flex items-center gap-1">
                             <Eye className="h-4 w-4" />
                             <span>{rfp.viewCount}</span>
@@ -371,44 +340,22 @@ export default function RFPsPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-white/60">
+                      <TableCell className="px-6 py-3 text-white/60">
                         {formatDate(rfp.createdAt)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            className="text-white/60 hover:text-white"
-                            onClick={() => router.push(`/rfps/${rfp.id}`)}
-                            size="sm"
-                            variant="ghost"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            className="text-white/60 hover:text-white"
-                            onClick={() => router.push(`/rfps/${rfp.id}/edit`)}
-                            size="sm"
-                            variant="ghost"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            className="text-red-400 hover:text-red-300"
-                            onClick={() => handleDeleteRFP(rfp.id)}
-                            size="sm"
-                            variant="ghost"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            )}
-          </CardContent>
-        </Card>
+            );
+          }
+
+          return (
+            <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+              <CardContent className="p-0">{content}</CardContent>
+            </Card>
+          );
+        })()}
       </div>
     </>
   );

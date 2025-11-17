@@ -14,6 +14,7 @@ import {
 } from "../../components/bounty-provider";
 import { Header } from "../../components/header";
 import { PaymentModal } from "./payment-modal";
+import { Badge } from "@packages/base/components/ui/badge";
 
 const BOUNTY_REGEX = /^\/bounties\/[^/]+\/submissions\/[^/]+$/;
 
@@ -85,7 +86,6 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
       case "CLOSED":
       case "COMPLETED":
         return "bg-blue-500/20 text-blue-400 border-0";
-      case "DRAFT":
       default:
         return "bg-gray-500/20 text-gray-400 border-0";
     }
@@ -94,18 +94,43 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
   const getStatusLabel = (status: string) => {
     switch (status.toUpperCase()) {
       case "OPEN":
-        return "Open";
+        return "OPEN";
       case "ACTIVE":
-        return "Active";
+        return "ACTIVE";
       case "REVIEWING":
-        return "Reviewing";
+        return "REVIEWING";
       case "CLOSED":
-        return "Closed";
+        return "CLOSED";
       case "COMPLETED":
-        return "Completed";
-      case "DRAFT":
+        return "COMPLETED";
       default:
-        return "Draft";
+        return "DRAFT";
+    }
+  };
+
+  const getVisibilityColor = (visibility: string) => {
+    switch (visibility.toUpperCase()) {
+      case "PUBLISHED":
+        return "bg-transparent text-green-400 border-0";
+      case "DRAFT":
+        return "bg-transparent text-yellow-400 border-0";
+      case "ARCHIVED":
+        return "bg-transparent text-gray-400 border-0";
+      default:
+        return "bg-transparent text-white/60 border-0";
+    }
+  };
+
+  const getVisibilityLabel = (visibility: string) => {
+    switch (visibility.toUpperCase()) {
+      case "PUBLISHED":
+        return "PUBLISHED";
+      case "DRAFT":
+        return "DRAFT";
+      case "ARCHIVED":
+        return "ARCHIVED";
+      default:
+        return visibility;
     }
   };
 
@@ -114,40 +139,50 @@ function BountyLayoutBody({ children }: { children: React.ReactNode }) {
       <Header page={bounty.title} pages={["Overview", "Bounties"]} />
       <div className="flex min-h-screen flex-col gap-6 p-6">
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="mb-2 font-semibold text-3xl text-white">
-              {bounty.title}
-            </h1>
-            <div className="flex items-center gap-4 text-sm text-white/60">
-              <span>by {bounty.organization.name}</span>
-              <span>•</span>
-              <span>
-                {new Date(
-                  bounty.publishedAt || bounty.createdAt
-                ).toLocaleDateString()}
-              </span>
+        <div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <h1 className="font-semibold text-3xl text-white">
+                {bounty.title}
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                asChild
+                className="border-white/20 text-white hover:bg-white/10"
+                size="sm"
+                variant="outline"
+              >
+                <Link
+                  className="flex items-center gap-2"
+                  href={`/bounties/${bounty.id}/edit`}
+                >
+                  <Edit2 className="h-4 w-4" />
+                  Edit Bounty
+                </Link>
+              </Button>
+              <ShareButton
+                size="sm"
+                url={`${env.NEXT_PUBLIC_WEB_URL}/bounties/${bounty.id}`}
+              />
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Button
-              asChild
-              className="border-white/20 text-white hover:bg-white/10"
-              size="sm"
-              variant="outline"
-            >
-              <Link
-                className="flex items-center gap-2"
-                href={`/bounties/${bounty.id}/edit`}
-              >
-                <Edit2 className="h-4 w-4" />
-                Edit Bounty
-              </Link>
-            </Button>
-            <ShareButton
-              size="sm"
-              url={`${env.NEXT_PUBLIC_WEB_URL}/bounties/${bounty.id}`}
-            />
+          <div className="mt-2 flex items-center gap-2 text-sm text-white/60">
+            <span>by {bounty.organization.name}</span>
+            <span>•</span>
+            <span>
+              {new Date(
+                bounty.publishedAt || bounty.createdAt
+              ).toLocaleDateString()}
+            </span>
+            <span>•</span>
+            <Badge className={getStatusColor(bounty.status)}>
+              {getStatusLabel(bounty.status)}
+            </Badge>
+            <span>•</span>
+            <Badge className={getVisibilityColor(bounty.visibility)}>
+              {getVisibilityLabel(bounty.visibility)}
+            </Badge>
           </div>
         </div>
         {/* Tab Navigation */}

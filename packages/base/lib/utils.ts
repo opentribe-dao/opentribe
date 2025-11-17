@@ -29,12 +29,12 @@ export const relativeTime = (time: Date): string => {
   const diffMin = Math.floor(diffSec / 60);
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
-  const diffWeak = Math.floor(diffDay / 7);
+  const diffWeek = Math.floor(diffDay / 7);
 
   const timeFormats = [
     {
-      check: diffWeak < 1,
-      value: `a week${diffWeak > 1 ? "s" : ""} ago`,
+      check: diffWeek >= 1,
+      value: `${diffWeek} week${diffWeek > 1 ? "s" : ""} ago`,
     },
     {
       check: diffDay >= 1,

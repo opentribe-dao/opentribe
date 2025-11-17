@@ -70,7 +70,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
       }
 
       toast.success(
-        "Account created successfully! Please check your inbox for verification email."
+        "Account created successfully! Please check your inbox or spam for the verification email."
       );
 
       if (onSuccess) {

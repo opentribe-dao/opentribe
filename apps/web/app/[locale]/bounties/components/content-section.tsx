@@ -57,7 +57,7 @@ function BountiesContentSectionComponent({
       <div className="mb-4">
         <div className="relative">
           <div
-            className={`scrollbar-hide flex gap-2 overflow-x-auto${bounties.length === 0 ? "" : "py-2"}`}
+            className={`scrollbar-hide flex gap-2 overflow-x-auto`}
           >
             {loading && skillsOptions.length === 0
               ? Array.from({ length: 8 }).map((_, i) => (
@@ -138,7 +138,7 @@ function BountiesContentSectionComponent({
                 <BountyCard
                   amount={bounty.amount}
                   amountUSD={bounty.amountUSD || null}
-                  createdAt={bounty.createdAt}
+                  commentCount={bounty.commentCount || 0}
                   deadline={bounty.deadline}
                   description={bounty.description || "No description available"}
                   id={bounty.id}

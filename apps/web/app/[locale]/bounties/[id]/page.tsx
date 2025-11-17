@@ -3,14 +3,13 @@ import { Button } from "@packages/base/components/ui/button";
 import { ShareButton } from "@packages/base/components/ui/share-button";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { useCountdown } from "@packages/base/hooks/use-countdown";
-import { getSkillLabel } from "@packages/base/lib/skills";
+import { getSkillHeading, getSkillLabel } from "@packages/base/lib/skills";
 import { formatCurrency, getTokenLogo } from "@packages/base/lib/utils";
 import {
   Briefcase,
   Building2,
   Clock,
   DollarSign,
-  MapPin,
   Tag,
 } from "lucide-react";
 import Image from "next/image";
@@ -203,12 +202,14 @@ export default function BountyDetailPage({
                   <div className="flex flex-col gap-4 text-white/60 md:flex-row md:items-center">
                     <span className="flex items-center gap-1">
                       <Building2 className="h-4 w-4" />
-                      {bounty.organization.industry?.[0] || "Technology"}
+                      {bounty.organization.name}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {bounty.organization.location || "Remote"}
-                    </span>
+                    {bounty.skills.length > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Tag className="h-4 w-4" />
+                        {getSkillHeading(bounty.skills[0])}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

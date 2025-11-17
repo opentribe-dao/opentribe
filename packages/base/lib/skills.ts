@@ -142,9 +142,11 @@ export const skillsOptions = [
 ];
 
 const skillLabelMap = new Map<string, string>();
+const skillHeadingMap = new Map<string, string>();
 skillsOptions.forEach(category => {
   category.options.forEach(option => {
     skillLabelMap.set(option.value, option.label);
+    skillHeadingMap.set(option.value, category.heading);
   });
 });
 
@@ -172,4 +174,17 @@ export function getSkillLabel(value: string): string {
  */
 export function getSkillLabels(values: string[]): string[] {
   return values.map(value => getSkillLabel(value));
+}
+
+/**
+ * Helper function to get the heading/category for a skill value
+ * @param value - The skill value (e.g., "react", "typescript")
+ * @returns The corresponding heading (e.g., "Frontend", "Backend") or "Other" if not found
+ *
+ * @example
+ * getSkillHeading("react") // Returns "Frontend"
+ * getSkillHeading("rust") // Returns "Backend"
+ */
+export function getSkillHeading(value: string): string {
+  return skillHeadingMap.get(value) ?? "Other";
 }

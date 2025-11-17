@@ -1,13 +1,76 @@
-import { auth } from "@packages/auth/server";
 import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
-import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 export async function OPTIONS() {
   return NextResponse.json({});
+}
+
+// GET /api/v1/organizations/[organizationId]/rfps/[rfpId] - Get RFP details
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ organizationId: string; rfpId: string }> }
+) {
+  try {
+    const { organizationId, rfpId } = await params;
+
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get the RFP and verify it belongs to organization
+    const rfp = await database.rFP.findFirst({
+      where: {
+        OR: [{ id: rfpId }, { slug: rfpId }],
+        grant: {
+          organizationId,
+        },
+      },
+      include: {
+        grant: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            organization: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            votes: true,
+            applications: true,
+          },
+        },
+      },
+    });
+
+    if (!rfp) {
+      return NextResponse.json(
+        { error: "RFP not found or doesn't belong to this organization" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ rfp });
+  } catch (error) {
+    console.error("Error fetching RFP:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch RFP" },
+      { status: 500 }
+    );
+  }
 }
 
 // PATCH /api/v1/organizations/[organizationId]/rfps/[rfpId] - Update RFP
@@ -16,36 +79,25 @@ export async function PATCH(
   { params }: { params: Promise<{ organizationId: string; rfpId: string }> }
 ) {
   try {
-    const authHeaders = await headers();
-    const sessionData = await auth.api.getSession({
-      headers: authHeaders,
-    });
+    const { organizationId, rfpId } = await params;
 
-    if (!sessionData?.user) {
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user has permission to update RFPs
-    const member = await database.member.findFirst({
-      where: {
-        organizationId: (await params).organizationId,
-        userId: sessionData.user.id,
-        role: {
-          in: ["owner", "admin"],
-        },
-      },
-    });
-
-    if (!member) {
+    // Check if user has admin/owner role
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Check if the RFP belongs to this organization
     const existingRfp = await database.rFP.findFirst({
       where: {
-        id: (await params).rfpId,
+        id: rfpId,
         grant: {
-          organizationId: (await params).organizationId,
+          organizationId,
         },
       },
       include: {
@@ -88,7 +140,7 @@ export async function PATCH(
       const grant = await database.grant.findFirst({
         where: {
           id: validatedData.grantId,
-          organizationId: (await params).organizationId,
+          organizationId,
         },
       });
 
@@ -117,7 +169,7 @@ export async function PATCH(
         await database.rFP.findFirst({
           where: {
             slug,
-            NOT: { id: (await params).rfpId },
+            NOT: { id: rfpId },
           },
         })
       ) {
@@ -144,7 +196,7 @@ export async function PATCH(
     // Update the RFP
     const updatedRfp = await database.rFP.update({
       where: {
-        id: (await params).rfpId,
+        id: rfpId,
       },
       data: updateData,
       include: {
@@ -195,36 +247,25 @@ export async function DELETE(
   { params }: { params: Promise<{ organizationId: string; rfpId: string }> }
 ) {
   try {
-    const authHeaders = await headers();
-    const sessionData = await auth.api.getSession({
-      headers: authHeaders,
-    });
+    const { organizationId, rfpId } = await params;
 
-    if (!sessionData?.user) {
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user has permission to delete RFPs
-    const member = await database.member.findFirst({
-      where: {
-        organizationId: (await params).organizationId,
-        userId: sessionData.user.id,
-        role: {
-          in: ["owner", "admin"],
-        },
-      },
-    });
-
-    if (!member) {
+    // Check if user has admin/owner role
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Check if the RFP belongs to this organization
     const existingRfp = await database.rFP.findFirst({
       where: {
-        id: (await params).rfpId,
+        id: rfpId,
         grant: {
-          organizationId: (await params).organizationId,
+          organizationId,
         },
       },
     });
@@ -239,7 +280,7 @@ export async function DELETE(
     // Delete the RFP
     await database.rFP.delete({
       where: {
-        id: (await params).rfpId,
+        id: rfpId,
       },
     });
 

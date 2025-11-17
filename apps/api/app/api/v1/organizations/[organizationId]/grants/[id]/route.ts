@@ -1,0 +1,522 @@
+import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
+import type { Prisma } from "@packages/db";
+import { database } from "@packages/db";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
+import { ViewManager } from "@/lib/views";
+
+// Type for GET API response
+type GrantWithRelations = Prisma.GrantGetPayload<{
+  include: {
+    organization: {
+      select: {
+        id: true;
+        name: true;
+        slug: true;
+        logo: true;
+        location: true;
+        industry: true;
+      };
+    };
+    _count: {
+      select: {
+        applications: true;
+        rfps: true;
+        curators: true;
+      };
+    };
+    curators: {
+      include: {
+        user: {
+          select: {
+            id: true;
+            username: true;
+            firstName: true;
+            lastName: true;
+            email: true;
+            image: true;
+          };
+        };
+      };
+    };
+    rfps: {
+      select: {
+        id: true;
+        title: true;
+        slug: true;
+        status: true;
+        _count: {
+          select: {
+            votes: true;
+            comments: true;
+            applications: true;
+          };
+        };
+      };
+    };
+    applications: {
+      select: {
+        id: true;
+        title: true;
+        status: true;
+        budget: true;
+        submittedAt: true;
+        applicant: {
+          select: {
+            id: true;
+            username: true;
+            firstName: true;
+            lastName: true;
+            image: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+interface GetGrantResponse {
+  grant: GrantWithRelations & {
+    userApplicationId: string | null;
+    canApply: boolean;
+  };
+}
+
+// Schema for grant update
+const updateGrantSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().min(1).optional(),
+  summary: z.string().optional(),
+  instructions: z.string().optional(),
+  logoUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
+  bannerUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
+  skills: z.array(z.string()).optional(),
+  minAmount: z.number().positive().optional().nullable(),
+  maxAmount: z.number().positive().optional().nullable(),
+  totalFunds: z.number().positive().optional().nullable(),
+  token: z.string().optional(),
+  resources: z
+    .array(
+      z.object({
+        title: z.string(),
+        url: z.string().regex(URL_REGEX),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+  resourceFiles: z.array(z.string().regex(URL_REGEX)).optional(),
+  screening: z
+    .array(
+      z.object({
+        question: z.string(),
+        type: z.enum(["text", "url", "file"]),
+        optional: z.boolean(),
+      })
+    )
+    .optional(),
+  applicationUrl: z.string().regex(OPTIONAL_URL_REGEX).optional().nullable(),
+  visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
+  status: z.enum(["OPEN", "PAUSED", "CLOSED"]).optional(),
+  source: z.enum(["NATIVE", "EXTERNAL"]).optional(),
+});
+
+// GET /api/v1/organizations/[organizationId]/grants/[id] - Get grant details
+export async function GET(
+  request: NextRequest,
+  {
+    params,
+  }: { params: Promise<{ organizationId: string; id: string }> }
+) {
+  try {
+    const { organizationId, id: grantId } = await params;
+
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Try to find by ID first, then by slug
+    const grant = await database.grant.findFirst({
+      where: {
+        OR: [
+          { id: grantId },
+          { slug: { equals: grantId, mode: "insensitive" } },
+        ],
+        organizationId, // Ensure grant belongs to organization
+      },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            location: true,
+            industry: true,
+          },
+        },
+        _count: {
+          select: {
+            applications: true,
+            rfps: true,
+            curators: true,
+          },
+        },
+        curators: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
+        },
+        rfps: {
+          where: {
+            visibility: "PUBLISHED",
+          },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            status: true,
+            _count: {
+              select: {
+                votes: true,
+                comments: true,
+                applications: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 5,
+        },
+        applications: {
+          where: {
+            status: {
+              not: "DRAFT",
+            },
+          },
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            budget: true,
+            submittedAt: true,
+            applicant: {
+              select: {
+                id: true,
+                username: true,
+                firstName: true,
+                lastName: true,
+                image: true,
+              },
+            },
+          },
+          orderBy: {
+            submittedAt: "desc",
+          },
+          take: 5,
+        },
+      },
+    });
+
+    if (!grant) {
+      return NextResponse.json(
+        { error: "Grant not found" },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    // Record view using ViewManager
+    const ip = ViewManager.extractClientIp(request as any);
+    const vm = orgAuth.userId
+      ? new ViewManager({ userId: orgAuth.userId })
+      : ip
+        ? new ViewManager({ userIp: ip })
+        : null;
+    if (vm) {
+      await vm.recordViewForEntity(`grant:${grant.id}`);
+    }
+
+    const response: GetGrantResponse = {
+      grant: {
+        ...grant,
+        userApplicationId: null,
+        canApply: true,
+      },
+    };
+
+    // Check if user already applied
+    const userApplication = await database.grantApplication.findFirst({
+      where: {
+        grantId: grant.id,
+        userId: orgAuth.userId,
+      },
+    });
+
+    if (userApplication) {
+      response.grant.userApplicationId = userApplication.id;
+      response.grant.canApply = false;
+    } else {
+      // Members can't apply to their own org's grants
+      response.grant.canApply = false;
+    }
+
+    return NextResponse.json(response);
+  } catch (error) {
+    console.error("Error fetching grant:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch grant" },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+// PATCH /api/v1/organizations/[organizationId]/grants/[id] - Update grant
+export async function PATCH(
+  request: NextRequest,
+  {
+    params,
+  }: { params: Promise<{ organizationId: string; id: string }> }
+) {
+  try {
+    const { organizationId, id: grantId } = await params;
+
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has admin/owner role
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+      return NextResponse.json(
+        { error: "You do not have permission to update this grant" },
+        { status: 403 }
+      );
+    }
+
+    // Get the grant and verify it belongs to organization
+    const grant = await database.grant.findFirst({
+      where: {
+        OR: [{ id: grantId }, { slug: grantId }],
+        organizationId,
+      },
+    });
+
+    if (!grant) {
+      return NextResponse.json({ error: "Grant not found" }, { status: 404 });
+    }
+
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = updateGrantSchema.parse(body);
+
+    // Validate amount logic
+    if (
+      validatedData.minAmount &&
+      validatedData.maxAmount &&
+      validatedData.minAmount > validatedData.maxAmount
+    ) {
+      return NextResponse.json(
+        { error: "Minimum amount cannot be greater than maximum amount" },
+        { status: 400 }
+      );
+    }
+
+    // Prepare update data
+    const updateData: Prisma.GrantUpdateInput = {};
+
+    if (validatedData.title !== undefined)
+      updateData.title = validatedData.title;
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description;
+    if (validatedData.summary !== undefined)
+      updateData.summary = validatedData.summary;
+    if (validatedData.instructions !== undefined)
+      updateData.instructions = validatedData.instructions;
+    if (validatedData.logoUrl !== undefined)
+      updateData.logoUrl = validatedData.logoUrl;
+    if (validatedData.bannerUrl !== undefined)
+      updateData.bannerUrl = validatedData.bannerUrl;
+    if (validatedData.skills !== undefined)
+      updateData.skills = validatedData.skills;
+    if (validatedData.minAmount !== undefined)
+      updateData.minAmount = validatedData.minAmount;
+    if (validatedData.maxAmount !== undefined)
+      updateData.maxAmount = validatedData.maxAmount;
+    if (validatedData.totalFunds !== undefined)
+      updateData.totalFunds = validatedData.totalFunds;
+    if (validatedData.token !== undefined)
+      updateData.token = validatedData.token;
+    if (
+      validatedData.resources !== undefined ||
+      validatedData.resourceFiles !== undefined
+    ) {
+      const attachments =
+        validatedData.resourceFiles?.map((file) => ({
+          title: "Attachment",
+          url: file,
+          description: undefined,
+        })) ?? [];
+      const existingResources = Array.isArray(grant.resources)
+        ? grant.resources
+        : [];
+      updateData.resources = [
+        ...(validatedData.resources ?? existingResources),
+        ...attachments,
+      ];
+    }
+    if (validatedData.screening !== undefined)
+      updateData.screening = validatedData.screening;
+    if (validatedData.applicationUrl !== undefined)
+      updateData.applicationUrl = validatedData.applicationUrl;
+    if (validatedData.source !== undefined)
+      updateData.source = validatedData.source;
+    if (validatedData.visibility !== undefined) {
+      updateData.visibility = validatedData.visibility;
+      if (
+        grant.visibility === "DRAFT" &&
+        validatedData.visibility === "PUBLISHED" &&
+        !grant.publishedAt
+      ) {
+        updateData.publishedAt = new Date();
+      }
+    }
+    if (validatedData.status !== undefined)
+      updateData.status = validatedData.status;
+
+    // Update the grant
+    const updatedGrant = await database.grant.update({
+      where: { id: grant.id },
+      data: updateData,
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+          },
+        },
+        _count: {
+          select: {
+            applications: true,
+            rfps: true,
+            curators: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      grant: updatedGrant,
+    });
+  } catch (error) {
+    console.error("Grant update error:", error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Invalid request data", details: z.treeifyError(error) },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Failed to update grant" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/v1/organizations/[organizationId]/grants/[id] - Delete grant
+export async function DELETE(
+  request: NextRequest,
+  {
+    params,
+  }: { params: Promise<{ organizationId: string; id: string }> }
+) {
+  try {
+    const { organizationId, id: grantId } = await params;
+
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has admin/owner role
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+      return NextResponse.json(
+        { error: "You do not have permission to delete this grant" },
+        { status: 403 }
+      );
+    }
+
+    // Get the grant and verify it belongs to organization
+    const grant = await database.grant.findFirst({
+      where: {
+        OR: [{ id: grantId }, { slug: grantId }],
+        organizationId,
+      },
+      include: {
+        _count: {
+          select: {
+            applications: true,
+          },
+        },
+      },
+    });
+
+    if (!grant) {
+      return NextResponse.json({ error: "Grant not found" }, { status: 404 });
+    }
+
+    // Don't allow deletion if there are applications
+    if (grant._count.applications > 0) {
+      return NextResponse.json(
+        { error: "Cannot delete a grant with applications" },
+        { status: 400 }
+      );
+    }
+
+    // Delete the grant
+    await database.grant.delete({
+      where: { id: grant.id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Grant deleted successfully",
+    });
+  } catch (error) {
+    console.error("Grant deletion error:", error);
+
+    return NextResponse.json(
+      { error: "Failed to delete grant" },
+      { status: 500 }
+    );
+  }
+}
+
+// OPTIONS for CORS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+  });
+}
+

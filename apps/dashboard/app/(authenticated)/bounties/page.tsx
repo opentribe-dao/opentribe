@@ -39,12 +39,29 @@ interface Bounty {
   };
 }
 
+const STATUSES = [
+  { value: "all", label: "All Status" },
+  { value: "OPEN", label: "Open" },
+  { value: "REVIEWING", label: "Reviewing" },
+  { value: "COMPLETED", label: "Completed" },
+  { value: "CLOSED", label: "Closed" },
+  { value: "CANCELLED", label: "Cancelled" },
+];
+
+const VISIBILITIES = [
+  { value: "all", label: "All Visibility" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "PUBLISHED", label: "Published" },
+  { value: "ARCHIVED", label: "Archived" },
+];
+
 const BountiesPage = () => {
   const { data: session } = useSession();
   const { data: activeOrg } = useActiveOrganization();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [visibilityFilter, setVisibilityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,18 +117,44 @@ const BountiesPage = () => {
   const getStatusLabel = (status: string) => {
     switch (status.toUpperCase()) {
       case "OPEN":
-        return "Open";
+        return "OPEN";
       case "ACTIVE":
-        return "Active";
+        return "ACTIVE";
       case "REVIEWING":
-        return "Reviewing";
+        return "REVIEWING";
       case "CLOSED":
-        return "Closed";
+        return "CLOSED";
       case "COMPLETED":
-        return "Completed";
+        return "COMPLETED";
       case "DRAFT":
       default:
         return "Draft";
+    }
+  };
+
+  const getVisibilityColor = (visibility: string) => {
+    switch (visibility.toUpperCase()) {
+      case "DRAFT":
+        return "bg-transparent text-yellow-400 border-0 ";
+      case "PUBLISHED":
+        return "bg-transparent text-green-400 border-0";
+      case "ARCHIVED":
+        return "bg-transparent text-gray-400 border-0";
+      default:
+        return "bg-transparent text-white/60 border-0";
+    }
+  };
+
+  const getVisibilityLabel = (visibility: string) => {
+    switch (visibility.toUpperCase()) {
+      case "PUBLISHED":
+        return "PUBLISHED";
+      case "DRAFT":
+        return "DRAFT";
+      case "ARCHIVED":
+        return "ARCHIVED";
+      default:
+        return visibility;
     }
   };
 
@@ -132,7 +175,10 @@ const BountiesPage = () => {
     const matchesStatus =
       filterStatus === "all" ||
       bounty.status.toUpperCase() === filterStatus.toUpperCase();
-    return matchesSearch && matchesStatus;
+    const matchesVisibility =
+      visibilityFilter === "all" ||
+      bounty.visibility.toUpperCase() === visibilityFilter.toUpperCase();
+    return matchesSearch && matchesStatus && matchesVisibility;
   });
 
   // Sort bounties
@@ -186,13 +232,13 @@ const BountiesPage = () => {
               value={searchQuery}
             />
           </div>
-          <Button
+          {/* <Button
             className="border-white/10 text-white/60 hover:bg-white/5"
             size="icon"
             variant="outline"
           >
             <Filter className="h-4 w-4" />
-          </Button>
+          </Button> */}
           <Select onValueChange={setSortBy} value={sortBy}>
             <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
               <SelectValue />
@@ -209,11 +255,49 @@ const BountiesPage = () => {
               </SelectItem>
             </SelectContent>
           </Select>
+          <Select onValueChange={setFilterStatus} value={filterStatus}>
+            <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-white/10 bg-zinc-900">
+              {STATUSES.map((status) => (
+                <SelectItem key={status.value} value={status.value} className="text-white">
+                  {status.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            onValueChange={setVisibilityFilter}
+            value={visibilityFilter}
+          >
+            <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-white/10 bg-zinc-900">
+              {VISIBILITIES.map((visibility) => (
+                <SelectItem
+                  key={visibility.value}
+                  value={visibility.value}
+                  className="text-white"
+                >
+                  {visibility.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Bounties Table */}
         <div className="overflow-hidden rounded-lg border border-white/10 bg-zinc-900/50 backdrop-blur-sm">
-          <table className="w-full">
+          <table className="w-full table-fixed">
+            <colgroup>
+              <col style={{ width: "35%" }} />
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "17%" }} />
+            </colgroup>
             <thead>
               <tr className="border-white/10 border-b">
                 <th className="px-6 py-4 text-left font-medium text-white/60 text-xs uppercase tracking-wider">
@@ -221,6 +305,9 @@ const BountiesPage = () => {
                 </th>
                 <th className="px-6 py-4 text-center font-medium text-white/60 text-xs uppercase tracking-wider">
                   Status
+                </th>
+                <th className="px-6 py-4 text-center font-medium text-white/60 text-xs uppercase tracking-wider">
+                  Visibility
                 </th>
                 <th className="px-6 py-4 text-center font-medium text-white/60 text-xs uppercase tracking-wider">
                   Submissions
@@ -231,25 +318,28 @@ const BountiesPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
-              {loading ? (
+              {loading && (
                 <tr>
-                  <td className="px-6 py-12 text-center" colSpan={4}>
+                  <td className="px-6 py-12 text-center" colSpan={5}>
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-white/40" />
                   </td>
                 </tr>
-              ) : sortedBounties.length > 0 ? (
+              )}
+              {!loading &&
+                sortedBounties.length > 0 &&
                 sortedBounties.map((bounty) => (
                   <tr
-                    className="transition-colors hover:bg-white/5"
+                    className="cursor-pointer transition-colors hover:bg-white/5"
                     key={bounty.id}
+                    onClick={() => router.push(`/bounties/${bounty.id}/`)}
                   >
                     <td className="px-6 py-4">
-                      <Link
-                        className="font-medium text-white transition-colors hover:text-[#E6007A]"
-                        href={`/bounties/${bounty.id}/`}
+                      <span
+                        className="block truncate font-medium text-white"
+                        title={bounty.title}
                       >
                         {bounty.title}
-                      </Link>
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <Badge className={getStatusColor(bounty.status)}>
@@ -257,8 +347,15 @@ const BountiesPage = () => {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 text-center">
+                      <Badge
+                        className={getVisibilityColor(bounty.visibility)}
+                      >
+                        {getVisibilityLabel(bounty.visibility)}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <Users className="h-4 w-4 text-white/40" />
+                        <Users className="h-4 w-4 shrink-0 text-white/40" />
                         <span className="text-white/80">
                           {bounty._count?.submissions || 0} submissions
                         </span>
@@ -266,24 +363,24 @@ const BountiesPage = () => {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <Calendar className="h-4 w-4 text-white/40" />
+                        <Calendar className="h-4 w-4 shrink-0 text-white/40" />
                         <span className="text-white/80">
                           {formatDeadline(bounty.deadline)}
                         </span>
                       </div>
                     </td>
                   </tr>
-                ))
-              ) : (
+                ))}
+              {!loading && sortedBounties.length === 0 && (
                 <tr>
-                  <td className="px-6 py-12 text-center" colSpan={4}>
+                  <td className="px-6 py-12 text-center" colSpan={5}>
                     <div className="space-y-3">
                       <p className="text-white/60">
-                        {searchQuery || filterStatus !== "all"
+                        {searchQuery || filterStatus !== "all" || visibilityFilter !== "all"
                           ? "No bounties match your search criteria"
                           : "No bounties yet"}
                       </p>
-                      {!searchQuery && filterStatus === "all" && (
+                      {!searchQuery && filterStatus === "all" && visibilityFilter === "all" && (
                         <Button
                           asChild
                           className="border-white/20 text-white hover:bg-white/10"

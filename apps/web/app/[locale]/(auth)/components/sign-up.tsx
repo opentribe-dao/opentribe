@@ -33,9 +33,10 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 interface SignUpProps {
   onSuccess?: () => void;
   redirectTo?: string;
+  locale?: string;
 }
 
-export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
+export const SignUp = ({ onSuccess, redirectTo, locale }: SignUpProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
@@ -53,12 +54,16 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
     try {
       setIsLoading(true);
 
+      const redirectDestination =
+        !!redirectTo && redirectTo !== `/${locale}`
+          ? redirectTo
+          : `${env.NEXT_PUBLIC_WEB_URL}/verify-email`;
+
       const result = await signUp.email({
         name: data.name,
         email: data.email,
         password: data.password,
-        // @TODO: @itsyogesh fix this, after sign up, it redirects to signin instead of verify-email
-        callbackURL: redirectTo || `${env.NEXT_PUBLIC_WEB_URL}/verify-email`,
+        callbackURL: redirectDestination,
       });
 
       if (result.error) {
@@ -78,8 +83,7 @@ export const SignUp = ({ onSuccess, redirectTo }: SignUpProps) => {
       }
 
       // Redirect to homepage or specified redirect URL
-      const redirectUrl = redirectTo || `${env.NEXT_PUBLIC_WEB_URL}`;
-      router.push(redirectUrl);
+      router.push(redirectDestination);
     } catch (error) {
       const errorMessage = parseError(error);
       log.error("Sign up error:", { error, email: data.email });

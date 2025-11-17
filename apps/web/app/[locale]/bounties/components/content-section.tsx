@@ -57,7 +57,7 @@ function BountiesContentSectionComponent({
       <div className="mb-4">
         <div className="relative">
           <div
-            className={`scrollbar-hide flex gap-2 overflow-x-auto${bounties.length === 0 ? "" : "py-2"}`}
+            className={`scrollbar-hide flex gap-2 overflow-x-auto`}
           >
             {loading && skillsOptions.length === 0
               ? Array.from({ length: 8 }).map((_, i) => (
@@ -68,7 +68,7 @@ function BountiesContentSectionComponent({
                 ))
               : skillsOptions.map((skill) => (
                   <button
-                    className={`shrink-0 whitespace-nowrap rounded-lg border px-3 py-1.5 font-medium text-sm transition-all duration-200 ${
+                    className={`flex-shrink-0 whitespace-nowrap rounded-lg border px-3 py-1.5 font-medium text-sm transition-all duration-200 ${
                       selectedSkills.includes(skill)
                         ? "border-pink-400 bg-pink-500/20 text-pink-300"
                         : "border-white/20 bg-white/10 text-white/70 hover:border-pink-400/50 hover:bg-white/20"

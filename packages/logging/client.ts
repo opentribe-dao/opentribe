@@ -7,8 +7,24 @@
 import { feedbackIntegration, init, replayIntegration } from "@sentry/nextjs";
 import { keys } from "./keys";
 
-export const initializeSentryClient = (): ReturnType<typeof init> =>
-  init({
+interface InitializeSentryClientOptions {
+  enableFeedback?: boolean;
+}
+
+export const initializeSentryClient = (
+  options: InitializeSentryClientOptions = {}
+): ReturnType<typeof init> => {
+  const { enableFeedback = true } = options;
+
+  const integrations = [
+    replayIntegration({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+    ...(enableFeedback ? [feedbackIntegration()] : []),
+  ];
+
+  return init({
     dsn: keys().NEXT_PUBLIC_SENTRY_DSN,
 
     // Adjust this value in production, or use tracesSampler for greater control
@@ -26,11 +42,6 @@ export const initializeSentryClient = (): ReturnType<typeof init> =>
     replaysSessionSampleRate: 0.1,
 
     // You can remove this option if you're not planning to use the Sentry Session Replay feature:
-    integrations: [
-      replayIntegration({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-      feedbackIntegration(),
-    ],
+    integrations,
   });
+};

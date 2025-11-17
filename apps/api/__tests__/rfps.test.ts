@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { POST as createRFP } from "../app/api/v1/organizations/[organizationId]/rfps/route";
 import { GET as getRFP } from "../app/api/v1/rfps/[id]/route";
 import { GET as getRFPs } from "../app/api/v1/rfps/route";
+import { getOrganizationAuth } from "../lib/organization-auth";
 
 // Mock database (align with route usage: rFP, member, grant)
 vi.mock("@packages/db", () => ({
@@ -43,6 +44,14 @@ vi.mock("@packages/auth/server", () => ({
       getSession: vi.fn(),
     },
   },
+}));
+
+// Mock organization-auth
+vi.mock("../lib/organization-auth", () => ({
+  getOrganizationAuth: vi.fn(),
+  hasRequiredRole: vi.fn((membership, roles) => {
+    return roles.includes(membership.role);
+  }),
 }));
 
 describe("RFP Flow", () => {
@@ -553,12 +562,16 @@ describe("RFP Flow", () => {
       );
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      // Member with required role
-      vi.mocked(database.member.findFirst).mockResolvedValue({
-        organizationId: "org-1",
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
         userId: "member-1",
-        role: "owner",
-      } as any);
+        organizationId: "org-1",
+        membership: {
+          id: "member-1",
+          role: "owner",
+          userId: "member-1",
+          organizationId: "org-1",
+        },
+      });
       // Grant belongs to organization
       vi.mocked(database.grant.findFirst).mockResolvedValue({
         id: "grant-1",
@@ -611,11 +624,16 @@ describe("RFP Flow", () => {
       );
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      vi.mocked(database.member.findFirst).mockResolvedValue({
-        organizationId: "org-1",
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
         userId: "member-1",
-        role: "owner",
-      } as any);
+        organizationId: "org-1",
+        membership: {
+          id: "member-1",
+          role: "owner",
+          userId: "member-1",
+          organizationId: "org-1",
+        },
+      });
       vi.mocked(database.grant.findFirst).mockResolvedValue({
         id: "grant-1",
         organizationId: "org-1",
@@ -656,8 +674,9 @@ describe("RFP Flow", () => {
       };
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession);
-      // Not a member → route returns 403 before any grant checks
-      vi.mocked(database.member.findFirst).mockResolvedValue(null as any);
+      // Not a member → route returns 401 when getOrganizationAuth returns null
+      // Middleware would return 403, but in tests we call route directly
+      vi.mocked(getOrganizationAuth).mockResolvedValue(null);
 
       const body = JSON.stringify({
         title: "New RFP",
@@ -680,7 +699,7 @@ describe("RFP Flow", () => {
         params: Promise.resolve({ organizationId: "org-1" }),
       });
 
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
     });
   });
 });

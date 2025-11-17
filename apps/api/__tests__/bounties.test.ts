@@ -4,10 +4,9 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GET as getBounty } from "../app/api/v1/bounties/[id]/route";
 import { PATCH as resetWinners } from "../app/api/v1/bounties/[id]/winners/reset/route";
-import {
-  POST as createBounty,
-  GET as getBounties,
-} from "../app/api/v1/bounties/route";
+import { GET as getBounties } from "../app/api/v1/bounties/route";
+import { POST as createBounty } from "../app/api/v1/organizations/[organizationId]/bounties/route";
+import { getOrganizationAuth } from "../lib/organization-auth";
 
 // Mock database
 vi.mock("@packages/db", () => ({
@@ -49,6 +48,14 @@ vi.mock("@packages/auth/server", () => ({
       getSession: vi.fn().mockResolvedValue(null),
     },
   },
+}));
+
+// Mock organization-auth
+vi.mock("../lib/organization-auth", () => ({
+  getOrganizationAuth: vi.fn(),
+  hasRequiredRole: vi.fn((membership, roles) => {
+    return roles.includes(membership.role);
+  }),
 }));
 
 describe("Bounty Management", () => {
@@ -1002,13 +1009,6 @@ describe("Bounty Management", () => {
 
     test("should handle general errors in try-catch block", async () => {
       // Arrange
-      const mockSession = {
-        user: {
-          id: "admin-1",
-          email: "admin@org.com",
-        },
-      };
-
       // Mock an error that would be caught by the general catch block
       (auth.api.getSession as any).mockRejectedValue(
         new Error("Unexpected error")
@@ -1110,18 +1110,33 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role,
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
+      });
       (database.bounty.findUnique as any).mockResolvedValue(null); // No slug conflict
       (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
       (database.curator.create as any).mockResolvedValue(mockCurator);
 
-      // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(validBountyData),
-      });
+      // Act - Remove organizationId from body since it's in URL now
+      const { organizationId: _, ...bountyDataWithoutOrgId } = validBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(bountyDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1136,7 +1151,7 @@ describe("Bounty Management", () => {
           skills: validBountyData.skills,
           amount: validBountyData.amount,
           status: "OPEN",
-          organizationId: validBountyData.organizationId,
+          organizationId: "org-123",
         }),
         include: expect.any(Object),
       });
@@ -1190,30 +1205,37 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role,
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
+      });
       (database.bounty.findUnique as any).mockResolvedValue(null);
       (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
       (database.curator.create as any).mockResolvedValue({});
 
       // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(validBountyData),
-      });
+      const { organizationId: _, ...bountyDataWithoutOrgId } = validBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(bountyDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
 
       // Assert
       expect(response.status).toBe(200);
-      expect(database.member.findFirst).toHaveBeenCalledWith({
-        where: {
-          userId: mockSession.user.id,
-          organizationId: validBountyData.organizationId,
-          role: {
-            in: ["owner", "admin"],
-          },
-        },
-      });
+      expect(getOrganizationAuth).toHaveBeenCalled();
     });
 
     test("should create a draft bounty without publishedAt", async () => {
@@ -1251,18 +1273,33 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role,
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
+      });
       (database.bounty.findUnique as any).mockResolvedValue(null);
       (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
       (database.curator.create as any).mockResolvedValue({});
 
       // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(draftBountyData),
-      });
+      const { organizationId: _, ...draftDataWithoutOrgId } = draftBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(draftDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1295,7 +1332,16 @@ describe("Bounty Management", () => {
 
       // Simulate existing slugs
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role,
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
+      });
       (database.bounty.findUnique as any)
         .mockResolvedValueOnce({ id: "existing-1" }) // First slug exists
         .mockResolvedValueOnce({ id: "existing-2" }) // Second slug exists
@@ -1309,12 +1355,18 @@ describe("Bounty Management", () => {
       (database.curator.create as any).mockResolvedValue({});
 
       // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(validBountyData),
-      });
+      const { organizationId: _, ...bountyDataWithoutOrgId } = validBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(bountyDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1326,20 +1378,26 @@ describe("Bounty Management", () => {
     test("should return 401 if user is not authenticated", async () => {
       // Arrange
       (auth.api.getSession as any).mockResolvedValue(null);
+      (getOrganizationAuth as any).mockResolvedValue(null);
 
       // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(validBountyData),
-      });
+      const { organizationId: _, ...bountyDataWithoutOrgId } = validBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(bountyDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
       expect(response.status).toBe(401);
       expect(data.error).toBe("Unauthorized");
-      expect(database.member.findFirst).not.toHaveBeenCalled();
       expect(database.bounty.create).not.toHaveBeenCalled();
     });
 
@@ -1353,22 +1411,28 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(null); // No membership
+      (getOrganizationAuth as any).mockResolvedValue(null); // No membership
 
       // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(validBountyData),
-      });
+      const { organizationId: _, ...bountyDataWithoutOrgId } = validBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(bountyDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
-      expect(response.status).toBe(403);
-      expect(data.error).toBe(
-        "You do not have permission to create bounties for this organization"
-      );
+      // Note: Route returns 401 when getOrganizationAuth returns null
+      // Middleware would return 403, but in tests we call route directly
+      expect(response.status).toBe(401);
+      expect(data.error).toBe("Unauthorized");
       expect(database.bounty.create).not.toHaveBeenCalled();
     });
 
@@ -1389,28 +1453,35 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(null); // Query filters for owner/admin
-
-      // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(validBountyData),
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role,
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
       });
 
-      const response = await createBounty(request);
-      const data = await response.json();
+      // Act
+      const { organizationId: _, ...bountyDataWithoutOrgId } = validBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(bountyDataWithoutOrgId),
+        }
+      );
+
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
+      await response.json();
 
       // Assert
       expect(response.status).toBe(403);
-      expect(database.member.findFirst).toHaveBeenCalledWith({
-        where: {
-          userId: mockSession.user.id,
-          organizationId: validBountyData.organizationId,
-          role: {
-            in: ["owner", "admin"],
-          },
-        },
-      });
+      expect(getOrganizationAuth).toHaveBeenCalled();
     });
 
     test("should return 400 for invalid bounty data (missing title)", async () => {
@@ -1428,14 +1499,30 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-
-      // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(invalidData),
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: "member-123",
+          role: "owner",
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
       });
 
-      const response = await createBounty(request);
+      // Act
+      const { organizationId: _, ...invalidDataWithoutOrgId } = invalidData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(invalidDataWithoutOrgId),
+        }
+      );
+
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1460,14 +1547,30 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-
-      // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(invalidData),
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: "member-123",
+          role: "owner",
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
       });
 
-      const response = await createBounty(request);
+      // Act
+      const { organizationId: _, ...invalidDataWithoutOrgId } = invalidData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(invalidDataWithoutOrgId),
+        }
+      );
+
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1491,14 +1594,30 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-
-      // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(invalidData),
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: "member-123",
+          role: "owner",
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
       });
 
-      const response = await createBounty(request);
+      // Act
+      const { organizationId: _, ...invalidDataWithoutOrgId } = invalidData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(invalidDataWithoutOrgId),
+        }
+      );
+
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1528,14 +1647,30 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-
-      // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(invalidData),
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: "member-123",
+          role: "owner",
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
       });
 
-      const response = await createBounty(request);
+      // Act
+      const { organizationId: _, ...invalidDataWithoutOrgId } = invalidData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(invalidDataWithoutOrgId),
+        }
+      );
+
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1561,19 +1696,34 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role,
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
+      });
       (database.bounty.findUnique as any).mockResolvedValue(null);
       (database.bounty.create as any).mockRejectedValue(
         new Error("Database connection failed")
       );
 
       // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(validBountyData),
-      });
+      const { organizationId: _, ...bountyDataWithoutOrgId } = validBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(bountyDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert
@@ -1632,18 +1782,34 @@ describe("Bounty Management", () => {
       };
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.member.findFirst as any).mockResolvedValue(mockMembership);
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-123",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role,
+          userId: mockSession.user.id,
+          organizationId: "org-123",
+        },
+      });
       (database.bounty.findUnique as any).mockResolvedValue(null);
       (database.bounty.create as any).mockResolvedValue(mockCreatedBounty);
       (database.curator.create as any).mockResolvedValue({});
 
       // Act
-      const request = new NextRequest("http://localhost:3002/api/v1/bounties", {
-        method: "POST",
-        body: JSON.stringify(minimalBountyData),
-      });
+      const { organizationId: _, ...minimalDataWithoutOrgId } =
+        minimalBountyData;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-123/bounties",
+        {
+          method: "POST",
+          body: JSON.stringify(minimalDataWithoutOrgId),
+        }
+      );
 
-      const response = await createBounty(request);
+      const response = await createBounty(request, {
+        params: Promise.resolve({ organizationId: "org-123" }),
+      });
       const data = await response.json();
 
       // Assert

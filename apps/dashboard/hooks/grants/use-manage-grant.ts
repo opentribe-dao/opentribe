@@ -212,17 +212,19 @@ export function useGrantForm({
         screening: data.screening.filter((q) => q.question),
         visibility: data.visibility,
         source: data.source,
-        organizationId: org.id,
       };
 
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/v1/grants`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(grantData),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${org.id}/grants`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(grantData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to create grant");

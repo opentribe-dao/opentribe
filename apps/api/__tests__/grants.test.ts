@@ -2,10 +2,11 @@ import { database } from "@packages/db";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
-  POST as createGrant,
   GET as getGrants,
   OPTIONS as optionsGrant,
 } from "../app/api/v1/grants/route";
+import { POST as createGrant } from "../app/api/v1/organizations/[organizationId]/grants/route";
+import { getOrganizationAuth } from "../lib/organization-auth";
 
 // Mock database
 vi.mock("@packages/db", () => ({
@@ -34,6 +35,14 @@ vi.mock("@packages/auth/server", () => ({
       getSession: vi.fn().mockResolvedValue(null),
     },
   },
+}));
+
+// Mock organization-auth
+vi.mock("../lib/organization-auth", () => ({
+  getOrganizationAuth: vi.fn(),
+  hasRequiredRole: vi.fn((membership, roles) => {
+    return roles.includes(membership.role);
+  }),
 }));
 
 // Mock headers
@@ -556,7 +565,7 @@ describe("Grant Management", () => {
       id: "member-1",
       userId: "user-1",
       organizationId: "org-1",
-      role: "admin",
+      role: "admin" as const,
     };
 
     const mockGrant = {
@@ -605,9 +614,16 @@ describe("Grant Management", () => {
     test("should create grant successfully", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(
-        mockMembership as any
-      );
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role as "owner" | "admin" | "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
       vi.mocked(database.grant.create).mockResolvedValue(mockGrant as any);
       vi.mocked(database.curator.create).mockResolvedValue(mockCurator as any);
@@ -641,18 +657,22 @@ describe("Grant Management", () => {
         applicationUrl: "https://example.com/apply",
         visibility: "PUBLISHED" as const,
         source: "NATIVE" as const,
-        organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(requestBody),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -663,9 +683,16 @@ describe("Grant Management", () => {
     test("should create grant with minimal required fields", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(
-        mockMembership as any
-      );
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role as "owner" | "admin" | "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
       vi.mocked(database.grant.create).mockResolvedValue(mockGrant as any);
       vi.mocked(database.curator.create).mockResolvedValue(mockCurator as any);
@@ -676,15 +703,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -694,6 +729,7 @@ describe("Grant Management", () => {
     test("should return 401 when user is not authenticated", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(null);
+      vi.mocked(getOrganizationAuth).mockResolvedValue(null);
 
       const requestBody = {
         title: "Test Grant",
@@ -701,25 +737,33 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(401);
       expect(data.error).toBe("Unauthorized");
     });
 
-    test("should return 403 when user is not a member of the organization", async () => {
+    test("should return 401 when user is not a member of the organization", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(null);
+      vi.mocked(getOrganizationAuth).mockResolvedValue(null);
 
       const requestBody = {
         title: "Test Grant",
@@ -727,27 +771,44 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
-      expect(response.status).toBe(403);
-      expect(data.error).toBe(
-        "You do not have permission to create grants for this organization"
-      );
+      // Note: Route returns 401 when getOrganizationAuth returns null
+      // Middleware would return 403, but in tests we call route directly
+      expect(response.status).toBe(401);
+      expect(data.error).toBe("Unauthorized");
     });
 
     test("should return 403 when user is not owner or admin", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(null);
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: "member-1",
+          role: "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
 
       const requestBody = {
         title: "Test Grant",
@@ -755,15 +816,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(403);
@@ -775,9 +844,16 @@ describe("Grant Management", () => {
     test("should return 400 when minAmount is greater than maxAmount", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(
-        mockMembership as any
-      );
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role as "owner" | "admin" | "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
 
       const requestBody = {
         title: "Test Grant",
@@ -787,15 +863,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -814,15 +898,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -833,9 +925,16 @@ describe("Grant Management", () => {
     test("should handle slug generation with existing slug", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(
-        mockMembership as any
-      );
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role as "owner" | "admin" | "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
       vi.mocked(database.grant.findUnique)
         .mockResolvedValueOnce({ id: "existing-grant" } as any) // First check finds existing
         .mockResolvedValueOnce(null); // Second check finds available
@@ -848,15 +947,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -867,9 +974,16 @@ describe("Grant Management", () => {
     test("should create grant with DRAFT visibility", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(
-        mockMembership as any
-      );
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role as "owner" | "admin" | "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
       vi.mocked(database.curator.create).mockResolvedValue(mockCurator as any);
       vi.mocked(database.grant.create).mockResolvedValue({
@@ -885,15 +999,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -903,9 +1025,16 @@ describe("Grant Management", () => {
     test("should handle database error during grant creation", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(
-        mockMembership as any
-      );
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role as "owner" | "admin" | "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
       vi.mocked(database.grant.create).mockRejectedValue(
         new Error("Database error")
@@ -917,15 +1046,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(500);
@@ -935,9 +1072,16 @@ describe("Grant Management", () => {
     test("should handle non-ZodError during grant creation", async () => {
       const { auth } = await import("@packages/auth/server");
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
-      vi.mocked(database.member.findFirst).mockResolvedValue(
-        mockMembership as any
-      );
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: mockMembership.id,
+          role: mockMembership.role as "owner" | "admin" | "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      });
       vi.mocked(database.grant.findUnique).mockResolvedValue(null);
       vi.mocked(database.grant.create).mockRejectedValue("String error");
 
@@ -947,15 +1091,23 @@ describe("Grant Management", () => {
         organizationId: "org-1",
       };
 
-      const request = new NextRequest("http://localhost:3002/api/v1/grants", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Remove organizationId from body if present
+      const { organizationId: _, ...grantDataWithoutOrgId } =
+        requestBody as any;
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/grants",
+        {
+          method: "POST",
+          body: JSON.stringify(grantDataWithoutOrgId),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const response = await createGrant(request);
+      const response = await createGrant(request, {
+        params: Promise.resolve({ organizationId: "org-1" }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(500);

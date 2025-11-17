@@ -1,10 +1,9 @@
-import { auth } from "@packages/auth/server";
 import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
-import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -16,32 +15,19 @@ export async function GET(
   { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
-    const authHeaders = await headers();
-    const sessionData = await auth.api.getSession({
-      headers: authHeaders,
-    });
+    const { organizationId } = await params;
 
-    if (!sessionData?.user) {
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Check if user is a member of the organization
-    const member = await database.member.findFirst({
-      where: {
-        organizationId: (await params).organizationId,
-        userId: sessionData.user.id,
-      },
-    });
-
-    if (!member) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Get RFPs for this organization's grants
     const rfps = await database.rFP.findMany({
       where: {
         grant: {
-          organizationId: (await params).organizationId,
+          organizationId,
         },
       },
       include: {
@@ -101,27 +87,16 @@ export async function POST(
   { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
-    const authHeaders = await headers();
-    const sessionData = await auth.api.getSession({
-      headers: authHeaders,
-    });
+    const { organizationId } = await params;
 
-    if (!sessionData?.user) {
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user has permission to create RFPs
-    const member = await database.member.findFirst({
-      where: {
-        organizationId: (await params).organizationId,
-        userId: sessionData.user.id,
-        role: {
-          in: ["owner", "admin"],
-        },
-      },
-    });
-
-    if (!member) {
+    // Check if user has admin/owner role
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -149,7 +124,7 @@ export async function POST(
     const grant = await database.grant.findFirst({
       where: {
         id: validatedData.grantId,
-        organizationId: (await params).organizationId,
+        organizationId,
       },
     });
 

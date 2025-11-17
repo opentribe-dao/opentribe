@@ -21,21 +21,61 @@ type SignInRouteParams = {
   "sign-in"?: string[];
 };
 
+type SignInSearchParams = {
+  redirect?: string;
+};
+
+const isValidRedirectPath = (value?: string | null) => {
+  if (!value) {
+    return;
+  }
+
+  if (!value.startsWith("/")) {
+    return;
+  }
+
+  if (value.startsWith("//")) {
+    return;
+  }
+
+  return value;
+};
+
+const appendRedirectQuery = (href: string, redirectPath?: string) => {
+  if (!redirectPath) {
+    return href;
+  }
+
+  const separator = href.includes("?") ? "&" : "?";
+  return `${href}${separator}redirect=${encodeURIComponent(redirectPath)}`;
+};
+
 const SignInPage = async ({
   params,
+  searchParams,
 }: {
   params: Promise<SignInRouteParams>;
+  searchParams: Promise<SignInSearchParams>;
 }) => {
-  const { locale } = await params;
+  const [{ locale }, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+  const requestedRedirect = isValidRedirectPath(resolvedSearchParams?.redirect);
+  const redirectDestination = requestedRedirect ?? `/${locale}`;
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (session?.user) {
-    redirect(`/${locale}`);
+    redirect(redirectDestination);
   }
 
   const homeHref = `/${locale}`;
+  const signUpHref = appendRedirectQuery(
+    `/${locale}/sign-up`,
+    requestedRedirect
+  );
 
   return (
     <>
@@ -52,14 +92,14 @@ const SignInPage = async ({
         <p className="text-muted-foreground text-sm">{description}</p>
       </div>
 
-      <SignIn />
+      <SignIn redirectTo={redirectDestination} />
 
       {/* Divider */}
       <div className="relative p-5 text-center">
         <div className="text-md text-white/50">OR sign In with</div>
       </div>
 
-      <OAuthButtons />
+      <OAuthButtons redirectTo={redirectDestination} />
 
       {/* Navigation to sign up */}
       <div className="text-center">
@@ -70,7 +110,7 @@ const SignInPage = async ({
             className="h-auto p-0 font-normal text-sm"
             variant="link"
           >
-            <Link href={`/${locale}/sign-up`}>Create an account</Link>
+            <Link href={signUpHref}>Create an account</Link>
           </Button>
         </p>
       </div>

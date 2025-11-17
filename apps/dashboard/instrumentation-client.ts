@@ -29,7 +29,7 @@ function hasAnalyticsConsent(): boolean {
 }
 
 // Always initialize Sentry for error monitoring (not user tracking)
-initializeSentryClient();
+initializeSentryClient({ enableFeedback: false });
 
 // Only initialize PostHog if user has consented to analytics
 if (hasAnalyticsConsent()) {

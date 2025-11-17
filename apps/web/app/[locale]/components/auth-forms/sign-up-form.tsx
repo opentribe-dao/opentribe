@@ -66,7 +66,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
         return;
       }
 
-      toast.success("Account created successfully! Welcome to Opentribe.");
+      toast.success("Account created successfully! Please check your inbox or spam for the verification email.");
 
       if (onSuccess) {
         onSuccess();

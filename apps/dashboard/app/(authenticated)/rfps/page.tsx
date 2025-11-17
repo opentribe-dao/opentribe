@@ -293,7 +293,6 @@ export default function RFPsPage() {
                       <TableCell className="px-6 py-3">
                         <div>
                           <p className="font-medium text-white">{rfp.title}</p>
-                          <p className="text-sm text-white/60">/{rfp.slug}</p>
                         </div>
                       </TableCell>
                       <TableCell className="px-6 py-3">

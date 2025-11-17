@@ -127,7 +127,7 @@ model Organization {
   linkedin    String?
   location    String?
   websiteUrl  String?
-  contact     String?
+  email       String?
   visibility  OrgVisibilityStatus @default(ACTIVE)
   isVerified  Boolean             @default(false)
   bounties    Bounty[]            @relation("OrgCreatedBounty")

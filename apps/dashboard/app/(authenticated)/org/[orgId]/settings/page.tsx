@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  authClient,
-  useActiveOrganization,
-  useSession,
-} from "@packages/auth/client";
+import { authClient, useSession } from "@packages/auth/client";
 import { ImageUpload } from "@packages/base";
 import { Alert, AlertDescription } from "@packages/base/components/ui/alert";
 import {
@@ -55,8 +51,9 @@ import {
 import { Textarea } from "@packages/base/components/ui/textarea";
 import {
   Copy,
-  Instagram,
+  Linkedin,
   Loader2,
+  MapPin,
   MoreVertical,
   Settings,
   Shield,
@@ -71,17 +68,61 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { env } from "@/env";
 
-interface OrganizationDetails {
+const ORGANIZATION_TYPES = [
+  { value: "protocol", label: "Protocol" },
+  { value: "dao", label: "DAO" },
+  { value: "company", label: "Company" },
+  { value: "foundation", label: "Foundation" },
+  { value: "community", label: "Community" },
+  { value: "other", label: "Other" },
+];
+
+const INDUSTRIES = [
+  { value: "defi", label: "DeFi" },
+  { value: "infrastructure", label: "Infrastructure" },
+  { value: "gaming", label: "Gaming" },
+  { value: "nft", label: "NFT" },
+  { value: "social", label: "Social" },
+  { value: "governance", label: "Governance" },
+  { value: "tooling", label: "Developer Tooling" },
+  { value: "other", label: "Other" },
+];
+
+const LOCATION_PRESETS = [
+  "Berlin, Germany",
+  "Bengaluru, India",
+  "San Francisco, United States",
+  "Remote-first",
+];
+
+const getOrganizationTypeFromMetadata = (metadata?: string | undefined) => {
+  if (!metadata) {
+    return;
+  }
+  try {
+    const parsed = JSON.parse(metadata);
+    if (parsed && typeof parsed.type === "string") {
+      return parsed.type;
+    }
+  } catch {
+    // Ignore malformed metadata
+  }
+  return;
+};
+
+type OrganizationDetails = {
   id: string;
   name: string;
   slug: string;
   email?: string;
-  website?: string;
+  websiteUrl?: string;
   twitter?: string;
-  instagram?: string;
-  shortDescription?: string;
-  longDescription?: string;
+  linkedin?: string;
+  description?: string;
   logo?: string;
+  location?: string;
+  industry?: string[];
+  metadata?: string | null;
   members: Array<{
     id: string;
     role: string;
@@ -95,9 +136,9 @@ interface OrganizationDetails {
   }>;
   createdAt: string;
   updatedAt: string;
-}
+};
 
-interface PendingInvitation {
+type PendingInvitation = {
   id: string;
   email: string;
   role: string;
@@ -108,7 +149,7 @@ interface PendingInvitation {
     name: string;
     email: string;
   };
-}
+};
 
 export default function OrganizationSettingsPage({
   params,
@@ -118,7 +159,7 @@ export default function OrganizationSettingsPage({
   const { orgId } = use(params);
   const router = useRouter();
   const { data: session } = useSession();
-  const { data: activeOrg } = useActiveOrganization();
+  // const { data: activeOrg } = useActiveOrganization();
   const [organization, setOrganization] = useState<OrganizationDetails | null>(
     null
   );
@@ -143,22 +184,26 @@ export default function OrganizationSettingsPage({
     name: "",
     slug: "",
     email: "",
-    website: "",
+    websiteUrl: "",
     twitter: "",
-    instagram: "",
-    shortDescription: "",
-    longDescription: "",
+    linkedin: "",
+    description: "",
     logo: "",
+    location: "",
+    type: "",
+    industry: "",
   });
 
   // Zod schema for validating email input
-  const inviteEmailSchema = z.string().email();
+  const inviteEmailSchema = z.email();
   const isValidEmail = (email: string) =>
     inviteEmailSchema.safeParse(email).success;
 
   useEffect(() => {
     const fetchOrganization = async () => {
-      if (!orgId) return;
+      if (!orgId) {
+        return;
+      }
 
       try {
         setLoading(true);
@@ -176,15 +221,17 @@ export default function OrganizationSettingsPage({
         const data = await response.json();
         setOrganization(data.organization);
         setFormData({
-          name: data.organization.name || "",
-          slug: data.organization.slug || "",
-          email: data.organization.email || "",
-          website: data.organization.website || "",
-          twitter: data.organization.twitter || "",
-          instagram: data.organization.instagram || "",
-          shortDescription: data.organization.shortDescription || "",
-          longDescription: data.organization.longDescription || "",
-          logo: data.organization.logo || "",
+          name: data.organization.name || undefined,
+          slug: data.organization.slug || undefined,
+          email: data.organization.email || undefined,
+          websiteUrl: data.organization.websiteUrl || undefined,
+          twitter: data.organization.twitter || undefined,
+          linkedin: data.organization.linkedin || undefined,
+          description: data.organization.description || undefined,
+          logo: data.organization.logo || undefined,
+          location: data.organization.location || undefined,
+          type: getOrganizationTypeFromMetadata(data.organization.metadata),
+          industry: data.organization.industry?.[0] || undefined,
         });
       } catch (error) {
         console.error("Error fetching organization:", error);
@@ -197,21 +244,10 @@ export default function OrganizationSettingsPage({
     fetchOrganization();
   }, [orgId, router]);
 
-  useEffect(() => {
-    if (organization) {
-      const userRole = organization.members.find(
-        (member) => member.user.id === session?.user?.id
-      )?.role;
-      const canManageMembers = userRole === "owner" || userRole === "admin";
-
-      if (canManageMembers) {
-        fetchPendingInvitations();
-      }
-    }
-  }, [organization, session]);
-
   const handleUpdateOrganization = async () => {
-    if (!organization) return;
+    if (!organization) {
+      return;
+    }
 
     try {
       setSaving(true);
@@ -244,7 +280,9 @@ export default function OrganizationSettingsPage({
   };
 
   const handleInviteMember = async () => {
-    if (!(organization && inviteEmail)) return;
+    if (!(organization && inviteEmail)) {
+      return;
+    }
     if (!isValidEmail(inviteEmail)) {
       setInviteError("Please enter a valid email address.");
       toast.error("Please enter a valid email address.");
@@ -319,7 +357,7 @@ export default function OrganizationSettingsPage({
         // Hide success message after 5 seconds
         setTimeout(() => setInviteSuccess(false), 5000);
       }
-    } catch (error) {
+    } catch (_error) {
       setInviteError("An unexpected error occurred");
       toast.error("An unexpected error occurred");
     } finally {
@@ -328,9 +366,9 @@ export default function OrganizationSettingsPage({
   };
 
   const handleRemoveMember = async (memberId: string) => {
-    if (!organization) return;
-
-    if (!confirm("Are you sure you want to remove this member?")) return;
+    if (!organization) {
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -363,7 +401,9 @@ export default function OrganizationSettingsPage({
   };
 
   const fetchPendingInvitations = async () => {
-    if (!organization) return;
+    if (!organization) {
+      return;
+    }
 
     try {
       setLoadingInvitations(true);
@@ -388,8 +428,9 @@ export default function OrganizationSettingsPage({
   };
 
   const handleDeleteInvitation = async (invitationId: string) => {
-    if (!organization) return;
-    if (!confirm("Delete this invitation?")) return;
+    if (!organization) {
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -409,7 +450,7 @@ export default function OrganizationSettingsPage({
 
       toast.success("Invitation deleted");
       fetchPendingInvitations();
-    } catch (error) {
+    } catch (_error) {
       toast.error("An unexpected error occurred while deleting invitation");
     }
   };
@@ -421,7 +462,7 @@ export default function OrganizationSettingsPage({
       setCopiedInvitationId(invitationId);
       toast.success("Invitation link copied");
       setTimeout(() => setCopiedInvitationId(null), 2000);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to copy link");
     }
   };
@@ -569,59 +610,96 @@ export default function OrganizationSettingsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white" htmlFor="website">
+                  <Label className="text-white" htmlFor="websiteUrl">
                     Website
                   </Label>
                   <Input
                     className="border-white/20 bg-white/10 text-white"
                     disabled={!canEditOrganization}
-                    id="website"
+                    id="websiteUrl"
                     onChange={(e) =>
-                      setFormData({ ...formData, website: e.target.value })
+                      setFormData({ ...formData, websiteUrl: e.target.value })
                     }
                     placeholder="https://example.com"
-                    value={formData.website}
+                    value={formData.websiteUrl}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-white" htmlFor="shortDescription">
-                  Short Description
+                <Label className="text-white" htmlFor="description">
+                  Description
                 </Label>
                 <Textarea
                   className="min-h-[80px] border-white/20 bg-white/10 text-white"
                   disabled={!canEditOrganization}
-                  id="shortDescription"
+                  id="description"
+                  maxLength={1000}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      shortDescription: e.target.value,
+                      description: e.target.value,
                     })
                   }
                   placeholder="Brief description of your organization"
-                  value={formData.shortDescription}
+                  rows={4}
+                  value={formData.description}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-white" htmlFor="longDescription">
-                  Long Description
-                </Label>
-                <Textarea
-                  className="min-h-[150px] border-white/20 bg-white/10 text-white"
-                  disabled={!canEditOrganization}
-                  id="longDescription"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      longDescription: e.target.value,
-                    })
-                  }
-                  placeholder="Detailed description of your organization"
-                  value={formData.longDescription}
-                />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-white">Type</Label>
+                  <Select
+                    disabled={!canEditOrganization}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, type: value }))
+                    }
+                    value={formData.type}
+                  >
+                    <SelectTrigger className="border-white/20 bg-white/10 text-white">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/20 bg-zinc-900 text-white">
+                      {ORGANIZATION_TYPES.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Industry</Label>
+                  <Select
+                    disabled={!canEditOrganization}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, industry: value }))
+                    }
+                    value={formData.industry}
+                  >
+                    <SelectTrigger className="border-white/20 bg-white/10 text-white">
+                      <SelectValue placeholder="Select industry" />
+                    </SelectTrigger>
+                    <SelectContent className="border-white/20 bg-zinc-900 text-white">
+                      {INDUSTRIES.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
+              <OrganizationLocationField
+                disabled={!canEditOrganization}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, location: value }))
+                }
+                value={formData.location}
+              />
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
@@ -646,8 +724,8 @@ export default function OrganizationSettingsPage({
                 <div className="space-y-2">
                   <Label className="text-white" htmlFor="instagram">
                     <div className="flex items-center gap-2">
-                      <Instagram className="h-4 w-4" />
-                      Instagram Handle
+                      <Linkedin className="h-4 w-4" />
+                      LinkedIn Handle
                     </div>
                   </Label>
                   <Input
@@ -655,10 +733,10 @@ export default function OrganizationSettingsPage({
                     disabled={!canEditOrganization}
                     id="instagram"
                     onChange={(e) =>
-                      setFormData({ ...formData, instagram: e.target.value })
+                      setFormData({ ...formData, linkedin: e.target.value })
                     }
-                    placeholder="@yourhandle"
-                    value={formData.instagram}
+                    placeholder="your-linkedin-handle"
+                    value={formData.linkedin}
                   />
                 </div>
               </div>
@@ -712,7 +790,11 @@ export default function OrganizationSettingsPage({
                 <div className="flex gap-4">
                   <Input
                     aria-invalid={!!inviteEmail && !isValidEmail(inviteEmail)}
-                    className={`flex-1 border-white/20 bg-white/10 text-white ${inviteEmail && !isValidEmail(inviteEmail) ? "border-red-500/50 focus-visible:ring-red-500/60" : ""}`}
+                    className={`flex-1 border-white/20 bg-white/10 text-white ${
+                      inviteEmail && !isValidEmail(inviteEmail)
+                        ? "border-red-500/50 focus-visible:ring-red-500/60"
+                        : ""
+                    }`}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="Email address"
                     type="email"
@@ -1025,6 +1107,68 @@ export default function OrganizationSettingsPage({
           )}
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+type LocationFieldProps = {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+};
+
+function OrganizationLocationField({
+  value,
+  onChange,
+  disabled,
+}: LocationFieldProps) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6">
+      <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="font-semibold text-white">Location</p>
+          <p className="text-sm text-white/60">
+            Share your primary operating city so builders know where you’re
+            based.
+          </p>
+        </div>
+        <Badge
+          className="border-white/15 bg-transparent text-white/70"
+          variant="outline"
+        >
+          Recommended
+        </Badge>
+      </div>
+
+      <div className="relative">
+        <MapPin className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-4 h-4 w-4 text-white/50" />
+        <Input
+          className="border-white/20 bg-white/10 pl-11 text-white placeholder:text-white/40"
+          disabled={disabled}
+          id="organizationLocation"
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="City, Country"
+          value={value}
+        />
+      </div>
+      <p className="mt-2 text-white/50 text-xs">
+        Format: City, Country. Add “Remote-first” if you don’t have a single
+        hub.
+      </p>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {LOCATION_PRESETS.map((preset) => (
+          <button
+            className="rounded-full border border-white/15 px-3 py-1 text-white/70 text-xs transition-colors hover:border-[#E6007A] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={disabled}
+            key={preset}
+            onClick={() => onChange(preset)}
+            type="button"
+          >
+            {preset}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

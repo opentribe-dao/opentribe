@@ -4,50 +4,48 @@ on:
   push:
     tags:
       - "v*.*.*"
-    branches:
-      - feat/ga-discord
 
 jobs:
-  # update-production:
-  #   name: Update Production Branch
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write # Required to push to production branch
+  update-production:
+    name: Update Production Branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push to production branch
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5
-  #       with:
-  #         fetch-depth: 0 # Full history for branch updates
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Full history for branch updates
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Configure Git
-  #       run: |
-  #         git config user.name "github-actions[bot]"
-  #         git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-  #     - name: Update production branch
-  #       run: |
-  #         git checkout production
-  #         git merge --ff-only ${{ github.ref_name }}
-  #         git push origin production
+      - name: Update production branch
+        run: |
+          git checkout production
+          git merge --ff-only ${{ github.ref_name }}
+          git push origin production
 
-  #     - name: Create GitHub Release
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       run: |
-  #         # Extract tag name and release notes from tag annotation
-  #         TAG_NAME="${{ github.ref_name }}"
-  #         TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract tag name and release notes from tag annotation
+          TAG_NAME="${{ github.ref_name }}"
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
 
-  #         # Create GitHub Release with the tag's annotation
-  #         gh release create "$TAG_NAME" \
-  #           --title "$TAG_NAME - Production Release" \
-  #           --notes "$TAG_MESSAGE"
+          # Create GitHub Release with the tag's annotation
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME - Production Release" \
+            --notes "$TAG_MESSAGE"
 
   notify-discord:
     name: Notify Discord of Release
-    # needs: update-production
+    needs: update-production
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -74,7 +72,7 @@ jobs:
             exit 0
           fi
 
-          TAG_NAME="v1.1.0"
+          TAG_NAME="${{ github.ref_name }}"
           echo "Fetching release information for tag: $TAG_NAME"
 
           # Use gh CLI to get release JSON and pipe to script

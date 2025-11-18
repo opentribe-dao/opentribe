@@ -260,10 +260,46 @@ export default function GrantDetailPage({
                           <span>{instruction}</span>
                         </div>
                       ))}
-                  </div> */}
+                    </div> */}
                   </div>
                 )}
               </ExpandableText>
+
+              {/* Resources */}
+              {Array.isArray(grant.resources) && grant.resources.length > 0 && (
+                <section className="mt-8">
+                  <h2 className="mb-4 font-bold font-heading text-2xl">
+                    Resources
+                  </h2>
+                  <div className="space-y-3">
+                    {grant.resources.map((resource: any, idx: number) => (
+                      <a
+                        className="block rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+                        href={resource.url}
+                        key={resource.url ?? idx}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-white">
+                              {resource.title}
+                            </p>
+                            {resource.description && (
+                              <p className="mt-1 text-sm text-white/70">
+                                {resource.description}
+                              </p>
+                            )}
+                          </div>
+                          <span className="whitespace-nowrap font-medium text-pink-400 text-sm">
+                            Visit →
+                          </span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* Funding Details */}
               <div className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">

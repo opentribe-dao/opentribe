@@ -64,11 +64,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install Octokit dependency
-        run: npm install @octokit/rest
-
       - name: Send release notification to Discord
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -z "$DISCORD_WEBHOOK_URL" ]; then
             echo "DISCORD_WEBHOOK_URL is not set. Skipping Discord notification."
@@ -76,6 +75,8 @@ jobs:
           fi
 
           TAG_NAME="v1.1.0"
-          echo "Sending Discord notification for tag: $TAG_NAME"
+          echo "Fetching release information for tag: $TAG_NAME"
 
-          node scripts/notify-discord-release.js "$TAG_NAME"
+          # Use gh CLI to get release JSON and pipe to script
+          gh release view "$TAG_NAME" --json name,body,tagName,publishedAt,url | \
+            node scripts/notify-discord-release.js

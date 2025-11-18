@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { useActiveOrganization } from "@packages/auth/client";
+import { useQuery } from "@tanstack/react-query";
 import { env } from "@/env";
-export interface BountyDetails {
+export type BountyDetails = {
   id: string;
   title: string;
   slug: string;
@@ -15,7 +15,7 @@ export interface BountyDetails {
   resources?: Array<{ title: string; url: string; description?: string }>;
   screening?: Array<{
     question: string;
-    type: "text" | "url" | "file";
+    type: "text" | "url" | "file" | "boolean";
     optional: boolean;
   }>;
   status: string;
@@ -29,9 +29,9 @@ export interface BountyDetails {
   createdAt: string;
   publishedAt?: string;
   winnersAnnouncedAt?: string;
-}
+};
 
-export interface Submission {
+export type Submission = {
   id: string;
   title?: string;
   description?: string;
@@ -63,7 +63,7 @@ export interface Submission {
     amount: number;
     createdAt: string;
   }>;
-}
+};
 
 export function useBounty(bountyId?: string) {
   const { data: activeOrg } = useActiveOrganization();
@@ -95,7 +95,7 @@ export function useBounty(bountyId?: string) {
       const data = await res.json();
       return data.bounty;
     },
-    enabled: !!bountyId,
+    enabled: !!bountyId && !!activeOrg?.id,
     refetchInterval: 30_000, // 30 seconds
     retry: 2, // retry twice on error
   });
@@ -124,7 +124,7 @@ export function useBountySubmissions(bountyId?: string) {
       const data = await res.json();
       return data.submissions || [];
     },
-    enabled: !!bountyId,
+    enabled: !!bountyId && !!activeOrg?.id,
     refetchInterval: 30_000, // 30 seconds
     retry: 2, // retry twice on error
   });

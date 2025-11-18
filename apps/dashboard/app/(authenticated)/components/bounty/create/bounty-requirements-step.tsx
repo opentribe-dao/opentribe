@@ -214,6 +214,9 @@ export const BountyRequirementsStepComponent: React.FC<
                           <SelectItem className="text-white" value="file">
                             File
                           </SelectItem>
+                          <SelectItem className="text-white" value="boolean">
+                            Boolean
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <label className="flex items-center gap-2 text-sm text-white/60">

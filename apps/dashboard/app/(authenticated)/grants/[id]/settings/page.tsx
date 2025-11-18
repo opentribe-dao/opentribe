@@ -8,11 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@packages/base/components/ui/card";
+import { Input } from "@packages/base/components/ui/input";
 import { useGrantContext } from "@/app/(authenticated)/components/grants/grant-provider";
+import { useGrantSettings } from "@/hooks/grants/use-grant-settings";
 
 export default function GrantSettingsPage() {
-  const { grant, isLoading, isError, error, refetch } = useGrantContext();
+  const { grant, isError, refetch } = useGrantContext();
   const { data: activeOrg } = useActiveOrganization();
+  const {
+    handlePauseResume,
+    handleDelete,
+    isPausingResuming,
+    isDeleting,
+    showDeleteConfirm,
+    setShowDeleteConfirm,
+  } = useGrantSettings(grant);
 
   if (isError || !grant) {
     return (
@@ -83,18 +93,59 @@ export default function GrantSettingsPage() {
               <div className="space-y-2">
                 <Button
                   className="w-full border-white/20 text-white hover:bg-white/10"
-                  disabled={grant.status === "CLOSED"}
+                  disabled={grant.status === "CLOSED" || isPausingResuming}
+                  onClick={handlePauseResume}
                   variant="outline"
                 >
-                  {grant.status === "OPEN" ? "Pause Grant" : "Resume Grant"}
+                  {(() => {
+                    if (isPausingResuming) {
+                      return "Updating...";
+                    }
+                    if (grant.status === "OPEN") {
+                      return "Pause Grant";
+                    }
+                    return "Resume Grant";
+                  })()}
                 </Button>
-                <Button
-                  className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10"
-                  disabled={grant._count.applications > 0}
-                  variant="outline"
-                >
-                  Delete Grant
-                </Button>
+                {showDeleteConfirm ? (
+                  <div className="space-y-2 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
+                    <p className="text-red-400/80 text-sm">
+                      Are you sure? Type "DELETE" to confirm, and then press
+                      ENTER.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        className="border-red-500/50 bg-white/5 text-white placeholder:text-white/40"
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            e.currentTarget.value === "DELETE"
+                          ) {
+                            handleDelete();
+                          }
+                        }}
+                        placeholder="Type DELETE to confirm"
+                      />
+                      <Button
+                        className="border-white/20 text-white hover:bg-white/10"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        size="sm"
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10"
+                    disabled={grant._count.applications > 0 || isDeleting}
+                    onClick={() => setShowDeleteConfirm(true)}
+                    variant="outline"
+                  >
+                    {isDeleting ? "Deleting..." : "Delete Grant"}
+                  </Button>
+                )}
               </div>
             </div>
           )}

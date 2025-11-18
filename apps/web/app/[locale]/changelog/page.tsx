@@ -23,6 +23,38 @@ export type ChangelogEntry = {
 // Sample changelog entries
 const changelogEntries: ChangelogEntry[] = [
   {
+    version: "Version 1.1.0",
+    date: "18 November 2025",
+    title: "Organization Enhancements & Bounty Improvements",
+    description:
+      "This release introduces comprehensive organization profile enhancements with location, type, and industry fields, organization-based API routes for bounties and grants, improved bounty system with visibility filters and enhanced display, along with various UX improvements and bug fixes across the platform.",
+    items: [
+      "Added: Organization location, type, and industry fields in settings",
+      "Added: Visibility filter (Draft, Published, Archived) for bounties page",
+      "Added: NoOrganizationFallback component for improved empty state handling",
+      "Added: Resources block display in bounty detail pages",
+      "Added: Comment counts on bounty cards",
+      "Added: Skill category headings for better organization",
+      "Added: Sign-in and sign-up redirect support for improved authentication flow",
+      "Added: Organization-based API routes (/api/v1/organizations/[id]/bounties and /api/v1/organizations/[id]/grants)",
+      "Changed: Email validation refactored to use z.email() for consistency",
+      "Changed: RFP status 'COMPLETED' renamed to 'Paused' with updated styling",
+      "Changed: Removed slug display from RFPs page for cleaner presentation",
+      "Changed: Enhanced bounty card display with mobile-optimized truncation",
+      "Changed: Improved signup success message for better clarity",
+      "Changed: Better loading and empty state handling across Grants and RFPs pages",
+      "Changed: Organization settings UI with enhanced form handling and validation",
+      "Fixed: Organization profile update issues with proper field mapping",
+      "Fixed: Sentry client initialization with configurable feedback option",
+      "Fixed: Safer screening checks in bounty components",
+      "Infrastructure: Comprehensive authorization and permission system for organization operations",
+      "Infrastructure: New organization-auth utility for role-based access control",
+      "Infrastructure: Enhanced API middleware with request logging and CORS handling",
+      "Infrastructure: Skill metadata improvements with getSkillHeading helper function",
+      "Infrastructure: Updated tests for organization-based bounty and grant routes",
+    ],
+  },
+  {
     version: "Version 1.0.1",
     date: "17 November 2025",
     title: "Email & Documentation Enhancements - Bug Fixes & Improvements",

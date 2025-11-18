@@ -55,7 +55,7 @@ export function DangerZoneCard({
             {showDeleteConfirm ? (
               <div className="space-y-2">
                 <p className="text-red-400/80 text-sm">
-                  Are you sure? Type "DELETE" to confirm.
+                  Are you sure? Type "DELETE" to confirm, and then press ENTER.
                 </p>
                 <div className="flex items-center gap-2">
                   <Input

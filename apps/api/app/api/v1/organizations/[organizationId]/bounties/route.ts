@@ -1,8 +1,39 @@
-import { auth } from "@packages/auth/server";
+import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
-import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
+
+// Schema for bounty creation
+const createBountySchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().min(1),
+  skills: z.array(z.string()).min(1),
+  amount: z.number().positive(),
+  token: z.string().default("DOT"),
+  split: z.enum(["FIXED", "EQUAL_SPLIT", "VARIABLE"]).default("FIXED"),
+  winnings: z.record(z.string(), z.number()),
+  deadline: z.string().datetime(),
+  resources: z
+    .array(
+      z.object({
+        title: z.string(),
+        url: z.string().regex(URL_REGEX),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+  screening: z
+    .array(
+      z.object({
+        question: z.string(),
+        type: z.enum(["text", "url", "file"]),
+        optional: z.boolean(),
+      })
+    )
+    .optional(),
+  visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
+});
 
 // Query params schema
 const queryParamsSchema = z.object({
@@ -20,32 +51,12 @@ export async function GET(
   { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
-    // Get the session from Better Auth
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { organizationId } = await params;
 
-    // Check if user is a member of the organization
-    const membership = await database.member.findFirst({
-      where: {
-        userId: session.user.id,
-        organizationId,
-      },
-    });
-
-    if (!membership) {
-      return NextResponse.json(
-        { error: "You are not a member of this organization" },
-        {
-          status: 403,
-        }
-      );
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse query parameters
@@ -164,6 +175,117 @@ export async function GET(
       {
         status: 500,
       }
+    );
+  }
+}
+
+// POST /api/v1/organizations/[organizationId]/bounties - Create bounty
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ organizationId: string }> }
+) {
+  try {
+    const { organizationId } = await params;
+
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has admin/owner role
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+      return NextResponse.json(
+        {
+          error:
+            "You do not have permission to create bounties for this organization",
+        },
+        { status: 403 }
+      );
+    }
+
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = createBountySchema.parse(body);
+
+    // Generate a unique slug from the title
+    const baseSlug = validatedData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Check if slug exists and append number if needed
+    while (await database.bounty.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    // Create the bounty
+    const bounty = await database.bounty.create({
+      data: {
+        title: validatedData.title,
+        slug,
+        description: validatedData.description,
+        skills: validatedData.skills,
+        amount: validatedData.amount,
+        token: validatedData.token,
+        split: validatedData.split,
+        winnings: validatedData.winnings,
+        deadline: new Date(validatedData.deadline),
+        resources: validatedData.resources || undefined,
+        screening: validatedData.screening || undefined,
+        visibility: validatedData.visibility,
+        status: "OPEN",
+        organizationId,
+        publishedAt:
+          validatedData.visibility === "PUBLISHED" ? new Date() : null,
+      },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+          },
+        },
+      },
+    });
+
+    // Add current user as curator
+    const { auth } = await import("@packages/auth/server");
+    const { headers: getHeaders } = await import("next/headers");
+    const session = await auth.api.getSession({
+      headers: await getHeaders(),
+    });
+
+    await database.curator.create({
+      data: {
+        userId: orgAuth.userId,
+        bountyId: bounty.id,
+        contact: session?.user?.email || "",
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      bounty,
+    });
+  } catch (error) {
+    console.error("Bounty creation error:", error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Invalid request data", details: z.treeifyError(error) },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Failed to create bounty" },
+      { status: 500 }
     );
   }
 }

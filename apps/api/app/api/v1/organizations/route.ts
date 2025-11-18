@@ -31,7 +31,7 @@ const createOrganizationSchema = z.object({
     .array(
       z.object({
         name: z.string(),
-        email: z.string().email(),
+        email: z.email(),
         role: z.enum(["admin", "member"]),
       })
     )

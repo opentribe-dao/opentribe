@@ -7,7 +7,36 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
 
-export const OAuthButtons = () => {
+interface OAuthButtonsProps {
+  redirectTo?: string;
+}
+
+const normalizeBaseUrl = () => {
+  const browserOrigin =
+    typeof window !== "undefined" ? window.location.origin : "";
+  const configuredOrigin = env.NEXT_PUBLIC_WEB_URL ?? "";
+  const base = (configuredOrigin || browserOrigin).trim();
+  return base.endsWith("/") ? base.slice(0, -1) : base;
+};
+
+const toAbsoluteUrl = (baseUrl: string, path?: string) => {
+  if (!baseUrl) {
+    return path ?? "/";
+  }
+
+  if (!path) {
+    return `${baseUrl}/`;
+  }
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${baseUrl}${normalizedPath}`;
+};
+
+export const OAuthButtons = ({ redirectTo }: OAuthButtonsProps) => {
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(
     null
   );
@@ -15,12 +44,15 @@ export const OAuthButtons = () => {
   const handleOAuthSignUp = async (provider: "google" | "github") => {
     try {
       setOauthLoading(provider);
-      const origin =
-        typeof window !== "undefined" ? window.location.origin : "";
+      const baseUrl = normalizeBaseUrl();
+      const callbackURL = toAbsoluteUrl(baseUrl, redirectTo);
+      const newUserCallbackURL = redirectTo
+        ? callbackURL
+        : toAbsoluteUrl(baseUrl, "/onboarding");
       await authClient.signIn.social({
         provider,
-        callbackURL: `${env.NEXT_PUBLIC_WEB_URL ?? origin}/`,
-        newUserCallbackURL: `${env.NEXT_PUBLIC_WEB_URL ?? origin}/onboarding`,
+        callbackURL,
+        newUserCallbackURL,
       });
     } catch (error) {
       const errorMessage =

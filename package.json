@@ -26,6 +26,7 @@
     ]
   },
   "devDependencies": {
+    "@octokit/rest": "^22.0.0",
     "@auto-it/first-time-contributor": "^11.3.0",
     "@biomejs/biome": "2.3.4",
     "@tooling/typescript-config": "workspace:*",

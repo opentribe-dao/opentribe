@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * Manual Discord release notification script.
+ * Discord release notification script.
  *
  * Usage:
- *   DISCORD_WEBHOOK_URL="your-webhook" node scripts/notify-discord-release.js
- *   DISCORD_WEBHOOK_URL="your-webhook" node scripts/notify-discord-release.js v1.1.0
+ *   # From GitHub Actions (with gh CLI):
+ *   gh release view TAG --json name,body,tagName,publishedAt,url | node scripts/notify-discord-release.js
+ *
+ *   # Manual usage (fetches from GitHub API):
+ *   DISCORD_WEBHOOK_URL="webhook" GITHUB_REPOSITORY="owner/repo" node scripts/notify-discord-release.js
+ *   DISCORD_WEBHOOK_URL="webhook" GITHUB_REPOSITORY="owner/repo" node scripts/notify-discord-release.js v1.1.0
  *
  * Notes:
- * - Uses the GitHub Releases API to fetch either the latest release or a specific tag.
- * - Expects the repository to be public (no auth required). For private repos, set GITHUB_TOKEN.
+ * - Accepts release JSON via stdin (from `gh release view`) or fetches from GitHub API
+ * - For private repos, set GITHUB_TOKEN environment variable
  */
-
-import { Octokit } from "@octokit/rest";
 
 const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
@@ -55,30 +57,33 @@ function normalizeRelease(release) {
   };
 }
 
-const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-const octokit = new Octokit(
-  token
-    ? {
-        auth: token,
-      }
-    : {}
-);
+// Fetch release from GitHub API using native fetch
+async function fetchReleaseFromAPI(repoSlug, tag) {
+  const [owner, repo] = repoSlug.split("/");
+  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 
-// Determine repository – use GITHUB_REPOSITORY if available, otherwise require CLI arg
-let repoSlug = process.env.GITHUB_REPOSITORY;
-const [maybeVersionOrRepo, maybeVersion] = process.argv.slice(2);
+  const headers = {
+    Accept: "application/vnd.github.v3+json",
+  };
+  if (token) {
+    headers.Authorization = `token ${token}`;
+  }
 
-if (!repoSlug && maybeVersionOrRepo && maybeVersionOrRepo.includes("/")) {
-  repoSlug = maybeVersionOrRepo;
+  let url;
+  if (tag) {
+    url = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`;
+  } else {
+    url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+  }
+
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
+  }
+  return res.json();
 }
 
-// Determine release tag (optional)
-const tag =
-  repoSlug === maybeVersionOrRepo
-    ? maybeVersion // when repo is first arg and tag second
-    : maybeVersionOrRepo; // when only tag is provided
-
-async function fetchRelease() {
+async function getRelease() {
   // Try reading from stdin first (from gh CLI)
   const stdinData = await readStdin();
   if (stdinData) {
@@ -91,7 +96,14 @@ async function fetchRelease() {
     }
   }
 
-  // Fall back to Octokit API
+  // Fall back to fetching from GitHub API
+  let repoSlug = process.env.GITHUB_REPOSITORY;
+  const [maybeVersionOrRepo, maybeVersion] = process.argv.slice(2);
+
+  if (!repoSlug && maybeVersionOrRepo && maybeVersionOrRepo.includes("/")) {
+    repoSlug = maybeVersionOrRepo;
+  }
+
   if (!repoSlug) {
     console.error(
       "Repository is not specified. Set GITHUB_REPOSITORY=owner/repo or pass it as the first argument (owner/repo)."
@@ -99,22 +111,12 @@ async function fetchRelease() {
     process.exit(1);
   }
 
-  const [owner, repo] = repoSlug.split("/");
+  const tag =
+    repoSlug === maybeVersionOrRepo
+      ? maybeVersion // when repo is first arg and tag second
+      : maybeVersionOrRepo; // when only tag is provided
 
-  if (tag) {
-    const res = await octokit.repos.getReleaseByTag({
-      owner,
-      repo,
-      tag,
-    });
-    return res.data;
-  }
-
-  const res = await octokit.repos.getLatestRelease({
-    owner,
-    repo,
-  });
-  return res.data;
+  return fetchReleaseFromAPI(repoSlug, tag);
 }
 
 async function sendDiscordNotification(release) {
@@ -180,7 +182,7 @@ async function sendDiscordNotification(release) {
 
 async function main() {
   try {
-    const release = await fetchRelease();
+    const release = await getRelease();
     await sendDiscordNotification(release);
   } catch (error) {
     console.error("Error while sending Discord release notification:", error);

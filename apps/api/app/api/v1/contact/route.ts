@@ -5,7 +5,7 @@ import { z } from "zod";
 const contactSchema = z.object({
   organizationName: z.string().min(2, "Organization name is required"),
   contactName: z.string().min(2, "Contact name is required"),
-  email: z.string().email("Valid email is required"),
+  email: z.email("Valid email is required"),
   organizationType: z.enum([
     "dao",
     "protocol",

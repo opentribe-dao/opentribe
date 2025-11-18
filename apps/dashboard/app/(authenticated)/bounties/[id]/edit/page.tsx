@@ -109,8 +109,11 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
       if (!id) return;
 
       try {
+        if (!activeOrg?.id) {
+          throw new Error("No organization selected");
+        }
         const response = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}`,
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/bounties/${id}`,
           {
             credentials: "include",
           }
@@ -354,8 +357,12 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
         visibility: formData.visibility,
       };
 
+      if (!activeOrg?.id) {
+        throw new Error("No organization selected");
+      }
+
       const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/bounties/${id}`,
         {
           method: "PATCH",
           headers: {
@@ -395,8 +402,8 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     currentStep > step.id
                       ? "bg-green-500 text-white"
                       : currentStep === step.id
-                        ? "bg-[#E6007A] text-white"
-                        : "bg-white/10 text-white/60"
+                      ? "bg-[#E6007A] text-white"
+                      : "bg-white/10 text-white/60"
                   }`}
                 >
                   {currentStep > step.id ? (
@@ -524,10 +531,10 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           {index === 0
                             ? "1st Place"
                             : index === 1
-                              ? "2nd Place"
-                              : index === 2
-                                ? "3rd Place"
-                                : `${winner.position}th Place`}
+                            ? "2nd Place"
+                            : index === 2
+                            ? "3rd Place"
+                            : `${winner.position}th Place`}
                         </span>
                         <Input
                           className="flex-1 border-white/10 bg-white/5 text-white"
@@ -810,10 +817,10 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           {index === 0
                             ? "1st"
                             : index === 1
-                              ? "2nd"
-                              : index === 2
-                                ? "3rd"
-                                : `${winner.position}th`}{" "}
+                            ? "2nd"
+                            : index === 2
+                            ? "3rd"
+                            : `${winner.position}th`}{" "}
                           Place: {winner.amount} {formData.token}
                         </p>
                       ))}

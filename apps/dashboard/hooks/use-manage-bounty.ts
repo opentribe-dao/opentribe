@@ -81,6 +81,7 @@ export function useBountySkills() {
 export function useBountySettings(bounty: BountyDetails | undefined) {
   const { refreshBounty } = useBountyContext();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const organizationId = bounty?.organization?.id;
 
   // Initialize form data from bounty
   const [formData, setFormData] = useState<Partial<BountyDetails>>({
@@ -147,15 +148,15 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   // Save mutation
   const saveMutation = useMutation({
     mutationFn: async (data: Partial<BountyDetails>) => {
-      if (!bounty) {
-        throw new Error("No bounty found");
+      if (!bounty || !organizationId) {
+        throw new Error("No bounty or organization found");
       }
 
       // Validate data
       const validatedData = data;
 
       const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bounty.id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -192,12 +193,12 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (!bounty) {
-        throw new Error("No bounty found");
+      if (!bounty || !organizationId) {
+        throw new Error("No bounty or organization found");
       }
 
       const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bounty.id}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bounty.id}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -398,8 +399,12 @@ export function useBountyForm() {
       setSubmitting(true);
     },
     mutationFn: async () => {
+      if (!activeOrg?.id) {
+        throw new Error("No organization selected");
+      }
+
       const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/bounties`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -407,7 +412,6 @@ export function useBountyForm() {
           body: JSON.stringify({
             ...formData,
             amount: Number(formData.amount),
-            organizationId: activeOrg?.id ?? undefined,
             deadline: formData.deadline
               ? new Date(formData.deadline).toISOString()
               : undefined,

@@ -55,8 +55,11 @@ export function useGrantEdit(
       }
       setLoading(true);
       try {
+        if (!activeOrg?.id) {
+          throw new Error("No organization selected");
+        }
         const res = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/grants/${id}`,
           { credentials: "include" }
         );
         if (!res.ok) {
@@ -119,8 +122,12 @@ export function useGrantEdit(
         resources: data.resources.filter((r) => r.title && r.url),
         screening: data.screening.filter((q) => q.question),
       };
+      if (!activeOrg?.id) {
+        throw new Error("No organization selected");
+      }
+
       const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/grants/${id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

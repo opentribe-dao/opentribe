@@ -1,8 +1,8 @@
-import { auth } from "@packages/auth/server";
+import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
-import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 // Query params schema
 const queryParamsSchema = z.object({
@@ -14,42 +14,54 @@ const queryParamsSchema = z.object({
   search: z.string().optional(),
 });
 
+// Schema for grant creation
+const createGrantSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().min(1),
+  summary: z.string().optional(),
+  instructions: z.string().optional(),
+  logoUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
+  bannerUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
+  skills: z.array(z.string()).default([]),
+  minAmount: z.number().positive().optional(),
+  maxAmount: z.number().positive().optional(),
+  totalFunds: z.number().positive().optional(),
+  token: z.string().default("DOT"),
+  resources: z
+    .array(
+      z.object({
+        title: z.string(),
+        url: z.string().regex(URL_REGEX),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+  resourceFiles: z.array(z.string().regex(URL_REGEX)).optional(),
+  screening: z
+    .array(
+      z.object({
+        question: z.string(),
+        type: z.enum(["text", "url", "file"]),
+        optional: z.boolean(),
+      })
+    )
+    .optional(),
+  applicationUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
+  visibility: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
+  source: z.enum(["NATIVE", "EXTERNAL"]).default("NATIVE"),
+});
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ organizationId: string }> }
 ) {
   try {
-    // Get the session from Better Auth
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        {
-          status: 401,
-        }
-      );
-    }
-
     const { organizationId } = await params;
 
-    // Check if user is a member of the organization
-    const membership = await database.member.findFirst({
-      where: {
-        userId: session.user.id,
-        organizationId,
-      },
-    });
-
-    if (!membership) {
-      return NextResponse.json(
-        { error: "You are not a member of this organization" },
-        {
-          status: 403,
-        }
-      );
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse query parameters
@@ -185,6 +197,155 @@ export async function GET(
       {
         status: 500,
       }
+    );
+  }
+}
+
+// POST /api/v1/organizations/[organizationId]/grants - Create grant
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ organizationId: string }> }
+) {
+  try {
+    const { organizationId } = await params;
+
+    // Get auth (middleware already validated membership)
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has admin/owner role
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+      return NextResponse.json(
+        {
+          error:
+            "You do not have permission to create grants for this organization",
+        },
+        { status: 403 }
+      );
+    }
+
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = createGrantSchema.parse(body);
+
+    // Validate amount logic
+    if (
+      validatedData.minAmount &&
+      validatedData.maxAmount &&
+      validatedData.minAmount > validatedData.maxAmount
+    ) {
+      return NextResponse.json(
+        { error: "Minimum amount cannot be greater than maximum amount" },
+        { status: 400 }
+      );
+    }
+
+    // Generate a unique slug from the title
+    const baseSlug = validatedData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (
+      (await database.grant.findUnique({ where: { slug } })) &&
+      counter < 1000
+    ) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    if (counter >= 1000) {
+      slug = `${baseSlug}-${Date.now()}`;
+    }
+
+    // Set source based on applicationUrl
+    const source =
+      validatedData.applicationUrl?.length &&
+      validatedData.applicationUrl.length > 0
+        ? "EXTERNAL"
+        : "NATIVE";
+
+    // Create the grant
+    const grant = await database.grant.create({
+      data: {
+        title: validatedData.title,
+        slug,
+        description: validatedData.description,
+        summary: validatedData.summary,
+        instructions: validatedData.instructions,
+        logoUrl: validatedData.logoUrl,
+        bannerUrl: validatedData.bannerUrl,
+        skills: validatedData.skills,
+        minAmount: validatedData.minAmount,
+        maxAmount: validatedData.maxAmount,
+        totalFunds: validatedData.totalFunds,
+        token: validatedData.token,
+        resources: validatedData.resourceFiles?.length
+          ? [
+              ...(validatedData.resources ?? []),
+              ...validatedData.resourceFiles.map((file) => ({
+                title: "Attachment",
+                url: file,
+                description: undefined,
+              })),
+            ]
+          : validatedData.resources || undefined,
+        screening: validatedData.screening || undefined,
+        applicationUrl: validatedData.applicationUrl,
+        visibility: validatedData.visibility,
+        source,
+        status: "OPEN",
+        organizationId,
+        publishedAt:
+          validatedData.visibility === "PUBLISHED" ? new Date() : null,
+      },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+          },
+        },
+      },
+    });
+
+    // Add current user as curator
+    const { auth } = await import("@packages/auth/server");
+    const { headers: getHeaders } = await import("next/headers");
+    const session = await auth.api.getSession({
+      headers: await getHeaders(),
+    });
+
+    await database.curator.create({
+      data: {
+        userId: orgAuth.userId,
+        grantId: grant.id,
+        contact: session?.user?.email || "",
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      grant,
+    });
+  } catch (error) {
+    console.error("Grant creation error:", error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Invalid request data", details: z.treeifyError(error) },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Failed to create grant" },
+      { status: 500 }
     );
   }
 }

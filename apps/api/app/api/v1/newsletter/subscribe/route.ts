@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const subscribeSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
 });

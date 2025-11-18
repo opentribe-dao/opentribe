@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useActiveOrganization } from "@packages/auth/client";
 import { env } from "@/env";
 
 export type GrantStatus = "OPEN" | "PAUSED" | "CLOSED";
@@ -99,18 +100,26 @@ export interface Grant {
 }
 
 export function useGrant(grantId: string) {
+  const { data: activeOrg } = useActiveOrganization();
+
   return useQuery<Grant, Error>({
-    queryKey: ["grant", grantId],
+    queryKey: ["grant", grantId, activeOrg?.id],
     queryFn: async () => {
+      // Use organization-scoped route via activeOrg
+
       const res = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${grantId}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${
+          activeOrg?.id ?? ""
+        }/grants/${grantId}`,
         {
           credentials: "include",
         }
       );
+
       if (!res.ok) {
         throw new Error(`Failed to fetch grant ${grantId}: ${res.statusText}`);
       }
+
       const data = await res.json();
       return data.grant;
     },

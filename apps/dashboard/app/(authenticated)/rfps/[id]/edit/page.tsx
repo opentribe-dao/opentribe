@@ -80,8 +80,13 @@ export default function EditRFPPage({
   const fetchRFPDetails = async () => {
     try {
       setLoadingData(true);
+      
+      if (!activeOrg?.id) {
+        throw new Error("No organization selected");
+      }
+      
       const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/rfps/${id}`,
         {
           credentials: "include",
         }
@@ -93,13 +98,6 @@ export default function EditRFPPage({
 
       const data = await response.json();
       const rfp = data.rfp;
-
-      // Check if user has access to edit this RFP
-      if (rfp.grant.organization.id !== activeOrg?.id) {
-        toast.error("You do not have access to edit this RFP");
-        router.push("/rfps");
-        return;
-      }
 
       setFormData({
         grantId: rfp.grant.id,

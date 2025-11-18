@@ -4,6 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { ViewManager } from "@/lib/views";
 import { auth } from "@packages/auth/server";
 import { headers } from "next/headers";
+import { getOrganizationAuth } from "@/lib/organization-auth";
 
 // Type for GET API response
 type BountyWithRelations = Prisma.BountyGetPayload<{
@@ -224,34 +225,27 @@ export async function GET(
       },
     };
 
-    if (session) {
-      // Check if user is a member of the bounty org
-      const userMembership = await database.member.count({
-        where: {
-          organizationId: bounty.organizationId,
-          userId: session?.user?.id,
-        },
-      });
+    if (session?.user) {
+      // Check if user is a member of the bounty org using organization-auth helper
+      const orgAuth = await getOrganizationAuth(request, bounty.organizationId);
 
       // Check if user already submitted
-      const userSubmission = session?.user
-        ? await database.submission.findFirst({
-            where: {
-              bountyId: bounty.id,
-              userId: session.user.id,
-            },
-          })
-        : null;
+      const userSubmission = await database.submission.findFirst({
+        where: {
+          bountyId: bounty.id,
+          userId: session.user.id,
+        },
+      });
 
       if (userSubmission) {
         response.bounty.userSubmissionId = userSubmission.id;
         response.bounty.canSubmit = false;
-      } else if (userMembership !== undefined) {
-        if (userMembership === 0) {
-          response.bounty.canSubmit = true;
-        } else {
-          response.bounty.canSubmit = false;
-        }
+      } else if (orgAuth) {
+        // User is a member of the organization, can't submit to own org's bounties
+        response.bounty.canSubmit = false;
+      } else {
+        // User is not a member, can submit
+        response.bounty.canSubmit = true;
       }
     }
 

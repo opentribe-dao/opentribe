@@ -109,8 +109,11 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
       if (!id) return;
 
       try {
+        if (!activeOrg?.id) {
+          throw new Error("No organization selected");
+        }
         const response = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${id}`,
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/bounties/${id}`,
           {
             credentials: "include",
           }

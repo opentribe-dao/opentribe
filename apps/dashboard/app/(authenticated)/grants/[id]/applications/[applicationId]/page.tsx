@@ -110,6 +110,9 @@ export default function ApplicationReviewPage({
   const fetchApplicationDetails = async () => {
     try {
       setLoading(true);
+      if (!activeOrg?.id) {
+        throw new Error("No organization selected");
+      }
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications/${applicationId}`,
         {
@@ -149,6 +152,9 @@ export default function ApplicationReviewPage({
 
     try {
       setActionLoading(true);
+      if (!activeOrg?.id) {
+        throw new Error("No organization selected");
+      }
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications/${applicationId}/review`,
         {

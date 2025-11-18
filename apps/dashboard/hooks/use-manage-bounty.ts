@@ -44,7 +44,7 @@ const createInitialFormData = (
   ),
   screening: getArray<{
     question: string;
-    type: "text" | "url" | "file";
+    type: "text" | "url" | "file" | "boolean";
     optional: boolean;
   }>(bounty.screening, []),
   visibility: getString(bounty.visibility, "DRAFT") as "DRAFT" | "PUBLISHED",

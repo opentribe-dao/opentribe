@@ -80,31 +80,33 @@ export const BountyReviewStepComponent: React.FC<BountyReviewProps> = ({
             new Date(formData.deadline).toLocaleDateString()}
         </p>
       </div>
-      <div>
-        <p className="text-sm text-white/60">Resources</p>
-        <p className="text-white">
-          {formData.resources?.map((resource, index) => (
-            <div className="flex items-start justify-between" key={index}>
-              <div>
-                <a
-                  className="flex items-center gap-2 text-white transition-colors hover:text-[#E6007A]"
-                  href={resource.url}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {resource.title}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-                {resource.description && (
-                  <p className="mt-1 text-sm text-white/60">
-                    {resource.description}
-                  </p>
-                )}
+      {formData.resources != null && (
+        <div>
+          <p className="text-sm text-white/60">Resources</p>
+          <div className="text-white">
+            {formData.resources.map((resource, index) => (
+              <div className="flex items-start justify-between" key={index}>
+                <div>
+                  <a
+                    className="flex items-center gap-2 text-white transition-colors hover:text-[#E6007A]"
+                    href={resource.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {resource.title}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  {resource.description && (
+                    <p className="mt-1 text-sm text-white/60">
+                      {resource.description}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </p>
-      </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <p className="text-sm text-white/60">Screening Questions</p>

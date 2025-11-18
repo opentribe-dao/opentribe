@@ -10,6 +10,10 @@ import {
 } from "@packages/base/components/ui/card";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@packages/base/components/ui/radio-group";
 import { Textarea } from "@packages/base/components/ui/textarea";
 import { formatCurrency } from "@packages/base/lib/utils";
 import { Link2, Loader2 } from "lucide-react";
@@ -354,6 +358,54 @@ const BountySubmissionPage = () => {
                                 formData.responses[question.question] || ""
                               }
                             />
+                          ) : question.type === "boolean" ? (
+                            <RadioGroup
+                              className="mt-2"
+                              onValueChange={(value) =>
+                                updateResponse(
+                                  question.question,
+                                  value === "yes" ? "Yes" : "No"
+                                )
+                              }
+                              required={!question.optional}
+                              value={
+                                formData.responses[question.question] === "Yes"
+                                  ? "yes"
+                                  : formData.responses[question.question] ===
+                                      "No"
+                                    ? "no"
+                                    : undefined
+                              }
+                            >
+                              <div className="flex items-center gap-6">
+                                <div className="flex items-center gap-2">
+                                  <RadioGroupItem
+                                    className="border-white/20 text-white"
+                                    id={`${index}-yes`}
+                                    value="yes"
+                                  />
+                                  <Label
+                                    className="text-white cursor-pointer"
+                                    htmlFor={`${index}-yes`}
+                                  >
+                                    Yes
+                                  </Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <RadioGroupItem
+                                    className="border-white/20 text-white"
+                                    id={`${index}-no`}
+                                    value="no"
+                                  />
+                                  <Label
+                                    className="text-white cursor-pointer"
+                                    htmlFor={`${index}-no`}
+                                  >
+                                    No
+                                  </Label>
+                                </div>
+                              </div>
+                            </RadioGroup>
                           ) : (
                             <Input
                               className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useActiveOrganization } from "@packages/auth/client";
 import { env } from "@/env";
 export interface BountyDetails {
   id: string;
@@ -65,18 +66,26 @@ export interface Submission {
 }
 
 export function useBounty(bountyId?: string) {
+  const { data: activeOrg } = useActiveOrganization();
+
   return useQuery<BountyDetails, Error>({
-    queryKey: ["bounty", bountyId],
+    queryKey: ["bounty", bountyId, activeOrg?.id],
     queryFn: async () => {
       if (!bountyId) {
-        return Promise.reject(new Error("No organization ID"));
+        return Promise.reject(new Error("No bounty ID"));
       }
+
+      console.log("activeOrgId", activeOrg?.id);
+      // Use organization-scoped route via activeOrg
       const res = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${
+          activeOrg?.id ?? ""
+        }/bounties/${bountyId}`,
         {
           credentials: "include",
         }
       );
+
       if (!res.ok) {
         throw new Error(
           `Failed to fetch bounty ${bountyId}: ${res.statusText}`
@@ -93,8 +102,10 @@ export function useBounty(bountyId?: string) {
 }
 
 export function useBountySubmissions(bountyId?: string) {
-  return useQuery<Submission, Error>({
-    queryKey: ["bounty-submissions", bountyId],
+  const { data: activeOrg } = useActiveOrganization();
+
+  return useQuery<Submission[], Error>({
+    queryKey: ["bounty-submissions", bountyId, activeOrg?.id],
     queryFn: async () => {
       if (!bountyId) {
         return Promise.reject(new Error("No Bounty ID"));

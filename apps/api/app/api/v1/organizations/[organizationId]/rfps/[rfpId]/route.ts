@@ -66,10 +66,7 @@ export async function GET(
     return NextResponse.json({ rfp });
   } catch (error) {
     console.error("Error fetching RFP:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch RFP" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch RFP" }, { status: 500 });
   }
 }
 
@@ -125,7 +122,7 @@ export async function PATCH(
           })
         )
         .optional(),
-      status: z.enum(["OPEN", "CLOSED", "COMPLETED"]).optional(),
+      status: z.enum(["OPEN", "PAUSED", "CLOSED"]).optional(),
       visibility: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
     });
 

@@ -165,18 +165,18 @@ export default async function middleware(request: NextRequest) {
 
   // Try to get user-id from auth headers for logging
   let userId: string | undefined;
-  const hasAuthHeaders =
-    request.headers.get("cookie") || request.headers.get("authorization");
-  if (hasAuthHeaders) {
-    try {
-      const session = await authMiddleware(request);
-      if (session?.user?.id) {
-        userId = session.user.id;
-      }
-    } catch {
-      // Ignore auth errors in logging - not critical
-    }
-  }
+  // const hasAuthHeaders =
+  //   request.headers.get("cookie") || request.headers.get("authorization");
+  // if (hasAuthHeaders) {
+  //   try {
+  //     const session = await authMiddleware(request);
+  //     if (session?.user?.id) {
+  //       userId = session.user.id;
+  //     }
+  //   } catch {
+  //     // Ignore auth errors in logging - not critical
+  //   }
+  // }
 
   const emit = (
     level: "info" | "error",
@@ -244,26 +244,26 @@ export default async function middleware(request: NextRequest) {
   // Note: Membership checks are done in route handlers (Prisma doesn't work in Edge Runtime)
   const pathname = request.nextUrl.pathname;
 
-  if (pathname.startsWith("/api/v1/organizations/")) {
-    // Skip auth check for OPTIONS requests
-    if (request.method !== "OPTIONS") {
-      try {
-        // Check session using Edge-compatible authMiddleware
-        // const session = await authMiddleware(request);
+  // if (pathname.startsWith("/api/v1/organizations/")) {
+  //   // Skip auth check for OPTIONS requests
+  //   if (request.method !== "OPTIONS") {
+  //     try {
+  //       // Check session using Edge-compatible authMiddleware
+  //       // const session = await authMiddleware(request);
 
-        if (!userId) {
-          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-        // Membership validation is handled by route handlers using getOrganizationAuth
-      } catch (error) {
-        console.error("Error in organization auth middleware:", error);
-        return NextResponse.json(
-          { error: "Internal server error" },
-          { status: 500 }
-        );
-      }
-    }
-  }
+  //       if (!userId) {
+  //         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  //       }
+  //       // Membership validation is handled by route handlers using getOrganizationAuth
+  //     } catch (error) {
+  //       console.error("Error in organization auth middleware:", error);
+  //       return NextResponse.json(
+  //         { error: "Internal server error" },
+  //         { status: 500 }
+  //       );
+  //     }
+  //   }
+  // }
 
   // Response
   const response = NextResponse.next();

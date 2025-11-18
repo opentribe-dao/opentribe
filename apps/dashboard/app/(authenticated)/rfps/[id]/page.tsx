@@ -109,8 +109,13 @@ export default function RFPDetailPage() {
   const fetchRFPDetails = async () => {
     try {
       setLoading(true);
+
+      if (!activeOrg?.id) {
+        throw new Error("No organization selected");
+      }
+
       const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/rfps/${id}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/rfps/${id}`,
         {
           credentials: "include",
         }
@@ -122,12 +127,6 @@ export default function RFPDetailPage() {
 
       const data = await response.json();
       setRfp(data.rfp);
-
-      // Check if user has access to this RFP
-      if (data.rfp.grant.organization.id !== activeOrg?.id) {
-        toast.error("You do not have access to this RFP");
-        router.push("/rfps");
-      }
     } catch (error) {
       console.error("Error fetching RFP:", error);
       toast.error("Failed to load RFP details");

@@ -11,8 +11,168 @@ const createSubmissionSchema = z.object({
   submissionUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
-  responses: z.record(z.string(), z.any()).optional(), // For screening question responses
+  attachments: z.array(z.string()).optional(), // File URLs
+  responses: z
+    .record(z.string(), z.union([z.string(), z.boolean()]))
+    .optional(), // For screening question responses
 });
+
+type ScreeningQuestion = {
+  question: string;
+  type: "text" | "url" | "file" | "boolean";
+  optional?: boolean;
+};
+
+type ScreeningValidationResult =
+  | { success: true; responses: Record<string, string | boolean> }
+  | { success: false; error: string };
+
+const BOOLEAN_TRUE_VALUES = new Set(["yes", "true", "1"]);
+const BOOLEAN_FALSE_VALUES = new Set(["no", "false", "0"]);
+
+const normalizeBooleanResponse = (value: string | boolean): boolean | null => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+
+    if (BOOLEAN_TRUE_VALUES.has(normalized)) {
+      return true;
+    }
+
+    if (BOOLEAN_FALSE_VALUES.has(normalized)) {
+      return false;
+    }
+  }
+
+  return null;
+};
+
+const validateScreeningResponses = (
+  screening: ScreeningQuestion[] | null | undefined,
+  responses: Record<string, string | boolean> | undefined
+): ScreeningValidationResult => {
+  if (!screening?.length) {
+    if (!responses) {
+      return { success: true, responses: {} };
+    }
+
+    const sanitized: Record<string, string | boolean> = {};
+
+    for (const [question, value] of Object.entries(responses)) {
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        if (trimmed) {
+          sanitized[question] = trimmed;
+        }
+      } else if (typeof value === "boolean") {
+        sanitized[question] = value;
+      }
+    }
+
+    return { success: true, responses: sanitized };
+  }
+
+  const sanitized: Record<string, string | boolean> = {};
+
+  for (const question of screening) {
+    const rawValue = responses?.[question.question];
+
+    const isMissing =
+      rawValue === undefined ||
+      rawValue === null ||
+      (typeof rawValue === "string" && rawValue.trim() === "");
+
+    if (!question.optional && isMissing) {
+      return {
+        success: false,
+        error: `Missing response for required question: ${question.question}`,
+      };
+    }
+
+    if (rawValue === undefined || rawValue === null) {
+      continue;
+    }
+
+    switch (question.type) {
+      case "text":
+      case "file": {
+        if (typeof rawValue !== "string") {
+          return {
+            success: false,
+            error: `Invalid response for question: ${question.question}`,
+          };
+        }
+
+        const trimmed = rawValue.trim();
+
+        if (!trimmed) {
+          if (question.optional) {
+            continue;
+          }
+
+          return {
+            success: false,
+            error: `Missing response for required question: ${question.question}`,
+          };
+        }
+
+        sanitized[question.question] = trimmed;
+        break;
+      }
+      case "url": {
+        if (typeof rawValue !== "string") {
+          return {
+            success: false,
+            error: `Invalid URL provided for question: ${question.question}`,
+          };
+        }
+
+        const trimmed = rawValue.trim();
+
+        if (!trimmed) {
+          if (question.optional) {
+            continue;
+          }
+
+          return {
+            success: false,
+            error: `Missing response for required question: ${question.question}`,
+          };
+        }
+
+        if (!OPTIONAL_URL_REGEX.test(trimmed)) {
+          return {
+            success: false,
+            error: `Invalid URL provided for question: ${question.question}`,
+          };
+        }
+
+        sanitized[question.question] = trimmed;
+        break;
+      }
+      case "boolean": {
+        const normalized = normalizeBooleanResponse(rawValue);
+
+        if (normalized === null) {
+          return {
+            success: false,
+            error: `Invalid yes/no response for question: ${question.question}`,
+          };
+        }
+
+        sanitized[question.question] = normalized;
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  return { success: true, responses: sanitized };
+};
 
 // GET /api/v1/bounties/[id]/submissions - Get submissions for a bounty
 export async function GET(
@@ -69,7 +229,7 @@ export async function GET(
     // For public bounties, only show submitted submissions
     // For org members, show all submissions
     const whereClause: any = {
-      bountyId,
+      bountyId: bounty.id,
     };
 
     if (!isOrgMember) {
@@ -217,7 +377,7 @@ export async function POST(
     // Check if user already has a submission for this bounty
     const existingSubmission = await database.submission.findFirst({
       where: {
-        bountyId,
+        bountyId: bounty.id,
         userId: session.user.id,
       },
     });
@@ -251,15 +411,44 @@ export async function POST(
     const body = await request.json();
     const validatedData = createSubmissionSchema.parse(body);
 
+    const screeningQuestions = Array.isArray(bounty.screening)
+      ? (bounty.screening as ScreeningQuestion[])
+      : undefined;
+
+    const screeningValidation = validateScreeningResponses(
+      screeningQuestions,
+      validatedData.responses
+    );
+
+    if (!screeningValidation.success) {
+      return NextResponse.json(
+        { error: screeningValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Merge screening responses with attachments
+    const finalResponses: Record<string, any> = {
+      ...screeningValidation.responses,
+    };
+
+    // Add attachments if provided
+    if (validatedData.attachments && validatedData.attachments.length > 0) {
+      finalResponses._attachments = validatedData.attachments;
+    }
+
+    const sanitizedResponses =
+      Object.keys(finalResponses).length > 0 ? finalResponses : undefined;
+
     // Create the submission
     const submission = await database.submission.create({
       data: {
-        bountyId,
+        bountyId: bounty.id,
         userId: session.user.id,
         submissionUrl: validatedData.submissionUrl,
         title: validatedData.title || `Submission for ${bounty.title}`,
         description: validatedData.description,
-        responses: validatedData.responses || undefined,
+        responses: sanitizedResponses,
         status: "SUBMITTED",
         submittedAt: new Date(),
       },
@@ -278,7 +467,7 @@ export async function POST(
 
     // Update bounty submission count
     await database.bounty.update({
-      where: { id: bountyId },
+      where: { id: bounty.id },
       data: {
         submissionCount: {
           increment: 1,
@@ -288,7 +477,7 @@ export async function POST(
 
     // Check if this is the first submission and send email to org members
     const submissionCount = await database.submission.count({
-      where: { bountyId },
+      where: { bountyId: bounty.id },
     });
 
     if (submissionCount === 1) {
@@ -349,16 +538,33 @@ export async function POST(
     );
   } catch (error) {
     console.error("Submission creation error:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined,
+    });
 
     if (error instanceof z.ZodError) {
+      const zodError = error as z.ZodError;
+      console.error("Zod validation error:", zodError.issues);
       return NextResponse.json(
-        { error: "Invalid request data", details: z.treeifyError(error) },
+        {
+          error: "Invalid request data",
+          details: z.treeifyError(zodError),
+          message: zodError.issues
+            .map((e) => `${e.path.join(".")}: ${e.message}`)
+            .join(", "),
+        },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: "Failed to create submission" },
+      {
+        error: "Failed to create submission",
+        message:
+          error instanceof Error ? error.message : "An unexpected error occurred",
+      },
       { status: 500 }
     );
   }

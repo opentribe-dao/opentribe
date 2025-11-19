@@ -422,7 +422,7 @@ export function useBountyForm() {
     },
     onSuccess: (result) => {
       toast.success("Bounty created successfully!");
-      router.push(`/bounties/${result.bounty.id}/`);
+      router.replace(`/bounties/${result.bounty.id}/`);
     },
     onError: (error) => {
       const errorMessage =

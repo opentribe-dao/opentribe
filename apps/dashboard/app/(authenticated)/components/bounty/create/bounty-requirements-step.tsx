@@ -22,15 +22,6 @@ interface BountyRequirementsProps {
 export const BountyRequirementsStepComponent: React.FC<
   BountyRequirementsProps
 > = ({ formData, updateFormData }) => {
-  // const {
-  //   addResource,
-  //   removeResource,
-  //   updateResource,
-  //   addScreeningQuestion,
-  //   removeScreeningQuestion,
-  //   updateScreeningQuestion,
-  // } = useBountyForm();
-
   const addResource = () => {
     updateFormData("resources", [
       ...(formData.resources ?? []),

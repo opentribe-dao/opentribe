@@ -247,6 +247,165 @@ describe("Submission System Tests", () => {
       });
       expect(database.submission.create).not.toHaveBeenCalled();
     });
+
+    test("should reject submission when required screening answers are missing", async () => {
+      const mockSession = {
+        user: {
+          id: "user-abc",
+          email: "user@example.com",
+        },
+      };
+
+      const mockUser = {
+        id: "user-abc",
+        profileCompleted: true,
+      };
+
+      const mockBounty = {
+        id: "bounty-req",
+        slug: "bounty-req",
+        title: "Screened Bounty",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        organizationId: "org-screen",
+        screening: [
+          {
+            question: "Are you available full-time?",
+            type: "boolean",
+            optional: false,
+          },
+        ],
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(null);
+      (database.member.findMany as any).mockResolvedValue([]);
+
+      const body = JSON.stringify({
+        submissionUrl: "https://github.com/user/repo",
+        title: "My Submission",
+        description: "Submission description",
+        responses: {},
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-req/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-req" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toContain("Missing response for required question");
+      expect(database.submission.create).not.toHaveBeenCalled();
+    });
+
+    test("should normalize boolean screening responses before saving", async () => {
+      const mockSession = {
+        user: {
+          id: "user-bool",
+          email: "bool@example.com",
+          username: "bool-user",
+        },
+      };
+
+      const mockUser = {
+        id: "user-bool",
+        profileCompleted: true,
+      };
+
+      const mockBounty = {
+        id: "bounty-bool",
+        slug: "bounty-bool",
+        title: "Boolean Screening",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        organizationId: "org-bool",
+        screening: [
+          {
+            question: "Can you commit 10 hours per week?",
+            type: "boolean",
+            optional: false,
+          },
+        ],
+      };
+
+      const mockSubmission = {
+        id: "submission-bool",
+        bountyId: "bounty-bool",
+        userId: "user-bool",
+        title: "My Submission",
+        description: "Submission description",
+        submissionUrl: "https://github.com/user/repo",
+        responses: {
+          "Can you commit 10 hours per week?": true,
+        },
+        status: "SUBMITTED",
+        submittedAt: new Date(),
+        submitter: {
+          id: "user-bool",
+          username: "bool-user",
+          firstName: "Bool",
+          lastName: "User",
+          image: null,
+        },
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(null);
+      (database.member.findMany as any).mockResolvedValue([]);
+      (database.submission.create as any).mockResolvedValue(mockSubmission);
+      (database.bounty.update as any).mockResolvedValue({});
+      (database.submission.count as any).mockResolvedValue(2);
+
+      const body = JSON.stringify({
+        submissionUrl: "https://github.com/user/repo",
+        title: "My Submission",
+        description: "Submission description",
+        responses: {
+          "Can you commit 10 hours per week?": "Yes",
+        },
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-bool/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-bool" }),
+      });
+
+      expect(response.status).toBe(201);
+      expect(database.submission.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            responses: {
+              "Can you commit 10 hours per week?": true,
+            },
+          }),
+        })
+      );
+    });
   });
 
   describe("POST /api/v1/bounties/[id]/winners", () => {

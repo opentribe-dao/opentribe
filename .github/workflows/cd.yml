@@ -3,20 +3,20 @@ name: Deploy to Production
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   update-production:
     name: Update Production Branch
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Required to push to production branch
+      contents: write # Required to push to production branch
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0  # Full history for branch updates
+          fetch-depth: 0 # Full history for branch updates
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
@@ -39,6 +39,42 @@ jobs:
           TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
 
           # Create GitHub Release with the tag's annotation
-          gh release create $TAG_NAME \
+          gh release create "$TAG_NAME" \
             --title "$TAG_NAME - Production Release" \
             --notes "$TAG_MESSAGE"
+
+  notify-discord:
+    name: Notify Discord of Release
+    needs: update-production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Send release notification to Discord
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is not set. Skipping Discord notification."
+            exit 0
+          fi
+
+          TAG_NAME="${{ github.ref_name }}"
+          echo "Fetching release information for tag: $TAG_NAME"
+
+          # Use gh CLI to get release JSON and pipe to script
+          gh release view "$TAG_NAME" --json name,body,tagName,publishedAt,url | \
+            node scripts/notify-discord-release.js

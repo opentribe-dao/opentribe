@@ -230,27 +230,42 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const pathname = usePathname();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Close mobile menu when clicking outside
+  // Close menus when clicking outside both
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
+      const target = event.target as Node;
+      
+      const clickedOutsideMobileMenu =
         isMobileMenuOpen &&
         mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(event.target as Node)
-      ) {
+        !mobileMenuRef.current.contains(target) &&
+        hamburgerButtonRef.current &&
+        !hamburgerButtonRef.current.contains(target);
+
+      const clickedOutsideUserMenu =
+        isUserMenuOpen &&
+        userMenuRef.current &&
+        !userMenuRef.current.contains(target);
+
+      if (clickedOutsideMobileMenu) {
         setMobileMenuOpen(false);
+      }
+      if (clickedOutsideUserMenu) {
+        setUserMenuOpen(false);
       }
     };
 
-    if (isMobileMenuOpen) {
+    if (isMobileMenuOpen || isUserMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, isUserMenuOpen]);
 
   const handleSignOut = async () => {
     const { signOut } = await import("@packages/auth/client");
@@ -317,15 +332,20 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
         </nav>
         <div className="flex items-center gap-4">
           {session?.user ? (
-            <UserMenu
-              onSignOut={handleSignOut}
-              user={session.user}
-              isOpen={isUserMenuOpen}
-              onOpenChange={(open) => {
-                setUserMenuOpen(open);
-                if (open) setMobileMenuOpen(false);
-              }}
-            />
+            <div ref={userMenuRef}>
+              <UserMenu
+                onSignOut={handleSignOut}
+                user={session.user}
+                isOpen={isUserMenuOpen}
+                onOpenChange={(open) => {
+                  setUserMenuOpen(open);
+                  // Close mobile menu when opening user menu
+                  if (open) {
+                    setMobileMenuOpen(false);
+                  }
+                }}
+              />
+            </div>
           ) : (
             <>
               <AuthModal>
@@ -341,11 +361,16 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
               </AuthModal>
             </>
           )}
-          <div className="flex shrink-0 items-center lg:hidden" ref={mobileMenuRef}>
+          <div className="flex shrink-0 items-center lg:hidden">
             <Button
+              ref={hamburgerButtonRef}
               onClick={() => {
-                setMobileMenuOpen(!isMobileMenuOpen);
-                if (!isMobileMenuOpen) setUserMenuOpen(false);
+                // Close user menu if open
+                if (isUserMenuOpen) {
+                  setUserMenuOpen(false);
+                }
+                // Toggle mobile menu
+                setMobileMenuOpen((prev) => !prev);
               }}
               variant="ghost"
             >
@@ -356,7 +381,10 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
               )}
             </Button>
             {isMobileMenuOpen && (
-              <div className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg">
+              <div
+                ref={mobileMenuRef}
+                className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg"
+              >
                 {navigationItems.map((item) => (
                   <div key={item.title}>
                     <div className="flex flex-col gap-2">

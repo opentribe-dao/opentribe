@@ -13,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@packages/base/components/ui/sidebar";
 import { cn } from "@packages/base/lib/utils";
 import {
@@ -90,6 +91,7 @@ const useNavData = () => {
 
 export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
   const data = useNavData();
+  const { isMobile } = useSidebar();
 
   const handleSignOut = async () => {
     try {
@@ -103,12 +105,25 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
 
   return (
     <>
-      <Sidebar className="border-white/10 border-r bg-white/5 backdrop-blur-xl">
-        <SidebarHeader className="border-white/10 border-b p-4">
-          <OrganizationSwitcher />
-        </SidebarHeader>
+      <Sidebar 
+        className={cn(
+          "border-white/10 border-r backdrop-blur-xl",
+          isMobile 
+            ? "bg-[#0a0a0a] border-r-0" 
+            : "bg-white/5"
+        )}
+      >
+        <div 
+          className={cn(
+            "flex h-full w-full flex-col",
+            isMobile && "bg-[#0a0a0a]"
+          )}
+        >
+          <SidebarHeader className="border-white/10 border-b p-4">
+            <OrganizationSwitcher />
+          </SidebarHeader>
 
-        <SidebarContent className="px-3 py-4">
+          <SidebarContent className="px-3 py-4">
           <SidebarGroup>
             <SidebarMenu>
               {data.navMain.map((item) => (
@@ -218,6 +233,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
             })}
           </SidebarMenu>
         </SidebarFooter>
+        </div>
       </Sidebar>
       <SidebarInset className="bg-transparent">{children}</SidebarInset>
     </>

@@ -44,7 +44,7 @@ const createInitialFormData = (
   ),
   screening: getArray<{
     question: string;
-    type: "text" | "url" | "file";
+    type: "text" | "url" | "file" | "boolean";
     optional: boolean;
   }>(bounty.screening, []),
   visibility: getString(bounty.visibility, "DRAFT") as "DRAFT" | "PUBLISHED",
@@ -422,7 +422,7 @@ export function useBountyForm() {
     },
     onSuccess: (result) => {
       toast.success("Bounty created successfully!");
-      router.push(`/bounties/${result.bounty.id}/`);
+      router.replace(`/bounties/${result.bounty.id}/`);
     },
     onError: (error) => {
       const errorMessage =

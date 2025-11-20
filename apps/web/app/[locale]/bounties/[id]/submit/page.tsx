@@ -10,6 +10,10 @@ import {
 } from "@packages/base/components/ui/card";
 import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@packages/base/components/ui/radio-group";
 import { Textarea } from "@packages/base/components/ui/textarea";
 import { formatCurrency } from "@packages/base/lib/utils";
 import { Link2, Loader2 } from "lucide-react";
@@ -19,6 +23,11 @@ import { toast } from "sonner";
 import { env } from "@/env";
 import type { Bounty } from "@/hooks/use-bounties-data";
 import { AuthModal } from "../../../components/auth-modal";
+
+// Regex patterns for error parsing (defined at top level for performance)
+const FIELD_NAME_REGEX = /^([^:]+):/;
+const CAMEL_CASE_REGEX = /([A-Z])/g;
+const WORD_BOUNDARY_REGEX = /\b\w/g;
 
 const BountySubmissionPage = () => {
   const params = useParams();
@@ -133,7 +142,46 @@ const BountySubmissionPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to submit");
+        // Extract field name from Zod validation errors
+        let errorMessage = data.error || "Failed to submit";
+
+        if (data.message) {
+          // Parse Zod error message format: "field: error message"
+          const match = data.message.match(FIELD_NAME_REGEX);
+          if (match) {
+            const fieldName = match[1]?.trim() || "";
+            const readableField = fieldName
+              .replace(CAMEL_CASE_REGEX, " $1")
+              .toLowerCase()
+              .replace(WORD_BOUNDARY_REGEX, (c: string) => c.toUpperCase());
+            errorMessage = `${readableField} has invalid value`;
+          } else {
+            // Fallback to the full message if format is different
+            errorMessage = data.message;
+          }
+        } else if (data.details) {
+          // Try to extract from details if message is not available
+          const firstIssue = Array.isArray(data.details)
+            ? data.details[0]
+            : data.details;
+
+          if (
+            firstIssue?.path &&
+            Array.isArray(firstIssue.path) &&
+            firstIssue.path.length > 0
+          ) {
+            const fieldName = firstIssue.path.at(-1);
+            if (fieldName) {
+              const readableField = String(fieldName)
+                .replace(CAMEL_CASE_REGEX, " $1")
+                .toLowerCase()
+                .replace(WORD_BOUNDARY_REGEX, (c: string) => c.toUpperCase());
+              errorMessage = `${readableField} has invalid value`;
+            }
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
       toast.success("Submission created successfully!");
@@ -354,6 +402,54 @@ const BountySubmissionPage = () => {
                                 formData.responses[question.question] || ""
                               }
                             />
+                          ) : question.type === "boolean" ? (
+                            <RadioGroup
+                              className="mt-2"
+                              onValueChange={(value) =>
+                                updateResponse(
+                                  question.question,
+                                  value === "yes" ? "Yes" : "No"
+                                )
+                              }
+                              required={!question.optional}
+                              value={
+                                formData.responses[question.question] === "Yes"
+                                  ? "yes"
+                                  : formData.responses[question.question] ===
+                                      "No"
+                                    ? "no"
+                                    : undefined
+                              }
+                            >
+                              <div className="flex items-center gap-6">
+                                <div className="flex items-center gap-2">
+                                  <RadioGroupItem
+                                    className="border-white/20 text-white"
+                                    id={`${index}-yes`}
+                                    value="yes"
+                                  />
+                                  <Label
+                                    className="text-white cursor-pointer"
+                                    htmlFor={`${index}-yes`}
+                                  >
+                                    Yes
+                                  </Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <RadioGroupItem
+                                    className="border-white/20 text-white"
+                                    id={`${index}-no`}
+                                    value="no"
+                                  />
+                                  <Label
+                                    className="text-white cursor-pointer"
+                                    htmlFor={`${index}-no`}
+                                  >
+                                    No
+                                  </Label>
+                                </div>
+                              </div>
+                            </RadioGroup>
                           ) : (
                             <Input
                               className="mt-2 border-white/10 bg-white/5 text-white placeholder:text-white/40"

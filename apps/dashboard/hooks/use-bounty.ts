@@ -36,7 +36,8 @@ export type Submission = {
   title?: string;
   description?: string;
   submissionUrl?: string;
-  responses?: string;
+  responses?: Record<string, string | boolean>;
+  attachments?: string[];
   status: string;
   isWinner: boolean;
   position?: number;

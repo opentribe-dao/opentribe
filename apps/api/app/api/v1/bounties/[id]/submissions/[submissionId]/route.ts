@@ -146,11 +146,17 @@ export async function GET(
       reviewedAt: submission.reviewedAt,
       feedback: submission.notes, // notes field is used for feedback
       answers: submission.responses as any, // responses contains screening answers
-      files: attachments.map((url, index) => ({
-        name: `Attachment ${index + 1}`,
-        url,
-        size: 0,
-      })),
+      files: attachments.map((url, index) => {
+        const encodedName = url.split("/").pop();
+        const decodedName = encodedName
+          ? decodeURIComponent(encodedName)
+          : `Attachment ${index + 1}`;
+        return {
+          name: decodedName,
+          url,
+          size: 0,
+        };
+      }),
       bounty: {
         id: submission.bounty.id,
         slug: submission.bounty.slug,

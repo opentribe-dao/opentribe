@@ -62,7 +62,7 @@ interface BountyFormData {
   resources: Array<{ title: string; url: string; description: string }>;
   screening: Array<{
     question: string;
-    type: "text" | "url" | "file";
+    type: "text" | "url" | "file" | "boolean";
     optional: boolean;
   }>;
 
@@ -727,6 +727,12 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                                       value="file"
                                     >
                                       File
+                                    </SelectItem>
+                                    <SelectItem
+                                      className="text-white"
+                                      value="boolean"
+                                    >
+                                      Boolean
                                     </SelectItem>
                                   </SelectContent>
                                 </Select>

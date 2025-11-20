@@ -28,12 +28,16 @@ function hasAnalyticsConsent(): boolean {
   }
 }
 
-// Always initialize Sentry for error monitoring (not user tracking)
-initializeSentryClient({ enableFeedback: false });
+// Only initialize Sentry if DSN is configured
+if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  initializeSentryClient({ enableFeedback: false });
+}
 
 // Only initialize PostHog if user has consented to analytics
 if (hasAnalyticsConsent()) {
   initializePostHog();
 }
 
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export const onRouterTransitionStart = process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? Sentry.captureRouterTransitionStart
+  : undefined;

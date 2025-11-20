@@ -1,7 +1,11 @@
 import * as Sentry from "@sentry/nextjs";
 import { initializeSentry } from "@packages/logging/instrumentation";
 
-// Register server-side Sentry instrumentation
-export const register = initializeSentry();
+// Register server-side Sentry instrumentation only if DSN is configured
+export const register = process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? initializeSentry()
+  : undefined;
 
-export const onRequestError = Sentry.captureRequestError;
+export const onRequestError = process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? Sentry.captureRequestError
+  : undefined;

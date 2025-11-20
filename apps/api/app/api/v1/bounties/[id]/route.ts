@@ -235,6 +235,9 @@ export async function GET(
           bountyId: bounty.id,
           userId: session.user.id,
         },
+        select: {
+          id: true,
+        },
       });
 
       if (userSubmission) {

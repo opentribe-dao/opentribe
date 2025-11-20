@@ -382,6 +382,9 @@ export async function POST(
         bountyId: bounty.id,
         userId: session.user.id,
       },
+      select: {
+        id: true,
+      },
     });
 
     if (existingSubmission) {
@@ -435,18 +438,28 @@ export async function POST(
         : undefined;
 
     // Create the submission
+    const submissionData: any = {
+      bountyId: bounty.id,
+      userId: session.user.id,
+      submissionUrl: validatedData.submissionUrl,
+      title: validatedData.title || `Submission for ${bounty.title}`,
+      description: validatedData.description,
+      responses: sanitizedResponses,
+      status: "SUBMITTED",
+      submittedAt: new Date(),
+    };
+
+    // Only include attachments if explicitly provided and not empty
+    if (
+      validatedData.attachments !== undefined &&
+      Array.isArray(validatedData.attachments) &&
+      validatedData.attachments.length > 0
+    ) {
+      submissionData.attachments = validatedData.attachments;
+    }
+
     const submission = await database.submission.create({
-      data: {
-        bountyId: bounty.id,
-        userId: session.user.id,
-        submissionUrl: validatedData.submissionUrl,
-        title: validatedData.title || `Submission for ${bounty.title}`,
-        description: validatedData.description,
-        responses: sanitizedResponses,
-        attachments: validatedData.attachments ?? [],
-        status: "SUBMITTED",
-        submittedAt: new Date(),
-      },
+      data: submissionData,
       include: {
         submitter: {
           select: {

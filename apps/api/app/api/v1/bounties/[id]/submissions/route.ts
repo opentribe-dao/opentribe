@@ -11,7 +11,7 @@ const createSubmissionSchema = z.object({
   submissionUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
-  attachments: z.array(z.string()).optional(), // File URLs
+  attachments: z.array(z.string().url()).optional(), // File URLs
   responses: z
     .record(z.string(), z.union([z.string(), z.boolean()]))
     .optional(), // For screening question responses

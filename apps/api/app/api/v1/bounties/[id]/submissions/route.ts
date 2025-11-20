@@ -11,7 +11,7 @@ const createSubmissionSchema = z.object({
   submissionUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
-  attachments: z.array(z.string().url()).optional(), // File URLs
+  attachments: z.array(z.string().regex(OPTIONAL_URL_REGEX)).optional(), // File URLs
   responses: z
     .record(z.string(), z.union([z.string(), z.boolean()]))
     .optional(), // For screening question responses
@@ -23,8 +23,10 @@ type ScreeningQuestion = {
   optional?: boolean;
 };
 
+type ScreeningQuestionResponses = Record<string, string | boolean>;
+
 type ScreeningValidationResult =
-  | { success: true; responses: Record<string, string | boolean> }
+  | { success: true; responses: ScreeningQuestionResponses }
   | { success: false; error: string };
 
 const BOOLEAN_TRUE_VALUES = new Set(["yes", "true", "1"]);
@@ -52,14 +54,14 @@ const normalizeBooleanResponse = (value: string | boolean): boolean | null => {
 
 const validateScreeningResponses = (
   screening: ScreeningQuestion[] | null | undefined,
-  responses: Record<string, string | boolean> | undefined
+  responses: ScreeningQuestionResponses | undefined
 ): ScreeningValidationResult => {
   if (!screening?.length) {
     if (!responses) {
       return { success: true, responses: {} };
     }
 
-    const sanitized: Record<string, string | boolean> = {};
+    const sanitized: ScreeningQuestionResponses = {};
 
     for (const [question, value] of Object.entries(responses)) {
       if (typeof value === "string") {
@@ -75,7 +77,7 @@ const validateScreeningResponses = (
     return { success: true, responses: sanitized };
   }
 
-  const sanitized: Record<string, string | boolean> = {};
+  const sanitized: ScreeningQuestionResponses = {};
 
   for (const question of screening) {
     const rawValue = responses?.[question.question];

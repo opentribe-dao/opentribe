@@ -402,6 +402,88 @@ describe("Submission System Tests", () => {
             responses: {
               "Can you commit 10 hours per week?": true,
             },
+            attachments: [],
+          }),
+        })
+      );
+    });
+
+    test("should persist attachments separately from screening responses", async () => {
+      const mockSession = {
+        user: {
+          id: "user-files",
+          email: "files@example.com",
+        },
+      };
+
+      const mockUser = {
+        id: "user-files",
+        profileCompleted: true,
+      };
+
+      const mockBounty = {
+        id: "bounty-files",
+        slug: "bounty-files",
+        title: "Files Bounty",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        organizationId: "org-files",
+        screening: [
+          {
+            question: "Share context",
+            type: "text",
+            optional: false,
+          },
+        ],
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(null);
+      (database.member.findMany as any).mockResolvedValue([]);
+      (database.submission.create as any).mockResolvedValue({});
+      (database.bounty.update as any).mockResolvedValue({});
+      (database.submission.count as any).mockResolvedValue(1);
+
+      const attachments = [
+        "https://files.opentribe.io/submission-1.pdf",
+        "https://files.opentribe.io/demo.mp4",
+      ];
+
+      const body = JSON.stringify({
+        submissionUrl: "https://github.com/user/repo",
+        title: "My Submission",
+        description: "Submission description",
+        responses: {
+          "Share context": "Here is what we built",
+        },
+        attachments,
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-files/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-files" }),
+      });
+
+      expect(response.status).toBe(201);
+      expect(database.submission.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            attachments,
+            responses: {
+              "Share context": "Here is what we built",
+            },
           }),
         })
       );

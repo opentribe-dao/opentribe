@@ -427,18 +427,10 @@ export async function POST(
       );
     }
 
-    // Merge screening responses with attachments
-    const finalResponses: Record<string, any> = {
-      ...screeningValidation.responses,
-    };
-
-    // Add attachments if provided
-    if (validatedData.attachments && validatedData.attachments.length > 0) {
-      finalResponses._attachments = validatedData.attachments;
-    }
-
     const sanitizedResponses =
-      Object.keys(finalResponses).length > 0 ? finalResponses : undefined;
+      Object.keys(screeningValidation.responses).length > 0
+        ? screeningValidation.responses
+        : undefined;
 
     // Create the submission
     const submission = await database.submission.create({
@@ -449,6 +441,7 @@ export async function POST(
         title: validatedData.title || `Submission for ${bounty.title}`,
         description: validatedData.description,
         responses: sanitizedResponses,
+        attachments: validatedData.attachments ?? [],
         status: "SUBMITTED",
         submittedAt: new Date(),
       },

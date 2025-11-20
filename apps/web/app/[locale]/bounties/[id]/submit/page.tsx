@@ -24,6 +24,11 @@ import { env } from "@/env";
 import type { Bounty } from "@/hooks/use-bounties-data";
 import { AuthModal } from "../../../components/auth-modal";
 
+// Regex patterns for error parsing (defined at top level for performance)
+const FIELD_NAME_REGEX = /^([^:]+):/;
+const CAMEL_CASE_REGEX = /([A-Z])/g;
+const WORD_BOUNDARY_REGEX = /\b\w/g;
+
 const BountySubmissionPage = () => {
   const params = useParams();
   const router = useRouter();
@@ -137,7 +142,46 @@ const BountySubmissionPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to submit");
+        // Extract field name from Zod validation errors
+        let errorMessage = data.error || "Failed to submit";
+
+        if (data.message) {
+          // Parse Zod error message format: "field: error message"
+          const match = data.message.match(FIELD_NAME_REGEX);
+          if (match) {
+            const fieldName = match[1]?.trim() || "";
+            const readableField = fieldName
+              .replace(CAMEL_CASE_REGEX, " $1")
+              .toLowerCase()
+              .replace(WORD_BOUNDARY_REGEX, (c: string) => c.toUpperCase());
+            errorMessage = `${readableField} has invalid value`;
+          } else {
+            // Fallback to the full message if format is different
+            errorMessage = data.message;
+          }
+        } else if (data.details) {
+          // Try to extract from details if message is not available
+          const firstIssue = Array.isArray(data.details)
+            ? data.details[0]
+            : data.details;
+
+          if (
+            firstIssue?.path &&
+            Array.isArray(firstIssue.path) &&
+            firstIssue.path.length > 0
+          ) {
+            const fieldName = firstIssue.path.at(-1);
+            if (fieldName) {
+              const readableField = String(fieldName)
+                .replace(CAMEL_CASE_REGEX, " $1")
+                .toLowerCase()
+                .replace(WORD_BOUNDARY_REGEX, (c: string) => c.toUpperCase());
+              errorMessage = `${readableField} has invalid value`;
+            }
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
       toast.success("Submission created successfully!");

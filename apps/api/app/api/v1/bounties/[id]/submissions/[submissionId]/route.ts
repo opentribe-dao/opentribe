@@ -230,3 +230,167 @@ export async function GET(
     );
   }
 }
+
+// PATCH /api/v1/bounties/[id]/submissions/[submissionId] - Update submission
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; submissionId: string }> }
+) {
+  try {
+    // Check authentication
+    const authHeaders = await headers();
+    const sessionData = await auth.api.getSession({
+      headers: authHeaders,
+    });
+
+    if (!sessionData?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Find the bounty
+    const bounty = await database.bounty.findFirst({
+      where: {
+        OR: [
+          { id: (await params).id },
+          { slug: { equals: (await params).id, mode: "insensitive" } },
+        ],
+      },
+    });
+
+    if (!bounty) {
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
+    }
+
+    // Find the submission
+    const submission = await database.submission.findUnique({
+      where: {
+        id: (await params).submissionId,
+        bountyId: bounty.id,
+      },
+    });
+
+    if (!submission) {
+      return NextResponse.json(
+        { error: "Submission not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if user owns this submission
+    if (submission.userId !== sessionData.user.id) {
+      return NextResponse.json(
+        { error: "You can only edit your own submissions" },
+        { status: 403 }
+      );
+    }
+
+    // Parse request body
+    const body = await request.json();
+    const { submissionUrl, title, description, attachments, responses } = body;
+
+    // Update the submission
+    const updatedSubmission = await database.submission.update({
+      where: {
+        id: submission.id,
+      },
+      data: {
+        submissionUrl: submissionUrl || submission.submissionUrl,
+        title: title !== undefined ? title : submission.title,
+        description: description !== undefined ? description : submission.description,
+        attachments: attachments !== undefined ? attachments : submission.attachments,
+        responses: responses !== undefined ? responses : submission.responses,
+      },
+    });
+
+    return NextResponse.json({
+      message: "Submission updated successfully",
+      submission: updatedSubmission,
+    });
+  } catch (error) {
+    console.error("Error updating submission:", error);
+    return NextResponse.json(
+      { error: "Failed to update submission" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/v1/bounties/[id]/submissions/[submissionId] - Delete submission
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; submissionId: string }> }
+) {
+  try {
+    // Check authentication
+    const authHeaders = await headers();
+    const sessionData = await auth.api.getSession({
+      headers: authHeaders,
+    });
+
+    if (!sessionData?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Find the bounty
+    const bounty = await database.bounty.findFirst({
+      where: {
+        OR: [
+          { id: (await params).id },
+          { slug: { equals: (await params).id, mode: "insensitive" } },
+        ],
+      },
+    });
+
+    if (!bounty) {
+      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
+    }
+
+    // Find the submission
+    const submission = await database.submission.findUnique({
+      where: {
+        id: (await params).submissionId,
+        bountyId: bounty.id,
+      },
+    });
+
+    if (!submission) {
+      return NextResponse.json(
+        { error: "Submission not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if user owns this submission
+    if (submission.userId !== sessionData.user.id) {
+      return NextResponse.json(
+        { error: "You can only delete your own submissions" },
+        { status: 403 }
+      );
+    }
+
+    // Check if submission is a winner
+    if (submission.isWinner) {
+      return NextResponse.json(
+        { error: "Cannot delete a winning submission" },
+        { status: 400 }
+      );
+    }
+
+    // Delete the submission
+    await database.submission.delete({
+      where: {
+        id: submission.id,
+      },
+    });
+
+    return NextResponse.json({
+      message: "Submission deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    return NextResponse.json(
+      { error: "Failed to delete submission" },
+      { status: 500 }
+    );
+  }
+}

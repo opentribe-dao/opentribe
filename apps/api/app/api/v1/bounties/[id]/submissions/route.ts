@@ -187,14 +187,14 @@ export async function GET(
       headers: await headers(),
     });
 
-    const bountyId = (await params).id;
+    const bountyIdentifier = (await params).id;
 
     // Get the bounty
     const bounty = await database.bounty.findFirst({
       where: {
         OR: [
-          { id: bountyId },
-          { slug: { equals: bountyId, mode: "insensitive" } },
+          { id: bountyIdentifier },
+          { slug: { equals: bountyIdentifier, mode: "insensitive" } },
         ],
       },
       include: {
@@ -231,6 +231,7 @@ export async function GET(
     // For public bounties, only show submitted submissions
     // For org members, show all submissions
     const whereClause: any = {
+      bountyId: bounty.id,
       bountyId: bounty.id,
     };
 
@@ -345,14 +346,14 @@ export async function POST(
       );
     }
 
-    const bountyId = (await params).id;
+    const bountyIdentifier = (await params).id;
 
     // Check if bounty exists and is open
     const bounty = await database.bounty.findFirst({
       where: {
         OR: [
-          { id: bountyId },
-          { slug: { equals: bountyId, mode: "insensitive" } },
+          { id: bountyIdentifier },
+          { slug: { equals: bountyIdentifier, mode: "insensitive" } },
         ],
       },
       select: {
@@ -491,7 +492,7 @@ export async function POST(
     if (submissionCount === 1) {
       // Get bounty curators
       const bountyCurators = await database.curator.findMany({
-        where: { bountyId },
+        where: { bountyId: bounty.id },
         include: {
           user: {
             select: {

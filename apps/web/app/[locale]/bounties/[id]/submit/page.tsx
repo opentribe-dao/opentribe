@@ -17,11 +17,15 @@ import {
 import { Textarea } from "@packages/base/components/ui/textarea";
 import { formatCurrency } from "@packages/base/lib/utils";
 import { Link2, Loader2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
 import type { Bounty } from "@/hooks/use-bounties-data";
+import {
+  useMySubmission,
+  useUpdateSubmission,
+} from "@/hooks/use-submission-mutations";
 import { AuthModal } from "../../../components/auth-modal";
 
 // Regex patterns for error parsing (defined at top level for performance)
@@ -32,11 +36,26 @@ const WORD_BOUNDARY_REGEX = /\b\w/g;
 const BountySubmissionPage = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, isPending: sessionLoading } = useSession();
   const [bounty, setBounty] = useState<Bounty | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Check if we're in edit mode
+  const editSubmissionId = searchParams.get("edit");
+  const isEditMode = !!editSubmissionId;
+
+  // Fetch existing submission if in edit mode
+  const { data: mySubmission, isLoading: submissionLoading } = useMySubmission(
+    params.id as string
+  );
+
+  const updateSubmission = useUpdateSubmission(
+    params.id as string,
+    editSubmissionId || ""
+  );
 
   const [formData, setFormData] = useState({
     submissionUrl: "",
@@ -45,6 +64,19 @@ const BountySubmissionPage = () => {
     attachments: [] as string[],
     responses: {} as Record<string, any>,
   });
+
+  // Pre-fill form data when editing
+  useEffect(() => {
+    if (isEditMode && mySubmission) {
+      setFormData({
+        submissionUrl: mySubmission.submissionUrl || "",
+        title: mySubmission.title || "",
+        description: mySubmission.description || "",
+        attachments: mySubmission.attachments || [],
+        responses: mySubmission.responses || {},
+      });
+    }
+  }, [isEditMode, mySubmission]);
 
   useEffect(() => {
     const fetchBounty = async () => {
@@ -64,10 +96,11 @@ const BountySubmissionPage = () => {
 
         const data = await response.json();
 
-        // Check if bounty is open for submissions
+        // Check if bounty is open for submissions (unless we're editing)
         if (
-          data.bounty.visibility !== "PUBLISHED" ||
-          data.bounty.status !== "OPEN"
+          !isEditMode &&
+          (data.bounty.visibility !== "PUBLISHED" ||
+            data.bounty.status !== "OPEN")
         ) {
           toast.error("This bounty is not accepting submissions");
           router.push(`/bounties/${params.id}`);
@@ -85,7 +118,7 @@ const BountySubmissionPage = () => {
     };
 
     fetchBounty();
-  }, [params.id, router]);
+  }, [params.id, router, isEditMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,31 +148,50 @@ const BountySubmissionPage = () => {
     try {
       setSubmitting(true);
 
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${params.id}/submissions`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            submissionUrl: formData.submissionUrl,
-            title: formData.title || undefined,
-            description: formData.description || undefined,
-            attachments:
-              formData.attachments.length > 0
-                ? formData.attachments
-                : undefined,
-            responses:
-              Object.keys(formData.responses).length > 0
-                ? formData.responses
-                : undefined,
-          }),
-        }
-      );
+      if (isEditMode && editSubmissionId) {
+        // Update existing submission
+        await updateSubmission.mutateAsync({
+          submissionUrl: formData.submissionUrl,
+          title: formData.title || undefined,
+          description: formData.description || undefined,
+          attachments:
+            formData.attachments.length > 0
+              ? formData.attachments
+              : undefined,
+          responses:
+            Object.keys(formData.responses).length > 0
+              ? formData.responses
+              : undefined,
+        });
 
-      const data = await response.json();
+        router.push(`/bounties/${params.id}`);
+      } else {
+        // Create new submission
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${params.id}/submissions`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              submissionUrl: formData.submissionUrl,
+              title: formData.title || undefined,
+              description: formData.description || undefined,
+              attachments:
+                formData.attachments.length > 0
+                  ? formData.attachments
+                  : undefined,
+              responses:
+                Object.keys(formData.responses).length > 0
+                  ? formData.responses
+                  : undefined,
+            }),
+          }
+        );
+
+        const data = await response.json();
 
       if (!response.ok) {
         // Extract field name from Zod validation errors
@@ -184,8 +236,9 @@ const BountySubmissionPage = () => {
         throw new Error(errorMessage);
       }
 
-      toast.success("Submission created successfully!");
-      router.push(`/bounties/${params.id}`);
+        toast.success("Submission created successfully!");
+        router.push(`/bounties/${params.id}`);
+      }
     } catch (error: any) {
       console.error("Submission error:", error);
       toast.error(error.message || "Failed to submit. Please try again.");
@@ -224,7 +277,7 @@ const BountySubmissionPage = () => {
             {/* Header */}
             <div className="mb-8 text-center">
               <h1 className="mb-4 font-bold text-3xl text-white">
-                Bounty Submission
+                {isEditMode ? "Edit Submission" : "Bounty Submission"}
               </h1>
 
               {/* Organization Info */}
@@ -482,8 +535,10 @@ const BountySubmissionPage = () => {
                       {submitting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Submitting...
+                          {isEditMode ? "Updating..." : "Submitting..."}
                         </>
+                      ) : isEditMode ? (
+                        "Update Submission"
                       ) : (
                         "Submit Now"
                       )}

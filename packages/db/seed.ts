@@ -213,6 +213,20 @@ We're looking for projects that:
             description: "Frequently asked questions",
           },
         ],
+        screening: [
+          {
+            question: "Describe the problem your project solves for the Polkadot ecosystem.",
+            optional: false,
+          },
+          {
+            question: "List your core team members and relevant experience.",
+            optional: false,
+          },
+          {
+            question: "Outline key milestones and success metrics.",
+            optional: true,
+          },
+        ],
         skills: getSkillsByCategory(["Blockchain", "Backend", "Frontend"], 6),
         minAmount: 50_000,
         maxAmount: 500_000,
@@ -266,6 +280,20 @@ Focus areas include:
             url: "https://grants.web3.foundation/docs/Process/how-to-apply",
           },
         ],
+        screening: [
+          {
+            question: "Share your GitHub organization or repositories.",
+            optional: false,
+          },
+          {
+            question: "What milestones will you deliver for each payout?",
+            optional: false,
+          },
+          {
+            question: "How will this work remain open source?",
+            optional: true,
+          },
+        ],
         skills: getSkillsByCategory(["Blockchain", "Backend", "Content"], 5),
         minAmount: 10_000,
         maxAmount: 100_000,
@@ -304,6 +332,28 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
 - Development roadmap
 - Budget breakdown
 - How you'll leverage Moonbeam's unique features`,
+        resources: [
+          {
+            title: "Program Portal",
+            url: "https://moonbeam.network/grants",
+            description: "Apply and track your Moonbeam grant",
+          },
+          {
+            title: "Cross-chain Docs",
+            url: "https://docs.moonbeam.network/learn/features/cross-chain",
+            description: "Deep dive into Moonbeam interoperability",
+          },
+        ],
+        screening: [
+          {
+            question: "How does your project leverage Moonbeam’s interoperability?",
+            optional: false,
+          },
+          {
+            question: "Provide a technical architecture diagram or description.",
+            optional: false,
+          },
+        ],
         skills: getSkillsByCategory(["Blockchain", "Frontend"], 5),
         minAmount: 5000,
         maxAmount: 50_000,
@@ -341,7 +391,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         maxAmount: 1_000_000,
         totalFunds: 250_000_000,
         token: "aUSD",
-        status: "OPEN",
+        status: "CLOSED",
         visibility: "PUBLISHED",
         source: "NATIVE",
         organizationId: organizations[2].id,
@@ -349,6 +399,32 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         viewCount: 412,
         applicationCount: 0,
         skills: getSkillsByCategory(["Blockchain", "Backend"], 5),
+        resources: [
+          {
+            title: "aUSD Fund Overview",
+            url: "https://acala.network/ausd-fund",
+            description: "Program details and milestones",
+          },
+          {
+            title: "Integration Guide",
+            url: "https://docs.acala.network/learn/defi/ausd",
+            description: "Using aUSD in your application",
+          },
+        ],
+        screening: [
+          {
+            question: "Explain how your product will drive aUSD utility.",
+            optional: false,
+          },
+          {
+            question: "Detail your liquidity strategy and partners.",
+            optional: true,
+          },
+          {
+            question: "List measurable KPIs for the next 6 months.",
+            optional: false,
+          },
+        ],
       },
     }),
   ]);
@@ -391,6 +467,16 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
             title: "Design Guidelines",
             url: "https://polkadot.network/brand",
             description: "Polkadot brand assets",
+          },
+        ],
+        screening: [
+          {
+            question: "Link to previous UI/UX case studies or portfolios.",
+            optional: false,
+          },
+          {
+            question: "How will you validate improvements with real users?",
+            optional: false,
           },
         ],
         skills: getSkillsByCategory(["Design", "Frontend"], 4),
@@ -436,13 +522,35 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         amount: 10_000,
         token: "DOT",
         split: "EQUAL_SPLIT",
-        status: "OPEN",
+        status: "COMPLETED",
         visibility: "PUBLISHED",
-        deadline: daysFromNow(20),
+        deadline: daysFromNow(-10),
         organizationId: organizations[3].id,
         publishedAt: daysFromNow(-5),
         viewCount: 98,
         submissionCount: 1,
+        resources: [
+          {
+            title: "Substrate Docs",
+            url: "https://docs.substrate.io/",
+            description: "Official developer documentation",
+          },
+          {
+            title: "Tutorial Template",
+            url: "https://github.com/substrate-developer-hub/substrate-how-to",
+            description: "Structure for content submissions",
+          },
+        ],
+        screening: [
+          {
+            question: "Provide links to educational content you have created.",
+            optional: false,
+          },
+          {
+            question: "Share your outline for the 5 tutorial parts.",
+            optional: false,
+          },
+        ],
       },
     }),
     prisma.bounty.create({
@@ -475,6 +583,28 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
         publishedAt: daysFromNow(-12),
         viewCount: 73,
         submissionCount: 0,
+        resources: [
+          {
+            title: "XCM Whitepaper",
+            url: "https://wiki.polkadot.network/docs/learn-xcm",
+            description: "Cross-chain messaging fundamentals",
+          },
+          {
+            title: "DEX Aggregator Survey",
+            url: "https://research.parity.io/dex-aggregators",
+            description: "Reference research document",
+          },
+        ],
+        screening: [
+          {
+            question: "Outline your research methodology and deliverables.",
+            optional: false,
+          },
+          {
+            question: "List prior research publications or case studies.",
+            optional: true,
+          },
+        ],
       },
     }),
   ]);
@@ -546,8 +676,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
   ]);
 
   console.log(
-    `✅ Created ${curators.length} curators (${
-      curators.filter((c) => c.grantId).length
+    `✅ Created ${curators.length} curators (${curators.filter((c) => c.grantId).length
     } for grants, ${curators.filter((c) => c.bountyId).length} for bounties)`
   );
 
@@ -621,6 +750,18 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
         publishedAt: daysFromNow(-8),
         viewCount: 112,
         voteCount: 31,
+        resources: [
+          {
+            title: "Light Client Design Doc",
+            url: "https://github.com/paritytech/substrate-light-client",
+            description: "Reference architecture",
+          },
+          {
+            title: "Substrate RPC",
+            url: "https://docs.substrate.io/reference/rpc/",
+            description: "RPC specifications",
+          },
+        ],
       },
     }),
   ]);

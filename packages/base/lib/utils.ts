@@ -68,19 +68,16 @@ export const formatCurrency = (value: number, currency?: string): string => {
   const suffix = currency ? ` ${currency}` : "";
   if (value >= 1_000_000_000) {
     const formatted = (value / 1_000_000_000).toFixed(1);
-    return `${
-      formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
-    }B${suffix}`;
+    return `${formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
+      }B${suffix}`;
   } else if (value >= 1_000_000) {
     const formatted = (value / 1_000_000).toFixed(1);
-    return `${
-      formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
-    }M${suffix}`;
+    return `${formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
+      }M${suffix}`;
   } else if (value >= 1_000) {
     const formatted = (value / 1_000).toFixed(1);
-    return `${
-      formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
-    }K${suffix}`;
+    return `${formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted
+      }K${suffix}`;
   } else {
     return `${value}${suffix}`;
   }
@@ -171,21 +168,18 @@ export const getDeadlineInfo = (
       let agoText = "";
       if (diffDays >= 30) {
         const diffMonths = Math.floor(diffDays / 30);
-        agoText = `Completed ${diffMonths} month${
-          diffMonths !== 1 ? "s" : ""
-        } ago`;
+        agoText = `${diffMonths} month${diffMonths !== 1 ? "s" : ""
+          } ago`;
       } else if (diffDays > 0) {
-        agoText = `Completed ${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+        agoText = `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
       } else if (diffHours > 0) {
-        agoText = `Completed ${diffHours} hour${
-          diffHours !== 1 ? "s" : ""
-        } ago`;
+        agoText = `${diffHours} hour${diffHours !== 1 ? "s" : ""
+          } ago`;
       } else if (diffMinutes > 0) {
-        agoText = `Completed ${diffMinutes} minute${
-          diffMinutes !== 1 ? "s" : ""
-        } ago`;
+        agoText = `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""
+          } ago`;
       } else {
-        agoText = "Completed just now";
+        agoText = "just now";
       }
 
       return { timeRemaining: agoText, isExpired: true, isSoon: false };
@@ -203,17 +197,14 @@ export const getDeadlineInfo = (
 
     let timeRemaining: string;
     if (diffDaysFloor > 0) {
-      timeRemaining = `Due in ${diffDaysFloor} day${
-        diffDaysFloor !== 1 ? "s" : ""
-      }`;
+      timeRemaining = `Due in ${diffDaysFloor} day${diffDaysFloor !== 1 ? "s" : ""
+        }`;
     } else if (diffHours > 0) {
-      timeRemaining = `Due in ${diffHours} hour${
-        diffHours !== 1 ? "s" : ""
-      } ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""}`;
+      timeRemaining = `Due in ${diffHours} hour${diffHours !== 1 ? "s" : ""
+        } ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""}`;
     } else if (diffMinutes > 0) {
-      timeRemaining = `Due in ${diffMinutes} minute${
-        diffMinutes !== 1 ? "s" : ""
-      }`;
+      timeRemaining = `Due in ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""
+        }`;
     } else {
       timeRemaining = "Due very soon";
     }

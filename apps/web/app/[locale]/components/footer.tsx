@@ -123,7 +123,7 @@ export const Footer = () => {
               <Logo size="md" />
             </Link>
             <p className="mb-4 text-sm text-white/60">
-              Opentribe is a talent marketplace connecting builders with
+              Welcome to a talent marketplace connecting builders with
               opportunities in the Polkadot ecosystem. Find grants, bounties,
               and RFPs from leading projects.
             </p>

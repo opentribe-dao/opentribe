@@ -318,6 +318,7 @@ model Submission {
   submissionUrl String?
   bannerUrl     String?
   responses     Json?
+  attachments   String[]         @default([])
   title         String?
   description   String?
   status        SubmissionStatus @default(DRAFT)

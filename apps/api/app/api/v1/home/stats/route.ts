@@ -197,7 +197,7 @@ async function getFeaturedOrganizations(): Promise<
     const anyB = b as any;
     bountyByOrg.set(anyB.organizationId as string, {
       count: Number(anyB._count?._all ?? 0),
-      value: Number(anyB._sum?.amount ?? 0),
+      value: Number(anyB._sum?.amountUSD ?? 0),
     });
   }
 
@@ -268,7 +268,9 @@ async function getRecentActivity(): Promise<
   const [recentSubmissions, recentApplications] = await Promise.all([
     database.submission.findMany({
       where: { status: { not: "DRAFT" } },
-      include: {
+      select: {
+        id: true,
+        createdAt: true,
         submitter: {
           select: {
             firstName: true,
@@ -290,7 +292,9 @@ async function getRecentActivity(): Promise<
     }),
     database.grantApplication.findMany({
       where: { status: { not: "DRAFT" } },
-      include: {
+      select: {
+        id: true,
+        createdAt: true,
         applicant: {
           select: {
             firstName: true,

@@ -27,7 +27,7 @@ const createBountySchema = z.object({
     .array(
       z.object({
         question: z.string(),
-        type: z.enum(["text", "url", "file"]),
+        type: z.enum(["text", "url", "file", "boolean"]),
         optional: z.boolean(),
       })
     )

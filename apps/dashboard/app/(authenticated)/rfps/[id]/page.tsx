@@ -176,13 +176,13 @@ export default function RFPDetailPage() {
   const getVisibilityColor = (visibility: string) => {
     switch (visibility) {
       case "PUBLISHED":
-        return "bg-green-500/20 text-green-400";
+        return "bg-transparent text-green-400";
       case "DRAFT":
-        return "bg-yellow-500/20 text-yellow-400";
+        return "bg-transparent text-yellow-400";
       case "ARCHIVED":
-        return "bg-gray-500/20 text-gray-400";
+        return "bg-transparent text-gray-400";
       default:
-        return "bg-white/10 text-white/60";
+        return "bg-transparent text-white/60";
     }
   };
 

@@ -1,36 +1,36 @@
-import { useQuery } from "@tanstack/react-query";
 import { useActiveOrganization } from "@packages/auth/client";
+import { useQuery } from "@tanstack/react-query";
 import { env } from "@/env";
 
 export type GrantStatus = "OPEN" | "PAUSED" | "CLOSED";
 export type GrantVisibilityStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 export type GrantSource = "NATIVE" | "EXTERNAL";
 
-export interface GrantOrganization {
+export type GrantOrganization = {
   id: string;
   name: string;
   slug: string;
   logo?: string | null;
   location?: string | null;
   industry?: string[];
-}
+};
 
-export interface GrantCuratorUser {
+export type GrantCuratorUser = {
   id: string;
   username: string;
   firstName?: string | null;
   lastName?: string | null;
   email: string;
   avatarUrl?: string | null;
-}
+};
 
-export interface GrantCurator {
+export type GrantCurator = {
   id: string;
   user: GrantCuratorUser;
   contact?: string | null;
-}
+};
 
-export interface GrantRFP {
+export type GrantRFP = {
   id: string;
   title: string;
   slug: string;
@@ -40,18 +40,18 @@ export interface GrantRFP {
     comments: number;
     applications: number;
   };
-}
+};
 
-export interface GrantApplicationApplicant {
+export type GrantApplicationApplicant = {
   id: string;
   username: string;
   firstName?: string | null;
   lastName?: string | null;
   image?: string | null;
   avatarUrl?: string | null;
-}
+};
 
-export interface GrantApplication {
+export type GrantApplication = {
   id: string;
   title: string;
   status:
@@ -64,9 +64,9 @@ export interface GrantApplication {
   budget?: number | null;
   submittedAt?: string | null;
   applicant: GrantApplicationApplicant;
-}
+};
 
-export interface Grant {
+export type Grant = {
   id: string;
   title: string;
   slug: string;
@@ -97,7 +97,7 @@ export interface Grant {
   curators: GrantCurator[];
   rfps: GrantRFP[];
   applications: GrantApplication[];
-}
+};
 
 export function useGrant(grantId: string) {
   const { data: activeOrg } = useActiveOrganization();
@@ -123,7 +123,7 @@ export function useGrant(grantId: string) {
       const data = await res.json();
       return data.grant;
     },
-    enabled: !!grantId,
+    enabled: !!grantId && !!activeOrg?.id,
     refetchInterval: 30_000, // 30 seconds
     retry: 2, // retry twice on error
   });

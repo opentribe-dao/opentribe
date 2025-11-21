@@ -22,17 +22,27 @@ import { CommentSection } from "./comment-section";
 
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
-  const res = await fetch(`${apiUrl}/api/v1/bounties/${id}`, {
-    cache: "no-store",
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(`${apiUrl}/api/v1/bounties/${id}`, {
+      cache: "no-store",
+      credentials: "include",
+    });
 
-  if (!res.ok) {
-    return null;
+    if (!res.ok) {
+      console.error(`API error: ${res.status} ${res.statusText} for bounty ${id}`);
+      return null;
+    }
+
+    const data = await res.json();
+    if (!data.bounty) {
+      console.error(`Bounty data missing in API response for ${id}`);
+      return null;
+    }
+    return data.bounty;
+  } catch (error) {
+    console.error(`Failed to fetch bounty ${id}:`, error);
+    throw error;
   }
-
-  const data = await res.json();
-  return data.bounty;
 }
 
 export default function BountyDetailPage({
@@ -66,6 +76,11 @@ export default function BountyDetailPage({
     const fetchBounty = async () => {
       try {
         const bountyData = await getBounty(bountyId);
+        if (!bountyData) {
+          console.error("Bounty not found:", bountyId);
+          notFound();
+          return;
+        }
         setBounty(bountyData);
       } catch (error) {
         console.error("Error fetching bounty:", error);

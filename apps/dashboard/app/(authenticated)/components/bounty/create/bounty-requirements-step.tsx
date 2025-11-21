@@ -22,15 +22,6 @@ interface BountyRequirementsProps {
 export const BountyRequirementsStepComponent: React.FC<
   BountyRequirementsProps
 > = ({ formData, updateFormData }) => {
-  // const {
-  //   addResource,
-  //   removeResource,
-  //   updateResource,
-  //   addScreeningQuestion,
-  //   removeScreeningQuestion,
-  //   updateScreeningQuestion,
-  // } = useBountyForm();
-
   const addResource = () => {
     updateFormData("resources", [
       ...(formData.resources ?? []),
@@ -213,6 +204,9 @@ export const BountyRequirementsStepComponent: React.FC<
                           </SelectItem>
                           <SelectItem className="text-white" value="file">
                             File
+                          </SelectItem>
+                          <SelectItem className="text-white" value="boolean">
+                            Boolean
                           </SelectItem>
                         </SelectContent>
                       </Select>

@@ -127,6 +127,10 @@ export async function GET(
     const winnerCount = winningsArray.length;
     const totalAmount = Number(submission.bounty.amount || 0);
 
+    const attachments = Array.isArray(submission.attachments)
+      ? submission.attachments
+      : [];
+
     // Transform the submission data - map to what the dashboard expects
     const transformedSubmission = {
       id: submission.id,
@@ -142,7 +146,17 @@ export async function GET(
       reviewedAt: submission.reviewedAt,
       feedback: submission.notes, // notes field is used for feedback
       answers: submission.responses as any, // responses contains screening answers
-      files: [], // files field doesn't exist in schema
+      files: attachments.map((url, index) => {
+        const encodedName = url.split("/").pop();
+        const decodedName = encodedName
+          ? decodeURIComponent(encodedName)
+          : `Attachment ${index + 1}`;
+        return {
+          name: decodedName,
+          url,
+          size: 0,
+        };
+      }),
       bounty: {
         id: submission.bounty.id,
         slug: submission.bounty.slug,

@@ -27,7 +27,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { env } from "@/env";
 import { LOCALE_PREFIX_REGEX } from "@/lib/config";
 import { AuthModal } from "../auth-modal";
@@ -47,9 +47,13 @@ type UserSession = {
 const UserMenu = ({
   user,
   onSignOut,
+  isOpen,
+  onOpenChange,
 }: {
   user: UserSession;
   onSignOut: () => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) => {
   const [userProfile, setUserProfile] = useState<{
     username?: string;
@@ -111,7 +115,7 @@ const UserMenu = ({
   }`;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           className="flex h-auto items-center gap-2 rounded-lg p-2 hover:bg-white/10"
@@ -130,7 +134,7 @@ const UserMenu = ({
               {userInitials}
             </div>
           )}
-          <span className="font-medium text-white">{firstName}</span>
+          <span className="hidden md:inline font-medium text-white">{firstName}</span>
           <ChevronDown className="h-4 w-4 text-white/70" />
         </Button>
       </DropdownMenuTrigger>
@@ -222,8 +226,46 @@ const UserMenu = ({
 
 export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   const { data: session } = useSession();
-  const [isOpen, setOpen] = useState(false);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const pathname = usePathname();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close menus when clicking outside both
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      
+      const clickedOutsideMobileMenu =
+        isMobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(target) &&
+        hamburgerButtonRef.current &&
+        !hamburgerButtonRef.current.contains(target);
+
+      const clickedOutsideUserMenu =
+        isUserMenuOpen &&
+        userMenuRef.current &&
+        !userMenuRef.current.contains(target);
+
+      if (clickedOutsideMobileMenu) {
+        setMobileMenuOpen(false);
+      }
+      if (clickedOutsideUserMenu) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen || isUserMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMobileMenuOpen, isUserMenuOpen]);
 
   const handleSignOut = async () => {
     const { signOut } = await import("@packages/auth/client");
@@ -261,8 +303,15 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   return (
     <header className="sticky top-0 left-0 z-40 w-full border-white/10 border-b bg-black/90 backdrop-blur-xl">
       <div className="container relative mx-auto flex min-h-20 flex-row items-center justify-between px-4">
-        <div className="flex items-center">
-          <Link className="flex items-center gap-2" href="/">
+        <div className="flex items-center shrink-0">
+          <Link
+            className="flex items-center gap-2"
+            href="/"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setUserMenuOpen(false);
+            }}
+          >
             <Logo size="md" />
           </Link>
         </div>
@@ -283,57 +332,90 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
         </nav>
         <div className="flex items-center gap-4">
           {session?.user ? (
-            <UserMenu onSignOut={handleSignOut} user={session.user} />
+            <div ref={userMenuRef}>
+              <UserMenu
+                onSignOut={handleSignOut}
+                user={session.user}
+                isOpen={isUserMenuOpen}
+                onOpenChange={(open) => {
+                  setUserMenuOpen(open);
+                  // Close mobile menu when opening user menu
+                  if (open) {
+                    setMobileMenuOpen(false);
+                  }
+                }}
+              />
+            </div>
           ) : (
             <>
               <AuthModal>
                 <Button
-                  className="rounded-full font-bold font-heading text-base"
+                  onPointerDown={() => setMobileMenuOpen(false)}
+                  className="rounded-full font-bold font-heading text-sm md:text-base px-4 md:px-8"
                   size="lg"
                   variant="secondary"
                 >
-                  Login / Sign Up
+                  <span className="md:hidden">Login</span>
+                  <span className="hidden md:inline">Login / Sign Up</span>
                 </Button>
               </AuthModal>
             </>
           )}
-        </div>
-        <div className="flex w-12 shrink items-end justify-end lg:hidden">
-          <Button onClick={() => setOpen(!isOpen)} variant="ghost">
-            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-          {isOpen && (
-            <div className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg">
-              {navigationItems.map((item) => (
-                <div key={item.title}>
-                  <div className="flex flex-col gap-2">
-                    {item.href ? (
-                      <Link
-                        className={`flex items-center justify-between px-4 ${
-                          isActive(item.href) ? "text-white" : ""
-                        }`}
-                        href={item.href}
-                        onClick={() => setOpen(!isOpen)}
-                        rel={
-                          item.href.startsWith("http")
-                            ? "noopener noreferrer"
-                            : undefined
-                        }
-                        target={
-                          item.href.startsWith("http") ? "_blank" : undefined
-                        }
-                      >
-                        <span className="text-lg">{item.title}</span>
-                        <MoveRight className="h-4 w-4 stroke-1 text-muted-foreground" />
-                      </Link>
-                    ) : (
-                      <p className="pl-4 text-lg">{item.title}</p>
-                    )}
+          <div className="flex shrink-0 items-center lg:hidden">
+            <Button
+              ref={hamburgerButtonRef}
+              onClick={() => {
+                // Close user menu if open
+                if (isUserMenuOpen) {
+                  setUserMenuOpen(false);
+                }
+                // Toggle mobile menu
+                setMobileMenuOpen((prev) => !prev);
+              }}
+              variant="ghost"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+            {isMobileMenuOpen && (
+              <div
+                ref={mobileMenuRef}
+                className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg"
+              >
+                {navigationItems.map((item) => (
+                  <div key={item.title}>
+                    <div className="flex flex-col gap-2">
+                      {item.href ? (
+                        <Link
+                          className={`flex items-center justify-between px-4 ${
+                            isActive(item.href) ? "text-white" : ""
+                          }`}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+                          rel={
+                            item.href.startsWith("http")
+                              ? "noopener noreferrer"
+                              : undefined
+                          }
+                          target={
+                            item.href.startsWith("http") ? "_blank" : undefined
+                          }
+                        >
+                          <span className="text-lg">{item.title}</span>
+                          <MoveRight className="h-4 w-4 stroke-1 text-muted-foreground" />
+                        </Link>
+                      ) : (
+                        <p className="pl-4 text-lg">{item.title}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

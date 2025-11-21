@@ -2,18 +2,22 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/app/layout.config";
 import { source } from "@/lib/source";
+import { Footer } from "@/components/footer";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <DocsLayout
-      tree={source.pageTree}
-      {...baseOptions}
-      nav={{
-        ...baseOptions.nav,
-        title: undefined,
-      }}
-    >
-      {children}
-    </DocsLayout>
+    <>
+      <DocsLayout
+        tree={source.pageTree}
+        {...baseOptions}
+        nav={{
+          ...baseOptions.nav,
+          title: undefined,
+        }}
+      >
+        {children}
+      </DocsLayout>
+      <Footer />
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import { Separator } from "@packages/base/components/ui/separator";
 import { getSkillLabel } from "@packages/base/lib/skills";
 import { formatCurrency, getDeadlineInfo } from "@packages/base/lib/utils";
-import { Clock, MessageSquare, Users } from "lucide-react";
+import { CheckCircle2, Clock, MessageSquare, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -81,7 +81,7 @@ export function BountyCard({
         {/* Header */}
 
         <div className="mb-2 flex items-start justify-between">
-          <div className="relative mr-2 h-14 w-14 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
+          <div className="relative mr-2 h-12 w-12 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
             {organization?.logo ? (
               <Image
                 alt={organization?.name}
@@ -125,7 +125,7 @@ export function BountyCard({
               {/* <DollarSign className="h-6 w-6 text-green-400" /> */}
               <div className="text-right">
                 {safeAmount && (
-                  <div className="font-semibold text-green-400 text-xl">
+                  <div className="font-semibold text-green-400 text-lg">
                     {formatCurrency(safeAmount, token)}
                   </div>
                 )}
@@ -174,11 +174,16 @@ export function BountyCard({
             {deadline &&
               (() => {
                 const deadlineInfo = getDeadlineInfo(deadline);
+                const isCompleted = status?.toUpperCase() === "COMPLETED";
                 return (
                   <div
                     className={`flex items-center gap-1 ${getStatusColor(status)}`}
                   >
-                    <Clock className="h-3 w-3" />
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-3 w-3" />
+                    ) : (
+                      <Clock className="h-3 w-3" />
+                    )}
                     <span>
                       {deadlineInfo.timeRemaining || "Invalid deadline"}
                     </span>

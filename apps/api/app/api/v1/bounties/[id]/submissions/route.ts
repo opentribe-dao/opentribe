@@ -169,6 +169,19 @@ const validateScreeningResponses = (
         break;
       }
       default:
+        // Treat unknown types as text/file to ensure backward compatibility
+        // and handle cases where type might be missing in legacy data
+        if (typeof rawValue === "string") {
+          const trimmed = rawValue.trim();
+          if (trimmed) {
+            sanitized[question.question] = trimmed;
+          } else if (!question.optional) {
+            return {
+              success: false,
+              error: `Missing response for required question: ${question.question}`,
+            };
+          }
+        }
         break;
     }
   }

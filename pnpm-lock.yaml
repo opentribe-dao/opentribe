@@ -253,9 +253,18 @@ importers:
 
   apps/docs:
     dependencies:
+      '@packages/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@packages/base':
         specifier: workspace:*
         version: link:../../packages/base
+      '@packages/logging':
+        specifier: workspace:*
+        version: link:../../packages/logging
+      '@sentry/nextjs':
+        specifier: ^10.21.0
+        version: 10.23.0(@opentelemetry/context-async-hooks@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(next@15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(webpack@5.100.1(esbuild@0.25.6))
       fumadocs-core:
         specifier: 15.6.2
         version: 15.6.2(@types/react@19.2.2)(next@15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)

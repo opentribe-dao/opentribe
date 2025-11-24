@@ -36,9 +36,7 @@ const updateSubmissionSchema = z.object({
     .record(
       z.string(),
       z.union([z.string(), z.boolean()], {
-        errorMap: () => ({
-          message: "Response must be a string or boolean",
-        }),
+        message: "Response must be a string or boolean",
       })
     )
     .optional(),

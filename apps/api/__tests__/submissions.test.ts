@@ -8,10 +8,20 @@ import {
   PATCH as updateMySubmission,
   DELETE as deleteMySubmission,
 } from "../app/api/v1/bounties/[id]/submissions/me/route";
+import { getSubmissionAuth } from "../lib/submission-auth";
+
+vi.mock("@packages/email", () => ({
+  sendBountyFirstSubmissionEmail: vi.fn(),
+}));
+
+vi.mock("../lib/submission-auth", () => ({
+  getSubmissionAuth: vi.fn(),
+}));
 
 describe("Submission System Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getSubmissionAuth).mockReset();
   });
 
   describe("POST /api/v1/bounties/[id]/submissions", () => {
@@ -407,7 +417,6 @@ describe("Submission System Tests", () => {
             responses: {
               "Can you commit 10 hours per week?": true,
             },
-            attachments: [],
           }),
         })
       );
@@ -450,6 +459,7 @@ describe("Submission System Tests", () => {
       (database.submission.create as any).mockResolvedValue({});
       (database.bounty.update as any).mockResolvedValue({});
       (database.submission.count as any).mockResolvedValue(1);
+      vi.mocked(database.curator.findMany).mockResolvedValue([] as any);
 
       const attachments = [
         "https://files.opentribe.io/submission-1.pdf",
@@ -850,13 +860,11 @@ describe("Submission System Tests", () => {
         },
       };
 
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          userId: "user-me",
-          bountyId: "bounty-me",
-          submissionId: "submission-me",
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        userId: "user-me",
+        bountyId: "bounty-me",
+        submissionId: "submission-me",
+      });
 
       (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
 
@@ -874,12 +882,10 @@ describe("Submission System Tests", () => {
     });
 
     test("should return 401 when not authenticated", async () => {
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          error: "Unauthorized",
-          status: 401,
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        error: "Unauthorized",
+        status: 401,
+      });
 
       const request = new Request(
         "http://localhost:3002/api/v1/bounties/bounty-me/submissions/me"
@@ -895,12 +901,10 @@ describe("Submission System Tests", () => {
     });
 
     test("should return 404 when no submission exists", async () => {
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          error: "No submission found",
-          status: 404,
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        error: "No submission found",
+        status: 404,
+      });
 
       const request = new Request(
         "http://localhost:3002/api/v1/bounties/bounty-me/submissions/me"
@@ -916,12 +920,10 @@ describe("Submission System Tests", () => {
     });
 
     test("should return 404 when bounty doesn't exist", async () => {
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          error: "Bounty not found",
-          status: 404,
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        error: "Bounty not found",
+        status: 404,
+      });
 
       const request = new Request(
         "http://localhost:3002/api/v1/bounties/bounty-me/submissions/me"
@@ -956,13 +958,11 @@ describe("Submission System Tests", () => {
         description: "Updated description",
       };
 
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          userId: "user-update",
-          bountyId: "bounty-update",
-          submissionId: "submission-update",
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        userId: "user-update",
+        bountyId: "bounty-update",
+        submissionId: "submission-update",
+      });
 
       (database.submission.findUnique as any)
         .mockResolvedValueOnce(mockSubmission)
@@ -1005,13 +1005,11 @@ describe("Submission System Tests", () => {
         },
       };
 
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          userId: "user-winner",
-          bountyId: "bounty-winner",
-          submissionId: "submission-winner",
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        userId: "user-winner",
+        bountyId: "bounty-winner",
+        submissionId: "submission-winner",
+      });
 
       (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
 
@@ -1040,13 +1038,11 @@ describe("Submission System Tests", () => {
     });
 
     test("should return 400 when validation fails", async () => {
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          userId: "user-validate",
-          bountyId: "bounty-validate",
-          submissionId: "submission-validate",
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        userId: "user-validate",
+        bountyId: "bounty-validate",
+        submissionId: "submission-validate",
+      });
 
       const mockSubmission = {
         id: "submission-validate",
@@ -1096,13 +1092,11 @@ describe("Submission System Tests", () => {
         },
       };
 
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          userId: "user-delete",
-          bountyId: "bounty-delete",
-          submissionId: "submission-delete",
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        userId: "user-delete",
+        bountyId: "bounty-delete",
+        submissionId: "submission-delete",
+      });
 
       (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
       (database.submission.delete as any).mockResolvedValue({});
@@ -1136,13 +1130,11 @@ describe("Submission System Tests", () => {
         },
       };
 
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          userId: "user-winner-delete",
-          bountyId: "bounty-winner-delete",
-          submissionId: "submission-winner-delete",
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        userId: "user-winner-delete",
+        bountyId: "bounty-winner-delete",
+        submissionId: "submission-winner-delete",
+      });
 
       (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
 
@@ -1164,12 +1156,10 @@ describe("Submission System Tests", () => {
     });
 
     test("should return 401 when not authenticated", async () => {
-      vi.mock("../lib/submission-auth", () => ({
-        getSubmissionAuth: vi.fn().mockResolvedValue({
-          error: "Unauthorized",
-          status: 401,
-        }),
-      }));
+      vi.mocked(getSubmissionAuth).mockResolvedValueOnce({
+        error: "Unauthorized",
+        status: 401,
+      });
 
       const request = new Request(
         "http://localhost:3002/api/v1/bounties/bounty-delete/submissions/me",

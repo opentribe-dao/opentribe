@@ -320,8 +320,16 @@ describe("Bounty Management", () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
       vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
       vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
-      vi.mocked(database.member.count).mockResolvedValue(1); // User is a member
       vi.mocked(database.submission.findFirst).mockResolvedValue(null);
+      vi.mocked(getOrganizationAuth).mockResolvedValueOnce({
+        userId: mockSession.user.id,
+        organizationId: mockBounty.organizationId,
+        membership: {
+          userId: mockSession.user.id,
+          organizationId: mockBounty.organizationId,
+          role: "member",
+        },
+      } as any);
 
       const request = new NextRequest(
         "http://localhost:3002/api/v1/bounties/bounty-1"
@@ -334,12 +342,7 @@ describe("Bounty Management", () => {
       expect(response.status).toBe(200);
       expect(data.bounty.canSubmit).toBe(false);
       expect(data.bounty.userSubmissionId).toBe(null);
-      expect(database.member.count).toHaveBeenCalledWith({
-        where: {
-          organizationId: "org-1",
-          userId: "user-1",
-        },
-      });
+      expect(getOrganizationAuth).toHaveBeenCalledWith(request, "org-1");
     });
 
     test("should set canSubmit=true for non-members without existing submission", async () => {
@@ -371,8 +374,8 @@ describe("Bounty Management", () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
       vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
       vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
-      vi.mocked(database.member.count).mockResolvedValue(0); // User is NOT a member
       vi.mocked(database.submission.findFirst).mockResolvedValue(null);
+      vi.mocked(getOrganizationAuth).mockResolvedValueOnce(null as any);
 
       const request = new NextRequest(
         "http://localhost:3002/api/v1/bounties/bounty-1"
@@ -423,7 +426,7 @@ describe("Bounty Management", () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
       vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
       vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
-      vi.mocked(database.member.count).mockResolvedValue(0);
+      vi.mocked(getOrganizationAuth).mockResolvedValueOnce(null as any);
       vi.mocked(database.submission.findFirst).mockResolvedValue(
         mockSubmission as any
       );
@@ -443,6 +446,9 @@ describe("Bounty Management", () => {
         where: {
           bountyId: "bounty-1",
           userId: "user-1",
+        },
+        select: {
+          id: true,
         },
       });
     });

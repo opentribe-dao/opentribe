@@ -11,7 +11,12 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    captureException(error);
+    // Only capture exception if Sentry is configured
+    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+      captureException(error);
+    } else {
+      console.error("Global error:", error);
+    }
   }, [error]);
 
   return (

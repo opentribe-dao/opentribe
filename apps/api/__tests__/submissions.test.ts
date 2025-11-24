@@ -3,6 +3,11 @@ import { database } from "@packages/db";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { POST as createSubmission } from "../app/api/v1/bounties/[id]/submissions/route";
 import { POST as announceWinners } from "../app/api/v1/bounties/[id]/winners/route";
+import {
+  GET as getMySubmission,
+  PATCH as updateMySubmission,
+  DELETE as deleteMySubmission,
+} from "../app/api/v1/bounties/[id]/submissions/me/route";
 
 describe("Submission System Tests", () => {
   beforeEach(() => {
@@ -488,6 +493,183 @@ describe("Submission System Tests", () => {
         })
       );
     });
+
+    test("should reject duplicate submission (1 per user per bounty)", async () => {
+      const mockSession = {
+        user: {
+          id: "user-dup",
+          email: "dup@example.com",
+        },
+      };
+
+      const mockUser = {
+        id: "user-dup",
+        profileCompleted: true,
+      };
+
+      const mockBounty = {
+        id: "bounty-dup",
+        slug: "bounty-dup",
+        title: "Test Bounty",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        organizationId: "org-dup",
+        screening: null,
+      };
+
+      const existingSubmission = {
+        id: "existing-sub",
+        status: "SUBMITTED",
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(
+        existingSubmission
+      );
+      (database.member.findMany as any).mockResolvedValue([]);
+
+      const body = JSON.stringify({
+        submissionUrl: "https://github.com/user/repo",
+        title: "My Submission",
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-dup/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-dup" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("You have already submitted to this bounty");
+      expect(data.message).toBe(
+        "Only one submission per user per bounty is allowed"
+      );
+      expect(database.submission.create).not.toHaveBeenCalled();
+    });
+
+    test("should reject invalid URL format in submissionUrl", async () => {
+      const mockSession = {
+        user: {
+          id: "user-url",
+          email: "url@example.com",
+        },
+      };
+
+      const mockUser = {
+        id: "user-url",
+        profileCompleted: true,
+      };
+
+      const mockBounty = {
+        id: "bounty-url",
+        slug: "bounty-url",
+        title: "Test Bounty",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        organizationId: "org-url",
+        screening: null,
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(null);
+      (database.member.findMany as any).mockResolvedValue([]);
+
+      const body = JSON.stringify({
+        submissionUrl: "not-a-valid-url",
+        title: "My Submission",
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-url/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-url" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toContain("Invalid URL format");
+      expect(database.submission.create).not.toHaveBeenCalled();
+    });
+
+    test("should reject invalid URL format in attachments", async () => {
+      const mockSession = {
+        user: {
+          id: "user-attach",
+          email: "attach@example.com",
+        },
+      };
+
+      const mockUser = {
+        id: "user-attach",
+        profileCompleted: true,
+      };
+
+      const mockBounty = {
+        id: "bounty-attach",
+        slug: "bounty-attach",
+        title: "Test Bounty",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        organizationId: "org-attach",
+        screening: null,
+      };
+
+      (auth.api.getSession as any).mockResolvedValue(mockSession);
+      (database.user.findUnique as any).mockResolvedValue(mockUser);
+      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
+      (database.submission.findFirst as any).mockResolvedValue(null);
+      (database.member.findMany as any).mockResolvedValue([]);
+
+      const body = JSON.stringify({
+        submissionUrl: "https://github.com/user/repo",
+        attachments: ["invalid-url", "https://valid.com/file.pdf"],
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-attach/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await createSubmission(request, {
+        params: Promise.resolve({ id: "bounty-attach" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toContain("Invalid URL format for attachment");
+      expect(database.submission.create).not.toHaveBeenCalled();
+    });
   });
 
   describe("POST /api/v1/bounties/[id]/winners", () => {
@@ -633,6 +815,376 @@ describe("Submission System Tests", () => {
       expect(response.status).toBe(403);
       expect(database.submission.updateMany).not.toHaveBeenCalled();
       expect(database.bounty.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("GET /api/v1/bounties/[id]/submissions/me", () => {
+    test("should return user's submission when authenticated", async () => {
+      const mockSession = {
+        user: {
+          id: "user-me",
+          email: "me@example.com",
+        },
+      };
+
+      const mockBounty = {
+        id: "bounty-me",
+      };
+
+      const mockSubmission = {
+        id: "submission-me",
+        bountyId: "bounty-me",
+        userId: "user-me",
+        title: "My Submission",
+        description: "Description",
+        submissionUrl: "https://github.com/user/repo",
+        attachments: [],
+        responses: {},
+        status: "SUBMITTED",
+        submitter: {
+          id: "user-me",
+          username: "me",
+          firstName: "Test",
+          lastName: "User",
+          image: null,
+        },
+      };
+
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          userId: "user-me",
+          bountyId: "bounty-me",
+          submissionId: "submission-me",
+        }),
+      }));
+
+      (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-me/submissions/me"
+      );
+
+      const response = await getMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-me" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.submission.id).toBe("submission-me");
+    });
+
+    test("should return 401 when not authenticated", async () => {
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          error: "Unauthorized",
+          status: 401,
+        }),
+      }));
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-me/submissions/me"
+      );
+
+      const response = await getMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-me" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.error).toBe("Unauthorized");
+    });
+
+    test("should return 404 when no submission exists", async () => {
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          error: "No submission found",
+          status: 404,
+        }),
+      }));
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-me/submissions/me"
+      );
+
+      const response = await getMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-me" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(data.error).toBe("No submission found");
+    });
+
+    test("should return 404 when bounty doesn't exist", async () => {
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          error: "Bounty not found",
+          status: 404,
+        }),
+      }));
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-me/submissions/me"
+      );
+
+      const response = await getMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-me" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(data.error).toBe("Bounty not found");
+    });
+  });
+
+  describe("PATCH /api/v1/bounties/[id]/submissions/me", () => {
+    test("should update submission when user owns it", async () => {
+      const mockSubmission = {
+        id: "submission-update",
+        bountyId: "bounty-update",
+        userId: "user-update",
+        isWinner: false,
+        bounty: {
+          status: "OPEN",
+          deadline: new Date("2025-12-31"),
+        },
+      };
+
+      const updatedSubmission = {
+        ...mockSubmission,
+        title: "Updated Title",
+        description: "Updated description",
+      };
+
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          userId: "user-update",
+          bountyId: "bounty-update",
+          submissionId: "submission-update",
+        }),
+      }));
+
+      (database.submission.findUnique as any)
+        .mockResolvedValueOnce(mockSubmission)
+        .mockResolvedValueOnce(updatedSubmission);
+      (database.submission.update as any).mockResolvedValue(updatedSubmission);
+
+      const body = JSON.stringify({
+        title: "Updated Title",
+        description: "Updated description",
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-update/submissions/me",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await updateMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-update" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.message).toBe("Submission updated successfully");
+      expect(data.submission.title).toBe("Updated Title");
+    });
+
+    test("should return 400 when trying to edit winning submission", async () => {
+      const mockSubmission = {
+        id: "submission-winner",
+        isWinner: true,
+        bounty: {
+          status: "OPEN",
+          deadline: new Date("2025-12-31"),
+        },
+      };
+
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          userId: "user-winner",
+          bountyId: "bounty-winner",
+          submissionId: "submission-winner",
+        }),
+      }));
+
+      (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
+
+      const body = JSON.stringify({
+        title: "Updated Title",
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-winner/submissions/me",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await updateMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-winner" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Cannot edit a winning submission");
+    });
+
+    test("should return 400 when validation fails", async () => {
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          userId: "user-validate",
+          bountyId: "bounty-validate",
+          submissionId: "submission-validate",
+        }),
+      }));
+
+      const mockSubmission = {
+        id: "submission-validate",
+        isWinner: false,
+        bounty: {
+          status: "OPEN",
+          deadline: new Date("2025-12-31"),
+        },
+      };
+
+      (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
+
+      const body = JSON.stringify({
+        submissionUrl: "invalid-url",
+      });
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-validate/submissions/me",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        }
+      );
+
+      const response = await updateMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-validate" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toContain("Invalid URL format");
+    });
+  });
+
+  describe("DELETE /api/v1/bounties/[id]/submissions/me", () => {
+    test("should delete submission when user owns it", async () => {
+      const mockSubmission = {
+        id: "submission-delete",
+        isWinner: false,
+        bounty: {
+          status: "OPEN",
+          deadline: new Date("2025-12-31"),
+        },
+      };
+
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          userId: "user-delete",
+          bountyId: "bounty-delete",
+          submissionId: "submission-delete",
+        }),
+      }));
+
+      (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
+      (database.submission.delete as any).mockResolvedValue({});
+      (database.bounty.update as any).mockResolvedValue({});
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-delete/submissions/me",
+        {
+          method: "DELETE",
+        }
+      );
+
+      const response = await deleteMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-delete" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.message).toBe("Submission deleted successfully");
+      expect(database.submission.delete).toHaveBeenCalled();
+      expect(database.bounty.update).toHaveBeenCalled();
+    });
+
+    test("should return 400 when trying to delete winning submission", async () => {
+      const mockSubmission = {
+        id: "submission-winner-delete",
+        isWinner: true,
+        bounty: {
+          status: "OPEN",
+          deadline: new Date("2025-12-31"),
+        },
+      };
+
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          userId: "user-winner-delete",
+          bountyId: "bounty-winner-delete",
+          submissionId: "submission-winner-delete",
+        }),
+      }));
+
+      (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-winner-delete/submissions/me",
+        {
+          method: "DELETE",
+        }
+      );
+
+      const response = await deleteMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-winner-delete" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Cannot delete a winning submission");
+      expect(database.submission.delete).not.toHaveBeenCalled();
+    });
+
+    test("should return 401 when not authenticated", async () => {
+      vi.mock("../lib/submission-auth", () => ({
+        getSubmissionAuth: vi.fn().mockResolvedValue({
+          error: "Unauthorized",
+          status: 401,
+        }),
+      }));
+
+      const request = new Request(
+        "http://localhost:3002/api/v1/bounties/bounty-delete/submissions/me",
+        {
+          method: "DELETE",
+        }
+      );
+
+      const response = await deleteMySubmission(request, {
+        params: Promise.resolve({ id: "bounty-delete" }),
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.error).toBe("Unauthorized");
     });
   });
 });

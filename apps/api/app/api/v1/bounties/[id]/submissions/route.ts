@@ -1,5 +1,5 @@
 import { auth } from "@packages/auth/server";
-import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
+import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
 import { headers } from "next/headers";
@@ -8,12 +8,35 @@ import { z } from "zod";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
-  submissionUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
-  title: z.string().min(1).max(200).optional(),
+  submissionUrl: z
+    .string()
+    .regex(OPTIONAL_URL_REGEX, {
+      message: "Invalid URL format for submission URL",
+    })
+    .optional()
+    .or(z.literal("")),
+  title: z
+    .string()
+    .min(1, { message: "Title must be at least 1 character" })
+    .max(200, { message: "Title must be at most 200 characters" })
+    .optional(),
   description: z.string().optional(),
-  attachments: z.array(z.string().regex(OPTIONAL_URL_REGEX)).optional(), // File URLs
+  attachments: z
+    .array(
+      z
+        .string()
+        .regex(URL_REGEX, { message: "Invalid URL format for attachment" })
+    )
+    .optional(), // File URLs - required URL format
   responses: z
-    .record(z.string(), z.union([z.string(), z.boolean()]))
+    .record(
+      z.string(),
+      z.union([z.string(), z.boolean()], {
+        errorMap: () => ({
+          message: "Response must be a string or boolean",
+        }),
+      })
+    )
     .optional(), // For screening question responses
 });
 
@@ -128,7 +151,7 @@ const validateScreeningResponses = (
         if (typeof rawValue !== "string") {
           return {
             success: false,
-            error: `Invalid URL provided for question: ${question.question}`,
+            error: `Invalid response type for URL question: ${question.question}. Expected string.`,
           };
         }
 
@@ -145,10 +168,13 @@ const validateScreeningResponses = (
           };
         }
 
-        if (!OPTIONAL_URL_REGEX.test(trimmed)) {
+        // Use URL_REGEX for required URLs, OPTIONAL_URL_REGEX for optional ones
+        const urlRegex = question.optional ? OPTIONAL_URL_REGEX : URL_REGEX;
+
+        if (!urlRegex.test(trimmed)) {
           return {
             success: false,
-            error: `Invalid URL provided for question: ${question.question}`,
+            error: `Invalid URL format for question: ${question.question}`,
           };
         }
 
@@ -389,7 +415,7 @@ export async function POST(
       );
     }
 
-    // Check if user already has a submission for this bounty
+    // Enforce 1 submission per user per bounty
     const existingSubmission = await database.submission.findFirst({
       where: {
         bountyId: bounty.id,
@@ -397,12 +423,16 @@ export async function POST(
       },
       select: {
         id: true,
+        status: true,
       },
     });
 
     if (existingSubmission) {
       return NextResponse.json(
-        { error: "You have already submitted to this bounty" },
+        {
+          error: "You have already submitted to this bounty",
+          message: "Only one submission per user per bounty is allowed",
+        },
         { status: 400 }
       );
     }
@@ -427,7 +457,26 @@ export async function POST(
 
     // Parse and validate request body
     const body = await request.json();
-    const validatedData = createSubmissionSchema.parse(body);
+    let validatedData;
+    try {
+      validatedData = createSubmissionSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessages = error.issues.map((issue) => {
+          const path = issue.path.join(".");
+          return `${path ? `${path}: ` : ""}${issue.message}`;
+        });
+        return NextResponse.json(
+          {
+            error: "Validation failed",
+            message: errorMessages.join(", "),
+            details: error.issues,
+          },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
 
     const screeningQuestions = Array.isArray(bounty.screening)
       ? (bounty.screening as ScreeningQuestion[])
@@ -454,7 +503,10 @@ export async function POST(
     const submissionData: any = {
       bountyId: bounty.id,
       userId: session.user.id,
-      submissionUrl: validatedData.submissionUrl,
+      submissionUrl:
+        validatedData.submissionUrl === "" || !validatedData.submissionUrl
+          ? null
+          : validatedData.submissionUrl,
       title: validatedData.title || `Submission for ${bounty.title}`,
       description: validatedData.description,
       responses: sanitizedResponses,
@@ -584,7 +636,9 @@ export async function POST(
       {
         error: "Failed to create submission",
         message:
-          error instanceof Error ? error.message : "An unexpected error occurred",
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       },
       { status: 500 }
     );

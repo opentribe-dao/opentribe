@@ -245,7 +245,6 @@ export async function GET(
     // For org members, show all submissions
     const whereClause: any = {
       bountyId: bounty.id,
-      bountyId: bounty.id,
     };
 
     if (!isOrgMember) {

@@ -14,35 +14,127 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { env } from "@/env";
+import { SubmissionActions } from "./components/submission-actions";
 import { CommentSection } from "./submissions/[submissionId]/comment-section";
 
-interface SubmissionModalProps {
+type ScreeningAnswer = {
+  question: string;
+  answer: string;
+};
+
+type Submission = {
+  id: string;
+  title: string;
+  description: string;
+  submissionUrl: string;
+  isWinner: boolean;
+  position: number;
+  winningAmount: number;
+  createdAt: string;
+  submitter: {
+    id: string;
+    username: string;
+    firstName: string | null;
+    lastName: string | null;
+    image: string | null;
+  };
+  answers: ScreeningAnswer[];
+  bounty: {
+    id: string;
+    slug: string;
+    title: string;
+    totalAmount: number;
+    token: string;
+    winnerCount: number;
+    status?: string;
+    deadline?: string | null;
+    submissions: Submission[];
+  };
+};
+
+type RawAnswers =
+  | Submission["answers"]
+  | Record<string, string>
+  | null
+  | undefined;
+
+type SubmissionResponse = {
+  submission: Omit<Submission, "answers"> & {
+    answers: RawAnswers;
+  };
+};
+
+type SubmissionModalProps = {
   bountyId: string;
   submissionId: string;
   onClose: () => void;
-}
+};
+
+const normalizeSubmissionAnswers = (
+  answers: RawAnswers
+): ScreeningAnswer[] => {
+  if (!answers) {
+    return [];
+  }
+
+  if (Array.isArray(answers)) {
+    return answers;
+  }
+
+  return Object.entries(answers).map(([question, answer]) => ({
+    question,
+    answer,
+  }));
+};
 
 export function SubmissionModal({
   bountyId,
   submissionId,
   onClose,
 }: SubmissionModalProps) {
-  const [submission, setSubmission] = useState<any>(null);
+  const [submission, setSubmission] = useState<Submission | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch submission data
-    fetch(
-      `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.submission) {
-          setSubmission(data.submission);
+    let isMounted = true;
+
+    const fetchSubmission = async () => {
+      try {
+        const res = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}`
+        );
+
+        const data: SubmissionResponse = await res.json();
+
+        if (!isMounted) {
+          return;
         }
-        setIsLoading(false);
-      })
-      .catch(() => setIsLoading(false));
+
+        if (data.submission) {
+          setSubmission({
+            ...data.submission,
+            answers: normalizeSubmissionAnswers(data.submission.answers),
+          });
+        } else {
+          setSubmission(null);
+        }
+      } catch (error) {
+        console.error("Failed to load submission:", error);
+        if (isMounted) {
+          setSubmission(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchSubmission();
+
+    return () => {
+      isMounted = false;
+    };
   }, [bountyId, submissionId]);
 
   const formatDate = (date: string) =>
@@ -52,30 +144,31 @@ export function SubmissionModal({
       day: "numeric",
     });
 
-  return (
-    <Dialog onOpenChange={onClose} open={true}>
-      <DialogContent
-        className="max-h-[90vh] max-w-4xl overflow-y-auto border-white/10 bg-black/95 backdrop-blur-xl"
-        showCloseButton={false}
-      >
-        <DialogHeader className="relative flex-row items-center justify-between">
-          <DialogTitle>{"Submission Details"}</DialogTitle>
-          <Button
-            className="absolute top-0 right-0"
-            onClick={onClose}
-            size="icon"
-            variant="ghost"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </DialogHeader>
+  const renderDialogBody = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-pink-500 border-b-2" />
+        </div>
+      );
+    }
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-pink-500 border-b-2" />
-          </div>
-        ) : submission ? (
-          <div className="space-y-6">
+    if (!submission) {
+      return (
+        <div className="py-12 text-center">
+          <p className="text-white/60">Submission not found</p>
+        </div>
+      );
+    }
+
+    const isBountyComplete =
+      submission.bounty.status?.toUpperCase() === "COMPLETED";
+    const isDeadlineDue = submission.bounty.deadline
+      ? new Date(submission.bounty.deadline) < new Date()
+      : false;
+
+    return (
+      <div className="space-y-6">
             {/* Header */}
             <div>
               <div className="mb-4 flex items-start justify-between">
@@ -120,17 +213,26 @@ export function SubmissionModal({
               </div>
 
               {/* Submission URL */}
-              {submission.submissionUrl && (
-                <a
-                  className="inline-flex items-center gap-2 rounded-lg bg-pink-600 px-4 py-2 text-white transition-colors hover:bg-pink-700"
-                  href={submission.submissionUrl}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  View Submission
-                </a>
-              )}
+              <div className="flex flex-wrap items-center gap-3">
+                {submission.submissionUrl && (
+                  <a
+                    className="inline-flex items-center gap-2 rounded-lg bg-pink-600 px-4 py-2 text-white transition-colors hover:bg-pink-700"
+                    href={submission.submissionUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    View Submission
+                  </a>
+                )}
+                <SubmissionActions
+                  bountyId={bountyId}
+                  isBountyComplete={isBountyComplete}
+                  isDeadlineDue={isDeadlineDue}
+                  submissionId={submission.id}
+                  submitterId={submission.submitter.id}
+                />
+              </div>
             </div>
 
             {/* Description */}
@@ -147,13 +249,13 @@ export function SubmissionModal({
             {submission.answers && submission.answers.length > 0 && (
               <section>
                 <h3 className="mb-3 font-semibold text-lg">
-                  Screening Answers
+                  Screening Questions
                 </h3>
                 <div className="space-y-3">
-                  {submission.answers.map((answer: any, idx: number) => (
+                  {submission.answers.map((answer: ScreeningAnswer, idx: number) => (
                     <div
                       className="rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm"
-                      key={idx}
+                      key={`${answer.question}-${idx}`}
                     >
                       <h4 className="mb-1 font-medium text-sm text-white/80">
                         {answer.question}
@@ -180,11 +282,28 @@ export function SubmissionModal({
               <CommentSection submissionId={submission.id} />
             </section>
           </div>
-        ) : (
-          <div className="py-12 text-center">
-            <p className="text-white/60">Submission not found</p>
-          </div>
-        )}
+    );
+  };
+
+  return (
+    <Dialog onOpenChange={onClose} open={true}>
+      <DialogContent
+        className="max-h-[90vh] max-w-4xl overflow-y-auto border-white/10 bg-black/95 backdrop-blur-xl"
+        showCloseButton={false}
+      >
+        <DialogHeader className="relative flex-row items-center justify-between">
+          <DialogTitle>{"Submission Details"}</DialogTitle>
+          <Button
+            className="absolute top-0 right-0"
+            onClick={onClose}
+            size="icon"
+            variant="ghost"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </DialogHeader>
+
+        {renderDialogBody()}
       </DialogContent>
     </Dialog>
   );

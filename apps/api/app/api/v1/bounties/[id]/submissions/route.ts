@@ -1,19 +1,41 @@
 import { auth } from "@packages/auth/server";
-import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
+import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
+import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({
-  submissionUrl: z.string().regex(OPTIONAL_URL_REGEX).optional(),
-  title: z.string().min(1).max(200).optional(),
+  submissionUrl: z
+    .string()
+    .regex(OPTIONAL_URL_REGEX, {
+      message: "Invalid URL format for submission URL",
+    })
+    .optional()
+    .or(z.literal("")),
+  title: z
+    .string()
+    .min(1, { message: "Title must be at least 1 character" })
+    .max(200, { message: "Title must be at most 200 characters" })
+    .optional(),
   description: z.string().optional(),
-  attachments: z.array(z.string().regex(OPTIONAL_URL_REGEX)).optional(), // File URLs
+  attachments: z
+    .array(
+      z
+        .string()
+        .regex(URL_REGEX, { message: "Invalid URL format for attachment" })
+    )
+    .optional(), // File URLs - required URL format
   responses: z
-    .record(z.string(), z.union([z.string(), z.boolean()]))
+    .record(
+      z.string(),
+      z.union([z.string(), z.boolean()], {
+        message: "Response must be a string or boolean",
+      })
+    )
     .optional(), // For screening question responses
 });
 
@@ -128,7 +150,7 @@ const validateScreeningResponses = (
         if (typeof rawValue !== "string") {
           return {
             success: false,
-            error: `Invalid URL provided for question: ${question.question}`,
+            error: `Invalid response type for URL question: ${question.question}. Expected string.`,
           };
         }
 
@@ -145,10 +167,13 @@ const validateScreeningResponses = (
           };
         }
 
-        if (!OPTIONAL_URL_REGEX.test(trimmed)) {
+        // Use URL_REGEX for required URLs, OPTIONAL_URL_REGEX for optional ones
+        const urlRegex = question.optional ? OPTIONAL_URL_REGEX : URL_REGEX;
+
+        if (!urlRegex.test(trimmed)) {
           return {
             success: false,
-            error: `Invalid URL provided for question: ${question.question}`,
+            error: `Invalid URL format for question: ${question.question}`,
           };
         }
 
@@ -169,6 +194,19 @@ const validateScreeningResponses = (
         break;
       }
       default:
+        // Treat unknown types as text/file to ensure backward compatibility
+        // and handle cases where type might be missing in legacy data
+        if (typeof rawValue === "string") {
+          const trimmed = rawValue.trim();
+          if (trimmed) {
+            sanitized[question.question] = trimmed;
+          } else if (!question.optional) {
+            return {
+              success: false,
+              error: `Missing response for required question: ${question.question}`,
+            };
+          }
+        }
         break;
     }
   }
@@ -187,14 +225,14 @@ export async function GET(
       headers: await headers(),
     });
 
-    const bountyId = (await params).id;
+    const bountyIdentifier = (await params).id;
 
     // Get the bounty
     const bounty = await database.bounty.findFirst({
       where: {
         OR: [
-          { id: bountyId },
-          { slug: { equals: bountyId, mode: "insensitive" } },
+          { id: bountyIdentifier },
+          { slug: { equals: bountyIdentifier, mode: "insensitive" } },
         ],
       },
       include: {
@@ -345,14 +383,14 @@ export async function POST(
       );
     }
 
-    const bountyId = (await params).id;
+    const bountyIdentifier = (await params).id;
 
     // Check if bounty exists and is open
     const bounty = await database.bounty.findFirst({
       where: {
         OR: [
-          { id: bountyId },
-          { slug: { equals: bountyId, mode: "insensitive" } },
+          { id: bountyIdentifier },
+          { slug: { equals: bountyIdentifier, mode: "insensitive" } },
         ],
       },
       select: {
@@ -376,7 +414,7 @@ export async function POST(
       );
     }
 
-    // Check if user already has a submission for this bounty
+    // Enforce 1 submission per user per bounty
     const existingSubmission = await database.submission.findFirst({
       where: {
         bountyId: bounty.id,
@@ -384,12 +422,16 @@ export async function POST(
       },
       select: {
         id: true,
+        status: true,
       },
     });
 
     if (existingSubmission) {
       return NextResponse.json(
-        { error: "You have already submitted to this bounty" },
+        {
+          error: "You have already submitted to this bounty",
+          message: "Only one submission per user per bounty is allowed",
+        },
         { status: 400 }
       );
     }
@@ -414,7 +456,16 @@ export async function POST(
 
     // Parse and validate request body
     const body = await request.json();
-    const validatedData = createSubmissionSchema.parse(body);
+    let validatedData;
+    try {
+      validatedData = createSubmissionSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const formattedError = formatZodError(error);
+        return NextResponse.json(formattedError, { status: 400 });
+      }
+      throw error;
+    }
 
     const screeningQuestions = Array.isArray(bounty.screening)
       ? (bounty.screening as ScreeningQuestion[])
@@ -441,7 +492,10 @@ export async function POST(
     const submissionData: any = {
       bountyId: bounty.id,
       userId: session.user.id,
-      submissionUrl: validatedData.submissionUrl,
+      submissionUrl:
+        validatedData.submissionUrl === "" || !validatedData.submissionUrl
+          ? null
+          : validatedData.submissionUrl,
       title: validatedData.title || `Submission for ${bounty.title}`,
       description: validatedData.description,
       responses: sanitizedResponses,
@@ -491,7 +545,7 @@ export async function POST(
     if (submissionCount === 1) {
       // Get bounty curators
       const bountyCurators = await database.curator.findMany({
-        where: { bountyId },
+        where: { bountyId: bounty.id },
         include: {
           user: {
             select: {
@@ -553,25 +607,18 @@ export async function POST(
     });
 
     if (error instanceof z.ZodError) {
-      const zodError = error as z.ZodError;
-      console.error("Zod validation error:", zodError.issues);
-      return NextResponse.json(
-        {
-          error: "Invalid request data",
-          details: z.treeifyError(zodError),
-          message: zodError.issues
-            .map((e) => `${e.path.join(".")}: ${e.message}`)
-            .join(", "),
-        },
-        { status: 400 }
-      );
+      console.error("Zod validation error:", error.issues);
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
 
     return NextResponse.json(
       {
         error: "Failed to create submission",
         message:
-          error instanceof Error ? error.message : "An unexpected error occurred",
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       },
       { status: 500 }
     );

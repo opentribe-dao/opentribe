@@ -478,6 +478,16 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
             question: "How will you validate improvements with real users?",
             optional: false,
           },
+          {
+            question:
+              "Describe your plan for ensuring accessibility (color contrast, keyboard use, screen readers).",
+            optional: false,
+          },
+          {
+            question:
+              "Outline the timeline and key milestones for delivering both design and implementation.",
+            optional: true,
+          },
         ],
         skills: getSkillsByCategory(["Design", "Frontend"], 4),
         amount: 15_000,

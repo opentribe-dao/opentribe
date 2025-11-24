@@ -1,6 +1,7 @@
 import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import type { Prisma } from "@packages/db";
 import { database } from "@packages/db";
+import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
@@ -124,9 +125,7 @@ const updateGrantSchema = z.object({
 // GET /api/v1/organizations/[organizationId]/grants/[id] - Get grant details
 export async function GET(
   request: NextRequest,
-  {
-    params,
-  }: { params: Promise<{ organizationId: string; id: string }> }
+  { params }: { params: Promise<{ organizationId: string; id: string }> }
 ) {
   try {
     const { organizationId, id: grantId } = await params;
@@ -289,9 +288,7 @@ export async function GET(
 // PATCH /api/v1/organizations/[organizationId]/grants/[id] - Update grant
 export async function PATCH(
   request: NextRequest,
-  {
-    params,
-  }: { params: Promise<{ organizationId: string; id: string }> }
+  { params }: { params: Promise<{ organizationId: string; id: string }> }
 ) {
   try {
     const { organizationId, id: grantId } = await params;
@@ -430,10 +427,8 @@ export async function PATCH(
     console.error("Grant update error:", error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data", details: z.treeifyError(error) },
-        { status: 400 }
-      );
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
 
     return NextResponse.json(
@@ -446,9 +441,7 @@ export async function PATCH(
 // DELETE /api/v1/organizations/[organizationId]/grants/[id] - Delete grant
 export async function DELETE(
   request: NextRequest,
-  {
-    params,
-  }: { params: Promise<{ organizationId: string; id: string }> }
+  { params }: { params: Promise<{ organizationId: string; id: string }> }
 ) {
   try {
     const { organizationId, id: grantId } = await params;
@@ -519,4 +512,3 @@ export async function OPTIONS() {
     status: 200,
   });
 }
-

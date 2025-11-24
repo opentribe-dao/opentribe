@@ -1,5 +1,6 @@
 import { URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
+import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
@@ -277,10 +278,8 @@ export async function POST(
     console.error("Bounty creation error:", error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data", details: z.treeifyError(error) },
-        { status: 400 }
-      );
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
 
     return NextResponse.json(

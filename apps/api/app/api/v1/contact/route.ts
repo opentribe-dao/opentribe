@@ -1,4 +1,5 @@
 import { resend } from "@packages/email";
+import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -153,14 +154,8 @@ Submitted: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} I
     console.error("Contact form API error:", error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid request data",
-          details: error.issues,
-        },
-        { status: 400 }
-      );
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
 
     return NextResponse.json(

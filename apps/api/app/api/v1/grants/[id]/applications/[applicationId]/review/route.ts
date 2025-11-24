@@ -1,6 +1,7 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendGrantStatusUpdateEmail } from "@packages/email";
+import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
@@ -130,10 +131,8 @@ export async function PATCH(
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data", details: z.treeifyError(error) },
-        { status: 400 }
-      );
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
 
     console.error("Error reviewing application:", error);

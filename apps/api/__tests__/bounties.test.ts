@@ -1527,7 +1527,8 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid request data");
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toBeDefined();
       expect(data.details).toBeDefined();
       expect(database.bounty.create).not.toHaveBeenCalled();
     });
@@ -1575,7 +1576,8 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid request data");
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toBeDefined();
       expect(database.bounty.create).not.toHaveBeenCalled();
     });
 
@@ -1622,7 +1624,8 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid request data");
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toBeDefined();
       expect(database.bounty.create).not.toHaveBeenCalled();
     });
 
@@ -1675,7 +1678,8 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid request data");
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toBeDefined();
       expect(database.bounty.create).not.toHaveBeenCalled();
     });
 

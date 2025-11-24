@@ -1,6 +1,7 @@
 import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { getSubmissionAuth } from "@/lib/submission-auth";
+import { formatZodError } from "@/lib/zod-errors";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -117,18 +118,8 @@ export async function PATCH(
       validatedData = updateSubmissionSchema.parse(body);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errorMessages = error.issues.map((issue) => {
-          const path = issue.path.join(".");
-          return `${path ? `${path}: ` : ""}${issue.message}`;
-        });
-        return NextResponse.json(
-          {
-            error: "Validation failed",
-            message: errorMessages.join(", "),
-            details: error.issues,
-          },
-          { status: 400 }
-        );
+        const formattedError = formatZodError(error);
+        return NextResponse.json(formattedError, { status: 400 });
       }
       throw error;
     }
@@ -214,18 +205,8 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating submission:", error);
     if (error instanceof z.ZodError) {
-      const errorMessages = error.issues.map((issue) => {
-        const path = issue.path.join(".");
-        return `${path ? `${path}: ` : ""}${issue.message}`;
-      });
-      return NextResponse.json(
-        {
-          error: "Validation failed",
-          message: errorMessages.join(", "),
-          details: error.issues,
-        },
-        { status: 400 }
-      );
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
     return NextResponse.json(
       { error: "Failed to update submission" },

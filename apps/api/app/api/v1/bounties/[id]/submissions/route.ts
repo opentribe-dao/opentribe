@@ -2,6 +2,7 @@ import { auth } from "@packages/auth/server";
 import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
+import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -462,18 +463,8 @@ export async function POST(
       validatedData = createSubmissionSchema.parse(body);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errorMessages = error.issues.map((issue) => {
-          const path = issue.path.join(".");
-          return `${path ? `${path}: ` : ""}${issue.message}`;
-        });
-        return NextResponse.json(
-          {
-            error: "Validation failed",
-            message: errorMessages.join(", "),
-            details: error.issues,
-          },
-          { status: 400 }
-        );
+        const formattedError = formatZodError(error);
+        return NextResponse.json(formattedError, { status: 400 });
       }
       throw error;
     }
@@ -618,18 +609,9 @@ export async function POST(
     });
 
     if (error instanceof z.ZodError) {
-      const zodError = error as z.ZodError;
-      console.error("Zod validation error:", zodError.issues);
-      return NextResponse.json(
-        {
-          error: "Invalid request data",
-          details: z.treeifyError(zodError),
-          message: zodError.issues
-            .map((e) => `${e.path.join(".")}: ${e.message}`)
-            .join(", "),
-        },
-        { status: 400 }
-      );
+      console.error("Zod validation error:", error.issues);
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
 
     return NextResponse.json(

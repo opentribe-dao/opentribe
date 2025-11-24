@@ -918,7 +918,8 @@ describe("Grant Management", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid request data");
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toBeDefined();
       expect(data.details).toBeDefined();
     });
 

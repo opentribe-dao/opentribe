@@ -263,7 +263,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/logging
       '@sentry/nextjs':
-        specifier: ^10.21.0
+        specifier: ^10.23.0
         version: 10.23.0(@opentelemetry/context-async-hooks@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(next@15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(webpack@5.100.1(esbuild@0.25.6))
       fumadocs-core:
         specifier: 15.6.2

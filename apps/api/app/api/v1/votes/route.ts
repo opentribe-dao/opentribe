@@ -1,5 +1,6 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -155,10 +156,8 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data", details: z.treeifyError(error) },
-        { status: 400 }
-      );
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
 
     console.error("Error creating/updating vote:", error);

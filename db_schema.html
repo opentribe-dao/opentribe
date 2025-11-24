@@ -1143,6 +1143,11 @@
               { name: "submissionUrl", type: "String?", modifiers: [] },
               { name: "bannerUrl", type: "String?", modifiers: [] },
               { name: "responses", type: "Json?", modifiers: [] },
+              {
+                name: "attachments",
+                type: "String[]",
+                modifiers: ["@default([])"],
+              },
               { name: "title", type: "String?", modifiers: [] },
               { name: "description", type: "String?", modifiers: [] },
               {

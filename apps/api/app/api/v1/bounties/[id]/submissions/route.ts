@@ -273,9 +273,10 @@ export async function GET(
     };
 
     if (!isOrgMember) {
-      // For public, show all non-draft submissions
+      // For public, exclude SPAM and DRAFT submissions
+      // Winners are determined by position, not status
       whereClause.status = {
-        in: ["SUBMITTED", "APPROVED", "REJECTED"],
+        notIn: ["DRAFT", "SPAM"],
       };
     }
 

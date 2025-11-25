@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@packages/base/components/ui/alert-dialog";
 import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
 import {
@@ -10,7 +20,11 @@ import {
   CardTitle,
 } from "@packages/base/components/ui/card";
 import { Label } from "@packages/base/components/ui/label";
-import { Textarea } from "@packages/base/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@packages/base/components/ui/tooltip";
 import { getSkillLabel } from "@packages/base/lib/skills";
 import {
   ArrowLeft,
@@ -26,8 +40,9 @@ import {
   Users,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
@@ -41,85 +56,175 @@ export default function SubmissionReviewPage({
   const { id, submissionId } = use(params);
   const router = useRouter();
 
-  useEffect(() => {
-    if (id && submissionId) {
-      fetchSubmissionDetails(id, submissionId);
-    }
-  }, [id, submissionId]);
-
   const {
     currentSubmission: submission,
     submissionLoading: loading,
     submissionActionLoading: actionLoading,
-    submissionFeedback: feedback,
-    setSubmissionFeedback: setFeedback,
     selectedPosition,
     setSelectedPosition,
     fetchSubmissionDetails,
-    updateSubmissionStatus,
+    assignPosition,
+    markSubmissionAsSpam,
     refreshSubmissions,
     selectedWinners,
     setSelectedWinners,
   } = useBountyContext();
 
+  useEffect(() => {
+    if (id && submissionId) {
+      fetchSubmissionDetails(id, submissionId);
+    }
+  }, [id, submissionId, fetchSubmissionDetails]);
+
+  // State for position reassignment confirmation dialog
+  const [showReassignDialog, setShowReassignDialog] = useState(false);
+  const [pendingPosition, setPendingPosition] = useState<number | null>(null);
+  const [conflictingSubmission, setConflictingSubmission] = useState<{
+    id: string;
+    username: string;
+  } | null>(null);
+
+  // State for SPAM confirmation dialog
+  const [showSpamDialog, setShowSpamDialog] = useState(false);
+
   const handleSelectWinner = (
-    submissionId: string,
-    position: number,
+    targetSubmissionId: string,
+    winnerPosition: number,
     amount: string,
     username: string
   ) => {
     const newSelected = new Map(selectedWinners);
 
     // Check if this submission is already selected
-    if (newSelected.has(submissionId)) {
-      newSelected.delete(submissionId);
+    if (newSelected.has(targetSubmissionId)) {
+      newSelected.delete(targetSubmissionId);
     } else {
       // Remove any other submission with the same position
-      for (const [id, data] of newSelected) {
-        if (data.position === position) {
-          newSelected.delete(id);
+      for (const [subId, data] of newSelected) {
+        if (data.position === winnerPosition) {
+          newSelected.delete(subId);
         }
       }
-      newSelected.set(submissionId, { position, amount, username });
+      newSelected.set(targetSubmissionId, { position: winnerPosition, amount, username });
     }
 
     setSelectedWinners(newSelected);
   };
 
-  const handleStatusUpdate = async (newStatus: "APPROVED" | "REJECTED") => {
-    if (!feedback && newStatus === "REJECTED") {
-      toast.error("Please provide feedback when rejecting a submission");
+  /**
+   * Handles position assignment with confirmation dialog if position is already taken.
+   * 
+   * This function checks if the selected position is already assigned to another submission.
+   * If it is, shows a confirmation dialog before reassigning. Otherwise, assigns directly.
+   * 
+   * Note: Winners are determined by position assignment ONLY, not by submission status.
+   * The status field remains unchanged during position assignment.
+   */
+  const handlePositionAssignment = async (assignedPosition: number | null) => {
+    // If clearing position, no confirmation needed
+    if (assignedPosition === null) {
+      try {
+        await assignPosition(id, submissionId, null);
+        setSelectedPosition(null);
+        router.back();
+        refreshSubmissions();
+      } catch {
+        // Error handling is done in the hook
+      }
       return;
     }
 
-    if (newStatus === "APPROVED" && selectedPosition === null) {
-      toast.error("Please select a winner position");
-      return;
-    }
+    // Check if position is already assigned to another submission
+    const conflictingWinner = Array.from(selectedWinners.entries()).find(
+      ([subId, data]) => subId !== submissionId && data.position === assignedPosition
+    ) as [string, { position: number; amount: string; username: string }] | undefined;
 
-    try {
-      await updateSubmissionStatus(
-        id,
-        submissionId,
-        newStatus,
-        feedback,
-        selectedPosition || undefined
-      );
-
-      if (newStatus === "APPROVED") {
+    if (conflictingWinner) {
+      // Position is already taken - show confirmation dialog
+      const [conflictingId, conflictingData] = conflictingWinner;
+      setConflictingSubmission({
+        id: conflictingId,
+        username: conflictingData.username,
+      });
+      setPendingPosition(assignedPosition);
+      setShowReassignDialog(true);
+    } else {
+      // Position is available - assign directly
+      try {
+        await assignPosition(id, submissionId, assignedPosition);
         handleSelectWinner(
           submissionId,
-          selectedPosition ?? 0,
+          assignedPosition,
           "",
           submission?.creator.username ?? ""
         );
         setSelectedPosition(null);
+        router.back();
+        refreshSubmissions();
+      } catch {
+        // Error handling is done in the hook
       }
+    }
+  };
 
+  /**
+   * Confirms position reassignment after user approves in dialog.
+   */
+  const confirmPositionReassignment = async () => {
+    if (pendingPosition === null) {
+      return;
+    }
+
+    try {
+      await assignPosition(id, submissionId, pendingPosition);
+      handleSelectWinner(
+        submissionId,
+        pendingPosition,
+        "",
+        submission?.creator.username ?? ""
+      );
+      setSelectedPosition(null);
+      setShowReassignDialog(false);
+      setPendingPosition(null);
+      setConflictingSubmission(null);
       router.back();
-
       refreshSubmissions();
-    } catch (error) {
+    } catch {
+      // Error handling is done in the hook
+      setShowReassignDialog(false);
+      setPendingPosition(null);
+      setConflictingSubmission(null);
+    }
+  };
+
+  /**
+   * Handles marking a submission as SPAM.
+   * 
+   * Important: Winners (submissions with assigned positions) cannot be marked as SPAM.
+   * The position must be cleared first. This prevents accidental marking of winners.
+   * 
+   * SPAM status replaces the old REJECTED status and is used for inappropriate/spam submissions.
+   */
+  const handleMarkAsSpam = () => {
+    // Check if submission is a winner (has position)
+    if (submission?.position != null) {
+      toast.error(
+        "Cannot mark winners as SPAM. Please clear the position first."
+      );
+      return;
+    }
+
+    // Show confirmation dialog
+    setShowSpamDialog(true);
+  };
+
+  const confirmMarkAsSpam = async () => {
+    setShowSpamDialog(false);
+    try {
+      await markSubmissionAsSpam(id, submissionId);
+      router.back();
+      refreshSubmissions();
+    } catch {
       // Error handling is done in the hook
     }
   };
@@ -142,15 +247,26 @@ export default function SubmissionReviewPage({
         return "bg-blue-500/20 text-blue-400";
       case "UNDER_REVIEW":
         return "bg-yellow-500/20 text-yellow-400";
-      case "APPROVED":
-        return "bg-green-500/20 text-green-400";
-      case "REJECTED":
+      case "SPAM":
         return "bg-red-500/20 text-red-400";
+      case "WITHDRAWN":
+        return "bg-gray-500/20 text-gray-400";
       default:
         return "bg-white/10 text-white/60";
     }
   };
 
+  /**
+   * Gets available positions for assignment.
+   * 
+   * Positions are determined by:
+   * 1. Must exist in bounty.winnings structure
+   * 2. Must be between 1 and bounty.winnerCount
+   * 3. Must not be already assigned to another submission
+   * 
+   * This function validates positions on the frontend to provide immediate feedback
+   * before API validation. The API also validates positions independently.
+   */
   const getAvailablePositions = () => {
     if (!submission) {
       return [];
@@ -168,13 +284,18 @@ export default function SubmissionReviewPage({
     }
 
     // Create array of available positions
-    const positions = [];
+    // Only include positions that exist in winnings structure and are within winnerCount range
+    const availablePositionsList: Array<{
+      position: number;
+      amount: number;
+      available: boolean;
+    }> = [];
     for (let i = 1; i <= submission.bounty.winnerCount; i++) {
       const prize = submission.bounty.winnings.find((w) => w.position === i);
       if (prize) {
         // If the position is not taken, it's available
         const available = !takenPositions.has(i);
-        positions.push({
+        availablePositionsList.push({
           position: i,
           amount: prize.amount,
           available,
@@ -182,7 +303,7 @@ export default function SubmissionReviewPage({
       }
     }
 
-    return positions;
+    return availablePositionsList;
   };
 
   if (loading) {
@@ -215,9 +336,16 @@ export default function SubmissionReviewPage({
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Bounty
           </Button>
-          <Badge className={`${getStatusColor(submission.status)} border-0`}>
-            {submission.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge className={`${getStatusColor(submission.status)} border-0`}>
+              {submission.status}
+            </Badge>
+            {/* {submission.position !== null && (
+              <Badge className="bg-green-500/20 text-green-400 border-0">
+                Winner - Position #{submission.position}
+              </Badge>
+            )} */}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -280,8 +408,8 @@ export default function SubmissionReviewPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {submission.answers.map((answer, index) => (
-                    <div className="space-y-2" key={index}>
+                  {submission.answers.map((answer) => (
+                    <div className="space-y-2" key={`${answer.question}-${answer.answer}`}>
                       <p className="font-medium text-sm text-white/80">
                         {answer.question}
                       </p>
@@ -312,11 +440,11 @@ export default function SubmissionReviewPage({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {submission.files.map((file, index) => (
+                    {submission.files.map((file) => (
                       <a
                         className="flex items-center gap-3 rounded-lg bg-white/5 p-3 transition-colors hover:bg-white/10"
                         href={file.url}
-                        key={index}
+                        key={file.url}
                         rel="noopener noreferrer"
                         target="_blank"
                       >
@@ -335,13 +463,15 @@ export default function SubmissionReviewPage({
               </Card>
             )}
 
-            {/* Review Actions */}
+            {/* Position Assignment & SPAM Actions */}
             {submission.status === "SUBMITTED" && (
               <Card className="border-white/10 bg-white/5 backdrop-blur-md">
                 <CardHeader>
-                  <CardTitle className="text-white">Review Decision</CardTitle>
+                  <CardTitle className="text-white">Assign Winner Position</CardTitle>
                   <CardDescription className="text-white/60">
-                    Select this submission as a winner or provide feedback
+                    {submission.position
+                      ? `Currently assigned to position ${submission.position}`
+                      : "Select a position to assign this submission as a winner"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -349,21 +479,31 @@ export default function SubmissionReviewPage({
                   <div>
                     <Label>Winner Position</Label>
                     <div className="mt-2 grid grid-cols-2 gap-3">
-                      {availablePositions.map((pos) => (
-                        <button
-                          className={`rounded-lg border p-4 transition-all ${
-                            selectedPosition === pos.position
-                              ? "border-[#E6007A] bg-[#E6007A]/20 text-white"
-                              : pos.available
-                                ? "border-white/10 bg-white/5 text-white hover:bg-white/10"
-                                : "cursor-not-allowed border-white/10 bg-white/5 text-white/40"
-                          }`}
-                          disabled={!pos.available}
-                          key={pos.position}
-                          onClick={() =>
-                            pos.available && setSelectedPosition(pos.position)
-                          }
-                        >
+                      {availablePositions.map((pos) => {
+                        const isSelected =
+                          selectedPosition === pos.position ||
+                          submission.position === pos.position;
+                        let buttonClasses = "rounded-lg border p-4 transition-all";
+                        if (isSelected) {
+                          buttonClasses +=
+                            " border-[#E6007A] bg-[#E6007A]/20 text-white";
+                        } else if (pos.available) {
+                          buttonClasses +=
+                            " border-white/10 bg-white/5 text-white hover:bg-white/10";
+                        } else {
+                          buttonClasses +=
+                            " cursor-not-allowed border-white/10 bg-white/5 text-white/40";
+                        }
+                        return (
+                          <button
+                            type="button"
+                            className={buttonClasses}
+                            disabled={!pos.available}
+                            key={pos.position}
+                            onClick={() =>
+                              pos.available && setSelectedPosition(pos.position)
+                            }
+                          >
                           <div className="flex items-center justify-between">
                             <span className="font-medium">
                               Position #{pos.position}
@@ -373,80 +513,127 @@ export default function SubmissionReviewPage({
                           <div className="mt-1 text-sm">
                             {formatAmount(pos.amount)} {submission.bounty.token}
                           </div>
-                          {!pos.available && (
+                          {submission.position === pos.position && (
+                            <div className="mt-1 text-white/80 text-xs">
+                              Current position
+                            </div>
+                          )}
+                          {!pos.available && submission.position !== pos.position && (
                             <div className="mt-1 text-white/40 text-xs">
                               Already taken
                             </div>
                           )}
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="feedback">
-                      Feedback (Required for rejection)
-                    </Label>
-                    <Textarea
-                      className="mt-2 border-white/10 bg-white/5 text-white"
-                      id="feedback"
-                      onChange={(e) => setFeedback(e.target.value)}
-                      placeholder="Provide constructive feedback for the submitter..."
-                      rows={4}
-                      value={feedback}
-                    />
-                  </div>
                   <div className="flex gap-3">
                     <Button
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-[#E6007A] hover:bg-[#E6007A]/90"
                       disabled={actionLoading || selectedPosition === null}
-                      onClick={() => handleStatusUpdate("APPROVED")}
+                      onClick={() => handlePositionAssignment(selectedPosition)}
                     >
                       {actionLoading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
                         <Check className="mr-2 h-4 w-4" />
                       )}
-                      Select as Winner
+                      Save Position
                     </Button>
-                    <Button
-                      disabled={actionLoading}
-                      onClick={() => handleStatusUpdate("REJECTED")}
-                      variant="destructive"
-                    >
-                      {actionLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <X className="mr-2 h-4 w-4" />
-                      )}
-                      Reject Submission
-                    </Button>
+                    {submission.position !== null && (
+                      <Button
+                        className="border-white/20 text-white hover:bg-white/10"
+                        disabled={actionLoading}
+                        onClick={() => handlePositionAssignment(null)}
+                        variant="outline"
+                      >
+                        {actionLoading ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <X className="mr-2 h-4 w-4" />
+                        )}
+                        Clear Position
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Previous Decision */}
-            {(submission.status === "APPROVED" ||
-              submission.status === "REJECTED") &&
-              submission.feedback && (
-                <Card className="border-white/10 bg-white/5 backdrop-blur-md">
-                  <CardHeader>
-                    <CardTitle className="text-white">
-                      Review Decision
-                    </CardTitle>
-                    <CardDescription className="text-white/60">
-                      Reviewed on{" "}
-                      {submission.reviewedAt
-                        ? formatDate(submission.reviewedAt)
-                        : "N/A"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/80">{submission.feedback}</p>
-                  </CardContent>
-                </Card>
-              )}
+            {/* SPAM Marking */}
+            {submission.status === "SUBMITTED" && (
+              <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="text-white">Mark as SPAM</CardTitle>
+                  <CardDescription className="text-white/60">
+                    Mark this submission as SPAM if it's inappropriate or spam
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          className="bg-red-600 hover:bg-red-700"
+                          disabled={actionLoading || submission.position !== null}
+                          onClick={handleMarkAsSpam}
+                          variant="destructive"
+                        >
+                          {actionLoading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <X className="mr-2 h-4 w-4" />
+                          )}
+                          { "Mark as SPAM"}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {submission.position !== null && (
+                      <TooltipContent>
+                        <p>Cannot mark winners as SPAM. Clear position first.</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Winner Badge */}
+            {/* {submission.position !== null && (
+              <Card className="border-green-500/30 bg-green-500/10 backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Trophy className="h-5 w-5 text-green-400" />
+                    Winner - Position #{submission.position}
+                  </CardTitle>
+                  <CardDescription className="text-white/60">
+                    {submission.winningAmount && (
+                      <>
+                        Winning amount: {formatAmount(Number(submission.winningAmount))}{" "}
+                        {submission.bounty.token}
+                      </>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            )} */}
+
+            {/* SPAM Badge */}
+            {submission.status === "SPAM" && (
+              <Card className="border-red-500/30 bg-red-500/10 backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <X className="h-5 w-5 text-red-400" />
+                    Marked as SPAM
+                  </CardTitle>
+                  <CardDescription className="text-white/60">
+                    This submission has been marked as SPAM
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -459,10 +646,12 @@ export default function SubmissionReviewPage({
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   {submission.creator.image ? (
-                    <img
+                    <Image
                       alt={submission.creator.username}
                       className="h-12 w-12 rounded-full"
+                      height={48}
                       src={submission.creator.image}
+                      width={48}
                     />
                   ) : (
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
@@ -635,6 +824,59 @@ export default function SubmissionReviewPage({
           </div>
         </div>
       </div>
+
+      {/* Position Reassignment Confirmation Dialog */}
+      <AlertDialog open={showReassignDialog} onOpenChange={setShowReassignDialog}>
+        <AlertDialogContent className="border-white/10 bg-zinc-900">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              Reassign Position {pendingPosition}?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              Position {pendingPosition} is already assigned to{" "}
+              {conflictingSubmission?.username || "another submission"}. Reassigning
+              will clear the position from that submission and assign it to this one.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmPositionReassignment}
+              className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+            >
+              Reassign Position
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* SPAM Confirmation Dialog */}
+      <AlertDialog onOpenChange={setShowSpamDialog} open={showSpamDialog}>
+        <AlertDialogContent className="border-white/10 bg-zinc-900">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              Mark as SPAM?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              Are you sure you want to mark this submission as SPAM? This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmMarkAsSpam}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Mark as SPAM
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -10,14 +10,38 @@ export async function OPTIONS() {
   return NextResponse.json({});
 }
 
-// PATCH /api/v1/bounties/[id]/submissions/[submissionId]/review - Review submission
+/**
+ * SPAM Review Endpoint
+ * 
+ * PATCH /api/v1/bounties/[id]/submissions/[submissionId]/review
+ * 
+ * This endpoint handles marking submissions as SPAM (replaces the old REJECTED status).
+ * 
+ * KEY DESIGN DECISION: Winners (submissions with assigned positions) cannot be marked as SPAM.
+ * This prevents accidental marking of winners and ensures data integrity. To mark a winner
+ * as SPAM, the position must be cleared first using the /position endpoint.
+ * 
+ * SPAM Status:
+ * - Replaces the old REJECTED status
+ * - Used for inappropriate or spam submissions
+ * - SPAM submissions are hidden from public view (only visible to organization members)
+ * - SPAM submissions are excluded from winner displays and announcements
+ * 
+ * Winner Protection:
+ * - If submission has position !== null, return 400 error
+ * - Admin must clear position first, then mark as SPAM
+ * - This workflow prevents accidental marking of winners
+ * 
+ * @param request - Request body: { status: "SPAM" }
+ * @param params - Route parameters: { id: bountyId, submissionId }
+ * @returns Updated submission with status set to SPAM
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; submissionId: string }> }
 ) {
   try {
     const authHeaders = await headers();
-    let winningAmount = null;
     const sessionData = await auth.api.getSession({
       headers: authHeaders,
     });
@@ -27,13 +51,11 @@ export async function PATCH(
     }
 
     const reviewSchema = z.object({
-      status: z.enum(["APPROVED", "REJECTED", "UNDER_REVIEW"]),
-      feedback: z.string().optional(),
-      position: z.number().optional(),
+      status: z.literal("SPAM"), // Only SPAM status allowed
     });
 
     const body = await request.json();
-    const validatedData = reviewSchema.parse(body);
+    reviewSchema.parse(body); // Validate but don't need to store
 
     // Fetch submission to check permissions
     const submission = await database.submission.findUnique({
@@ -71,68 +93,29 @@ export async function PATCH(
       );
     }
 
-    // If selecting as winner, validate position
-    if (validatedData.status === "APPROVED") {
-      if (!validatedData.position) {
-        return NextResponse.json(
-          { error: "Position is required when selecting a winner" },
-          { status: 400 }
-        );
-      }
-
-      // Check if position is valid
-      // The bounty.winnings field is a JSON object like { "1": 8000, "2": 5000, "3": 2000 }
-      // We need to check if the validatedData.position exists as a key in this object.
-      const winningsObj = submission.bounty.winnings as Record<
-        string,
-        number
-      > | null;
-      const positionKey = String(validatedData.position);
-
-      winningAmount =
-        winningsObj && Object.hasOwn(winningsObj, positionKey)
-          ? winningsObj[positionKey]
-          : null;
-
-      if (winningAmount === null || typeof winningAmount !== "number") {
-        return NextResponse.json(
-          { error: "Invalid winner position" },
-          { status: 400 }
-        );
-      }
-
-      // Check if position is already taken
-      const existingWinner = await database.submission.findFirst({
-        where: {
-          bountyId: (await params).id,
-          status: "APPROVED",
-          position: validatedData.position,
-          NOT: {
-            id: (await params).submissionId,
-          },
+    // WINNER PROTECTION: Check if submission has a position assigned (is a winner)
+    // Winners cannot be marked as SPAM - must clear position first
+    // This prevents accidental marking of winners and ensures data integrity
+    // Workflow: Admin must first clear position using /position endpoint, then mark as SPAM
+    if (submission.position !== null) {
+      return NextResponse.json(
+        {
+          error:
+            "Cannot mark winner as SPAM - submission has position assigned. Clear position first.",
         },
-      });
-
-      if (existingWinner) {
-        return NextResponse.json(
-          { error: "This position is already taken by another submission" },
-          { status: 400 }
-        );
-      }
+        { status: 400 }
+      );
     }
 
-    // Update submission status
+    // Update submission status to SPAM
     const updatedSubmission = await database.submission.update({
       where: {
         id: (await params).submissionId,
       },
       data: {
-        status: validatedData.status as any,
-        notes: validatedData.feedback,
+        status: "SPAM",
         reviewedAt: new Date(),
-        position:
-          validatedData.status === "APPROVED" ? validatedData.position : null,
-        winningAmount,
+        // Do NOT change position or winningAmount
       },
       include: {
         bounty: {
@@ -152,11 +135,9 @@ export async function PATCH(
       },
     });
 
-    // TODO: Send email notification to submitter about the decision
-
     return NextResponse.json({
       submission: updatedSubmission,
-      message: `Submission ${validatedData.status.toLowerCase()} successfully`,
+      message: "Submission marked as SPAM successfully",
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -164,9 +145,9 @@ export async function PATCH(
       return NextResponse.json(formattedError, { status: 400 });
     }
 
-    console.error("Error reviewing submission:", error);
+    console.error("Error marking submission as SPAM:", error);
     return NextResponse.json(
-      { error: "Failed to review submission" },
+      { error: "Failed to mark submission as SPAM" },
       { status: 500 }
     );
   }

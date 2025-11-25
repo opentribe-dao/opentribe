@@ -160,7 +160,7 @@ export async function GET(
         submissions: {
           where: {
             status: {
-              in: ["SUBMITTED", "APPROVED", "REJECTED"],
+              notIn: ["DRAFT", "SPAM"],
             },
           },
           select: {

@@ -54,11 +54,11 @@ export async function PATCH(
       );
     }
 
-    // Find all approved submissions for this bounty
-    const approvedSubmissions = await database.submission.findMany({
+    // Find all submissions with positions assigned (winners) for this bounty
+    const winnerSubmissions = await database.submission.findMany({
       where: {
         bountyId,
-        status: "APPROVED",
+        position: { not: null },
       },
       select: {
         id: true,
@@ -76,43 +76,43 @@ export async function PATCH(
       },
     });
 
-    if (approvedSubmissions.length === 0) {
+    if (winnerSubmissions.length === 0) {
       return NextResponse.json({
-        message: "No approved submissions found to reset",
+        message: "No winner submissions found to reset",
         resetCount: 0,
       });
     }
 
-    // Reset all approved submissions to submitted status
+    // Reset all submissions with positions (clear positions, keep status)
     const resetResult = await database.submission.updateMany({
       where: {
         bountyId,
-        status: "APPROVED",
+        position: { not: null },
       },
       data: {
-        status: "SUBMITTED",
-        reviewedAt: new Date(),
         position: null,
         winningAmount: null,
         isWinner: false,
+        reviewedAt: new Date(),
+        // Keep existing status - don't change it
       },
     });
 
     // TODO: Send email notifications to all affected submitters
 
     return NextResponse.json({
-      message: `Successfully reset ${resetResult.count} approved submissions to submitted status`,
+      message: `Successfully reset ${resetResult.count} winner submissions`,
       resetCount: resetResult.count,
-      affectedSubmissions: approvedSubmissions.map((sub) => ({
+      affectedSubmissions: winnerSubmissions.map((sub) => ({
         id: sub.id,
         title: sub.title,
         submitter: sub.submitter,
       })),
     });
   } catch (error) {
-    console.error("Error resetting approved submissions:", error);
+    console.error("Error resetting winner submissions:", error);
     return NextResponse.json(
-      { error: "Failed to reset approved submissions" },
+      { error: "Failed to reset winner submissions" },
       { status: 500 }
     );
   }

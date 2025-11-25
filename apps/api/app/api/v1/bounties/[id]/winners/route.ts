@@ -104,12 +104,13 @@ export async function POST(
     }
 
     // Validate all submissions exist and belong to this bounty
+    // Winners are determined by position, not status
     const submissionIds = validatedData.winners.map((w) => w.submissionId);
     const submissions = await database.submission.findMany({
       where: {
         id: { in: submissionIds },
         bountyId,
-        status: "APPROVED",
+        status: { not: "SPAM" }, // Exclude SPAM submissions
       },
     });
 
@@ -117,7 +118,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "One or more submissions are invalid or not in submitted status",
+            "One or more submissions are invalid or marked as SPAM",
         },
         { status: 400 }
       );
@@ -151,8 +152,8 @@ export async function POST(
             position: winner.position,
             winningAmount: winner.amount,
             winnerUserId: submission.userId,
-            status: "APPROVED",
             reviewedAt: new Date(),
+            // Do NOT change status - keep existing status
           },
         });
       });

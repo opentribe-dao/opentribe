@@ -199,10 +199,7 @@ const ProfilePage = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "APPROVED":
-      case "WINNER":
-        return "bg-green-500/20 text-green-400 border-0";
-      case "REJECTED":
+      case "SPAM":
         return "bg-red-500/20 text-red-400 border-0";
       case "SUBMITTED":
       case "UNDER_REVIEW":

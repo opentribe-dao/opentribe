@@ -90,6 +90,32 @@ export async function GET(
       headers: authHeaders,
     });
 
+    // Check if submission is SPAM - only org members can view SPAM submissions
+    if (submission.status === "SPAM") {
+      if (!sessionData?.user) {
+        return NextResponse.json(
+          { error: "Submission not found" },
+          { status: 404 }
+        );
+      }
+
+      // Check if user has organization membership
+      const userMember = await database.member.findFirst({
+        where: {
+          organizationId: submission.bounty.organizationId,
+          userId: sessionData.user.id,
+        },
+      });
+
+      // Only organization members can view SPAM submissions
+      if (!userMember) {
+        return NextResponse.json(
+          { error: "Submission not found" },
+          { status: 404 }
+        );
+      }
+    }
+
     if (!isPublic) {
       if (!sessionData?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

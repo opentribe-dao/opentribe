@@ -599,8 +599,7 @@ enum GrantApplicationStatus {
 enum SubmissionStatus {
   DRAFT
   SUBMITTED
-  APPROVED
-  REJECTED
+  SPAM
   WITHDRAWN
 }
 

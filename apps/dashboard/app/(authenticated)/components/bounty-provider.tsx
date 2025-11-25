@@ -66,12 +66,14 @@ interface BountyContextType {
     bountyId: string,
     submissionId: string
   ) => Promise<any>;
-  updateSubmissionStatus: (
+  assignPosition: (
     bountyId: string,
     submissionId: string,
-    newStatus: "APPROVED" | "REJECTED",
-    feedback?: string,
-    position?: number
+    position: number | null
+  ) => Promise<boolean>;
+  markSubmissionAsSpam: (
+    bountyId: string,
+    submissionId: string
   ) => Promise<boolean>;
   resetSubmissionState: () => void;
   resetWinners: () => Promise<void>;
@@ -112,7 +114,8 @@ export function BountyProvider({
     selectedPosition,
     setSelectedPosition,
     fetchSubmissionDetails,
-    updateSubmissionStatus,
+    assignPosition,
+    markSubmissionAsSpam,
     resetSubmissionState,
   } = useSubmission();
 
@@ -360,7 +363,8 @@ export function BountyProvider({
         selectedPosition,
         setSelectedPosition,
         fetchSubmissionDetails,
-        updateSubmissionStatus,
+        assignPosition,
+        markSubmissionAsSpam,
         resetSubmissionState,
         resetWinners,
       }}

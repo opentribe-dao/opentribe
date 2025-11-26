@@ -93,12 +93,12 @@ export async function GET(
       database.submission.count({
         where: { bountyId: bounty.id, status: "SUBMITTED" as any },
       }),
-      // Winners determined by position assignment (not status)
       database.submission.count({
         where: { 
           bountyId: bounty.id, 
+          isWinner: true,
           position: { not: null },
-          status: { not: "SPAM" }, // Exclude SPAM from winners
+          status: "SUBMITTED", 
         },
       }),
       database.submission.count({

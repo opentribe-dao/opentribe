@@ -3,6 +3,7 @@ import { database } from "@packages/db";
 import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -37,17 +38,12 @@ export async function PATCH(
     }
 
     // Check if user has permission to manage submissions
-    const userMember = await database.member.findFirst({
-      where: {
-        organizationId: bounty.organizationId,
-        userId: sessionData.user.id,
-        role: {
-          in: ["owner", "admin"],
-        },
-      },
-    });
+    const orgAuth = await getOrganizationAuth(request, bounty.organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!userMember) {
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
       return NextResponse.json(
         { error: "You don't have permission to manage submissions" },
         { status: 403 }
@@ -58,6 +54,8 @@ export async function PATCH(
     const winnerSubmissions = await database.submission.findMany({
       where: {
         bountyId,
+        isWinner: true,
+        status: "SUBMITTED",
         position: { not: null },
       },
       select: {
@@ -87,6 +85,8 @@ export async function PATCH(
     const resetResult = await database.submission.updateMany({
       where: {
         bountyId,
+        isWinner: true,
+        status: "SUBMITTED",
         position: { not: null },
       },
       data: {
@@ -94,7 +94,6 @@ export async function PATCH(
         winningAmount: null,
         isWinner: false,
         reviewedAt: new Date(),
-        // Keep existing status - don't change it
       },
     });
 

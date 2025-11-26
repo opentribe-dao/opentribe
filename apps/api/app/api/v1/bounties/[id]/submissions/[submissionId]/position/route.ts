@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -69,6 +70,7 @@ async function handlePositionPatch(
       where: {
         id: submissionId,
         bountyId,
+        status: "SUBMITTED",
       },
       include: {
         bounty: true,
@@ -83,17 +85,15 @@ async function handlePositionPatch(
     }
 
     // Check if user has permission to assign positions
-    const userMember = await database.member.findFirst({
-      where: {
-        organizationId: submission.bounty.organizationId,
-        userId: sessionData.user.id,
-        role: {
-          in: ["owner", "admin"],
-        },
-      },
-    });
+    const orgAuth = await getOrganizationAuth(
+      request,
+      submission.bounty.organizationId
+    );
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!userMember) {
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
       return NextResponse.json(
         { error: "You don't have permission to assign positions" },
         { status: 403 }
@@ -114,6 +114,14 @@ async function handlePositionPatch(
       }
 
       winningAmount = validationResult.winningAmount;
+
+      // Validate that winningAmount is not null and greater than 0
+      if (winningAmount === null || winningAmount <= 0) {
+        return NextResponse.json(
+          { error: "Invalid winning amount: must be greater than 0" },
+          { status: 400 }
+        );
+      }
     }
 
     const { updatedSubmission, previousSubmissionId } =

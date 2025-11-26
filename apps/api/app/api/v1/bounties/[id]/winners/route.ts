@@ -110,7 +110,7 @@ export async function POST(
       where: {
         id: { in: submissionIds },
         bountyId,
-        status: { not: "SPAM" }, // Exclude SPAM submissions
+        status: "SUBMITTED", 
       },
     });
 
@@ -118,7 +118,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "One or more submissions are invalid or marked as SPAM",
+            "One or more submissions are invalid",
         },
         { status: 400 }
       );
@@ -153,7 +153,6 @@ export async function POST(
             winningAmount: winner.amount,
             winnerUserId: submission.userId,
             reviewedAt: new Date(),
-            // Do NOT change status - keep existing status
           },
         });
       });

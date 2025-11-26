@@ -137,6 +137,7 @@ export async function POST(
           position: null,
           winningAmount: null,
           winnerUserId: null,
+          winningAmountUSD: null,
         },
       });
 

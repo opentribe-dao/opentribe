@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -76,17 +77,17 @@ export async function PATCH(
     }
 
     // Check if user has permission to review submissions
-    const userMember = await database.member.findFirst({
-      where: {
-        organizationId: submission.bounty.organizationId,
-        userId: sessionData.user.id,
-        role: {
-          in: ["owner", "admin"],
-        },
-      },
-    });
-
-    if (!userMember) {
+    const orgAuth = await getOrganizationAuth(
+      request,
+      submission.bounty.organizationId
+    );
+    if (!orgAuth) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
       return NextResponse.json(
         { error: "You don't have permission to review submissions" },
         { status: 403 }

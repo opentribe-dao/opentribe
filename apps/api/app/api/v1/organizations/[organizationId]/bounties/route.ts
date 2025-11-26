@@ -120,6 +120,7 @@ export async function GET(
             isWinner: true,
             position: true,
             winningAmount: true,
+            winningAmountUSD: true,
             submitter: {
               select: {
                 id: true,
@@ -144,8 +145,8 @@ export async function GET(
       const winnersCount = bounty.submissions.filter((s) => s.isWinner).length;
       const maxWinners = Object.keys(bounty.winnings || {}).length;
       const totalDistributed = bounty.submissions
-        .filter((s) => s.isWinner && s.winningAmount)
-        .reduce((sum, s) => sum + Number(s.winningAmount), 0);
+        .filter((s) => s.isWinner && s.winningAmountUSD)
+        .reduce((sum, s) => sum + Number(s.winningAmountUSD || 0), 0);
 
       return {
         ...bounty,

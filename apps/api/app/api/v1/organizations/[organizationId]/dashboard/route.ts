@@ -114,14 +114,14 @@ export async function GET(
           isWinner: true,
           bounty: { organizationId },
         },
-        _sum: { winningAmount: true },
+        _sum: { winningAmountUSD: true },
       }),
       database.member.count({
         where: { organizationId },
       }),
     ]);
 
-    const totalAwarded = Number(totalAwardedAggregate._sum.winningAmount || 0);
+    const totalAwarded = Number(totalAwardedAggregate._sum.winningAmountUSD || 0);
 
     // Urgent actions data
     const now = new Date();

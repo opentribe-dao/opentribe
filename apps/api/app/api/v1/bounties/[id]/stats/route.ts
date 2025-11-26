@@ -2,6 +2,7 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { getOrganizationAuth } from "@/lib/organization-auth";
 
 // Response schema
 export interface BountyStats {
@@ -72,14 +73,8 @@ export async function GET(
     }
 
     // Organization membership check
-    const membership = await database.member.findFirst({
-      where: {
-        userId: sessionData.user.id,
-        organizationId: bounty.organizationId,
-      },
-    });
-
-    if (!membership) {
+    const orgAuth = await getOrganizationAuth(request, bounty.organizationId);
+    if (!orgAuth) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

@@ -328,6 +328,7 @@ model Submission {
   isPaid        Boolean?         @default(false)
   position      Int?
   winningAmount Decimal?
+  winningAmountUSD Decimal?
   winnerUserId  String?
   likesCount    Int              @default(0)
   viewCount     Int              @default(0)
@@ -346,6 +347,9 @@ model Submission {
   @@index([bountyId, status])
   @@index([userId])
   @@index([winnerUserId])
+  @@index([bountyId, isWinner, position, status])
+  @@index([bountyId, position])
+  @@index([userId, status])
   @@map("submission")
 }
 

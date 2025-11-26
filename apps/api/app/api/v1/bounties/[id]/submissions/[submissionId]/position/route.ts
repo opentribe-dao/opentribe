@@ -1,5 +1,6 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { exchangeRateService } from "@packages/polkadot/server";
 import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
@@ -124,12 +125,59 @@ async function handlePositionPatch(
       }
     }
 
+    // Calculate winningAmountUSD if we have a winningAmount
+    let winningAmountUSD: number | null = null;
+    if (winningAmount !== null) {
+      // Missing token means we can't convert to USD and should fail fast
+      if (!submission.bounty.token) {
+        return NextResponse.json(
+          {
+            error:
+              "Failed to fetch exchange rate for token. Please try again.",
+          },
+          { status: 500 }
+        );
+      }
+
+      try {
+        const token = submission.bounty.token.toUpperCase();
+        const exchangeRates = await exchangeRateService.getExchangeRates([
+          submission.bounty.token,
+        ]);
+        const rate = exchangeRates[token];
+
+        if (rate && rate > 0) {
+          winningAmountUSD = winningAmount * rate;
+        } else {
+          // If we can't get a valid exchange rate, fail the request
+          // This ensures data consistency - we don't want incomplete position assignments
+          return NextResponse.json(
+            {
+              error:
+                "Failed to fetch exchange rate for token. Please try again.",
+            },
+            { status: 500 }
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching exchange rate:", error);
+        return NextResponse.json(
+          {
+            error:
+              "Failed to fetch exchange rate for token. Please try again.",
+          },
+          { status: 500 }
+        );
+      }
+    }
+
     const { updatedSubmission, previousSubmissionId } =
       await runPositionTransaction({
         bountyId,
         submissionId,
         position: validatedData.position,
         winningAmount,
+        winningAmountUSD,
       });
 
     return NextResponse.json({
@@ -160,11 +208,13 @@ function runPositionTransaction({
   submissionId,
   position,
   winningAmount,
+  winningAmountUSD,
 }: {
   bountyId: string;
   submissionId: string;
   position: number | null;
   winningAmount: number | null;
+  winningAmountUSD: number | null;
 }) {
   return database.$transaction(async (tx) => {
     let displacedSubmissionId: string | null = null;
@@ -195,9 +245,8 @@ function runPositionTransaction({
           data: {
             position: null,
             winningAmount: null,
+            winningAmountUSD: null,
             isWinner: false,
-            // Note: Status is NOT changed - it remains SUBMITTED, SPAM, or WITHDRAWN
-            // Only position, payout data, and winner flag are cleared
           },
         });
       }
@@ -213,10 +262,8 @@ function runPositionTransaction({
       data: {
         position,
         winningAmount,
+        winningAmountUSD,
         isWinner: position !== null,
-        // Do NOT change status: keep existing status
-        // This separation allows submissions to be marked as SPAM or WITHDRAWN
-        // independently of their winner status
       },
       include: {
         bounty: {
@@ -264,10 +311,10 @@ function validateWinningAmount(
 
   const value = winningsObj?.[positionKey];
 
-  if (typeof value !== "number") {
+  if (typeof value !== "number" || value <= 0) {
     return {
       errorResponse: NextResponse.json(
-        { error: "Invalid winner position" },
+        { error: "Invalid winning amount: must be greater than 0" },
         { status: 400 }
       ),
     };

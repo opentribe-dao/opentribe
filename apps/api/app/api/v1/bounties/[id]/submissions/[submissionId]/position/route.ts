@@ -13,26 +13,26 @@ export async function OPTIONS() {
 
 /**
  * Position Assignment Endpoint
- * 
+ *
  * PATCH /api/v1/bounties/[id]/submissions/[submissionId]/position
- * 
+ *
  * This endpoint handles winner position assignment for bounty submissions.
- * 
+ *
  * KEY DESIGN DECISION: Winners are determined by position assignment ONLY, not by submission status.
  * The status field (SUBMITTED, SPAM, WITHDRAWN) is used for submission lifecycle management,
  * but has NO impact on winner selection. A submission with position !== null is a winner,
  * regardless of its status (except SPAM submissions are excluded from public winner displays).
- * 
+ *
  * Position Conflict Resolution:
  * - If a position is already assigned to another submission, it is automatically unassigned
  *   from that submission (position set to null, winningAmount set to null)
  * - The position is then assigned to the current submission
  * - This ensures only one submission can have a given position at any time
- * 
+ *
  * Important: This endpoint does NOT change submission status. Status remains unchanged
  * during position assignment/clearing. This separation allows for flexible workflows where
  * submissions can be marked as SPAM or WITHDRAWN independently of their winner status.
- * 
+ *
  * @param request - Request body: { position: number | null }
  * @param params - Route parameters: { id: bountyId, submissionId }
  * @returns Updated submission with position and winningAmount set
@@ -70,15 +70,13 @@ async function handlePositionPatch(
     const submission = await database.submission.findUnique({
       where: {
         id: submissionId,
-        bountyId,
-        status: "SUBMITTED",
       },
       include: {
         bounty: true,
       },
     });
 
-    if (!submission) {
+    if (!submission || submission.status !== "SUBMITTED") {
       return NextResponse.json(
         { error: "Submission not found" },
         { status: 404 }
@@ -132,8 +130,7 @@ async function handlePositionPatch(
       if (!submission.bounty.token) {
         return NextResponse.json(
           {
-            error:
-              "Failed to fetch exchange rate for token. Please try again.",
+            error: "Failed to fetch exchange rate for token. Please try again.",
           },
           { status: 500 }
         );
@@ -163,8 +160,7 @@ async function handlePositionPatch(
         console.error("Error fetching exchange rate:", error);
         return NextResponse.json(
           {
-            error:
-              "Failed to fetch exchange rate for token. Please try again.",
+            error: "Failed to fetch exchange rate for token. Please try again.",
           },
           { status: 500 }
         );
@@ -293,9 +289,7 @@ function runPositionTransaction({
 function validateWinningAmount(
   winningsObj: Record<string, number> | null,
   position: number
-):
-  | { winningAmount: number }
-  | { errorResponse: NextResponse } {
+): { winningAmount: number } | { errorResponse: NextResponse } {
   const positionKey = String(position);
   const hasPositionKey =
     winningsObj !== null && Object.hasOwn(winningsObj, positionKey);
@@ -335,4 +329,3 @@ function buildPositionMessage(
   }
   return `Position ${position} assigned successfully`;
 }
-

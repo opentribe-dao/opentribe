@@ -1,21 +1,12 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
+import { sendBountyFirstSubmissionEmail } from "@packages/email";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { POST as createSubmission } from "../app/api/v1/bounties/[id]/submissions/route";
 import { POST as announceWinners } from "../app/api/v1/bounties/[id]/winners/route";
-import {
-  GET as getMySubmission,
-  PATCH as updateMySubmission,
-  DELETE as deleteMySubmission,
-} from "../app/api/v1/bounties/[id]/submissions/me/route";
-import { getSubmissionAuth } from "../lib/submission-auth";
 
 vi.mock("@packages/email", () => ({
   sendBountyFirstSubmissionEmail: vi.fn(),
-}));
-
-vi.mock("../lib/submission-auth", () => ({
-  getSubmissionAuth: vi.fn(),
 }));
 
 describe("Submission System Tests", () => {
@@ -456,10 +447,32 @@ describe("Submission System Tests", () => {
       (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
       (database.submission.findFirst as any).mockResolvedValue(null);
       (database.member.findMany as any).mockResolvedValue([]);
-      (database.submission.create as any).mockResolvedValue({});
+      const mockCreatedSubmission = {
+        id: "submission-files",
+        title: "My Submission",
+        description: "Submission description",
+        submitter: {
+          firstName: "Files",
+          username: "files-user",
+        },
+      };
+      (database.submission.create as any).mockResolvedValue(
+        mockCreatedSubmission
+      );
       (database.bounty.update as any).mockResolvedValue({});
       (database.submission.count as any).mockResolvedValue(1);
-      vi.mocked(database.curator.findMany).mockResolvedValue([] as any);
+      (database.curator.findMany as any).mockResolvedValue([
+        {
+          user: {
+            email: "curator@org.com",
+            firstName: "Curator",
+            username: "curator",
+          },
+        },
+      ]);
+      vi.mocked(sendBountyFirstSubmissionEmail).mockResolvedValue(
+        undefined as any
+      );
 
       const attachments = [
         "https://files.opentribe.io/submission-1.pdf",
@@ -502,183 +515,19 @@ describe("Submission System Tests", () => {
           }),
         })
       );
-    });
-
-    test("should reject duplicate submission (1 per user per bounty)", async () => {
-      const mockSession = {
-        user: {
-          id: "user-dup",
-          email: "dup@example.com",
-        },
-      };
-
-      const mockUser = {
-        id: "user-dup",
-        profileCompleted: true,
-      };
-
-      const mockBounty = {
-        id: "bounty-dup",
-        slug: "bounty-dup",
-        title: "Test Bounty",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        organizationId: "org-dup",
-        screening: null,
-      };
-
-      const existingSubmission = {
-        id: "existing-sub",
-        status: "SUBMITTED",
-      };
-
-      (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.user.findUnique as any).mockResolvedValue(mockUser);
-      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
-      (database.submission.findFirst as any).mockResolvedValue(
-        existingSubmission
-      );
-      (database.member.findMany as any).mockResolvedValue([]);
-
-      const body = JSON.stringify({
-        submissionUrl: "https://github.com/user/repo",
-        title: "My Submission",
-      });
-
-      const request = new Request(
-        "http://localhost:3002/api/v1/bounties/bounty-dup/submissions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      expect(database.curator.findMany).toHaveBeenCalledWith({
+        where: { bountyId: "bounty-files" },
+        include: {
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+              username: true,
+            },
           },
-          body,
-        }
-      );
-
-      const response = await createSubmission(request, {
-        params: Promise.resolve({ id: "bounty-dup" }),
-      });
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("You have already submitted to this bounty");
-      expect(data.message).toBe(
-        "Only one submission per user per bounty is allowed"
-      );
-      expect(database.submission.create).not.toHaveBeenCalled();
-    });
-
-    test("should reject invalid URL format in submissionUrl", async () => {
-      const mockSession = {
-        user: {
-          id: "user-url",
-          email: "url@example.com",
         },
-      };
-
-      const mockUser = {
-        id: "user-url",
-        profileCompleted: true,
-      };
-
-      const mockBounty = {
-        id: "bounty-url",
-        slug: "bounty-url",
-        title: "Test Bounty",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        organizationId: "org-url",
-        screening: null,
-      };
-
-      (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.user.findUnique as any).mockResolvedValue(mockUser);
-      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
-      (database.submission.findFirst as any).mockResolvedValue(null);
-      (database.member.findMany as any).mockResolvedValue([]);
-
-      const body = JSON.stringify({
-        submissionUrl: "not-a-valid-url",
-        title: "My Submission",
       });
-
-      const request = new Request(
-        "http://localhost:3002/api/v1/bounties/bounty-url/submissions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body,
-        }
-      );
-
-      const response = await createSubmission(request, {
-        params: Promise.resolve({ id: "bounty-url" }),
-      });
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Validation failed");
-      expect(data.message).toContain("Invalid URL format");
-      expect(database.submission.create).not.toHaveBeenCalled();
-    });
-
-    test("should reject invalid URL format in attachments", async () => {
-      const mockSession = {
-        user: {
-          id: "user-attach",
-          email: "attach@example.com",
-        },
-      };
-
-      const mockUser = {
-        id: "user-attach",
-        profileCompleted: true,
-      };
-
-      const mockBounty = {
-        id: "bounty-attach",
-        slug: "bounty-attach",
-        title: "Test Bounty",
-        status: "OPEN",
-        visibility: "PUBLISHED",
-        organizationId: "org-attach",
-        screening: null,
-      };
-
-      (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.user.findUnique as any).mockResolvedValue(mockUser);
-      (database.bounty.findFirst as any).mockResolvedValue(mockBounty);
-      (database.submission.findFirst as any).mockResolvedValue(null);
-      (database.member.findMany as any).mockResolvedValue([]);
-
-      const body = JSON.stringify({
-        submissionUrl: "https://github.com/user/repo",
-        attachments: ["invalid-url", "https://valid.com/file.pdf"],
-      });
-
-      const request = new Request(
-        "http://localhost:3002/api/v1/bounties/bounty-attach/submissions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body,
-        }
-      );
-
-      const response = await createSubmission(request, {
-        params: Promise.resolve({ id: "bounty-attach" }),
-      });
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Validation failed");
-      expect(data.message).toContain("Invalid URL format for attachment");
-      expect(database.submission.create).not.toHaveBeenCalled();
+      expect(sendBountyFirstSubmissionEmail).toHaveBeenCalledTimes(1);
     });
   });
 

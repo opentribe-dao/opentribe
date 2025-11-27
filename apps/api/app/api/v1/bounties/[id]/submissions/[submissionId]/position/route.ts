@@ -76,7 +76,11 @@ async function handlePositionPatch(
       },
     });
 
-    if (!submission || submission.status !== "SUBMITTED") {
+    if (
+      !submission ||
+      submission.bountyId !== bountyId ||
+      submission.status !== "SUBMITTED"
+    ) {
       return NextResponse.json(
         { error: "Submission not found" },
         { status: 404 }

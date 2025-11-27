@@ -18,9 +18,14 @@ interface TimelineCardProps {
     field: K,
     value: BountyDetails[K]
   ) => void;
+  isLocked?: boolean;
 }
 
-export function TimelineCard({ formData, updateFormData }: TimelineCardProps) {
+export function TimelineCard({
+  formData,
+  updateFormData,
+  isLocked = false,
+}: TimelineCardProps) {
   return (
     <Card className="border-white/10 bg-white/10 backdrop-blur-[10px]">
       <CardHeader>
@@ -38,7 +43,8 @@ export function TimelineCard({ formData, updateFormData }: TimelineCardProps) {
             Deadline
           </Label>
           <Input
-            className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
+            className={`border-white/10 bg-white/5 text-white placeholder:text-white/40 ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}
+            disabled={isLocked}
             id="deadline"
             onChange={(e) => updateFormData("deadline", e.target.value)}
             type="datetime-local"

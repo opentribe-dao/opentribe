@@ -349,6 +349,21 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = updateBountySchema.parse(body);
 
+    // If curator (not admin/owner) and bounty is CLOSED, prevent editing critical fields
+    if (!isOwnerOrAdmin && isCurator && bounty.status === "CLOSED") {
+      if (
+        validatedData.amount !== undefined ||
+        validatedData.token !== undefined ||
+        validatedData.split !== undefined ||
+        validatedData.winnings !== undefined
+      ) {
+        return NextResponse.json(
+          { error: "Curators cannot edit financial details of a closed bounty" },
+          { status: 403 }
+        );
+      }
+    }
+
     // Prepare update data
     const updateData: Prisma.BountyUpdateInput = {};
 

@@ -360,16 +360,33 @@ export default function BountyDetailPage({
                 <p className="mb-4 text-sm text-white/60">
                   Have questions about this listing?
                 </p>
-                <Button
-                  asChild
-                  className="bg-[#E6007A] px-6 text-white hover:bg-[#FF1493]"
-                >
-                  <a
-                    href={`mailto:${bounty.curators[0].contact || bounty.curators[0].user.email}`}
+                {(bounty.curators[0].contact || bounty.curators[0].user.email) && (
+                  <Button
+                    asChild
+                    className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
                   >
-                    Reach Out
-                  </a>
-                </Button>
+                    <a
+                      href={`mailto:${bounty.curators[0].contact || bounty.curators[0].user.email}`}
+                    >
+                      Reach out via email
+                    </a>
+                  </Button>
+                )}
+                {!(bounty.curators[0].contact || bounty.curators[0].user.email) &&
+                  bounty.curators[0].user.telegram && (
+                    <Button
+                      asChild
+                      className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
+                    >
+                      <a
+                        href={`https://t.me/${bounty.curators[0].user.telegram.replace("@", "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Reach out on Telegram
+                      </a>
+                    </Button>
+                  )}
               </div>
             )}
 

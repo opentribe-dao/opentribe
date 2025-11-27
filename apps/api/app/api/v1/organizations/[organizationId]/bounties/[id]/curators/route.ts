@@ -98,11 +98,19 @@ export async function POST(
         OR: [{ id: bountyId }, { slug: bountyId }],
         organizationId,
       },
-      select: { id: true },
+      select: { id: true, status: true },
     });
 
     if (!bounty) {
       return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
+    }
+
+    // Disable adding curators if bounty is completed
+    if (bounty.status === "COMPLETED") {
+      return NextResponse.json(
+        { error: "Cannot add curators to a completed bounty" },
+        { status: 400 }
+      );
     }
 
     // Verify the user to be added is a member of the organization

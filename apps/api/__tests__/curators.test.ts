@@ -1,10 +1,8 @@
 import { database } from "@packages/db";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import {
-  GET as getCurators,
-  POST as addCurator,
-} from "../app/api/v1/organizations/[organizationId]/bounties/[id]/curators/route";
+import { GET as getCurators } from "../app/api/v1/bounties/[id]/curators/route";
+import { POST as addCurator } from "../app/api/v1/organizations/[organizationId]/bounties/[id]/curators/route";
 import { DELETE as removeCurator } from "../app/api/v1/organizations/[organizationId]/bounties/[id]/curators/[curatorId]/route";
 import { getOrganizationAuth } from "../lib/organization-auth";
 
@@ -50,9 +48,9 @@ describe("Curators API", () => {
   });
 
   // ==========================================================================
-  // GET /api/v1/organizations/[organizationId]/bounties/[id]/curators
+  // GET /api/v1/bounties/[id]/curators
   // ==========================================================================
-  describe("GET /api/v1/organizations/[organizationId]/bounties/[id]/curators", () => {
+  describe("GET /api/v1/bounties/[id]/curators", () => {
     test("should return list of curators for a bounty", async () => {
       // Arrange
       const mockBounty = {
@@ -97,10 +95,10 @@ describe("Curators API", () => {
 
       // Act
       const request = new NextRequest(
-        "http://localhost:3002/api/v1/organizations/org-1/bounties/bounty-1/curators"
+        "http://localhost:3002/api/v1/bounties/bounty-1/curators"
       );
       const response = await getCurators(request, {
-        params: Promise.resolve({ organizationId: "org-1", id: "bounty-1" }),
+        params: Promise.resolve({ id: "bounty-1" }),
       });
       const data = await response.json();
 
@@ -112,7 +110,7 @@ describe("Curators API", () => {
       expect(database.bounty.findFirst).toHaveBeenCalledWith({
         where: {
           OR: [{ id: "bounty-1" }, { slug: "bounty-1" }],
-          organizationId: "org-1",
+          visibility: "PUBLISHED",
         },
         select: { id: true },
       });
@@ -127,10 +125,10 @@ describe("Curators API", () => {
 
       // Act
       const request = new NextRequest(
-        "http://localhost:3002/api/v1/organizations/org-1/bounties/bounty-1/curators"
+        "http://localhost:3002/api/v1/bounties/bounty-1/curators"
       );
       const response = await getCurators(request, {
-        params: Promise.resolve({ organizationId: "org-1", id: "bounty-1" }),
+        params: Promise.resolve({ id: "bounty-1" }),
       });
       const data = await response.json();
 
@@ -145,11 +143,10 @@ describe("Curators API", () => {
 
       // Act
       const request = new NextRequest(
-        "http://localhost:3002/api/v1/organizations/org-1/bounties/non-existent/curators"
+        "http://localhost:3002/api/v1/bounties/non-existent/curators"
       );
       const response = await getCurators(request, {
         params: Promise.resolve({
-          organizationId: "org-1",
           id: "non-existent",
         }),
       });
@@ -185,11 +182,10 @@ describe("Curators API", () => {
 
       // Act
       const request = new NextRequest(
-        "http://localhost:3002/api/v1/organizations/org-1/bounties/my-bounty-slug/curators"
+        "http://localhost:3002/api/v1/bounties/my-bounty-slug/curators"
       );
       const response = await getCurators(request, {
         params: Promise.resolve({
-          organizationId: "org-1",
           id: "my-bounty-slug",
         }),
       });
@@ -199,7 +195,7 @@ describe("Curators API", () => {
       expect(database.bounty.findFirst).toHaveBeenCalledWith({
         where: {
           OR: [{ id: "my-bounty-slug" }, { slug: "my-bounty-slug" }],
-          organizationId: "org-1",
+          visibility: "PUBLISHED",
         },
         select: { id: true },
       });
@@ -213,10 +209,10 @@ describe("Curators API", () => {
 
       // Act
       const request = new NextRequest(
-        "http://localhost:3002/api/v1/organizations/org-1/bounties/bounty-1/curators"
+        "http://localhost:3002/api/v1/bounties/bounty-1/curators"
       );
       const response = await getCurators(request, {
-        params: Promise.resolve({ organizationId: "org-1", id: "bounty-1" }),
+        params: Promise.resolve({ id: "bounty-1" }),
       });
       const data = await response.json();
 
@@ -486,7 +482,81 @@ describe("Curators API", () => {
 
       // Assert
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Cannot add curators to a completed bounty");
+      expect(data.error).toBe(
+        "Cannot add curators to a bounty that is completed, closed, or cancelled"
+      );
+    });
+
+    test("should return 400 when bounty is closed", async () => {
+      // Arrange
+      const mockBounty = { id: "bounty-1", status: "CLOSED" };
+
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: "admin-user",
+        organizationId: "org-1",
+        membership: {
+          id: "admin-member",
+          userId: "admin-user",
+          organizationId: "org-1",
+          role: "owner",
+        },
+      } as any);
+      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
+
+      // Act
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/bounties/bounty-1/curators",
+        {
+          method: "POST",
+          body: JSON.stringify({ userId: "user-to-add" }),
+        }
+      );
+      const response = await addCurator(request, {
+        params: Promise.resolve({ organizationId: "org-1", id: "bounty-1" }),
+      });
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe(
+        "Cannot add curators to a bounty that is completed, closed, or cancelled"
+      );
+    });
+
+    test("should return 400 when bounty is cancelled", async () => {
+      // Arrange
+      const mockBounty = { id: "bounty-1", status: "CANCELLED" };
+
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: "admin-user",
+        organizationId: "org-1",
+        membership: {
+          id: "admin-member",
+          userId: "admin-user",
+          organizationId: "org-1",
+          role: "owner",
+        },
+      } as any);
+      vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
+
+      // Act
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/organizations/org-1/bounties/bounty-1/curators",
+        {
+          method: "POST",
+          body: JSON.stringify({ userId: "user-to-add" }),
+        }
+      );
+      const response = await addCurator(request, {
+        params: Promise.resolve({ organizationId: "org-1", id: "bounty-1" }),
+      });
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe(
+        "Cannot add curators to a bounty that is completed, closed, or cancelled"
+      );
     });
 
     test("should return 400 when user is not a member of organization", async () => {
@@ -603,7 +673,9 @@ describe("Curators API", () => {
 
       // Assert
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid input");
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toBeDefined();
+      expect(data.details).toBeDefined();
     });
 
     test("should return 400 for invalid input (empty userId)", async () => {
@@ -634,7 +706,9 @@ describe("Curators API", () => {
 
       // Assert
       expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid input");
+      expect(data.error).toBe("Validation failed");
+      expect(data.message).toBeDefined();
+      expect(data.details).toBeDefined();
     });
 
     test("should handle database errors gracefully", async () => {
@@ -1015,4 +1089,3 @@ describe("Curators API", () => {
     });
   });
 });
-

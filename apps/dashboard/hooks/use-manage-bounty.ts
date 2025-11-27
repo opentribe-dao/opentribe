@@ -85,11 +85,11 @@ export function useBountyCurators(
   const { refreshBounty } = useBountyContext();
 
   const { data: curators, isLoading } = useQuery({
-    queryKey: ["bounty-curators", organizationId, bountyId],
+    queryKey: ["bounty-curators", bountyId],
     queryFn: async () => {
-      if (!organizationId || !bountyId) return [];
+      if (!bountyId) return [];
       const res = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bountyId}/curators`,
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/curators`,
         { credentials: "include" }
       );
       if (!res.ok) throw new Error("Failed to fetch curators");
@@ -106,7 +106,7 @@ export function useBountyCurators(
         };
       }>;
     },
-    enabled: !!organizationId && !!bountyId,
+    enabled: !!bountyId,
   });
 
   const addCuratorMutation = useMutation({

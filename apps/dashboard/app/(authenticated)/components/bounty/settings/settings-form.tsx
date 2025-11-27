@@ -1,6 +1,7 @@
 "use client";
 
 import type { BountyDetails } from "@/hooks/use-bounty";
+import { CuratorsCard } from "./curators-card";
 import { DangerZoneCard } from "./danzer-zone-card";
 import { PrizeDistributionCard } from "./prize-distribution-card";
 import { StatusVisibilityCard } from "./status-visibility-card";
@@ -47,6 +48,7 @@ export function BountySettingsForm({
           formData={formData}
           updateFormData={updateFormData}
         />
+        <CuratorsCard bounty={bounty} />
         <DangerZoneCard
           onDelete={onDelete}
           onToggleDeleteConfirm={onToggleDeleteConfirm}

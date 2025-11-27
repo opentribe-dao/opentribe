@@ -20,6 +20,35 @@ import { env } from "@/env";
 import { BountyContent } from "./bounty-content";
 import { CommentSection } from "./comment-section";
 
+interface Bounty {
+  id: string;
+  title: string;
+  deadline: string | null;
+  amount: number | null;
+  token: string;
+  winnings: any;
+  status: string;
+  userSubmissionId?: string | null;
+  canSubmit?: boolean;
+  winnersAnnouncedAt?: string | null;
+  skills: string[];
+  organization: {
+    name: string;
+    logo: string | null;
+  };
+  _count: {
+    submissions: number;
+  };
+  submissions: any[];
+  curators?: Array<{
+    contact: string | null;
+    user: {
+      email: string | null;
+      telegram: string | null;
+    };
+  }>;
+}
+
 async function getBounty(id: string) {
   const apiUrl = env.NEXT_PUBLIC_API_URL;
   try {
@@ -29,7 +58,9 @@ async function getBounty(id: string) {
     });
 
     if (!res.ok) {
-      console.error(`API error: ${res.status} ${res.statusText} for bounty ${id}`);
+      console.error(
+        `API error: ${res.status} ${res.statusText} for bounty ${id}`
+      );
       return null;
     }
 
@@ -45,15 +76,71 @@ async function getBounty(id: string) {
   }
 }
 
+const ActionButton = ({
+  bounty,
+  bountyId,
+}: {
+  bounty: Bounty;
+  bountyId: string;
+}) => {
+  const router = useRouter();
+  const hasDeadlineExpired = bounty.deadline
+    ? new Date() > new Date(bounty.deadline)
+    : false;
+
+  if (bounty.userSubmissionId) {
+    return (
+      <Button
+        className="w-full bg-pink-600 text-white hover:bg-pink-700"
+        disabled={false}
+        onClick={() =>
+          router.push(
+            `/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`
+          )
+        }
+      >
+        View Submission
+      </Button>
+    );
+  }
+
+  if (bounty.status !== "OPEN") {
+    let buttonText = "Submission Closed";
+    if (bounty.winnersAnnouncedAt) {
+      buttonText = "Winners Announced";
+    } else if (hasDeadlineExpired) {
+      buttonText = "Deadline Expired";
+    }
+
+    return (
+      <Button
+        className="w-full bg-pink-600 text-white hover:bg-pink-700"
+        disabled={true}
+      >
+        {buttonText}
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      className="w-full bg-pink-600 text-white hover:bg-pink-700"
+      disabled={bounty.canSubmit === false}
+      onClick={() => router.push(`/bounties/${bountyId}/submit`)}
+    >
+      Submit Now
+    </Button>
+  );
+};
+
 export default function BountyDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const [bounty, setBounty] = useState<any | null>(null);
+  const [bounty, setBounty] = useState<Bounty | null>(null);
   const [loading, setLoading] = useState(true);
   const [bountyId, setBountyId] = useState<string | null>(null);
-  const router = useRouter();
 
   // Countdown string for the deadline
   const { formatted: countdownFormatted } = useCountdown(
@@ -71,7 +158,9 @@ export default function BountyDetailPage({
 
   // Fetch bounty when we have the ID
   useEffect(() => {
-    if (!bountyId) return;
+    if (!bountyId) {
+      return;
+    }
 
     const fetchBounty = async () => {
       try {
@@ -126,63 +215,6 @@ export default function BountyDetailPage({
     Number(bounty.amount) ||
     0;
 
-  const renderActionButton = () => {
-    if (!bounty) {
-      return null;
-    }
-
-    const hasDeadlineExpired = bounty.deadline
-      ? new Date() > new Date(bounty.deadline)
-      : false;
-
-    switch (true) {
-      case !!bounty.userSubmissionId:
-        return (
-          <Button
-            className="w-full bg-pink-600 text-white hover:bg-pink-700"
-            disabled={false}
-            onClick={() =>
-              router.push(
-                `/bounties/${bountyId}/submissions/${bounty.userSubmissionId}`
-              )
-            }
-          >
-            View Submission
-          </Button>
-        );
-      case bounty.status !== "OPEN": {
-        const buttonText = (() => {
-          switch (true) {
-            case !!bounty.winnersAnnouncedAt:
-              return "Winners Announced";
-            case hasDeadlineExpired:
-              return "Deadline Expired";
-            default:
-              return "Submission Closed";
-          }
-        })();
-        return (
-          <Button
-            className="w-full bg-pink-600 text-white hover:bg-pink-700"
-            disabled={true}
-          >
-            {buttonText}
-          </Button>
-        );
-      }
-      default:
-        return (
-          <Button
-            className="w-full bg-pink-600 text-white hover:bg-pink-700"
-            disabled={bounty.canSubmit === false}
-            onClick={() => router.push(`/bounties/${bountyId}/submit`)}
-          >
-            Submit Now
-          </Button>
-        );
-    }
-  };
-
   return (
     <div className="min-h-screen">
       {/* Glass Header Card */}
@@ -192,7 +224,7 @@ export default function BountyDetailPage({
             <div className="items-start justify-between md:flex">
               <div className="items-start gap-6 md:flex">
                 {/* Organization Logo */}
-                <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-pink-400 to-purple-500">
+                <div className="relative h-20 w-20 overflow-hidden rounded-full bg-linear-to-br from-pink-400 to-purple-500">
                   {bounty.organization.logo ? (
                     <Image
                       alt={bounty.organization.name}
@@ -231,9 +263,11 @@ export default function BountyDetailPage({
 
               {/* Actions */}
               <div className="mt-4 grid grid-cols-2 gap-4 md:mt-0">
-                <ShareButton url={`/bounties/${bountyId}`} />
+                {bountyId && <ShareButton url={`/bounties/${bountyId}`} />}
 
-                {renderActionButton()}
+                {bountyId && (
+                  <ActionButton bounty={bounty} bountyId={bountyId} />
+                )}
               </div>
             </div>
           </div>
@@ -273,10 +307,13 @@ export default function BountyDetailPage({
               <h3 className="mb-2 flex items-center gap-2 font-medium text-white/60 text-xl">
                 {getTokenLogo(bounty.token) ? (
                   // Show token logo if available
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     alt={bounty.token || "Token"}
                     className="h-7 w-7 rounded-full bg-white/10 object-contain"
                     src={getTokenLogo(bounty.token) || ""}
+                    width={28}
+                    height={28}
                   />
                 ) : (
                   <DollarSign className="h-7 w-7 rounded-full border border-white/20 bg-[#DBE7FF] p-1 text-black" />
@@ -315,6 +352,26 @@ export default function BountyDetailPage({
                 </div>
               )}
             </div>
+
+            {/* Contact Card */}
+            {bounty.curators && bounty.curators.length > 0 && (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                <h3 className="mb-4 font-bold font-heading text-xl">Contact</h3>
+                <p className="mb-4 text-sm text-white/60">
+                  Have questions about this listing?
+                </p>
+                <Button
+                  asChild
+                  className="bg-[#E6007A] px-6 text-white hover:bg-[#FF1493]"
+                >
+                  <a
+                    href={`mailto:${bounty.curators[0].contact || bounty.curators[0].user.email}`}
+                  >
+                    Reach Out
+                  </a>
+                </Button>
+              </div>
+            )}
 
             {/* Submissions Info */}
             <div className="flex justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6 align-center backdrop-blur-sm">
@@ -382,7 +439,7 @@ export default function BountyDetailPage({
                         key={submission.id}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-orange-500">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-yellow-400 to-orange-500">
                             <span className="font-bold text-xs">
                               {submission.position || "1"}
                             </span>
@@ -431,7 +488,7 @@ export default function BountyDetailPage({
                         key={submission.id}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600">
+                          <div className="h-8 w-8 rounded-full bg-linear-to-br from-pink-500 to-purple-600">
                             {submission.submitter.image ? (
                               <Image
                                 alt="Submitter"

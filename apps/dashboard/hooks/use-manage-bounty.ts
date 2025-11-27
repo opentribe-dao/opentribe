@@ -78,6 +78,103 @@ export function useBountySkills() {
   });
 }
 
+export function useBountyCurators(
+  organizationId: string | undefined,
+  bountyId: string | undefined
+) {
+  const { refreshBounty } = useBountyContext();
+
+  const { data: curators, isLoading } = useQuery({
+    queryKey: ["bounty-curators", organizationId, bountyId],
+    queryFn: async () => {
+      if (!organizationId || !bountyId) return [];
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bountyId}/curators`,
+        { credentials: "include" }
+      );
+      if (!res.ok) throw new Error("Failed to fetch curators");
+      const data = await res.json();
+      return data.curators as Array<{
+        id: string;
+        userId: string;
+        user: {
+          id: string;
+          name: string | null;
+          email: string | null;
+          image: string | null;
+          username: string | null;
+        };
+      }>;
+    },
+    enabled: !!organizationId && !!bountyId,
+  });
+
+  const addCuratorMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      if (!organizationId || !bountyId) throw new Error("Missing params");
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bountyId}/curators`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to add curator");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success("Curator added successfully");
+      refreshBounty();
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add curator"
+      );
+    },
+  });
+
+  const removeCuratorMutation = useMutation({
+    mutationFn: async (curatorId: string) => {
+      if (!organizationId || !bountyId) throw new Error("Missing params");
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bountyId}/curators/${curatorId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to remove curator");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success("Curator removed successfully");
+      refreshBounty();
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to remove curator"
+      );
+    },
+  });
+
+  return {
+    curators,
+    isLoading,
+    addCurator: addCuratorMutation.mutate,
+    isAdding: addCuratorMutation.isPending,
+    removeCurator: removeCuratorMutation.mutate,
+    isRemoving: removeCuratorMutation.isPending,
+  };
+}
+
 export function useBountySettings(bounty: BountyDetails | undefined) {
   const { refreshBounty } = useBountyContext();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

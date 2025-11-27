@@ -75,6 +75,23 @@ type BountyWithRelations = Prisma.BountyGetPayload<{
         };
       };
     };
+    curators: {
+      include: {
+        user: {
+          select: {
+            id: true;
+            name: true;
+            email: true;
+            image: true;
+            username: true;
+            twitter: true;
+            telegram: true;
+            linkedin: true;
+            github: true;
+          };
+        };
+      };
+    };
   };
 }>;
 
@@ -185,6 +202,26 @@ export async function GET(
             createdAt: "desc",
           },
           take: 5,
+        },
+        curators: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                username: true,
+                twitter: true,
+                telegram: true,
+                linkedin: true,
+                github: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
         },
       },
     });

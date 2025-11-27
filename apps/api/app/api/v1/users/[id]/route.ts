@@ -39,7 +39,45 @@ export async function GET(
 
     const { id: idOrUsername } = await params;
 
+    // First, get the user to check if it's own profile
+    const userForCheck = await database.user.findFirst({
+      where: {
+        OR: [
+          { id: idOrUsername },
+          {
+            username: {
+              equals: idOrUsername,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        private: true,
+      },
+    });
+
+    if (!userForCheck) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Check if the requesting user can view this profile
+    const isOwnProfile = sessionData?.user?.id === userForCheck.id;
+    const isPublicProfile = !userForCheck.private;
+
+    if (!(isOwnProfile || isPublicProfile)) {
+      // Return limited data for private profiles
+      return NextResponse.json({
+        user: {
+          id: userForCheck.id,
+          private: true,
+        },
+      });
+    }
+
     // Get user with all relevant relations (by id OR username)
+    // For own profile, show all submissions/applications regardless of status
     const user = await database.user.findFirst({
       where: {
         OR: [
@@ -59,11 +97,7 @@ export async function GET(
           },
         },
         applications: {
-          where: {
-            status: {
-              not: "DRAFT",
-            },
-          },
+          where: isOwnProfile ? {} : { status: { not: "DRAFT" } },
           orderBy: {
             createdAt: "desc",
           },
@@ -77,11 +111,7 @@ export async function GET(
           },
         },
         submissions: {
-          where: {
-            status: {
-              not: "DRAFT",
-            },
-          },
+          where: isOwnProfile ? {} : { status: { not: "DRAFT" } },
           orderBy: {
             createdAt: "desc",
           },
@@ -111,24 +141,6 @@ export async function GET(
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // Check if the requesting user can view this profile
-    const isOwnProfile = sessionData?.user?.id === user.id;
-    const isPublicProfile = !user.private;
-
-    if (!(isOwnProfile || isPublicProfile)) {
-      // Return limited data for private profiles
-      return NextResponse.json({
-        user: {
-          id: user.id,
-          name: user.name,
-          username: user.username,
-          image: user.image,
-          headline: user.headline,
-          private: true,
-        },
-      });
     }
 
     // Remove sensitive fields

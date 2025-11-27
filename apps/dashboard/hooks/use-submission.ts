@@ -4,12 +4,14 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
 
-export interface SubmissionDetails {
+export type SubmissionDetails = {
   id: string;
   title?: string;
   description?: string;
   submissionUrl?: string;
   status: string;
+  position: number | null;
+  winningAmount: number | null;
   submittedAt: string;
   reviewedAt?: string;
   feedback?: string;
@@ -93,14 +95,48 @@ export function useSubmission() {
     []
   );
 
-  const updateSubmissionStatus = useCallback(
-    async (
-      bountyId: string,
-      submissionId: string,
-      newStatus: "APPROVED" | "REJECTED",
-      feedback?: string,
-      position?: number
-    ) => {
+  const assignPosition = useCallback(
+    async (bountyId: string, submissionId: string, position: number | null) => {
+      try {
+        setActionLoading(true);
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}/position`,
+          {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ position }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to assign position");
+        }
+
+        toast.success(
+          position
+            ? `Position ${position} assigned successfully`
+            : "Position cleared successfully"
+        );
+        return true;
+      } catch (error) {
+        console.error("Error assigning position:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to assign position";
+        toast.error(errorMessage);
+        throw error;
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    []
+  );
+
+  const markSubmissionAsSpam = useCallback(
+    async (bountyId: string, submissionId: string) => {
       try {
         setActionLoading(true);
         const response = await fetch(
@@ -111,23 +147,70 @@ export function useSubmission() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              status: newStatus,
-              feedback: feedback || undefined,
-              position: newStatus === "APPROVED" ? position : undefined,
-            }),
+            body: JSON.stringify({ status: "SPAM" }),
           }
         );
 
         if (!response.ok) {
-          throw new Error("Failed to update submission status");
+          const errorData = await response.json().catch(() => ({}));
+          if (
+            response.status === 400 &&
+            errorData.error?.includes("winner")
+          ) {
+            throw new Error(
+              "Cannot mark winner as SPAM. Clear position first."
+            );
+          }
+          throw new Error(errorData.error || "Failed to mark submission as SPAM");
         }
 
-        toast.success(`Submission ${newStatus.toLowerCase()} successfully`);
+        toast.success("Submission marked as SPAM");
         return true;
       } catch (error) {
-        console.error("Error updating submission:", error);
-        toast.error("Failed to update submission status");
+        console.error("Error marking submission as SPAM:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to mark submission as SPAM";
+        toast.error(errorMessage);
+        throw error;
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    []
+  );
+
+  const unmarkSubmissionAsSpam = useCallback(
+    async (bountyId: string, submissionId: string) => {
+      try {
+        setActionLoading(true);
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}/review`,
+          {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "SUBMITTED", action: "CLEAR_SPAM" }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to unmark submission as SPAM");
+        }
+
+        toast.success("Submission unmarked as SPAM");
+        return true;
+      } catch (error) {
+        console.error("Error unmarking submission as SPAM:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to unmark submission as SPAM";
+        toast.error(errorMessage);
         throw error;
       } finally {
         setActionLoading(false);
@@ -153,7 +236,9 @@ export function useSubmission() {
     selectedPosition,
     setSelectedPosition,
     fetchSubmissionDetails,
-    updateSubmissionStatus,
+    assignPosition,
+    markSubmissionAsSpam,
+    unmarkSubmissionAsSpam,
     resetSubmissionState,
   };
 }

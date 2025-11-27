@@ -24,9 +24,11 @@ export default function BountyOverviewPage() {
     return <div>Bounty not found</div>;
   }
 
-  const sortedWinnings = Object.entries(bounty.winnings).sort(
-    ([a], [b]) => Number(a) - Number(b)
-  );
+  const sortedWinnings = bounty.winnings
+    ? Object.entries(bounty.winnings).sort(
+        ([a], [b]) => Number(a) - Number(b)
+      )
+    : [];
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -95,13 +97,14 @@ export default function BountyOverviewPage() {
       {/* Sidebar */}
       <div className="space-y-6">
         {/* Prize Distribution */}
-        <Card className="border-white/10 bg-zinc-900/50">
-          <CardHeader>
-            <CardTitle>Prize Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {sortedWinnings.map(([position, amount], index) => (
+        {sortedWinnings.length > 0 && (
+          <Card className="border-white/10 bg-zinc-900/50">
+            <CardHeader>
+              <CardTitle>Prize Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {sortedWinnings.map(([position, amount], index) => (
                 <div
                   className="flex items-center justify-between rounded-lg bg-white/5 p-3"
                   key={position}
@@ -145,30 +148,33 @@ export default function BountyOverviewPage() {
                     {amount} {bounty.token}
                   </span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Skills */}
-        <Card className="border-white/10 bg-zinc-900/50">
-          <CardHeader>
-            <CardTitle>Required Skills</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {bounty.skills.map((skill) => (
-                <Badge
-                  className="border-0 bg-white/10 text-white"
-                  key={skill}
-                  variant="secondary"
-                >
-                  {getSkillLabel(skill)}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {bounty.skills && bounty.skills.length > 0 && (
+          <Card className="border-white/10 bg-zinc-900/50">
+            <CardHeader>
+              <CardTitle>Required Skills</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {bounty.skills.map((skill) => (
+                  <Badge
+                    className="border-0 bg-white/10 text-white"
+                    key={skill}
+                    variant="secondary"
+                  >
+                    {getSkillLabel(skill)}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Resources */}
         {bounty.resources && bounty.resources.length > 0 && (

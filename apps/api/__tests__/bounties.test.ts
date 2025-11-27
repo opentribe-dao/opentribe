@@ -320,6 +320,16 @@ describe("Bounty Management", () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
       vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
       vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: "member-1",
+          role: "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
       vi.mocked(database.submission.findFirst).mockResolvedValue(null);
       vi.mocked(getOrganizationAuth).mockResolvedValueOnce({
         userId: mockSession.user.id,
@@ -342,7 +352,7 @@ describe("Bounty Management", () => {
       expect(response.status).toBe(200);
       expect(data.bounty.canSubmit).toBe(false);
       expect(data.bounty.userSubmissionId).toBe(null);
-      expect(getOrganizationAuth).toHaveBeenCalledWith(request, "org-1");
+      expect(getOrganizationAuth).toHaveBeenCalled();
     });
 
     test("should set canSubmit=true for non-members without existing submission", async () => {
@@ -374,6 +384,7 @@ describe("Bounty Management", () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
       vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
       vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
+      vi.mocked(getOrganizationAuth).mockResolvedValue(null);
       vi.mocked(database.submission.findFirst).mockResolvedValue(null);
       vi.mocked(getOrganizationAuth).mockResolvedValueOnce(null as any);
 
@@ -426,7 +437,7 @@ describe("Bounty Management", () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any);
       vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
       vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
-      vi.mocked(getOrganizationAuth).mockResolvedValueOnce(null as any);
+      vi.mocked(getOrganizationAuth).mockResolvedValue(null);
       vi.mocked(database.submission.findFirst).mockResolvedValue(
         mockSubmission as any
       );
@@ -446,6 +457,9 @@ describe("Bounty Management", () => {
         where: {
           bountyId: "bounty-1",
           userId: "user-1",
+        },
+        select: {
+          id: true,
         },
         select: {
           id: true,
@@ -478,7 +492,6 @@ describe("Bounty Management", () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(null); // No session
       vi.mocked(database.bounty.findFirst).mockResolvedValue(mockBounty as any);
       vi.mocked(database.bounty.update).mockResolvedValue(mockBounty as any);
-      vi.mocked(database.member.count).mockResolvedValue(0);
       vi.mocked(database.submission.findFirst).mockResolvedValue(null);
 
       const request = new NextRequest(
@@ -542,11 +555,16 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue({
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
         organizationId: "org-1",
-        userId: "admin-1",
-        role: "admin",
-      });
+        membership: {
+          id: "member-admin",
+          role: "admin",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
       (database.submission.findMany as any).mockResolvedValue(
         mockApprovedSubmissions
       );
@@ -569,9 +587,7 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(200);
-      expect(data.message).toBe(
-        "Successfully reset 2 approved submissions to submitted status"
-      );
+      expect(data.message).toBe("Successfully reset 2 winner submissions");
       expect(data.resetCount).toBe(2);
       expect(data.affectedSubmissions).toHaveLength(2);
       expect(data.affectedSubmissions[0].id).toBe("submission-1");
@@ -581,17 +597,24 @@ describe("Bounty Management", () => {
       expect(database.bounty.findUnique).toHaveBeenCalledWith({
         where: { id: "bounty-1" },
       });
-      expect(database.member.findFirst).toHaveBeenCalledWith({
-        where: {
-          organizationId: "org-1",
-          userId: "admin-1",
-          role: { in: ["owner", "admin"] },
-        },
-      });
+      expect(getOrganizationAuth).toHaveBeenCalledWith(
+        request,
+        "org-1",
+        expect.objectContaining({
+          session: expect.objectContaining({
+            user: expect.objectContaining({
+              id: "admin-1",
+              email: "admin@org.com",
+            }),
+          }),
+        })
+      );
       expect(database.submission.findMany).toHaveBeenCalledWith({
         where: {
           bountyId: "bounty-1",
-          status: "APPROVED",
+          isWinner: true,
+          status: "SUBMITTED",
+          position: { not: null },
         },
         select: {
           id: true,
@@ -611,14 +634,16 @@ describe("Bounty Management", () => {
       expect(database.submission.updateMany).toHaveBeenCalledWith({
         where: {
           bountyId: "bounty-1",
-          status: "APPROVED",
+          isWinner: true,
+          status: "SUBMITTED",
+          position: { not: null },
         },
         data: {
-          status: "SUBMITTED",
-          reviewedAt: expect.any(Date),
           position: null,
           winningAmount: null,
+          winningAmountUSD: null,
           isWinner: false,
+          reviewedAt: expect.any(Date),
         },
       });
     });
@@ -657,11 +682,16 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue({
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
         organizationId: "org-1",
-        userId: "owner-1",
-        role: "owner",
-      });
+        membership: {
+          id: "member-owner",
+          role: "owner",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
       (database.submission.findMany as any).mockResolvedValue(
         mockApprovedSubmissions
       );
@@ -685,13 +715,18 @@ describe("Bounty Management", () => {
       // Assert
       expect(response.status).toBe(200);
       expect(data.resetCount).toBe(1);
-      expect(database.member.findFirst).toHaveBeenCalledWith({
-        where: {
-          organizationId: "org-1",
-          userId: "owner-1",
-          role: { in: ["owner", "admin"] },
-        },
-      });
+      expect(getOrganizationAuth).toHaveBeenCalledWith(
+        request,
+        "org-1",
+        expect.objectContaining({
+          session: expect.objectContaining({
+            user: expect.objectContaining({
+              id: "owner-1",
+              email: "owner@org.com",
+            }),
+          }),
+        })
+      );
     });
 
     test("should return message when no approved submissions found", async () => {
@@ -711,11 +746,16 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue({
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
         organizationId: "org-1",
-        userId: "admin-1",
-        role: "admin",
-      });
+        membership: {
+          id: "member-admin",
+          role: "admin",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
       (database.submission.findMany as any).mockResolvedValue([]); // No approved submissions
 
       // Act
@@ -733,7 +773,7 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(200);
-      expect(data.message).toBe("No approved submissions found to reset");
+      expect(data.message).toBe("No winner submissions found to reset");
       expect(data.resetCount).toBe(0);
       expect(database.submission.updateMany).not.toHaveBeenCalled();
     });
@@ -785,10 +825,10 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(404);
-      expect(database.member.findFirst).not.toHaveBeenCalled();
+      expect(getOrganizationAuth).not.toHaveBeenCalled();
     });
 
-    test("should return 403 for non-members", async () => {
+    test("should return 401 for non-members", async () => {
       // Arrange
       const mockSession = {
         user: {
@@ -805,7 +845,7 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue(null); // Not a member
+      vi.mocked(getOrganizationAuth).mockResolvedValue(null);
 
       // Act
       const request = new NextRequest(
@@ -820,7 +860,7 @@ describe("Bounty Management", () => {
       });
 
       // Assert
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401);
       expect(database.submission.findMany).not.toHaveBeenCalled();
     });
 
@@ -841,7 +881,16 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue(null);
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
+        organizationId: "org-1",
+        membership: {
+          id: "member-basic",
+          role: "member",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
 
       // Act
       const request = new NextRequest(
@@ -857,6 +906,10 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(403);
+      const data = await response.json();
+      expect(data.error).toBe(
+        "You don't have permission to manage submissions"
+      );
       expect(database.submission.findMany).not.toHaveBeenCalled();
     });
 
@@ -877,11 +930,16 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue({
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
         organizationId: "org-1",
-        userId: "admin-1",
-        role: "admin",
-      });
+        membership: {
+          id: "member-admin",
+          role: "admin",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
       (database.submission.findMany as any).mockRejectedValue(
         new Error("Database error")
       );
@@ -900,8 +958,8 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(500);
-      expect(response.json()).resolves.toEqual({
-        error: "Failed to reset approved submissions",
+      await expect(response.json()).resolves.toEqual({
+        error: "Failed to reset winner submissions",
       });
     });
 
@@ -937,11 +995,16 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue({
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
         organizationId: "org-1",
-        userId: "admin-1",
-        role: "admin",
-      });
+        membership: {
+          id: "member-admin",
+          role: "admin",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
       (database.submission.findMany as any).mockResolvedValue(
         mockApprovedSubmissions
       );
@@ -963,8 +1026,8 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(500);
-      expect(response.json()).resolves.toEqual({
-        error: "Failed to reset approved submissions",
+      await expect(response.json()).resolves.toEqual({
+        error: "Failed to reset winner submissions",
       });
     });
 
@@ -985,11 +1048,16 @@ describe("Bounty Management", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
-      (database.member.findFirst as any).mockResolvedValue({
+      vi.mocked(getOrganizationAuth).mockResolvedValue({
+        userId: mockSession.user.id,
         organizationId: "org-1",
-        userId: "admin-1",
-        role: "admin",
-      });
+        membership: {
+          id: "member-admin",
+          role: "admin",
+          userId: mockSession.user.id,
+          organizationId: "org-1",
+        },
+      } as any);
       (database.submission.findMany as any).mockResolvedValue([]);
 
       // Act
@@ -1007,7 +1075,7 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(200);
-      expect(data.message).toBe("No approved submissions found to reset");
+      expect(data.message).toBe("No winner submissions found to reset");
       expect(data.resetCount).toBe(0);
       expect(data.affectedSubmissions).toBeUndefined();
       expect(database.submission.updateMany).not.toHaveBeenCalled();
@@ -1034,8 +1102,8 @@ describe("Bounty Management", () => {
 
       // Assert
       expect(response.status).toBe(500);
-      expect(response.json()).resolves.toEqual({
-        error: "Failed to reset approved submissions",
+      await expect(response.json()).resolves.toEqual({
+        error: "Failed to reset winner submissions",
       });
     });
   });

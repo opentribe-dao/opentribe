@@ -65,6 +65,7 @@ export default function SubmissionReviewPage({
     fetchSubmissionDetails,
     assignPosition,
     markSubmissionAsSpam,
+    unmarkSubmissionAsSpam,
     refreshSubmissions,
     selectedWinners,
     setSelectedWinners,
@@ -620,7 +621,7 @@ export default function SubmissionReviewPage({
               </Card>
             )} */}
 
-            {/* SPAM Badge */}
+            {/* SPAM Badge and Unmark Button */}
             {submission.status === "SPAM" && (
               <Card className="border-red-500/30 bg-red-500/10 backdrop-blur-md">
                 <CardHeader>
@@ -632,6 +633,29 @@ export default function SubmissionReviewPage({
                     This submission has been marked as SPAM
                   </CardDescription>
                 </CardHeader>
+                <CardContent>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700"
+                    disabled={actionLoading}
+                    onClick={async () => {
+                      try {
+                        await unmarkSubmissionAsSpam(id, submissionId);
+                        router.back();
+                        refreshSubmissions();
+                      } catch {
+                        // Error handling is done in the hook
+                      }
+                    }}
+                    variant="default"
+                  >
+                    {actionLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="mr-2 h-4 w-4" />
+                    )}
+                    Not Spam
+                  </Button>
+                </CardContent>
               </Card>
             )}
           </div>

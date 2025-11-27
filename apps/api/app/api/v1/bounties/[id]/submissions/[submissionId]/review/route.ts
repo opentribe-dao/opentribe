@@ -16,7 +16,7 @@ export async function OPTIONS() {
  * 
  * PATCH /api/v1/bounties/[id]/submissions/[submissionId]/review
  * 
- * This endpoint handles marking submissions as SPAM (replaces the old REJECTED status).
+ * This endpoint handles marking submissions as SPAM and unmarking them (replaces the old REJECTED status).
  * 
  * KEY DESIGN DECISION: Winners (submissions with assigned positions) cannot be marked as SPAM.
  * This prevents accidental marking of winners and ensures data integrity. To mark a winner
@@ -28,14 +28,20 @@ export async function OPTIONS() {
  * - SPAM submissions are hidden from public view (only visible to organization members)
  * - SPAM submissions are excluded from winner displays and announcements
  * 
+ * Unmarking SPAM:
+ * - Only submissions currently marked as SPAM can be unmarked
+ * - Unmarking restores status to SUBMITTED
+ * - Position, winningAmount, and winningAmountUSD are preserved when unmarking
+ * - Only organization owners/admins can unmark SPAM submissions
+ * 
  * Winner Protection:
- * - If submission has position !== null, return 400 error
+ * - If submission has position !== null, return 400 error when marking as SPAM
  * - Admin must clear position first, then mark as SPAM
  * - This workflow prevents accidental marking of winners
  * 
- * @param request - Request body: { status: "SPAM" }
+ * @param request - Request body: { status: "SPAM" } to mark as SPAM, or { status: "SUBMITTED", action: "CLEAR_SPAM" } to unmark (both fields required for unmarking)
  * @param params - Route parameters: { id: bountyId, submissionId }
- * @returns Updated submission with status set to SPAM
+ * @returns Updated submission with status updated
  */
 export async function PATCH(
   request: NextRequest,
@@ -52,11 +58,26 @@ export async function PATCH(
     }
 
     const reviewSchema = z.object({
-      status: z.literal("SPAM"), // Only SPAM status allowed
+      status: z.enum(["SPAM", "SUBMITTED"]),
+      action: z.enum(["CLEAR_SPAM"]).optional(),
     });
 
     const body = await request.json();
-    reviewSchema.parse(body); // Validate but don't need to store
+    const validatedBody = reviewSchema.parse(body);
+
+    // Determine if we're marking as SPAM or clearing SPAM
+    // Require explicit action field for unambiguous behavior
+    const isClearingSpam = validatedBody.action === "CLEAR_SPAM";
+
+    // Reject ambiguous requests: status "SUBMITTED" without action field
+    if (validatedBody.status === "SUBMITTED" && !isClearingSpam) {
+      return NextResponse.json(
+        {
+          error: "Invalid request: status 'SUBMITTED' requires action 'CLEAR_SPAM' to unmark SPAM",
+        },
+        { status: 400 }
+      );
+    }
 
     // Fetch submission to check permissions
     const submission = await database.submission.findUnique({
@@ -79,7 +100,8 @@ export async function PATCH(
     // Check if user has permission to review submissions
     const orgAuth = await getOrganizationAuth(
       request,
-      submission.bounty.organizationId
+      submission.bounty.organizationId,
+      { session: sessionData }
     );
     if (!orgAuth) {
       return NextResponse.json(
@@ -94,11 +116,22 @@ export async function PATCH(
       );
     }
 
+    // If clearing SPAM, ensure submission is currently SPAM
+    if (isClearingSpam && submission.status !== "SPAM") {
+      return NextResponse.json(
+        {
+          error: "Submission is not marked as SPAM",
+        },
+        { status: 400 }
+      );
+    }
+
+    // If marking as SPAM, check winner protection
     // WINNER PROTECTION: Check if submission has a position assigned (is a winner)
     // Winners cannot be marked as SPAM - must clear position first
     // This prevents accidental marking of winners and ensures data integrity
     // Workflow: Admin must first clear position using /position endpoint, then mark as SPAM
-    if (submission.position !== null) {
+    if (!isClearingSpam && submission.position !== null) {
       return NextResponse.json(
         {
           error:
@@ -108,15 +141,15 @@ export async function PATCH(
       );
     }
 
-    // Update submission status to SPAM
+    // Update submission status
     const updatedSubmission = await database.submission.update({
       where: {
         id: (await params).submissionId,
       },
       data: {
-        status: "SPAM",
+        status: isClearingSpam ? "SUBMITTED" : "SPAM",
         reviewedAt: new Date(),
-        // Do NOT change position or winningAmount
+        // Do NOT change position, winningAmount, or winningAmountUSD when clearing SPAM
       },
       include: {
         bounty: {
@@ -138,7 +171,9 @@ export async function PATCH(
 
     return NextResponse.json({
       submission: updatedSubmission,
-      message: "Submission marked as SPAM successfully",
+      message: isClearingSpam 
+        ? "Submission unmarked as SPAM successfully" 
+        : "Submission marked as SPAM successfully",
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -146,9 +181,9 @@ export async function PATCH(
       return NextResponse.json(formattedError, { status: 400 });
     }
 
-    console.error("Error marking submission as SPAM:", error);
+    console.error("Error updating submission review status:", error);
     return NextResponse.json(
-      { error: "Failed to mark submission as SPAM" },
+      { error: "Failed to update submission review status" },
       { status: 500 }
     );
   }

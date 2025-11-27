@@ -2,6 +2,7 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendBountyWinnerEmail } from "@packages/email";
 import { formatZodError } from "@/lib/zod-errors";
+import { exchangeRateService } from "@packages/polkadot/server";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -110,17 +111,54 @@ export async function POST(
       where: {
         id: { in: submissionIds },
         bountyId,
-        status: "SUBMITTED", 
+        status: "SUBMITTED",
       },
     });
 
     if (submissions.length !== submissionIds.length) {
       return NextResponse.json(
         {
-          error:
-            "One or more submissions are invalid",
+          error: "One or more submissions are invalid",
         },
         { status: 400 }
+      );
+    }
+
+    // Calculate winningAmountUSD for all winners
+    // Missing token means we can't convert to USD and should fail fast
+    if (!bounty.token) {
+      return NextResponse.json(
+        {
+          error: "Failed to fetch exchange rate for token. Please try again.",
+        },
+        { status: 500 }
+      );
+    }
+
+    let exchangeRate: number;
+    try {
+      const token = bounty.token.toUpperCase();
+      const exchangeRates = await exchangeRateService.getExchangeRates([
+        bounty.token,
+      ]);
+      const rate = exchangeRates[token];
+
+      if (!rate || rate <= 0) {
+        return NextResponse.json(
+          {
+            error: "Failed to fetch exchange rate for token. Please try again.",
+          },
+          { status: 500 }
+        );
+      }
+      exchangeRate = rate;
+    } catch (error) {
+      console.error("Error fetching exchange rate:", error);
+      return NextResponse.json(
+        {
+          error: "Failed to fetch exchange rate for token. Please try again.",
+        },
+        { status: 500 }
       );
     }
 
@@ -141,17 +179,19 @@ export async function POST(
         },
       });
 
-      // Then set the new winners
+      // Then set the new winners with winningAmountUSD
       const updatePromises = validatedData.winners.map((winner) => {
         const submission = submissions.find(
           (s) => s.id === winner.submissionId
         )!;
+        const winningAmountUSD = winner.amount * exchangeRate;
         return tx.submission.update({
           where: { id: winner.submissionId },
           data: {
             isWinner: true,
             position: winner.position,
             winningAmount: winner.amount,
+            winningAmountUSD,
             winnerUserId: submission.userId,
             reviewedAt: new Date(),
           },

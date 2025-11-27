@@ -38,7 +38,9 @@ export async function PATCH(
     }
 
     // Check if user has permission to manage submissions
-    const orgAuth = await getOrganizationAuth(request, bounty.organizationId);
+    const orgAuth = await getOrganizationAuth(request, bounty.organizationId, {
+      session: sessionData,
+    });
     if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -92,6 +94,7 @@ export async function PATCH(
       data: {
         position: null,
         winningAmount: null,
+        winningAmountUSD: null,
         isWinner: false,
         reviewedAt: new Date(),
       },

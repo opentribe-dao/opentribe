@@ -62,6 +62,7 @@ export async function GET(
         createdAt: true,
         publishedAt: true,
         winnersAnnouncedAt: true,
+        deadline: true,
         viewCount: true,
         submissionCount: true,
         organizationId: true,
@@ -73,21 +74,39 @@ export async function GET(
     }
 
     // Organization membership check
-    const orgAuth = await getOrganizationAuth(request, bounty.organizationId);
+    const orgAuth = await getOrganizationAuth(request, bounty.organizationId, {
+      session: sessionData,
+    });
     if (!orgAuth) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Overview counts (use submissionCount from bounty)
+    const now = new Date();
+    const deadlinePassed = bounty.deadline ? bounty.deadline < now : false;
+    const winnersNotAnnounced = bounty.winnersAnnouncedAt === null;
+
     const [
       pendingReview,
       selectedWinners,
       rejectedSubmissions,
       firstSubmission,
     ] = await Promise.all([
-      database.submission.count({
-        where: { bountyId: bounty.id, status: "SUBMITTED" as any },
-      }),
+      // pendingReview: Only count submissions that:
+      // - Are not winners (isWinner = false AND position = null)
+      // - Have status SUBMITTED
+      // - Bounty deadline has passed
+      // - Winners have not been announced yet
+      deadlinePassed && winnersNotAnnounced
+        ? database.submission.count({
+            where: {
+              bountyId: bounty.id,
+              status: "SUBMITTED" as any,
+              isWinner: false,
+              position: null,
+            },
+          })
+        : Promise.resolve(0), // Return 0 if deadline hasn't passed or winners already announced
       database.submission.count({
         where: { 
           bountyId: bounty.id, 

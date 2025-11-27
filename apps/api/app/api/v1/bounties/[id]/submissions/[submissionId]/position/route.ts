@@ -86,7 +86,8 @@ async function handlePositionPatch(
     // Check if user has permission to assign positions
     const orgAuth = await getOrganizationAuth(
       request,
-      submission.bounty.organizationId
+      submission.bounty.organizationId,
+      { session: sessionData }
     );
     if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

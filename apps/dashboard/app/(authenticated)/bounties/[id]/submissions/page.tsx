@@ -29,11 +29,299 @@ import {
   Search,
   Trophy,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useBountyContext } from "../../../components/bounty-provider";
+
+// Helper function to format position ordinal (1st, 2nd, 3rd, etc.)
+function formatPosition(position: number): string {
+  if (position === 1) {
+    return "1st";
+  }
+  if (position === 2) {
+    return "2nd";
+  }
+  if (position === 3) {
+    return "3rd";
+  }
+  
+  const j = position % 10;
+  const k = position % 100;
+  if (j === 1 && k !== 11) {
+    return `${position}st`;
+  }
+  if (j === 2 && k !== 12) {
+    return `${position}nd`;
+  }
+  if (j === 3 && k !== 13) {
+    return `${position}rd`;
+  }
+  return `${position}th`;
+}
+
+// Helper function to get trophy color classes based on position
+function getTrophyColor(position: number): { bg: string; text: string } {
+  if (position === 1) {
+    return { bg: "bg-yellow-500/20", text: "text-yellow-500" };
+  }
+  if (position === 2) {
+    return { bg: "bg-gray-400/20", text: "text-gray-400" };
+  }
+  if (position === 3) {
+    return { bg: "bg-orange-600/20", text: "text-orange-600" };
+  }
+  return { bg: "bg-white/10", text: "text-white/60" };
+}
+
+// Helper function to get trophy icon color class
+function getTrophyIconColor(position: number): string {
+  if (position === 1) {
+    return "text-yellow-500";
+  }
+  if (position === 2) {
+    return "text-gray-400";
+  }
+  if (position === 3) {
+    return "text-orange-600";
+  }
+  return "text-white/60";
+}
+
+// Helper function to get card border classes
+function getCardBorderClasses(isWinner: boolean, status: string): string {
+  if (isWinner) {
+    return "border-green-500/50";
+  }
+  if (status === "SPAM") {
+    return "border-red-500/30 bg-red-950/20 opacity-75";
+  }
+  return "";
+}
+
+type SubmissionForFilter = {
+  title?: string | null;
+  submitter?: {
+    username?: string | null;
+    firstName?: string | null;
+  } | null;
+  position?: number | null;
+  status?: string;
+};
+
+// Helper function to check if submission matches search query
+function matchesSearch(submission: SubmissionForFilter, query: string): boolean {
+  const lowerQuery = query.toLowerCase();
+  if (query.trim() === "") {
+    return true;
+  }
+  if (submission.title?.toLowerCase().includes(lowerQuery)) {
+    return true;
+  }
+  if (submission.submitter?.username?.toLowerCase().includes(lowerQuery)) {
+    return true;
+  }
+  if (submission.submitter?.firstName?.toLowerCase().includes(lowerQuery)) {
+    return true;
+  }
+  return false;
+}
+
+// Helper function to check if submission matches status filter
+function matchesStatus(
+  submission: SubmissionForFilter,
+  filter: "all" | "SUBMITTED" | "SPAM" | "WITHDRAWN" | "winners"
+): boolean {
+  if (filter === "all") {
+    return true;
+  }
+  if (filter === "winners") {
+    return submission.position != null && submission.status !== "SPAM";
+  }
+  return submission.status === filter;
+}
+
+// Helper function to get status color
+function getStatusColor(status: string): string {
+  switch (status) {
+    case "SUBMITTED":
+      return "bg-blue-500/20 text-blue-400";
+    case "UNDER_REVIEW":
+      return "bg-yellow-500/20 text-yellow-400";
+    case "SPAM":
+      return "bg-red-500/20 text-red-400";
+    case "WITHDRAWN":
+      return "bg-gray-500/20 text-gray-400";
+    default:
+      return "bg-white/10 text-white/60";
+  }
+}
+
+// Submission Card Component
+type SubmissionCardProps = {
+  submission: {
+    id: string;
+    title?: string;
+    description?: string;
+    submissionUrl?: string;
+    status: string;
+    isWinner?: boolean;
+    position?: number;
+    submittedAt?: string;
+    submitter: {
+      username?: string;
+      firstName?: string;
+      headline?: string;
+      image?: string;
+    };
+    stats?: {
+      likesCount?: number;
+      commentsCount?: number;
+    };
+  };
+  bounty: {
+    id: string;
+    winnersAnnouncedAt?: string;
+  };
+};
+
+function SubmissionCard({ submission, bounty }: SubmissionCardProps) {
+  const isWinner = Boolean(submission.isWinner);
+  const borderClasses = getCardBorderClasses(isWinner, submission.status);
+  const position = submission.position;
+  const hasPosition = position != null;
+  const isNotSpam = submission.status !== "SPAM";
+
+  return (
+    <Card
+      className={`border-white/10 bg-zinc-900/50 transition-all hover:bg-zinc-800/50 ${borderClasses}`}
+      key={submission.id}
+    >
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {submission.submitter.image ? (
+              <Image
+                alt={submission.submitter.username || "User"}
+                className="h-10 w-10 rounded-full"
+                height={40}
+                src={submission.submitter.image}
+                width={40}
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
+                {submission.submitter.username?.[0]?.toUpperCase() || "A"}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <CardTitle className="truncate font-semibold text-sm text-white">
+                {submission.submitter.firstName ||
+                  submission.submitter.username ||
+                  "Anonymous"}
+              </CardTitle>
+              {submission.submitter.headline && (
+                <p className="truncate text-white/60 text-xs">
+                  {submission.submitter.headline}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <Badge
+              className={`rounded px-2 py-1 font-medium text-xs ${getStatusColor(
+                submission.status
+              )}`}
+            >
+              {submission.status}
+            </Badge>
+            {hasPosition && isNotSpam && (
+              <div className="flex items-center gap-1">
+                <Trophy
+                  className={`h-3 w-3 ${getTrophyIconColor(position)}`}
+                />
+                <span className="font-medium text-white text-xs">
+                  {formatPosition(position)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="pt-0">
+        {submission.title && (
+          <h4 className="mb-2 font-medium text-sm text-white">
+            {submission.title}
+          </h4>
+        )}
+        {submission.description && (
+          <div className="mb-3 line-clamp-3 text-white/80 text-xs">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {submission.description}
+            </ReactMarkdown>
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="mb-4 flex items-center gap-4 text-white/60 text-xs">
+          <div className="flex items-center gap-1">
+            <Heart className="h-3 w-3" />
+            <span>{submission.stats?.likesCount || 0}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <MessageCircle className="h-3 w-3" />
+            <span>{submission.stats?.commentsCount || 0}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            <span>
+              {submission.submittedAt
+                ? new Date(submission.submittedAt).toLocaleDateString()
+                : "N/A"}
+            </span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          {!bounty.winnersAnnouncedAt && (
+            <Button
+              asChild
+              className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
+              size="sm"
+            >
+              <Link
+                href={`/bounties/${bounty.id}/submissions/${submission.id}`}
+              >
+                <Eye className="mr-1 h-3 w-3" />
+                Review
+              </Link>
+            </Button>
+          )}
+          {submission.submissionUrl && (
+            <Button
+              asChild
+              className="flex-1 border-white/20 text-white hover:bg-white/10"
+              size="sm"
+              variant="outline"
+            >
+              <a
+                href={submission.submissionUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Open
+              </a>
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function SubmissionsPage() {
   const {
@@ -53,118 +341,132 @@ export default function SubmissionsPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
-    "all" | "SUBMITTED" | "UNDER_REVIEW" | "SELECTED" | "REJECTED"
+    "all" | "SUBMITTED" | "SPAM" | "WITHDRAWN" | "winners"
   >("all");
   const [sortBy, setSortBy] = useState<
     "newest" | "oldest" | "likes" | "comments"
   >("newest");
 
   // Compute sorted winners and also save them in selectedWinners
-  useMemo(() => {
+  // Winners are determined by position assignment ONLY, not status
+  useEffect(() => {
     const winners = submissions
       .filter(
         (s) =>
-          s.status === "APPROVED" &&
           s.position != null &&
-          s.winningAmount != null
+          s.winningAmount != null &&
+          s.status !== "SPAM" // Exclude SPAM submissions from winners
       )
       .sort((a, b) => {
-        if (a.position == null && b.position == null) {
+        const aPos = a.position ?? null;
+        const bPos = b.position ?? null;
+        if (aPos == null && bPos == null) {
           return 0;
         }
-        if (a.position == null) {
+        if (aPos == null) {
           return 1;
         }
-        if (b.position == null) {
+        if (bPos == null) {
           return -1;
         }
-        return a.position - b.position;
+        return aPos - bPos;
       });
 
     // Save to selectedWinners as a Map<submissionId, { position, amount, username }>
-    if (winners.length > 0) {
-      const winnersMap = new Map<
-        string,
-        { position: number; amount: string; username: string }
-      >();
-      for (const s of winners) {
-        if (
-          s.position == null ||
-          s.winningAmount == null ||
-          s.submitter.username == null
-        ) {
-          continue;
-        }
-        winnersMap.set(s.id, {
-          position: s.position,
-          amount: s.winningAmount,
-          username: s.submitter.username,
-        });
+    // Always update selectedWinners to match current submissions with positions
+    const winnersMap = new Map<
+      string,
+      { position: number; amount: string; username: string }
+    >();
+    for (const s of winners) {
+      if (
+        s.position == null ||
+        s.winningAmount == null ||
+        s.submitter?.username == null
+      ) {
+        continue;
       }
-      setSelectedWinners(winnersMap);
+      winnersMap.set(s.id, {
+        position: s.position,
+        amount: s.winningAmount,
+        username: s.submitter.username,
+      });
     }
-
-    // Return array for display
-    return winners.map((s) => ({
-      position: s.position,
-      winningAmount: s.winningAmount,
-      username: s.submitter.username,
-    }));
+    setSelectedWinners(winnersMap);
   }, [submissions, setSelectedWinners]);
+
+  // Calculate expected number of winner positions from bounty winnings structure
+  const expectedWinnerCount = useMemo(() => {
+    if (!bounty?.winnings) {
+      return 0;
+    }
+    // winnings is Record<string, number> where keys are position numbers
+    return Object.keys(bounty.winnings).length;
+  }, [bounty?.winnings]);
+
+  // Check if all winner positions are filled
+  const allPositionsFilled = useMemo(() => {
+    if (!bounty?.winnings || selectedWinners.size === 0) {
+      return false;
+    }
+    
+    // Check that selectedWinners count matches expected positions
+    if (selectedWinners.size !== expectedWinnerCount) {
+      return false;
+    }
+    
+    // Check that all positions from 1 to expectedWinnerCount are covered
+    const selectedPositions = new Set<number>();
+    for (const [, winnerData] of selectedWinners) {
+      if (winnerData.position != null) {
+        selectedPositions.add(winnerData.position);
+      }
+    }
+    
+    // Verify all positions from 1 to expectedWinnerCount are present
+    for (let i = 1; i <= expectedWinnerCount; i++) {
+      if (!selectedPositions.has(i)) {
+        return false;
+      }
+    }
+    
+    return true;
+  }, [selectedWinners, expectedWinnerCount, bounty?.winnings]);
 
   // Filtering
   const filtered = useMemo(
     () =>
-      submissions.filter((s) => {
-        const matchesSearch =
-          searchQuery.trim() === "" ||
-          (s.title &&
-            s.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (s.submitter?.username &&
-            s.submitter.username
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase())) ||
-          (s.submitter?.firstName &&
-            s.submitter.firstName
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase()));
-        const matchesStatus =
-          statusFilter === "all" || s.status === statusFilter;
-        return matchesSearch && matchesStatus;
-      }),
+      submissions.filter(
+        (s) => matchesSearch(s, searchQuery) && matchesStatus(s, statusFilter)
+      ),
     [submissions, searchQuery, statusFilter]
   );
 
   // Sorting
   const sorted = useMemo(() => {
     const list = [...filtered];
-    switch (sortBy) {
-      case "oldest":
-        list.sort(
-          (a, b) =>
-            new Date(a.submittedAt || 0).getTime() -
-            new Date(b.submittedAt || 0).getTime()
-        );
-        break;
-      case "likes":
-        list.sort(
-          (a, b) => (b.stats?.likesCount || 0) - (a.stats?.likesCount || 0)
-        );
-        break;
-      case "comments":
-        list.sort(
-          (a, b) =>
-            (b.stats?.commentsCount || 0) - (a.stats?.commentsCount || 0)
-        );
-        break;
-      case "newest":
-      default:
-        list.sort(
-          (a, b) =>
-            new Date(b.submittedAt || 0).getTime() -
-            new Date(a.submittedAt || 0).getTime()
-        );
-        break;
+    if (sortBy === "oldest") {
+      list.sort(
+        (a, b) =>
+          new Date(a.submittedAt || 0).getTime() -
+          new Date(b.submittedAt || 0).getTime()
+      );
+    } else if (sortBy === "likes") {
+      list.sort(
+        (a, b) => (b.stats?.likesCount || 0) - (a.stats?.likesCount || 0)
+      );
+    } else if (sortBy === "comments") {
+      list.sort(
+        (a, b) =>
+          (b.stats?.commentsCount || 0) - (a.stats?.commentsCount || 0)
+      );
+    } else {
+      // newest (default)
+      list.sort(
+        (a, b) =>
+          new Date(b.submittedAt || 0).getTime() -
+          new Date(a.submittedAt || 0).getTime()
+      );
     }
     return list;
   }, [filtered, sortBy]);
@@ -184,21 +486,6 @@ export default function SubmissionsPage() {
     return <div className="text-white">Bounty not found</div>;
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "SUBMITTED":
-        return "bg-blue-500/20 text-blue-400";
-      case "UNDER_REVIEW":
-        return "bg-yellow-500/20 text-yellow-400";
-      case "SELECTED":
-        return "bg-green-500/20 text-green-400";
-      case "REJECTED":
-        return "bg-red-500/20 text-red-400";
-      default:
-        return "bg-white/10 text-white/60";
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header with filters */}
@@ -214,7 +501,9 @@ export default function SubmissionsPage() {
             />
           </div>
           <Select
-            onValueChange={(v: any) => setStatusFilter(v)}
+            onValueChange={(v: "all" | "SUBMITTED" | "SPAM" | "WITHDRAWN" | "winners") =>
+              setStatusFilter(v)
+            }
             value={statusFilter}
           >
             <SelectTrigger className="w-[160px] border-white/10 bg-white/5 text-white">
@@ -224,21 +513,26 @@ export default function SubmissionsPage() {
               <SelectItem className="text-white" value="all">
                 All statuses
               </SelectItem>
+              <SelectItem className="text-white" value="winners">
+                Winners
+              </SelectItem>
               <SelectItem className="text-white" value="SUBMITTED">
                 Submitted
               </SelectItem>
-              <SelectItem className="text-white" value="UNDER_REVIEW">
-                Under review
+              <SelectItem className="text-white" value="SPAM">
+                SPAM
               </SelectItem>
-              <SelectItem className="text-white" value="SELECTED">
-                Selected
-              </SelectItem>
-              <SelectItem className="text-white" value="REJECTED">
-                Rejected
+              <SelectItem className="text-white" value="WITHDRAWN">
+                Withdrawn
               </SelectItem>
             </SelectContent>
           </Select>
-          <Select onValueChange={(v: any) => setSortBy(v)} value={sortBy}>
+          <Select
+            onValueChange={(v: "newest" | "oldest" | "likes" | "comments") =>
+              setSortBy(v)
+            }
+            value={sortBy}
+          >
             <SelectTrigger className="w-[160px] border-white/10 bg-white/5 text-white">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -274,148 +568,11 @@ export default function SubmissionsPage() {
           <div className="w-full lg:w-[70%]">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
               {sorted.map((submission) => (
-                <Card
-                  className={`border-white/10 bg-zinc-900/50 transition-all hover:bg-zinc-800/50 ${
-                    submission.isWinner ? "border-green-500/50" : ""
-                  }`}
+                <SubmissionCard
+                  bounty={bounty}
                   key={submission.id}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        {submission.submitter.image ? (
-                          <img
-                            alt={submission.submitter.username}
-                            className="h-10 w-10 rounded-full"
-                            src={submission.submitter.image}
-                          />
-                        ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E6007A] to-purple-600 font-bold text-white">
-                            {submission.submitter.username?.[0]?.toUpperCase() ||
-                              "A"}
-                          </div>
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <CardTitle className="truncate font-semibold text-sm text-white">
-                            {submission.submitter.firstName ||
-                              submission.submitter.username ||
-                              "Anonymous"}
-                          </CardTitle>
-                          {submission.submitter.headline && (
-                            <p className="truncate text-white/60 text-xs">
-                              {submission.submitter.headline}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Badge
-                          className={`rounded px-2 py-1 font-medium text-xs ${getStatusColor(
-                            submission.status
-                          )}`}
-                        >
-                          {submission.status}
-                        </Badge>
-                        {submission.isWinner && (
-                          <div className="flex items-center gap-1">
-                            <Trophy
-                              className={`h-3 w-3 ${
-                                submission.position === 1
-                                  ? "text-yellow-500"
-                                  : submission.position === 2
-                                    ? "text-gray-400"
-                                    : submission.position === 3
-                                      ? "text-orange-600"
-                                      : "text-white/60"
-                              }`}
-                            />
-                            <span className="font-medium text-white text-xs">
-                              {submission.position === 1
-                                ? "1st"
-                                : submission.position === 2
-                                  ? "2nd"
-                                  : submission.position === 3
-                                    ? "3rd"
-                                    : `${submission.position}th`}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="pt-0">
-                    {submission.title && (
-                      <h4 className="mb-2 font-medium text-sm text-white">
-                        {submission.title}
-                      </h4>
-                    )}
-                    {submission.description && (
-                      <div className="mb-3 line-clamp-3 text-white/80 text-xs">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {submission.description}
-                        </ReactMarkdown>
-                      </div>
-                    )}
-
-                    {/* Stats */}
-                    <div className="mb-4 flex items-center gap-4 text-white/60 text-xs">
-                      <div className="flex items-center gap-1">
-                        <Heart className="h-3 w-3" />
-                        <span>{submission.stats?.likesCount || 0}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="h-3 w-3" />
-                        <span>{submission.stats?.commentsCount || 0}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>
-                          {submission.submittedAt
-                            ? new Date(
-                                submission.submittedAt
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2">
-                      {!bounty.winnersAnnouncedAt && (
-                        <Button
-                          asChild
-                          className="flex-1 bg-[#E6007A] text-white hover:bg-[#E6007A]/90"
-                          size="sm"
-                        >
-                          <Link
-                            href={`/bounties/${bounty.id}/submissions/${submission.id}`}
-                          >
-                            <Eye className="mr-1 h-3 w-3" />
-                            Review
-                          </Link>
-                        </Button>
-                      )}
-                      {submission.submissionUrl && (
-                        <Button
-                          asChild
-                          className="flex-1 border-white/20 text-white hover:bg-white/10"
-                          size="sm"
-                          variant="outline"
-                        >
-                          <a
-                            href={submission.submissionUrl}
-                            rel="noopener noreferrer"
-                            target="_blank"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                            Open
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                  submission={submission}
+                />
               ))}
             </div>
           </div>
@@ -436,7 +593,12 @@ export default function SubmissionsPage() {
                 <CardContent className="pt-0">
                   <div className="space-y-2">
                     {submissions
-                      .filter((s) => s.isWinner)
+                      .filter(
+                        (s) =>
+                          s.position != null &&
+                          s.winningAmount != null &&
+                          s.status !== "SPAM"
+                      )
                       .sort((a, b) => (a.position || 0) - (b.position || 0))
                       .map((winner) => (
                         <div
@@ -447,24 +609,16 @@ export default function SubmissionsPage() {
                             <div className="flex min-w-0 items-center gap-2">
                               <div
                                 className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                                  winner.position === 1
-                                    ? "bg-yellow-500/20"
-                                    : winner.position === 2
-                                      ? "bg-gray-400/20"
-                                      : winner.position === 3
-                                        ? "bg-orange-600/20"
-                                        : "bg-white/10"
+                                  winner.position
+                                    ? getTrophyColor(winner.position).bg
+                                    : "bg-white/10"
                                 }`}
                               >
                                 <Trophy
                                   className={`h-4 w-4 ${
-                                    winner.position === 1
-                                      ? "text-yellow-500"
-                                      : winner.position === 2
-                                        ? "text-gray-400"
-                                        : winner.position === 3
-                                          ? "text-orange-600"
-                                          : "text-white/60"
+                                    winner.position
+                                      ? getTrophyColor(winner.position).text
+                                      : "text-white/60"
                                   }`}
                                 />
                               </div>
@@ -476,35 +630,9 @@ export default function SubmissionsPage() {
                                 </p>
                                 <div className="flex items-center gap-2">
                                   <Badge className="h-5 rounded border-0 bg-white/10 px-2 text-[10px] text-white/70">
-                                    {(() => {
-                                      if (winner.position === 1) {
-                                        return "1st";
-                                      }
-                                      if (winner.position === 2) {
-                                        return "2nd";
-                                      }
-                                      if (winner.position === 3) {
-                                        return "3rd";
-                                      }
-                                      if (
-                                        typeof winner.position === "number" &&
-                                        winner.position > 0
-                                      ) {
-                                        const j = winner.position % 10,
-                                          k = winner.position % 100;
-                                        if (j === 1 && k !== 11) {
-                                          return `${winner.position}st`;
-                                        }
-                                        if (j === 2 && k !== 12) {
-                                          return `${winner.position}nd`;
-                                        }
-                                        if (j === 3 && k !== 13) {
-                                          return `${winner.position}rd`;
-                                        }
-                                        return `${winner.position}th`;
-                                      }
-                                      return "";
-                                    })()} Place
+                                    {winner.position
+                                      ? `${formatPosition(winner.position)} Place`
+                                      : ""}
                                   </Badge>
                                 </div>
                               </div>
@@ -590,57 +718,24 @@ export default function SubmissionsPage() {
                               <div className="flex items-center gap-3">
                                 <div
                                   className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                    winnerData.position === 1
-                                      ? "bg-yellow-500/20"
-                                      : winnerData.position === 2
-                                        ? "bg-gray-400/20"
-                                        : winnerData.position === 3
-                                          ? "bg-orange-600/20"
-                                          : "bg-white/10"
+                                    winnerData.position
+                                      ? getTrophyColor(winnerData.position).bg
+                                      : "bg-white/10"
                                   }`}
                                 >
                                   <Trophy
                                     className={`h-4 w-4 ${
-                                      winnerData.position === 1
-                                        ? "text-yellow-500"
-                                        : winnerData.position === 2
-                                          ? "text-gray-400"
-                                          : winnerData.position === 3
-                                            ? "text-orange-600"
-                                            : "text-white/60"
+                                      winnerData.position
+                                        ? getTrophyColor(winnerData.position)
+                                            .text
+                                        : "text-white/60"
                                     }`}
                                   />
                                 </div>
                                 <span className="font-medium text-white">
-                                  {(() => {
-                                    if (winnerData.position === 1) {
-                                      return "1st";
-                                    }
-                                    if (winnerData.position === 2) {
-                                      return "2nd";
-                                    }
-                                    if (winnerData.position === 3) {
-                                      return "3rd";
-                                    }
-                                    if (
-                                      typeof winnerData.position === "number" &&
-                                      winnerData.position > 0
-                                    ) {
-                                      const j = winnerData.position % 10,
-                                        k = winnerData.position % 100;
-                                      if (j === 1 && k !== 11) {
-                                        return `${winnerData.position}st`;
-                                      }
-                                      if (j === 2 && k !== 12) {
-                                        return `${winnerData.position}nd`;
-                                      }
-                                      if (j === 3 && k !== 13) {
-                                        return `${winnerData.position}rd`;
-                                      }
-                                      return `${winnerData.position}th`;
-                                    }
-                                    return "";
-                                  })()} Place
+                                  {winnerData.position
+                                    ? `${formatPosition(winnerData.position)} Place`
+                                    : ""}
                                 </span>
                               </div>
                               <span className="font-semibold text-white">
@@ -662,7 +757,11 @@ export default function SubmissionsPage() {
                   !bounty.winnersAnnouncedAt && (
                     <Button
                       className="mx-6 gap-0 bg-green-600 text-white hover:bg-green-700"
-                      disabled={isAnnouncing || selectedWinners.size === 0}
+                      disabled={
+                        isAnnouncing ||
+                        selectedWinners.size === 0 ||
+                        !allPositionsFilled
+                      }
                       onClick={announceWinners}
                       size="sm"
                     >
@@ -674,7 +773,10 @@ export default function SubmissionsPage() {
                       ) : (
                         <>
                           <Award className="mr-2 h-4 w-4" />
-                          Announce Winners ({selectedWinners.size})
+                          Announce Winners ({selectedWinners.size}
+                          {expectedWinnerCount > 0
+                            ? `/${expectedWinnerCount}`
+                            : ""})
                         </>
                       )}
                     </Button>

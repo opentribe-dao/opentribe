@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -88,17 +89,11 @@ export async function PATCH(
     }
 
     // Check if user has permission to update organization
-    const member = await database.member.findFirst({
-      where: {
-        organizationId,
-        userId: sessionData.user.id,
-        role: {
-          in: ["owner", "admin"],
-        },
-      },
-    });
-
-    if (!member) {
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -198,15 +193,11 @@ export async function DELETE(
     }
 
     // Check if user is the owner
-    const member = await database.member.findFirst({
-      where: {
-        organizationId,
-        userId: sessionData.user.id,
-        role: "owner",
-      },
-    });
-
-    if (!member) {
+    const orgAuth = await getOrganizationAuth(request, organizationId);
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (!hasRequiredRole(orgAuth.membership, ["owner"])) {
       return NextResponse.json(
         { error: "Only the owner can delete the organization" },
         { status: 403 }

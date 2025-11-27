@@ -3,6 +3,7 @@ import { database } from "@packages/db";
 import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { getOrganizationAuth } from "@/lib/organization-auth";
 import { ViewManager } from "@/lib/views";
 
 export async function OPTIONS() {
@@ -90,6 +91,31 @@ export async function GET(
       headers: authHeaders,
     });
 
+    // Check if submission is SPAM - only org members can view SPAM submissions
+    if (submission.status === "SPAM") {
+      if (!sessionData?.user) {
+        return NextResponse.json(
+          { error: "Submission not found" },
+          { status: 404 }
+        );
+      }
+
+      // Check if user has organization membership
+      const orgAuth = await getOrganizationAuth(
+        request,
+        submission.bounty.organizationId,
+        { session: sessionData }
+      );
+
+      // Only organization members can view SPAM submissions
+      if (!orgAuth) {
+        return NextResponse.json(
+          { error: "Submission not found" },
+          { status: 404 }
+        );
+      }
+    }
+
     if (!isPublic) {
       if (!sessionData?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -100,15 +126,14 @@ export async function GET(
 
       if (!isCreator) {
         // If not the creator, check if user has organization membership
-        const userMember = await database.member.findFirst({
-          where: {
-            organizationId: submission.bounty.organizationId,
-            userId: sessionData.user.id,
-          },
-        });
+        const orgAuth = await getOrganizationAuth(
+          request,
+          submission.bounty.organizationId,
+          { session: sessionData }
+        );
 
         // Only organization members can view non-public submissions they didn't create
-        if (!userMember) {
+        if (!orgAuth) {
           return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
       }

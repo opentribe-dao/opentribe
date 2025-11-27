@@ -160,7 +160,7 @@ export async function GET(
         submissions: {
           where: {
             status: {
-              in: ["SUBMITTED", "APPROVED", "REJECTED"],
+              notIn: ["DRAFT", "WITHDRAWN"],
             },
           },
           select: {
@@ -187,6 +187,7 @@ export async function GET(
           },
           orderBy: [
             { isWinner: "desc" },
+            { status: "asc" },
             { position: "asc" },
             { createdAt: "desc" },
           ],

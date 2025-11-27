@@ -140,7 +140,6 @@ async function calculatePlatformStats(): Promise<
     database.bounty.aggregate({
       _sum: { amountUSD: true },
       where: {
-        winnersAnnouncedAt: { not: null },
         visibility: "PUBLISHED",
         status: { in: ["OPEN", "COMPLETED", "REVIEWING"] },
       },

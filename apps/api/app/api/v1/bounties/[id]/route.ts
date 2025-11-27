@@ -122,7 +122,7 @@ export async function GET(
         submissions: {
           where: {
             status: {
-              in: ["SUBMITTED", "APPROVED", "REJECTED"], // Show all reviewed submissions, not drafts
+              notIn: ["DRAFT", "SPAM"], // Show all non-draft, non-spam submissions
             },
           },
           select: {

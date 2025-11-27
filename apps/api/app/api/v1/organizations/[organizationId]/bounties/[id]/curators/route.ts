@@ -1,5 +1,6 @@
 import { database } from "@packages/db";
 import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
+import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -12,58 +13,6 @@ export function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
   });
-}
-
-// GET /api/v1/organizations/[organizationId]/bounties/[id]/curators - List curators for a bounty
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ organizationId: string; id: string }> }
-) {
-  try {
-    const { organizationId, id: bountyId } = await params;
-
-    // Check if bounty exists
-    const bounty = await database.bounty.findFirst({
-      where: {
-        OR: [{ id: bountyId }, { slug: bountyId }],
-        organizationId,
-      },
-      select: { id: true },
-    });
-
-    if (!bounty) {
-      return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
-    }
-
-    // Fetch curators
-    const curators = await database.curator.findMany({
-      where: {
-        bountyId: bounty.id,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-            username: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
-    });
-
-    return NextResponse.json({ curators });
-  } catch (error) {
-    console.error("Error fetching curators:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch curators" },
-      { status: 500 }
-    );
-  }
 }
 
 // POST /api/v1/organizations/[organizationId]/bounties/[id]/curators - Add a curator to a bounty
@@ -105,10 +54,17 @@ export async function POST(
       return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
-    // Disable adding curators if bounty is completed
-    if (bounty.status === "COMPLETED") {
+    // Disable adding curators if bounty is completed, closed, or cancelled
+    if (
+      bounty.status === "COMPLETED" ||
+      bounty.status === "CLOSED" ||
+      bounty.status === "CANCELLED"
+    ) {
       return NextResponse.json(
-        { error: "Cannot add curators to a completed bounty" },
+        {
+          error:
+            "Cannot add curators to a bounty that is completed, closed, or cancelled",
+        },
         { status: 400 }
       );
     }
@@ -155,7 +111,7 @@ export async function POST(
       data: {
         bountyId: bounty.id,
         userId,
-        contact: member.user.email, // Default contact to email
+        contact: member.user.email || "", // Default contact to email, fallback to empty string
       },
       include: {
         user: {
@@ -174,7 +130,8 @@ export async function POST(
   } catch (error) {
     console.error("Error adding curator:", error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+      const formattedError = formatZodError(error);
+      return NextResponse.json(formattedError, { status: 400 });
     }
     return NextResponse.json(
       { error: "Failed to add curator" },

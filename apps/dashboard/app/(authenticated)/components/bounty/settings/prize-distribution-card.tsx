@@ -27,12 +27,14 @@ interface PrizeDistributionCardProps {
     value: BountyDetails[K]
   ) => void;
   updateWinnings: (position: string, amount: number) => void;
+  isLocked?: boolean;
 }
 
 export function PrizeDistributionCard({
   formData,
   updateFormData,
   updateWinnings,
+  isLocked = false,
 }: PrizeDistributionCardProps) {
   return (
     <Card className="border-white/10 bg-white/10 backdrop-blur-[10px]">
@@ -52,7 +54,8 @@ export function PrizeDistributionCard({
               Total Amount *
             </Label>
             <Input
-              className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
+              className={`border-white/10 bg-white/5 text-white placeholder:text-white/40 ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}
+              disabled={isLocked}
               id="amount"
               onChange={(e) => updateFormData("amount", Number(e.target.value))}
               placeholder="0"
@@ -65,10 +68,11 @@ export function PrizeDistributionCard({
               Token
             </Label>
             <Select
+              disabled={isLocked}
               onValueChange={(value) => updateFormData("token", value)}
               value={formData.token}
             >
-              <SelectTrigger className="border-white/10 bg-white/5 text-white">
+              <SelectTrigger className={`border-white/10 bg-white/5 text-white ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-white/10 bg-zinc-900">
@@ -89,10 +93,11 @@ export function PrizeDistributionCard({
         <div className="space-y-2">
           <Label className="text-white/80">Distribution Type</Label>
           <Select
+            disabled={isLocked}
             onValueChange={(value: string) => updateFormData("split", value)}
             value={formData.split}
           >
-            <SelectTrigger className="border-white/10 bg-white/5 text-white">
+            <SelectTrigger className={`border-white/10 bg-white/5 text-white ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="border-white/10 bg-zinc-900">
@@ -132,7 +137,8 @@ export function PrizeDistributionCard({
                       Place
                     </span>
                     <Input
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/40"
+                      className={`border-white/10 bg-white/5 text-white placeholder:text-white/40 ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}
+                      disabled={isLocked}
                       onChange={(e) =>
                         updateWinnings(position, Number(e.target.value))
                       }
@@ -148,7 +154,8 @@ export function PrizeDistributionCard({
                     <span className="text-sm text-white/60">
                       {formData.token}
                     </span>
-                    {formData.winnings &&
+                    {!isLocked &&
+                      formData.winnings &&
                       Object.keys(formData.winnings).length > 1 && (
                         <Button
                           aria-label="Remove tier"
@@ -170,28 +177,30 @@ export function PrizeDistributionCard({
                       )}
                   </div>
                 ))}
-              <Button
-                className="mt-4 border-white/20 bg-white/10 text-white hover:bg-white/20"
-                onClick={() => {
-                  const winnings = formData.winnings ?? {};
-                  const existing = Object.keys(winnings).map(Number);
-                  let next = 1;
-                  while (existing.includes(next)) {
-                    next++;
-                  }
-                  const newWinnings = {
-                    ...winnings,
-                    [next]: "",
-                  };
-                  updateFormData("winnings", newWinnings);
-                }}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                <Plus className="size-4" />
-                Add Winning Tier
-              </Button>
+              {!isLocked && (
+                <Button
+                  className="mt-4 border-white/20 bg-white/10 text-white hover:bg-white/20"
+                  onClick={() => {
+                    const winnings = formData.winnings ?? {};
+                    const existing = Object.keys(winnings).map(Number);
+                    let next = 1;
+                    while (existing.includes(next)) {
+                      next++;
+                    }
+                    const newWinnings = {
+                      ...winnings,
+                      [next]: "",
+                    };
+                    updateFormData("winnings", newWinnings);
+                  }}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  <Plus className="size-4" />
+                  Add Winning Tier
+                </Button>
+              )}
             </div>
           </div>
         )}

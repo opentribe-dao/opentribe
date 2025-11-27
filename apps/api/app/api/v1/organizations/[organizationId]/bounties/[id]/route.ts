@@ -304,7 +304,26 @@ export async function PATCH(
     }
 
     // Check if user has admin/owner role
-    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bounty: {
+          OR: [
+            { id: bountyId },
+            { slug: { equals: bountyId, mode: "insensitive" } },
+          ],
+          organizationId,
+        },
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         { error: "You do not have permission to update this bounty" },
         { status: 403 }
@@ -329,6 +348,21 @@ export async function PATCH(
     // Parse and validate request body
     const body = await request.json();
     const validatedData = updateBountySchema.parse(body);
+
+    // If curator (not admin/owner) and bounty is CLOSED, prevent editing critical fields
+    if (!isOwnerOrAdmin && isCurator && bounty.status === "CLOSED") {
+      if (
+        validatedData.amount !== undefined ||
+        validatedData.token !== undefined ||
+        validatedData.split !== undefined ||
+        validatedData.winnings !== undefined
+      ) {
+        return NextResponse.json(
+          { error: "Curators cannot edit financial details of a closed bounty" },
+          { status: 403 }
+        );
+      }
+    }
 
     // Prepare update data
     const updateData: Prisma.BountyUpdateInput = {};
@@ -421,7 +455,26 @@ export async function DELETE(
     }
 
     // Check if user has admin/owner role
-    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bounty: {
+          OR: [
+            { id: bountyId },
+            { slug: { equals: bountyId, mode: "insensitive" } },
+          ],
+          organizationId,
+        },
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         { error: "You do not have permission to delete this bounty" },
         { status: 403 }

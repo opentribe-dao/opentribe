@@ -98,9 +98,7 @@ export function CuratorsCard({ bounty }: CuratorsCardProps) {
 
   const isOwnerOrAdmin =
     currentUserMember?.role === "owner" ||
-    currentUserMember?.role === "admin" ||
-    activeOrg?.membership?.role === "owner" ||
-    activeOrg?.membership?.role === "admin";
+    currentUserMember?.role === "admin";
 
   return (
     <Card className="border-white/10 bg-white/5">

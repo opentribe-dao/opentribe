@@ -597,7 +597,18 @@ describe("Bounty Management", () => {
       expect(database.bounty.findUnique).toHaveBeenCalledWith({
         where: { id: "bounty-1" },
       });
-      expect(getOrganizationAuth).toHaveBeenCalledWith(request, "org-1");
+      expect(getOrganizationAuth).toHaveBeenCalledWith(
+        request,
+        "org-1",
+        expect.objectContaining({
+          session: expect.objectContaining({
+            user: expect.objectContaining({
+              id: "admin-1",
+              email: "admin@org.com",
+            }),
+          }),
+        })
+      );
       expect(database.submission.findMany).toHaveBeenCalledWith({
         where: {
           bountyId: "bounty-1",
@@ -630,6 +641,7 @@ describe("Bounty Management", () => {
         data: {
           position: null,
           winningAmount: null,
+          winningAmountUSD: null,
           isWinner: false,
           reviewedAt: expect.any(Date),
         },
@@ -703,7 +715,18 @@ describe("Bounty Management", () => {
       // Assert
       expect(response.status).toBe(200);
       expect(data.resetCount).toBe(1);
-      expect(getOrganizationAuth).toHaveBeenCalledWith(request, "org-1");
+      expect(getOrganizationAuth).toHaveBeenCalledWith(
+        request,
+        "org-1",
+        expect.objectContaining({
+          session: expect.objectContaining({
+            user: expect.objectContaining({
+              id: "owner-1",
+              email: "owner@org.com",
+            }),
+          }),
+        })
+      );
     });
 
     test("should return message when no approved submissions found", async () => {

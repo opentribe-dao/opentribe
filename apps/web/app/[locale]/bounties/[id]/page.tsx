@@ -379,7 +379,7 @@ export default function BountyDetailPage({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Reach out on Telegram
+                      Message on Telegram
                     </a>
                   </Button>
                 );
@@ -390,7 +390,7 @@ export default function BountyDetailPage({
                     className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
                   >
                     <a href={`mailto:${email}`}>
-                      Reach out via email
+                      Send an email
                     </a>
                   </Button>
                 );
@@ -405,7 +405,7 @@ export default function BountyDetailPage({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Reach out on Twitter
+                      Message on Twitter
                     </a>
                   </Button>
                 );
@@ -420,7 +420,7 @@ export default function BountyDetailPage({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Reach out on GitHub
+                      Connect on GitHub
                     </a>
                   </Button>
                 );
@@ -435,7 +435,7 @@ export default function BountyDetailPage({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Reach out on LinkedIn
+                      Connect on LinkedIn
                     </a>
                   </Button>
                 );
@@ -447,7 +447,7 @@ export default function BountyDetailPage({
                 <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
                   <h3 className="mb-4 font-bold font-heading text-xl">Contact</h3>
                   <p className="mb-4 text-sm text-white/60">
-                    Have questions about this listing?
+                    Need help with this bounty?
                   </p>
                   {contactButton}
                 </div>

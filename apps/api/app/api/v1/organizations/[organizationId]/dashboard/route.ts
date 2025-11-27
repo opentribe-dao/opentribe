@@ -2,6 +2,7 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { getOrganizationAuth } from "@/lib/organization-auth";
 
 // Typed response per DASHBOARD_API.md
 interface DashboardResponse {
@@ -63,14 +64,11 @@ export async function GET(
     const { organizationId } = await params;
 
     // Organization membership check
-    const membership = await database.member.findFirst({
-      where: {
-        userId: sessionData.user.id,
-        organizationId,
-      },
+    const orgAuth = await getOrganizationAuth(request, organizationId, {
+      session: sessionData,
     });
 
-    if (!membership) {
+    if (!orgAuth) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

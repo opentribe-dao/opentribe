@@ -103,7 +103,8 @@ export async function GET(
       // Check if user has organization membership
       const orgAuth = await getOrganizationAuth(
         request,
-        submission.bounty.organizationId
+        submission.bounty.organizationId,
+        { session: sessionData }
       );
 
       // Only organization members can view SPAM submissions
@@ -127,7 +128,8 @@ export async function GET(
         // If not the creator, check if user has organization membership
         const orgAuth = await getOrganizationAuth(
           request,
-          submission.bounty.organizationId
+          submission.bounty.organizationId,
+          { session: sessionData }
         );
 
         // Only organization members can view non-public submissions they didn't create

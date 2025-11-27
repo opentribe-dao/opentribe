@@ -181,6 +181,44 @@ export function useSubmission() {
     []
   );
 
+  const unmarkSubmissionAsSpam = useCallback(
+    async (bountyId: string, submissionId: string) => {
+      try {
+        setActionLoading(true);
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/bounties/${bountyId}/submissions/${submissionId}/review`,
+          {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "SUBMITTED", action: "CLEAR_SPAM" }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to unmark submission as SPAM");
+        }
+
+        toast.success("Submission unmarked as SPAM");
+        return true;
+      } catch (error) {
+        console.error("Error unmarking submission as SPAM:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to unmark submission as SPAM";
+        toast.error(errorMessage);
+        throw error;
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    []
+  );
+
   const resetSubmissionState = useCallback(() => {
     setSubmission(null);
     setFeedback("");
@@ -200,6 +238,7 @@ export function useSubmission() {
     fetchSubmissionDetails,
     assignPosition,
     markSubmissionAsSpam,
+    unmarkSubmissionAsSpam,
     resetSubmissionState,
   };
 }

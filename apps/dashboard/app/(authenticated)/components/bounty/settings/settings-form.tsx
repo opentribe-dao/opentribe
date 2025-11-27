@@ -1,6 +1,7 @@
 "use client";
 
 import type { BountyDetails } from "@/hooks/use-bounty";
+import { CuratorsCard } from "./curators-card";
 import { DangerZoneCard } from "./danzer-zone-card";
 import { PrizeDistributionCard } from "./prize-distribution-card";
 import { StatusVisibilityCard } from "./status-visibility-card";
@@ -28,16 +29,25 @@ export function BountySettingsForm({
   showDeleteConfirm,
   onToggleDeleteConfirm,
 }: BountySettingsFormProps) {
+  // Lock financial fields if bounty is COMPLETED or CLOSED
+  const isFinancialLocked =
+    bounty.status === "COMPLETED" || bounty.status === "CLOSED";
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Left Column - Basic Settings */}
       <div className="space-y-6">
         <PrizeDistributionCard
           formData={formData}
+          isLocked={isFinancialLocked}
           updateFormData={updateFormData}
           updateWinnings={updateWinnings}
         />
-        <TimelineCard formData={formData} updateFormData={updateFormData} />
+        <TimelineCard
+          formData={formData}
+          isLocked={isFinancialLocked}
+          updateFormData={updateFormData}
+        />
       </div>
 
       {/* Right Column - Advanced Settings */}
@@ -47,6 +57,7 @@ export function BountySettingsForm({
           formData={formData}
           updateFormData={updateFormData}
         />
+        <CuratorsCard bounty={bounty} />
         <DangerZoneCard
           onDelete={onDelete}
           onToggleDeleteConfirm={onToggleDeleteConfirm}

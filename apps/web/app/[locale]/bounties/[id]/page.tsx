@@ -45,6 +45,9 @@ interface Bounty {
     user: {
       email: string | null;
       telegram: string | null;
+      linkedin: string | null;
+      github: string | null;
+      twitter: string | null;
     };
   }>;
 }
@@ -354,41 +357,102 @@ export default function BountyDetailPage({
             </div>
 
             {/* Contact Card */}
-            {bounty.curators && bounty.curators.length > 0 && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-                <h3 className="mb-4 font-bold font-heading text-xl">Contact</h3>
-                <p className="mb-4 text-sm text-white/60">
-                  Have questions about this listing?
-                </p>
-                {(bounty.curators[0].contact || bounty.curators[0].user.email) && (
+            {bounty.curators && bounty.curators.length > 0 && (() => {
+              const curator = bounty.curators[0];
+              const telegram = curator.user.telegram;
+              const email = curator.contact || curator.user.email;
+              const github = curator.user.github;
+              const twitter = curator.user.twitter;
+              const linkedin = curator.user.linkedin;
+
+              // Priority: 1. Telegram, 2. Email, 3. Twitter, 4. GitHub, 5. LinkedIn
+              let contactButton = null;
+
+              if (telegram) {
+                contactButton = (
                   <Button
                     asChild
                     className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
                   >
                     <a
-                      href={`mailto:${bounty.curators[0].contact || bounty.curators[0].user.email}`}
+                      href={`https://t.me/${telegram.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
+                      Reach out on Telegram
+                    </a>
+                  </Button>
+                );
+              } else if (email) {
+                contactButton = (
+                  <Button
+                    asChild
+                    className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
+                  >
+                    <a href={`mailto:${email}`}>
                       Reach out via email
                     </a>
                   </Button>
-                )}
-                {!(bounty.curators[0].contact || bounty.curators[0].user.email) &&
-                  bounty.curators[0].user.telegram && (
-                    <Button
-                      asChild
-                      className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
+                );
+              } else if (twitter) {
+                contactButton = (
+                  <Button
+                    asChild
+                    className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
+                  >
+                    <a
+                      href={`https://twitter.com/${twitter.replace(/^@/, "").replace(/^(https?:\/\/)?(www\.)?(twitter|x)\.com\//, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <a
-                        href={`https://t.me/${bounty.curators[0].user.telegram.replace("@", "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Reach out on Telegram
-                      </a>
-                    </Button>
-                  )}
-              </div>
-            )}
+                      Reach out on Twitter
+                    </a>
+                  </Button>
+                );
+              } else if (github) {
+                contactButton = (
+                  <Button
+                    asChild
+                    className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
+                  >
+                    <a
+                      href={`https://github.com/${github.replace(/^(https?:\/\/)?(www\.)?github\.com\//, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Reach out on GitHub
+                    </a>
+                  </Button>
+                );
+              } else if (linkedin) {
+                contactButton = (
+                  <Button
+                    asChild
+                    className="w-full bg-[#E6007A] text-white hover:bg-[#FF1493]"
+                  >
+                    <a
+                      href={`https://linkedin.com/in/${linkedin.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Reach out on LinkedIn
+                    </a>
+                  </Button>
+                );
+              }
+
+              if (!contactButton) return null;
+
+              return (
+                <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                  <h3 className="mb-4 font-bold font-heading text-xl">Contact</h3>
+                  <p className="mb-4 text-sm text-white/60">
+                    Have questions about this listing?
+                  </p>
+                  {contactButton}
+                </div>
+              );
+            })()}
 
             {/* Submissions Info */}
             <div className="flex justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6 align-center backdrop-blur-sm">

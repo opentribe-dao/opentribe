@@ -72,6 +72,14 @@ export async function DELETE(
       );
     }
 
+    // Remove associated curator records first
+    await database.curator.deleteMany({
+      where: {
+        userId: memberToRemove.userId,
+        OR: [{ bounty: { organizationId } }, { grant: { organizationId } }],
+      },
+    });
+
     // Remove the member
     await database.member.delete({
       where: { id: memberId },

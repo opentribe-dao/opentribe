@@ -304,7 +304,26 @@ export async function PATCH(
     }
 
     // Check if user has admin/owner role
-    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bounty: {
+          OR: [
+            { id: bountyId },
+            { slug: { equals: bountyId, mode: "insensitive" } },
+          ],
+          organizationId,
+        },
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         { error: "You do not have permission to update this bounty" },
         { status: 403 }
@@ -421,7 +440,26 @@ export async function DELETE(
     }
 
     // Check if user has admin/owner role
-    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bounty: {
+          OR: [
+            { id: bountyId },
+            { slug: { equals: bountyId, mode: "insensitive" } },
+          ],
+          organizationId,
+        },
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         { error: "You do not have permission to delete this bounty" },
         { status: 403 }

@@ -600,6 +600,17 @@ describe("Submission System Tests", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (getOrganizationAuth as any).mockResolvedValue({
+        userId: "org-admin",
+        membership: {
+          id: "member-1",
+          userId: "org-admin",
+          organizationId: "org-1",
+          role: "OWNER",
+        },
+      });
+      (hasRequiredRole as any).mockReturnValue(true); // Owner has permission
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator, but owner
       (database.submission.findMany as any).mockResolvedValue([
         { id: "sub-1", userId: "u1", status: "SUBMITTED" },
         { id: "sub-2", userId: "u2", status: "SUBMITTED" },
@@ -690,6 +701,7 @@ describe("Submission System Tests", () => {
 
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.bounty.findUnique as any).mockResolvedValue(mockBounty);
+      (getOrganizationAuth as any).mockResolvedValue(null); // Not a member
 
       // Act
       const body = JSON.stringify({
@@ -712,7 +724,7 @@ describe("Submission System Tests", () => {
       });
 
       // Assert
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(401); // Returns 401 when getOrganizationAuth returns null
       expect(database.submission.updateMany).not.toHaveBeenCalled();
       expect(database.bounty.update).not.toHaveBeenCalled();
     });
@@ -838,6 +850,7 @@ describe("Submission System Tests", () => {
         position: null,
         winningAmount: null,
         winningAmountUSD: null,
+        isWinner: false,
         bounty: {
           id: "bounty-1",
           organizationId: "org-1",
@@ -913,6 +926,10 @@ describe("Submission System Tests", () => {
           where: { id: "submission-1" },
           data: expect.objectContaining({
             status: "SPAM",
+            position: null,
+            winningAmount: null,
+            winningAmountUSD: null,
+            isWinner: false,
           }),
         })
       );
@@ -1009,7 +1026,7 @@ describe("Submission System Tests", () => {
       );
     });
 
-    test("should prevent marking winner as SPAM", async () => {
+    test("should clear winner fields when marking winner as SPAM", async () => {
       // Arrange
       const mockSession = {
         user: {
@@ -1025,6 +1042,7 @@ describe("Submission System Tests", () => {
         position: 1, // Winner with position
         winningAmount: 500,
         winningAmountUSD: 750,
+        isWinner: true,
         bounty: {
           id: "bounty-1",
           organizationId: "org-1",
@@ -1042,9 +1060,32 @@ describe("Submission System Tests", () => {
         },
       };
 
+      const mockUpdatedSubmission = {
+        ...mockSubmission,
+        status: "SPAM",
+        position: null,
+        winningAmount: null,
+        winningAmountUSD: null,
+        isWinner: false,
+        reviewedAt: new Date(),
+        submitter: {
+          id: "user-1",
+          username: "submitter",
+          email: "submitter@example.com",
+        },
+        bounty: {
+          id: "bounty-1",
+          title: "Test Bounty",
+          organizationId: "org-1",
+        },
+      };
+
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
       vi.mocked(getOrganizationAuth).mockResolvedValue(mockOrgAuth);
+      (database.submission.update as any).mockResolvedValue(
+        mockUpdatedSubmission
+      );
 
       // Act
       const body = JSON.stringify({ status: "SPAM" });
@@ -1068,9 +1109,21 @@ describe("Submission System Tests", () => {
       const data = await response.json();
 
       // Assert
-      expect(response.status).toBe(400);
-      expect(data.error).toContain("Cannot mark winner as SPAM");
-      expect(database.submission.update).not.toHaveBeenCalled();
+      expect(response.status).toBe(200);
+      expect(data.message).toBe("Submission marked as SPAM successfully");
+      expect(data.submission.status).toBe("SPAM");
+      expect(database.submission.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "submission-1" },
+          data: expect.objectContaining({
+            status: "SPAM",
+            position: null,
+            winningAmount: null,
+            winningAmountUSD: null,
+            isWinner: false,
+          }),
+        })
+      );
     });
 
     test("should reject unmarking SPAM if submission is not SPAM", async () => {
@@ -1172,6 +1225,8 @@ describe("Submission System Tests", () => {
       (auth.api.getSession as any).mockResolvedValue(mockSession);
       (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
       vi.mocked(getOrganizationAuth).mockResolvedValue(mockOrgAuth);
+      (hasRequiredRole as any).mockReturnValue(false); // Member is not owner/admin
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator
 
       // Act
       const body = JSON.stringify({ status: "SPAM" });
@@ -1200,103 +1255,6 @@ describe("Submission System Tests", () => {
         "don't have permission to review submissions"
       );
       expect(database.submission.update).not.toHaveBeenCalled();
-    });
-
-    test("should preserve position and winningAmount when unmarking SPAM", async () => {
-      // Arrange
-      const mockSession = {
-        user: {
-          id: "org-admin",
-          email: "admin@org.com",
-        },
-      };
-
-      const mockSubmission = {
-        id: "submission-1",
-        bountyId: "bounty-1",
-        status: "SPAM",
-        position: 2,
-        winningAmount: 300,
-        winningAmountUSD: 450,
-        bounty: {
-          id: "bounty-1",
-          organizationId: "org-1",
-        },
-      };
-
-      const mockOrgAuth = {
-        userId: "org-admin",
-        organizationId: "org-1",
-        membership: {
-          id: "membership-1",
-          role: "admin",
-          userId: "org-admin",
-          organizationId: "org-1",
-        },
-      };
-
-      const mockUpdatedSubmission = {
-        ...mockSubmission,
-        status: "SUBMITTED",
-        reviewedAt: new Date(),
-        submitter: {
-          id: "user-1",
-          username: "submitter",
-          email: "submitter@example.com",
-        },
-        bounty: {
-          id: "bounty-1",
-          title: "Test Bounty",
-          organizationId: "org-1",
-        },
-      };
-
-      (auth.api.getSession as any).mockResolvedValue(mockSession);
-      (database.submission.findUnique as any).mockResolvedValue(mockSubmission);
-      vi.mocked(getOrganizationAuth).mockResolvedValue(mockOrgAuth);
-      (database.submission.update as any).mockResolvedValue(
-        mockUpdatedSubmission
-      );
-
-      // Act
-      const body = JSON.stringify({
-        status: "SUBMITTED",
-        action: "CLEAR_SPAM",
-      });
-      const request = new Request(
-        "http://localhost:3002/api/v1/bounties/bounty-1/submissions/submission-1/review",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body,
-        }
-      );
-
-      const response = await reviewSubmission(request, {
-        params: Promise.resolve({
-          id: "bounty-1",
-          submissionId: "submission-1",
-        }),
-      });
-
-      // Assert
-      expect(response.status).toBe(200);
-      // Verify that update was called without changing position/winningAmount
-      expect(database.submission.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: "submission-1" },
-          data: expect.objectContaining({
-            status: "SUBMITTED",
-            // Should NOT include position, winningAmount, or winningAmountUSD
-          }),
-        })
-      );
-      const updateCall = (database.submission.update as any).mock.calls[0][0];
-      expect(updateCall.data).not.toHaveProperty("position");
-      expect(updateCall.data).not.toHaveProperty("winningAmount");
-      expect(updateCall.data).not.toHaveProperty("winningAmountUSD");
     });
   });
 

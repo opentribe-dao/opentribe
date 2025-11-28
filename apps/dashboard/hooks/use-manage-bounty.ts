@@ -317,10 +317,69 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
     },
   });
 
+  // Validation helper for settings form
+  const validateSettingsForm = useCallback((): boolean => {
+    // Step 1: Basic fields validation
+    if (
+      !formData.title ||
+      !formData.description ||
+      !Array.isArray(formData.skills) ||
+      formData.skills.length === 0
+    ) {
+      toast.error("Please fill in all required fields (title, description, skills)");
+      return false;
+    }
+
+    // Step 2: Amount and winnings validation
+    const totalAmount = formData.amount;
+    const winnings = formData.winnings as Record<string, number> | undefined;
+
+    if (
+      !totalAmount ||
+      totalAmount <= 0 ||
+      !winnings ||
+      Object.keys(winnings).length === 0
+    ) {
+      toast.error("Please specify total amount and winner rewards");
+      return false;
+    }
+
+    // Check if any winner amount is missing or invalid
+    const hasInvalidWinnerAmount = Object.values(winnings).some(
+      (amount) => !amount || Number.isNaN(Number(amount)) || Number(amount) <= 0
+    );
+    if (hasInvalidWinnerAmount) {
+      toast.error("Please specify valid reward amounts for all winners");
+      return false;
+    }
+
+    // Check if winner amounts add up to total
+    const winnersTotal = Object.values(winnings).reduce(
+      (sum: number, amount) => sum + Number(amount),
+      0
+    );
+    if (Math.abs(totalAmount - winnersTotal) > 0.01) {
+      toast.error("Winner rewards must add up to the total amount");
+      return false;
+    }
+
+    // Step 3: Deadline validation
+    if (!formData.deadline) {
+      toast.error("Please set a deadline");
+      return false;
+    }
+
+    return true;
+  }, [formData]);
+
   // Handlers
   const handleSave = useCallback(() => {
+    // Validate form before saving
+    if (!validateSettingsForm()) {
+      return;
+    }
     saveMutation.mutate(formData);
-  }, [formData, saveMutation]);
+  }, [formData, saveMutation, validateSettingsForm]);
 
   const handleReset = useCallback(() => {
     if (!bounty) {

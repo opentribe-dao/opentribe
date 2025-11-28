@@ -6,6 +6,7 @@ import { exchangeRateService } from "@packages/polkadot/server";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 // Schema for announcing winners
 const announceWinnersSchema = z.object({
@@ -37,30 +38,38 @@ export async function POST(
 
     const bountyId = (await params).id;
 
-    // Get the bounty and check permissions
+    // Get the bounty first to check organization
     const bounty = await database.bounty.findUnique({
       where: { id: bountyId },
-      include: {
-        organization: {
-          include: {
-            members: {
-              where: {
-                userId: session.user.id,
-                role: {
-                  in: ["owner", "admin"],
-                },
-              },
-            },
-          },
-        },
-      },
     });
 
     if (!bounty) {
       return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
-    if (bounty.organization.members.length === 0) {
+    // Check if user has permission to announce winners
+    const orgAuth = await getOrganizationAuth(request, bounty.organizationId, {
+      session,
+    });
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has admin/owner role
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bountyId: bounty.id,
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         {
           error:

@@ -97,7 +97,21 @@ async function handlePositionPatch(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+    // Check if user has admin/owner role
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bountyId: submission.bountyId,
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         { error: "You don't have permission to assign positions" },
         { status: 403 }

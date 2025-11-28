@@ -79,11 +79,13 @@ describe("Grant Stats API", () => {
       expect(database.grant.count).toHaveBeenCalledWith({
         where: {
           visibility: "PUBLISHED",
+          status: "OPEN",
         },
       });
       expect(database.grant.aggregate).toHaveBeenCalledWith({
         where: {
           visibility: "PUBLISHED",
+          status: "OPEN",
         },
         _sum: {
           totalFundsUSD: true,
@@ -355,11 +357,13 @@ describe("Grant Stats API", () => {
       expect(database.grant.count).toHaveBeenCalledWith({
         where: {
           visibility: "PUBLISHED",
+          status: "OPEN",
         },
       });
       expect(database.grant.aggregate).toHaveBeenCalledWith({
         where: {
           visibility: "PUBLISHED",
+          status: "OPEN",
         },
         _sum: {
           totalFundsUSD: true,

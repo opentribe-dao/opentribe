@@ -37,6 +37,7 @@ vi.mock("@packages/db", () => ({
     },
     curator: {
       create: vi.fn(),
+      findFirst: vi.fn(),
     },
   },
 }));
@@ -565,6 +566,7 @@ describe("Bounty Management", () => {
           organizationId: "org-1",
         },
       } as any);
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator, but admin
       (database.submission.findMany as any).mockResolvedValue(
         mockApprovedSubmissions
       );
@@ -692,6 +694,7 @@ describe("Bounty Management", () => {
           organizationId: "org-1",
         },
       } as any);
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator, but owner
       (database.submission.findMany as any).mockResolvedValue(
         mockApprovedSubmissions
       );
@@ -756,6 +759,7 @@ describe("Bounty Management", () => {
           organizationId: "org-1",
         },
       } as any);
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator, but admin
       (database.submission.findMany as any).mockResolvedValue([]); // No approved submissions
 
       // Act
@@ -891,6 +895,7 @@ describe("Bounty Management", () => {
           organizationId: "org-1",
         },
       } as any);
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator and not admin/owner
 
       // Act
       const request = new NextRequest(
@@ -1005,6 +1010,7 @@ describe("Bounty Management", () => {
           organizationId: "org-1",
         },
       } as any);
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator, but admin
       (database.submission.findMany as any).mockResolvedValue(
         mockApprovedSubmissions
       );
@@ -1058,6 +1064,7 @@ describe("Bounty Management", () => {
           organizationId: "org-1",
         },
       } as any);
+      (database.curator.findFirst as any).mockResolvedValue(null); // Not a curator, but admin
       (database.submission.findMany as any).mockResolvedValue([]);
 
       // Act

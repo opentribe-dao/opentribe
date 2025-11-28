@@ -30,7 +30,7 @@ export function SubmissionActions({
   const { data: session } = useSession();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const deleteSubmission = useDeleteSubmission(bountyId, submissionId);
+  const deleteSubmission = useDeleteSubmission(bountyId);
 
   // Only show actions if user owns this submission
   const isOwner = session?.user?.id === submitterId;
@@ -56,9 +56,7 @@ export function SubmissionActions({
   };
 
   const containerClasses =
-    layout === "column"
-      ? "flex flex-col gap-3"
-      : "flex flex-wrap gap-2";
+    layout === "column" ? "flex flex-col gap-3" : "flex flex-wrap gap-2";
 
   const buttonClasses =
     layout === "column"

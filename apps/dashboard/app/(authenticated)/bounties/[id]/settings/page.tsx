@@ -6,12 +6,8 @@ import { useBountySettings } from "@/hooks/use-manage-bounty";
 import { useBountyContext } from "../../../components/bounty-provider";
 
 export default function SettingsPage() {
-  const {
-    bounty,
-    bountyLoading,
-    bountyPending,
-    bountyError,
-  } = useBountyContext();
+  const { bounty, bountyLoading, bountyPending, bountyError } =
+    useBountyContext();
   const {
     formData,
     hasChanges,
@@ -43,6 +39,11 @@ export default function SettingsPage() {
         <div className="text-red-400">Failed to load bounty settings</div>
       </div>
     );
+  }
+
+  // At this point, bounty must be defined (we've checked for loading/error states)
+  if (!bounty) {
+    return null;
   }
 
   return (

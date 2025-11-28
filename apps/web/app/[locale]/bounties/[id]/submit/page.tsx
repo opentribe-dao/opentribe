@@ -52,10 +52,7 @@ const BountySubmissionPage = () => {
     params.id as string
   );
 
-  const updateSubmission = useUpdateSubmission(
-    params.id as string,
-    editSubmissionId || ""
-  );
+  const updateSubmission = useUpdateSubmission(params.id as string);
 
   const [formData, setFormData] = useState({
     submissionUrl: "",
@@ -155,9 +152,7 @@ const BountySubmissionPage = () => {
           title: formData.title || undefined,
           description: formData.description || undefined,
           attachments:
-            formData.attachments.length > 0
-              ? formData.attachments
-              : undefined,
+            formData.attachments.length > 0 ? formData.attachments : undefined,
           responses:
             Object.keys(formData.responses).length > 0
               ? formData.responses
@@ -193,48 +188,48 @@ const BountySubmissionPage = () => {
 
         const data = await response.json();
 
-      if (!response.ok) {
-        // Extract field name from Zod validation errors
-        let errorMessage = data.error || "Failed to submit";
+        if (!response.ok) {
+          // Extract field name from Zod validation errors
+          let errorMessage = data.error || "Failed to submit";
 
-        if (data.message) {
-          // Parse Zod error message format: "field: error message"
-          const match = data.message.match(FIELD_NAME_REGEX);
-          if (match) {
-            const fieldName = match[1]?.trim() || "";
-            const readableField = fieldName
-              .replace(CAMEL_CASE_REGEX, " $1")
-              .toLowerCase()
-              .replace(WORD_BOUNDARY_REGEX, (c: string) => c.toUpperCase());
-            errorMessage = `${readableField} has invalid value`;
-          } else {
-            // Fallback to the full message if format is different
-            errorMessage = data.message;
-          }
-        } else if (data.details) {
-          // Try to extract from details if message is not available
-          const firstIssue = Array.isArray(data.details)
-            ? data.details[0]
-            : data.details;
-
-          if (
-            firstIssue?.path &&
-            Array.isArray(firstIssue.path) &&
-            firstIssue.path.length > 0
-          ) {
-            const fieldName = firstIssue.path.at(-1);
-            if (fieldName) {
-              const readableField = String(fieldName)
+          if (data.message) {
+            // Parse Zod error message format: "field: error message"
+            const match = data.message.match(FIELD_NAME_REGEX);
+            if (match) {
+              const fieldName = match[1]?.trim() || "";
+              const readableField = fieldName
                 .replace(CAMEL_CASE_REGEX, " $1")
                 .toLowerCase()
                 .replace(WORD_BOUNDARY_REGEX, (c: string) => c.toUpperCase());
               errorMessage = `${readableField} has invalid value`;
+            } else {
+              // Fallback to the full message if format is different
+              errorMessage = data.message;
+            }
+          } else if (data.details) {
+            // Try to extract from details if message is not available
+            const firstIssue = Array.isArray(data.details)
+              ? data.details[0]
+              : data.details;
+
+            if (
+              firstIssue?.path &&
+              Array.isArray(firstIssue.path) &&
+              firstIssue.path.length > 0
+            ) {
+              const fieldName = firstIssue.path.at(-1);
+              if (fieldName) {
+                const readableField = String(fieldName)
+                  .replace(CAMEL_CASE_REGEX, " $1")
+                  .toLowerCase()
+                  .replace(WORD_BOUNDARY_REGEX, (c: string) => c.toUpperCase());
+                errorMessage = `${readableField} has invalid value`;
+              }
             }
           }
-        }
 
-        throw new Error(errorMessage);
-      }
+          throw new Error(errorMessage);
+        }
 
         toast.success("Submission created successfully!");
         router.push(`/bounties/${params.id}`);
@@ -469,9 +464,9 @@ const BountySubmissionPage = () => {
                                 formData.responses[question.question] === "Yes"
                                   ? "yes"
                                   : formData.responses[question.question] ===
-                                      "No"
-                                    ? "no"
-                                    : undefined
+                                    "No"
+                                  ? "no"
+                                  : undefined
                               }
                             >
                               <div className="flex items-center gap-6">

@@ -45,7 +45,21 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!hasRequiredRole(orgAuth.membership, ["owner", "admin"])) {
+    // Check if user has admin/owner role
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bountyId: bounty.id,
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         { error: "You don't have permission to manage submissions" },
         { status: 403 }

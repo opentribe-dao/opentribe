@@ -6,7 +6,12 @@ import { useBountySettings } from "@/hooks/use-manage-bounty";
 import { useBountyContext } from "../../../components/bounty-provider";
 
 export default function SettingsPage() {
-  const { bounty, bountyLoading, bountyError } = useBountyContext();
+  const {
+    bounty,
+    bountyLoading,
+    bountyPending,
+    bountyError,
+  } = useBountyContext();
   const {
     formData,
     hasChanges,
@@ -21,7 +26,8 @@ export default function SettingsPage() {
     setShowDeleteConfirm,
   } = useBountySettings(bounty);
 
-  if (bountyLoading) {
+  // Show loader if loading or pending (query might be disabled waiting for activeOrg)
+  if (bountyLoading || bountyPending) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-white/60">Loading bounty settings...</div>
@@ -29,7 +35,9 @@ export default function SettingsPage() {
     );
   }
 
-  if (bountyError || !bounty) {
+  // Only show error if we're not loading/pending AND we have an error or no bounty
+  const isLoadingOrPending = bountyLoading || bountyPending;
+  if (!isLoadingOrPending && (bountyError || !bounty)) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-red-400">Failed to load bounty settings</div>

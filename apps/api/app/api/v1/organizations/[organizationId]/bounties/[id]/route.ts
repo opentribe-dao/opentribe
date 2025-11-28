@@ -349,21 +349,6 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = updateBountySchema.parse(body);
 
-    // If curator (not admin/owner) and bounty is CLOSED, prevent editing critical fields
-    if (!isOwnerOrAdmin && isCurator && bounty.status === "CLOSED") {
-      if (
-        validatedData.amount !== undefined ||
-        validatedData.token !== undefined ||
-        validatedData.split !== undefined ||
-        validatedData.winnings !== undefined
-      ) {
-        return NextResponse.json(
-          { error: "Curators cannot edit financial details of a closed bounty" },
-          { status: 403 }
-        );
-      }
-    }
-
     // Prepare update data
     const updateData: Prisma.BountyUpdateInput = {};
 
@@ -460,21 +445,7 @@ export async function DELETE(
       "admin",
     ]);
 
-    // Check if user is a curator for this bounty
-    const isCurator = await database.curator.findFirst({
-      where: {
-        userId: orgAuth.userId,
-        bounty: {
-          OR: [
-            { id: bountyId },
-            { slug: { equals: bountyId, mode: "insensitive" } },
-          ],
-          organizationId,
-        },
-      },
-    });
-
-    if (!isOwnerOrAdmin && !isCurator) {
+    if (!isOwnerOrAdmin) {
       return NextResponse.json(
         { error: "You do not have permission to delete this bounty" },
         { status: 403 }

@@ -2,6 +2,7 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendPaymentConfirmationEmail } from "@packages/email";
 import { formatZodError } from "@/lib/zod-errors";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -127,18 +128,7 @@ export async function POST(
       include: {
         bounty: {
           include: {
-            organization: {
-              include: {
-                members: {
-                  where: {
-                    userId: session.user.id,
-                    role: {
-                      in: ["owner", "admin"],
-                    },
-                  },
-                },
-              },
-            },
+            organization: true,
           },
         },
         submitter: true,
@@ -159,7 +149,31 @@ export async function POST(
       );
     }
 
-    if (submission.bounty.organization.members.length === 0) {
+    // Check if user has permission to record payments
+    const orgAuth = await getOrganizationAuth(
+      request,
+      submission.bounty.organizationId,
+      { session }
+    );
+    if (!orgAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has admin/owner role
+    const isOwnerOrAdmin = hasRequiredRole(orgAuth.membership, [
+      "owner",
+      "admin",
+    ]);
+
+    // Check if user is a curator for this bounty
+    const isCurator = await database.curator.findFirst({
+      where: {
+        userId: orgAuth.userId,
+        bountyId: submission.bountyId,
+      },
+    });
+
+    if (!isOwnerOrAdmin && !isCurator) {
       return NextResponse.json(
         {
           error:

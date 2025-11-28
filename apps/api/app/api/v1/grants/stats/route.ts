@@ -66,6 +66,7 @@ async function getGrantStats(): Promise<GrantStatsResponse> {
   const totalGrantsCount = await database.grant.count({
     where: {
       visibility: "PUBLISHED",
+      status: "OPEN",
     },
   });
 
@@ -73,6 +74,7 @@ async function getGrantStats(): Promise<GrantStatsResponse> {
   const grantsAggregate = await database.grant.aggregate({
     where: {
       visibility: "PUBLISHED",
+      status: "OPEN",
     },
     _sum: {
       totalFundsUSD: true,

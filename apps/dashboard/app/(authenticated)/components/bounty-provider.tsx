@@ -17,6 +17,7 @@ type VerificationStatus = "idle" | "success" | "error";
 interface BountyContextType {
   bounty: BountyDetails | undefined;
   bountyLoading: boolean;
+  bountyPending: boolean;
   bountyError: Error | null;
   refreshBounty: () => void;
 
@@ -96,6 +97,7 @@ export function BountyProvider({
   const {
     data: bounty,
     isLoading: bountyLoading,
+    isPending: bountyPending,
     error: bountyError,
     refetch: refreshBounty,
   } = useBounty(bountyId);
@@ -335,6 +337,7 @@ export function BountyProvider({
       value={{
         bounty,
         bountyLoading,
+        bountyPending,
         bountyError: bountyError as Error | null,
         refreshBounty,
         submissions: Array.isArray(submissions) ? submissions : [],

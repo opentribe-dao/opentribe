@@ -15,17 +15,32 @@ import remarkGfm from "remark-gfm";
 import { useBountyContext } from "../../components/bounty-provider";
 
 export default function BountyOverviewPage() {
-  const { bounty, bountyLoading, bountyError } = useBountyContext();
+  const {
+    bounty,
+    bountyLoading,
+    bountyPending,
+    bountyError,
+  } = useBountyContext();
 
-  if (bountyLoading) {
+  // Show loader if loading or pending (query might be disabled waiting for activeOrg)
+  if (bountyLoading || bountyPending) {
     return <div>Loading...</div>;
   }
-  if (bountyError || !bounty) {
+  // Only show error if we're not loading/pending AND we have an error or no bounty
+  const isLoadingOrPending = bountyLoading || bountyPending;
+  if (!isLoadingOrPending && (bountyError || !bounty)) {
     return <div>Bounty not found</div>;
   }
 
-  const sortedWinnings = bounty.winnings
-    ? Object.entries(bounty.winnings).sort(
+  // At this point, bounty must be defined after the checks above
+  // Type guard: we've already checked for loading and error states
+  if (!bounty) {
+    return null;
+  }
+  const bountyData = bounty;
+
+  const sortedWinnings = bountyData.winnings
+    ? Object.entries(bountyData.winnings).sort(
         ([a], [b]) => Number(a) - Number(b)
       )
     : [];
@@ -46,7 +61,7 @@ export default function BountyOverviewPage() {
               <div className="flex items-center gap-2">
                 <CoinsIcon className="h-5 w-5 text-[#E6007A]" />
                 <span className="font-semibold text-2xl text-white">
-                  {bounty.amount} {bounty.token}
+                  {bountyData.amount} {bountyData.token}
                 </span>
               </div>
             </CardContent>
@@ -62,7 +77,7 @@ export default function BountyOverviewPage() {
               <div className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5 text-[#E6007A]" />
                 <span className="font-semibold text-2xl text-white">
-                  {new Date(bounty.deadline).toLocaleDateString()}
+                  {new Date(bountyData.deadline).toLocaleDateString()}
                 </span>
               </div>
             </CardContent>
@@ -76,7 +91,7 @@ export default function BountyOverviewPage() {
             </CardHeader>
             <CardContent>
               <span className="font-semibold text-2xl text-white">
-                {bounty.submissionCount}
+                {bountyData.submissionCount}
               </span>
             </CardContent>
           </Card>
@@ -87,7 +102,7 @@ export default function BountyOverviewPage() {
           <CardContent>
             <div className="prose prose-invert prose-pink max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {bounty.description}
+                {bountyData.description}
               </ReactMarkdown>
             </div>
           </CardContent>
@@ -145,7 +160,7 @@ export default function BountyOverviewPage() {
                     </span>
                   </div>
                   <span className="font-semibold text-white">
-                    {amount} {bounty.token}
+                    {amount} {bountyData.token}
                   </span>
                 </div>
                 ))}
@@ -155,14 +170,14 @@ export default function BountyOverviewPage() {
         )}
 
         {/* Skills */}
-        {bounty.skills && bounty.skills.length > 0 && (
+        {bountyData.skills && bountyData.skills.length > 0 && (
           <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardTitle>Required Skills</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {bounty.skills.map((skill) => (
+                {bountyData.skills.map((skill) => (
                   <Badge
                     className="border-0 bg-white/10 text-white"
                     key={skill}
@@ -177,14 +192,14 @@ export default function BountyOverviewPage() {
         )}
 
         {/* Resources */}
-        {bounty.resources && bounty.resources.length > 0 && (
+        {bountyData.resources && bountyData.resources.length > 0 && (
           <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardTitle>Resources</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {bounty.resources.map((resource, index) => (
+                {bountyData.resources.map((resource, index) => (
                   <div className="flex items-start justify-between" key={index}>
                     <div>
                       <a
@@ -210,14 +225,14 @@ export default function BountyOverviewPage() {
         )}
 
         {/* Screening Questions */}
-        {bounty.screening && bounty.screening.length > 0 && (
+        {bountyData.screening && bountyData.screening.length > 0 && (
           <Card className="border-white/10 bg-zinc-900/50">
             <CardHeader>
               <CardTitle>Screening Questions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {bounty.screening.map((question, index) => (
+                {bountyData.screening.map((question, index) => (
                   <div className="rounded-lg bg-white/5 p-4" key={index}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">

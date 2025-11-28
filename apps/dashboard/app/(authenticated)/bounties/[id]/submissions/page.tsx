@@ -256,13 +256,15 @@ function SubmissionCard({ submission, bounty }: SubmissionCardProps) {
             {submission.title}
           </h4>
         )}
-        {submission.description && (
-          <div className="mb-3 line-clamp-3 text-white/80 text-xs">
+        <div className="mb-3 line-clamp-1 text-white/80 text-xs">
+          {submission.description ? (
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {submission.description}
             </ReactMarkdown>
-          </div>
-        )}
+          ) : (
+            "-"
+          )}
+        </div>
 
         {/* Stats */}
         <div className="mb-4 flex items-center gap-4 text-white/60 text-xs">

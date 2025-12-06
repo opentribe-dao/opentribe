@@ -1,0 +1,261 @@
+---
+title: Where Do Builders Actually Find Work in Polkadot?
+description: >-
+  A deep dive into the talent and opportunity discoverability gap in the
+  Polkadot ecosystem, and why the “last mile” between builders and funding
+  matters.
+date: '2025-12-06'
+image: /blog/talent-discoverability-polkadot.png
+authors:
+  - Opentribe Team
+tags:
+  - ecosystem
+  - polkadot
+  - builders
+  - grants
+  - bounties
+  - talent
+---
+# Where Do Builders Actually Find Work in Polkadot?  
+## Mapping the Talent & Discoverability Gap
+
+Over the last few months, we’ve been talking to builders, grant curators, and teams across the Polkadot ecosystem. The conversations ranged from hackathons and PBA cohorts to treasury bounties and long-running infrastructure projects. One theme kept resurfacing in different forms: **it’s not always clear where a motivated builder should go to find their first (or next) paid opportunity in Polkadot**.  
+
+Polkadot clearly doesn’t lack ambition or funding mechanisms. What it might lack is a smoother “last mile” between **people who want to contribute** and **the opportunities that need them**. That’s the question this post tries to unpack.
+
+---
+
+## 1. Why We Started Asking This Question
+
+In recent years, Polkadot has invested heavily into **developer support and funding**. There are detailed discussions about making developer experience a top priority (for example, the ["Developer Experience must be our #1 Priority" forum thread](https://forum.polkadot.network/t/developer-experience-must-be-our-1-priority/3957)) and rethinking how we use the treasury to support builders and public goods.
+
+At the same time, honest posts on the Polkadot forum talk about **underestimated developer costs** – for example, ["Underestimated developer cost in Polkadot ecosystem"](https://forum.polkadot.network/t/underestimated-developer-cost-in-polkadot-ecosystem/4292) – describing how expensive it is to keep a parachain or core tooling project alive, and how fragile the funding model can feel for small teams.
+
+And there are very real, very human stories from new developers who hit friction when they try to get started:
+
+- Difficulty getting development help even after trying the “official” routes (as described in ["Problems getting development help when starting in the Polkadot ecosystem"](https://forum.polkadot.network/t/problems-getting-development-help-when-starting-in-polkadot-ecosystem/7914))  
+- Confusion about where to go after finishing a course or hackathon  
+- A sense that valuable opportunities are scattered across many places  
+
+All of this raises a simple but important question:
+
+> **If you’re a builder who wants to work in the Polkadot ecosystem, where do you actually go to find your first grant, bounty, or project?**
+
+This essay is our attempt to **map that question**, based on what we’ve observed so far. We are working on tools in this space and are currently supported by the [Open Source Developer Grants Program (Treasury Bounty #59)](https://polkadot.polkassembly.io/bounty/59), which funds individuals and small teams building open-source software for Polkadot.  
+
+But here we focus on the **problem**, not the product.
+
+---
+
+## 2. The Current Landscape of Opportunities
+
+If you zoom out, there isn’t just one “Polkadot grants program”. There are **multiple surfaces** where builders might find funding or work:
+
+- **On-chain treasury bounties** – for things like open-source development, UX improvements, infrastructure, and more, usually surfaced via Subsquare / Polkassembly  
+- **[Open Source Developer Grants Program (Bounty #59)](https://forum.polkadot.network/t/bounty-proposal-open-source-developer-grants-program/9445)** – supporting up to 15 open-source projects with up to $30k each, aimed at individuals and small teams building public goods  
+- **Other ecosystem programs** – UX bounties, infrastructure programs, education and devrel initiatives, hackathons, competitions, etc.  
+- **Ad-hoc bounties and RFPs** – posted by teams on Twitter (X), Discord, Matrix, Telegram, or in project-specific communities  
+- **Educational pipelines** – Polkadot Blockchain Academy graduates, hackathon alumni, Rust/Substrate course participants, many of whom are looking for their “next step”
+
+From the ecosystem’s point of view, this diversity is healthy: different programs serve different needs.
+
+From an individual builder’s point of view, though, it can be **surprisingly hard to form a clear mental model** of:
+
+> “What are all my options right now, given my skills and interests?”
+
+Instead of one coherent “opportunity surface”, you get many overlapping islands.
+
+---
+
+## 3. A Builder’s Journey: Fragmented by Default
+
+Imagine you’re a developer who has just:
+
+- finished a PBA cohort,  
+- explored the Polkadot SDK and built a small prototype, or  
+- shipped your first contribution to an ecosystem repo.
+
+You’re excited. You want to keep going. Ideally, you’d like to:
+
+- contribute to real projects,  
+- earn some funding while you learn,  
+- and build a reputation within the ecosystem.
+
+What you actually encounter might look more like this:
+
+### 3.1 Multiple starting points, no obvious “front door”
+
+You hear about:
+
+- “grants” on the Web3 Foundation side,  
+- “bounties” on Subsquare / Polkassembly,  
+- “Fast Grants”, “UX bounties”, “infra bounties”,  
+- hackathons, competitions, and community calls.
+
+Each has its own docs, Telegram/Discord, and processes.
+
+### 3.2 Information spread across many channels
+
+- Some opportunities are announced on the forum and nowhere else.  
+- Some live inside a Notion page linked from a single tweet.  
+- Some are mentioned only once in a community call recording or a private chat.
+
+You can’t just “go to one place” and see the landscape.
+
+### 3.3 Difficulty gauging fit and level
+
+It’s not always clear:
+
+- which opportunities are suitable for a **solo dev vs a team**,  
+- which ones assume deep **Substrate experience vs basic smart contract skills**,  
+- how much time a “bounty” is really expected to take.
+
+So builders oscillate between **overreaching** (“maybe this is too big for me”) and **under-reaching** (“this seems too trivial / not worth applying”).
+
+### 3.4 No unified contribution graph
+
+As you complete things – a small bounty here, a hackathon there – your track record is spread across:
+
+- GitHub repos,  
+- forum posts,  
+- milestone deliveries,  
+- scattered DMs and chat logs.
+
+There’s no straightforward way to say:
+
+> “Here is my combined history of contributions across Polkadot programs.”
+
+None of this is fatal, and many builders *do* manage to navigate it. But the friction is real. And friction is exactly what you want to minimise when you’re trying to attract and retain new builders.
+
+---
+
+## 4. A Curator / Team Journey: Broadcasting into the Void
+
+On the other side, if you’re running a **treasury bounty, grant program, or team budget**, your experience can be just as fragmented.
+
+A typical pattern looks like:
+
+### 4.1 Launch → spike → fade
+
+- You put a lot of work into designing a bounty or program.  
+- You publish a detailed proposal on Polkassembly or Subsquare.  
+- You share it once on the forum and maybe on Twitter or a few Discords.  
+- You get an initial wave of applicants… and then the attention drops.
+
+Unless someone on your team keeps actively re-sharing and answering questions, the program slowly drifts out of view.
+
+### 4.2 Multi-channel support overhead
+
+- Questions come in via forum threads, Discord, Telegram, email, DMs.  
+- Applications and milestone discussions are spread across tools.  
+- Curators spend significant time just **coordinating the process** before they even evaluate the substance.
+
+### 4.3 Reaching the “right” builders is hit-or-miss
+
+Maybe there are excellent builders who would be a perfect fit, but:
+
+- they don’t follow the same channels you posted in, or  
+- they saw the post once and forgot, or  
+- they weren’t sure whether they were “senior enough” for it.
+
+### 4.4 Limited visibility into the broader ecosystem context
+
+It’s not always obvious:
+
+- what other programs are running at the same time,  
+- where there might be overlapping goals,  
+- whether you’re competing with or complementing other initiatives.
+
+The result is a paradox: there is **genuine funding and intent** to support builders, but the **matching problem** (who should see which opportunities, and when) remains largely unsolved.
+
+---
+
+## 5. Why This Layer Matters Now
+
+Given everything else going on – new technical features, governance evolutions, changes to how the treasury is structured – it might be tempting to treat “talent and opportunity discoverability” as a secondary concern.
+
+We don’t think it is.
+
+Polkadot has an explicit push around strategy, treasury budgeting, and developer experience. Treasury bounties like the Open Source Developer Grants Program exist precisely because **we want more people building public goods** for the ecosystem.
+
+If builders who *want* to contribute can’t easily discover **where they’re needed**, and teams who *want* to fund work can’t reliably reach them, then:
+
+- we under-utilise the funding that does exist,  
+- we lose potential contributors to ecosystems that are simpler to navigate,  
+- and we make it harder for teams to justify long-term investment in Polkadot.
+
+In other words: **getting this “talent layer” right is part of making Polkadot a great place to build.**
+
+---
+
+## 6. Some Principles We’re Exploring (Not a Product Pitch)
+
+We’re not going to describe a specific product here, but as we talk to builders and teams, a few design principles keep coming up:
+
+### 6.1 Single mental model, multiple surfaces
+
+Builders shouldn’t have to know all the program names up front. They should be able to think in terms of:
+
+- “I’m a Rust/Substrate dev with N hours/week to contribute, what’s out there?”  
+- “I’m a designer/community person, what’s relevant for me?”
+
+Even if the underlying programs remain separate, the *discovery* experience can be unified.
+
+### 6.2 Respect existing processes, reduce friction around them
+
+Most grants and bounties have good reasons for their current workflows. The goal isn’t to replace them, but to:
+
+- make them easier to find,  
+- make requirements clearer up front,  
+- and reduce the amount of copy-pasted information across channels.
+
+### 6.3 Make contribution histories portable and legible
+
+Builders benefit from being able to say:
+
+> “Here’s what I’ve shipped across Polkadot programs and who can vouch for me.”
+
+Curators benefit from being able to see that at a glance.
+
+### 6.4 Lower the barrier for “first steps”
+
+Entry-level, well-scoped tasks play an important role in bringing new people in. Making those particularly visible and approachable can go a long way.
+
+These principles will almost certainly evolve as we learn more from the community.
+
+---
+
+## 7. How You Can Help (With Minimal Effort)
+
+We’ve also opened a thread on the **Polkadot forum** that focuses specifically on this problem. The goal is to verify whether our description matches what you’re seeing – or if we’re missing something important.
+
+If you have **1–2 minutes**, the most helpful things you could share are:
+
+- If you’re a **builder**:  
+  > Where did you actually hear about your first Polkadot grant or bounty?
+
+- If you run a **grant / bounty / program**:  
+  > What’s the hardest part about getting the *right* builders to see and apply?
+
+You can reply directly in the forum thread here:
+
+> **[link to the forum thread once you post it]**
+
+{/* TODO: replace the line above with the actual forum URL once published */}
+
+We’ll read everything, summarise what we’ve learned, and share it back – before talking in detail about any concrete solutions.
+
+---
+
+## 8. Closing Thoughts
+
+Polkadot doesn’t lack **ambition, technical depth, or funding mechanisms**. It already has programs like the Open Source Developer Grants bounty explicitly designed to support individuals and small teams building public goods.
+
+Where we still have work to do, in our view, is in the **last mile between opportunity and talent**:
+
+- helping builders understand the landscape and find their place in it, and  
+- helping teams and curators reach the people who can bring their ideas to life.
+
+We’re one small group exploring this space, but this is an ecosystem-level question. If you’ve navigated this journey yourself – as a builder, a curator, or a team – we’d really value your perspective.
+
+Thanks for reading, and for everything you build in this ecosystem. 💜

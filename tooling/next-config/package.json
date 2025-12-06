@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@tooling/typescript-config": "workspace:*",
-    "next": "15.5.6"
+    "next": "15.5.7"
   },
   "dependencies": {
     "@next/bundle-analyzer": "15.5.6",

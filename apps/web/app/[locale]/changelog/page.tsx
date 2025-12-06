@@ -23,6 +23,41 @@ export type ChangelogEntry = {
 // Sample changelog entries
 const changelogEntries: ChangelogEntry[] = [
   {
+    version: "Version 1.2.0",
+    date: "29 November 2025",
+    title: "Curator Management & Bounty Submissions",
+    description:
+      "This release introduces a comprehensive multiple curator management system with role-based permissions, complete bounty submission CRUD operations with attachment handling, boolean screening questions, documentation site enhancements, and automated Discord release notifications.",
+    items: [
+      "Added: Multiple curator support with invite, accept, and remove functionality",
+      "Added: Curator role-based permissions (editing restrictions on closed/completed bounties)",
+      "Added: Enhanced curator contact options in bounty detail pages",
+      "Added: Complete bounty submission CRUD operations with edit mode support",
+      "Added: Attachment handling in submissions with URL validation and file naming",
+      "Added: Position assignment for bounty submissions with ranking support",
+      "Added: Boolean type for screening questions in bounties",
+      "Added: Footer component for documentation site",
+      "Added: Discord release notification automation in CI/CD pipeline",
+      "Added: Analytics and Sentry wiring for documentation site",
+      "Changed: Improved organization membership validation for submissions",
+      "Changed: Enhanced screening validation with boolean normalization",
+      "Changed: Streamlined curator API routes with better error handling",
+      "Changed: Bounty settings form validation before save",
+      "Changed: Updated contact button labels for clarity in bounty pages",
+      "Fixed: Header mobile and user menu click-outside closing logic",
+      "Fixed: Screening answer persistence in submission flow",
+      "Fixed: Zod validation error handling refactored for consistency",
+      "Fixed: Sentry initialization made optional for docs (only when DSN configured)",
+      "Infrastructure: Curator permissions test suite with comprehensive coverage",
+      "Infrastructure: Position assignment tests and enhanced position handling logic",
+      "Infrastructure: Organization auth enhancements for bounty and submission handling",
+    ],
+    button: {
+      url: "/blog/v1-2-0-curator-management-bounty-submissions",
+      text: "Read the full announcement",
+    },
+  },
+  {
     version: "Version 1.1.0",
     date: "18 November 2025",
     title: "Organization Enhancements & Bounty Improvements",

@@ -36,7 +36,14 @@ jobs:
         run: |
           # Extract tag name and release notes from tag annotation
           TAG_NAME="${{ github.ref_name }}"
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+
+          # Use git for-each-ref for reliable tag message extraction
+          TAG_MESSAGE=$(git for-each-ref "refs/tags/$TAG_NAME" --format='%(contents)')
+
+          # Fallback to commit message if tag annotation is empty
+          if [ -z "$TAG_MESSAGE" ]; then
+            TAG_MESSAGE=$(git log -1 --format='%B' "$TAG_NAME")
+          fi
 
           # Create GitHub Release with the tag's annotation
           gh release create "$TAG_NAME" \

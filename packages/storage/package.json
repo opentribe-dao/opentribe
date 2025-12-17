@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.13.4",
-    "@vercel/blob": "^1.1.1",
+    "@vercel/blob": "^2.0.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-email": "^4.2.6",

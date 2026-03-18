@@ -161,7 +161,7 @@ export const WeeklyDigestEmail = ({
 
 WeeklyDigestEmail.PreviewProps = {
   recipientName: "Alice",
-  weekStartDate: "March 11, 2024",
+  weekStartDate: "March 18, 2026",
   newBounties: [
     {
       title: "Build a Substrate Pallet Tutorial",

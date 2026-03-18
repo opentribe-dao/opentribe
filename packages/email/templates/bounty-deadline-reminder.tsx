@@ -79,7 +79,7 @@ export const BountyDeadlineReminderEmail = ({
 BountyDeadlineReminderEmail.PreviewProps = {
   recipientName: "David",
   bountyTitle: "Create Polkadot.js Tutorial",
-  deadline: "March 15, 2024",
+  deadline: "March 25, 2026",
   daysRemaining: 3,
   submissionCount: 12,
   totalPrize: "$5,000 USDT",

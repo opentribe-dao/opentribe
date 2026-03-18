@@ -87,7 +87,7 @@ BountySkillMatchEmail.PreviewProps = {
   bountyDescription:
     "We need an experienced frontend developer to build a user-friendly interface for our cross-chain bridge. The UI should support Bitcoin to Polkadot transfers with real-time status updates.",
   prizeAmount: "$5,000 USDT",
-  deadline: "April 15, 2024",
+  deadline: "April 15, 2026",
   bountyUrl: "https://opentribe.io/bounties/xyz123",
 };
 

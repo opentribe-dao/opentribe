@@ -1,7 +1,7 @@
 {
   "locale": {
     "source": "en",
-    "targets": []
+    "targets": ["es", "fr", "pt", "de", "zh"]
   },
   "files": {
     "json": {

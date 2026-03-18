@@ -1,0 +1,22 @@
+{
+  "id": "frontend-fixes-03",
+  "seq": "03",
+  "title": "Configure i18n translation targets in languine.json",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [],
+  "reference_files": ["languine.json", "packages/i18n"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "languine.json has proper source/targets configured",
+    "Translation targets defined",
+    "Source language specified",
+    "pseudolocale configured if needed"
+  ],
+  "deliverables": ["languine.json (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

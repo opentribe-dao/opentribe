@@ -1,0 +1,22 @@
+{
+  "id": "frontend-fixes-01",
+  "seq": "01",
+  "title": "Fix CVA syntax error in button.tsx",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": false,
+  "context_files": [],
+  "reference_files": ["packages/base/components/ui/button.tsx"],
+  "suggested_agent": "OpenFrontendSpecialist",
+  "acceptance_criteria": [
+    "CVA (Class Variance Authority) syntax correct",
+    "Button component builds without errors",
+    "All button variants work",
+    "TypeScript no errors"
+  ],
+  "deliverables": ["packages/base/components/ui/button.tsx (fixed)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

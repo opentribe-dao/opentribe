@@ -1,0 +1,22 @@
+{
+  "id": "security-critical-updates-07",
+  "seq": "07",
+  "title": "Audit and verify all security patches",
+  "status": "pending",
+  "depends_on": ["01", "02", "03", "04", "05"],
+  "parallel": false,
+  "context_files": [],
+  "reference_files": [],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "npm audit shows no high/critical vulnerabilities",
+    "All security-related packages at safe versions",
+    "Build passes after all updates",
+    "No regressions in auth/security flows"
+  ],
+  "deliverables": ["Audit report summary", "Verified pnpm-lock.yaml"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

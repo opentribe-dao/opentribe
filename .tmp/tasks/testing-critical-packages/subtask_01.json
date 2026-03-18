@@ -1,0 +1,26 @@
+{
+  "id": "testing-critical-packages-01",
+  "seq": "01",
+  "title": "Write tests for packages/auth",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": false,
+  "context_files": [".opencode/context/core/standards/code-quality.md"],
+  "reference_files": ["packages/auth"],
+  "suggested_agent": "TestEngineer",
+  "acceptance_criteria": [
+    "Auth package has test file(s)",
+    "Tests for core auth functions",
+    "Tests for token generation/validation",
+    "Tests for session handling",
+    "All tests pass"
+  ],
+  "deliverables": [
+    "packages/auth/*.test.ts (new)",
+    "packages/auth/*.test.tsx (new)"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

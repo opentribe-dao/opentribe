@@ -1,0 +1,22 @@
+{
+  "id": "dependency-phase-3-04",
+  "seq": "04",
+  "title": "Final verification and cleanup",
+  "status": "pending",
+  "depends_on": ["03"],
+  "parallel": false,
+  "context_files": [],
+  "reference_files": [],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "All builds pass",
+    "All tests pass",
+    "No audit warnings",
+    "Clean git diff"
+  ],
+  "deliverables": ["Final test results", "Clean repository"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

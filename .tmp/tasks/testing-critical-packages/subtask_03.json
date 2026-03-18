@@ -1,0 +1,24 @@
+{
+  "id": "testing-critical-packages-03",
+  "seq": "03",
+  "title": "Write tests for packages/db",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [".opencode/context/core/standards/code-quality.md"],
+  "reference_files": ["packages/db"],
+  "suggested_agent": "TestEngineer",
+  "acceptance_criteria": [
+    "DB package has test file(s)",
+    "Tests for database queries",
+    "Tests for Prisma client usage",
+    "Tests for seed functions",
+    "Mocked database tests where appropriate",
+    "All tests pass"
+  ],
+  "deliverables": ["packages/db/*.test.ts (new)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

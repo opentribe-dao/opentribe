@@ -1,0 +1,21 @@
+{
+  "id": "code-quality-fixes-01",
+  "seq": "01",
+  "title": "Add tooling config extension to apps/docs/tsconfig.json",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": false,
+  "context_files": [],
+  "reference_files": ["apps/docs/tsconfig.json"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "extends includes tooling config",
+    "tsconfig.json valid JSON",
+    "TypeScript check passes"
+  ],
+  "deliverables": ["apps/docs/tsconfig.json (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

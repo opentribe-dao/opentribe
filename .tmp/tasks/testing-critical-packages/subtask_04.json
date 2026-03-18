@@ -1,0 +1,27 @@
+{
+  "id": "testing-critical-packages-04",
+  "seq": "04",
+  "title": "Write tests for packages/email",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [".opencode/context/core/standards/code-quality.md"],
+  "reference_files": ["packages/email"],
+  "suggested_agent": "TestEngineer",
+  "acceptance_criteria": [
+    "Email package has test file(s)",
+    "Tests for email templates render",
+    "Tests for email subjects",
+    "Tests for template data",
+    "Snapshot tests for rendered emails",
+    "All tests pass"
+  ],
+  "deliverables": [
+    "packages/email/*.test.ts (new)",
+    "packages/email/*.test.tsx (new)"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

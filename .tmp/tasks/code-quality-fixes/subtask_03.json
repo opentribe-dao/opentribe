@@ -1,0 +1,22 @@
+{
+  "id": "code-quality-fixes-03",
+  "seq": "03",
+  "title": "Replace deprecated next/router imports",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [],
+  "reference_files": ["apps/web", "apps/dashboard", "apps/docs"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "All next/router imports replaced with next/navigation",
+    "useRouter and withRouter usage updated",
+    "Build passes",
+    "No deprecated warnings"
+  ],
+  "deliverables": ["Updated source files with new imports"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

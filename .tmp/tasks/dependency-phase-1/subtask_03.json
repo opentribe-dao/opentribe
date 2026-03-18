@@ -1,0 +1,26 @@
+{
+  "id": "dependency-phase-1-03",
+  "seq": "03",
+  "title": "Update react-email to 5.0.0+",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [],
+  "reference_files": ["package.json", "packages/email/package.json"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "react-email updated to 5.0.0+",
+    "Email templates still render correctly",
+    "Email dev server works",
+    "No breaking changes in email rendering"
+  ],
+  "deliverables": [
+    "package.json (updated)",
+    "packages/email (updated if needed)",
+    "pnpm-lock.yaml (updated)"
+  ],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

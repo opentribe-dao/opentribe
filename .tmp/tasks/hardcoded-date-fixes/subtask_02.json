@@ -1,0 +1,22 @@
+{
+  "id": "hardcoded-date-fixes-02",
+  "seq": "02",
+  "title": "Update email template demo dates from 2024 to 2026",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [],
+  "reference_files": ["packages/email/templates"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "All .tsx files in templates/ checked",
+    "Demo dates updated from 2024 to 2026",
+    "Email rendering still works",
+    "No other content changed"
+  ],
+  "deliverables": ["packages/email/templates/*.tsx (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

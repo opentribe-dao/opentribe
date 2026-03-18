@@ -1,0 +1,22 @@
+{
+  "id": "security-critical-updates-05",
+  "seq": "05",
+  "title": "Update turbo and @turbo/gen to ^2.8.18",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": false,
+  "context_files": [],
+  "reference_files": ["package.json"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "turbo updated to ^2.8.18",
+    "@turbo/gen updated to ^2.8.18",
+    "basic-ftp CVE patched",
+    "turbo build/dev still functional"
+  ],
+  "deliverables": ["package.json (updated)", "pnpm-lock.yaml (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

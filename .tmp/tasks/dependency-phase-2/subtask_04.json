@@ -1,0 +1,22 @@
+{
+  "id": "dependency-phase-2-04",
+  "seq": "04",
+  "title": "Update zod to 4.3.x",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [],
+  "reference_files": ["package.json"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "zod updated to 4.3.x",
+    "All schema validations still work",
+    "Type inference correct",
+    "No breaking API changes"
+  ],
+  "deliverables": ["package.json (updated)", "pnpm-lock.yaml (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

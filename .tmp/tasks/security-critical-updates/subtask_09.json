@@ -1,0 +1,21 @@
+{
+  "id": "security-critical-updates-09",
+  "seq": "09",
+  "title": "Fix health endpoint info disclosure",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [".opencode/context/core/standards/security-patterns.md"],
+  "reference_files": ["apps/api"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "Health endpoint doesn't expose sensitive info",
+    "Only essential status info returned",
+    "Version info not leaked"
+  ],
+  "deliverables": ["Health endpoint updated"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

@@ -1,0 +1,25 @@
+{
+  "id": "hardcoded-date-fixes",
+  "name": "Hardcoded Date Fixes",
+  "status": "active",
+  "objective": "Update hardcoded dates throughout the codebase from 2024/2025 to 2026",
+  "context_files": [],
+  "reference_files": [
+    "packages/analytics/posthog/client.tsx",
+    "packages/email/templates",
+    "packages/email/preview",
+    "packages/base/styles/satoshi.css"
+  ],
+  "exit_criteria": [
+    "posthog/client.tsx date updated to 2026",
+    "Email templates dates updated from 2024 to 2026",
+    "Email preview copyright years updated to 2026",
+    "CSS copyright year updated if applicable"
+  ],
+  "subtask_count": 4,
+  "completed_count": 0,
+  "created_at": "2026-03-18T00:00:00Z",
+  "priority": "low",
+  "bounded_context": "content",
+  "module": "@opentribe/content"
+}

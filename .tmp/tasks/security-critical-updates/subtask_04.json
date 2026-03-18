@@ -1,0 +1,21 @@
+{
+  "id": "security-critical-updates-04",
+  "seq": "04",
+  "title": "Update kysely transitive to ^0.28.12",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": false,
+  "context_files": [],
+  "reference_files": ["pnpm-lock.yaml"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "kysely transitive dependency updated to ^0.28.12",
+    "SQL injection vulnerability patched",
+    "Database queries still functional"
+  ],
+  "deliverables": ["pnpm-lock.yaml (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

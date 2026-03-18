@@ -1,0 +1,22 @@
+{
+  "id": "dependency-phase-2-02",
+  "seq": "02",
+  "title": "Update shiki to 4.x",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [],
+  "reference_files": ["packages/email/package.json", "apps/docs/package.json"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "shiki updated to 4.x",
+    "Code highlighting still works",
+    "Theme configuration preserved",
+    "No breaking changes in API"
+  ],
+  "deliverables": ["Updated package.json files", "pnpm-lock.yaml (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

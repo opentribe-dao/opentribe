@@ -1,0 +1,21 @@
+{
+  "id": "dependency-phase-3-03",
+  "seq": "03",
+  "title": "Standardize version consistency across monorepo",
+  "status": "pending",
+  "depends_on": ["02"],
+  "parallel": false,
+  "context_files": [],
+  "reference_files": ["pnpm-workspace.yaml"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "Same package same version across packages",
+    "No duplicate versions of shared deps",
+    "pnpm dedupe executed"
+  ],
+  "deliverables": ["Consistent pnpm-lock.yaml", "Deduped dependencies"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

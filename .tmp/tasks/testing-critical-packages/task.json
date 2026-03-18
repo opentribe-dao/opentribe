@@ -1,0 +1,27 @@
+{
+  "id": "testing-critical-packages",
+  "name": "Testing Critical Packages",
+  "status": "active",
+  "objective": "Write tests for packages with ZERO test coverage: auth, security, db, email",
+  "context_files": [".opencode/context/core/standards/code-quality.md"],
+  "reference_files": [
+    "packages/auth",
+    "packages/security",
+    "packages/db",
+    "packages/email"
+  ],
+  "exit_criteria": [
+    "packages/auth has tests",
+    "packages/security has tests",
+    "packages/db has tests",
+    "packages/email has tests",
+    "All new tests pass",
+    "Test coverage improved significantly"
+  ],
+  "subtask_count": 5,
+  "completed_count": 0,
+  "created_at": "2026-03-18T00:00:00Z",
+  "priority": "critical",
+  "bounded_context": "testing",
+  "module": "@opentribe/monorepo"
+}

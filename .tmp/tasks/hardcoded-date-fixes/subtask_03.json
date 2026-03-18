@@ -1,0 +1,22 @@
+{
+  "id": "hardcoded-date-fixes-03",
+  "seq": "03",
+  "title": "Update email preview copyright year from 2025 to 2026",
+  "status": "pending",
+  "depends_on": [],
+  "parallel": true,
+  "context_files": [],
+  "reference_files": ["packages/email/preview"],
+  "suggested_agent": "CoderAgent",
+  "acceptance_criteria": [
+    "All .html files in preview/ checked",
+    "Copyright year updated to 2026",
+    "14 files updated as expected",
+    "HTML still valid"
+  ],
+  "deliverables": ["packages/email/preview/*.html (updated)"],
+  "agent_id": null,
+  "started_at": null,
+  "completed_at": null,
+  "completion_summary": null
+}

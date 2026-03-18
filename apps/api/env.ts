@@ -14,5 +14,7 @@ export const env = createEnv({
     CRON_SECRET: z.string().min(32),
   },
   client: {},
-  runtimeEnv: {},
+  runtimeEnv: {
+    CRON_SECRET: process.env.CRON_SECRET,
+  },
 });

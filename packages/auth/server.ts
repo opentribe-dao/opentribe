@@ -10,6 +10,7 @@ import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, customSession, organization } from "better-auth/plugins";
+import { defaultRoles } from "better-auth/plugins/admin/access";
 
 export const trustedOrigins = [
   "http://localhost:3000",
@@ -211,6 +212,10 @@ const authOptions = {
     admin({
       defaultRole: "user",
       adminRoles: ["admin", "superadmin"],
+      roles: {
+        admin: defaultRoles.admin,
+        superadmin: defaultRoles.admin,
+      },
     }),
     organization({
       allowUserToCreateOrganization: async (user) => {

@@ -18,6 +18,11 @@ vi.mock("@packages/email", () => ({
   sendBountyWinnerReminderEmail: vi.fn(),
 }));
 
+// Mock cron-auth to bypass authentication in tests
+vi.mock("../lib/cron-auth", () => ({
+  validateCronAuth: vi.fn().mockReturnValue(null),
+}));
+
 describe("Bounty Deadline Passed Cron Job", () => {
   beforeEach(() => {
     vi.clearAllMocks();

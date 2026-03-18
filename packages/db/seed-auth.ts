@@ -166,11 +166,21 @@ async function main() {
     try {
       console.log(`  Creating user: ${userData.email}`);
 
-      const result = await authClient.signUp.email({
-        email: userData.email,
-        password: userData.password,
-        name: userData.name,
+      const res = await fetch("http://localhost:3002/api/auth/sign-up/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Origin": "http://localhost:3000"
+        },
+        body: JSON.stringify({
+          email: userData.email,
+          password: userData.password,
+          name: userData.name
+        })
       });
+
+      const resultData = await res.json();
+      const result = { data: res.ok ? resultData : null, error: res.ok ? null : resultData };
 
       if (result.data?.user) {
         createdUsers.push(result.data.user);

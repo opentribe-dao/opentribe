@@ -1635,7 +1635,7 @@ describe("Submission System Tests", () => {
         isWinner: false,
         bounty: {
           status: "OPEN",
-          deadline: new Date("2025-12-31"),
+          deadline: new Date("2027-12-31"), // Future date
         },
       };
 
@@ -1775,7 +1775,7 @@ describe("Submission System Tests", () => {
         isWinner: false,
         bounty: {
           status: "OPEN",
-          deadline: new Date("2025-12-31"),
+          deadline: new Date("2027-12-31"), // Future date
         },
       };
 

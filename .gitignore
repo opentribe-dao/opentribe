@@ -312,3 +312,10 @@ frontend_todos.md
 GEMINI.md
 WARP.md
 *.mdc
+
+# Ignore temp and tmp files or folders
+temp/
+tmp/
+*.tmp
+*.temp
+*~

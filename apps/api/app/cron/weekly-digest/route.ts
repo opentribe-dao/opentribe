@@ -1,9 +1,14 @@
 import { database } from "@packages/db";
 import { sendWeeklyDigestEmail } from "@packages/email";
 import { startOfWeek, subDays } from "date-fns";
+import { validateCronAuth } from "@/lib/cron-auth";
 
 // GET /cron/weekly-digest - Send weekly digest emails to users (runs on Mondays)
-export const GET = async () => {
+export const GET = async (request: Request) => {
+  // Validate cron authentication
+  const authError = validateCronAuth(request);
+  if (authError) return authError;
+
   try {
     console.log("Running weekly digest cron job");
 

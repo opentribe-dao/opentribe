@@ -1,9 +1,14 @@
 import { database } from "@packages/db";
 import { sendBountyWinnerReminderEmail } from "@packages/email";
 import { NextResponse } from "next/server";
+import { validateCronAuth } from "@/lib/cron-auth";
 
 // GET /cron/bounty-deadline-passed - Update bounties whose deadline has passed to REVIEWING status
-export const GET = async () => {
+export const GET = async (request: Request) => {
+  // Validate cron authentication
+  const authError = validateCronAuth(request);
+  if (authError) return authError;
+
   try {
     console.log("Running bounty deadline passed cron job");
 

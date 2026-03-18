@@ -1,9 +1,14 @@
 import { database } from "@packages/db";
 import { sendBountyDeadlineReminderEmail } from "@packages/email";
 import { addDays } from "date-fns";
+import { validateCronAuth } from "@/lib/cron-auth";
 
 // GET /cron/bounty-deadline-reminder - Send reminder emails for bounties ending in 3 days
-export const GET = async () => {
+export const GET = async (request: Request) => {
+  // Validate cron authentication
+  const authError = validateCronAuth(request);
+  if (authError) return authError;
+
   try {
     console.log("Running bounty deadline reminder cron job");
 

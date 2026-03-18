@@ -1,9 +1,14 @@
 import { database } from "@packages/db";
 import { sendBountyWinnerReminderEmail } from "@packages/email";
 import { addDays } from "date-fns";
+import { validateCronAuth } from "@/lib/cron-auth";
 
 // GET /cron/winner-announcement-reminder - Remind orgs to announce winners 7 days after deadline
-export const GET = async () => {
+export const GET = async (request: Request) => {
+  // Validate cron authentication
+  const authError = validateCronAuth(request);
+  if (authError) return authError;
+
   try {
     console.log("Running winner announcement reminder cron job");
 

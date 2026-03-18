@@ -23,11 +23,7 @@ export const GET = (req: Request) => {
       commitSha:
         envAny.VERCEL_GIT_COMMIT_SHA || envAny.NEXT_PUBLIC_GIT_SHA || null,
       commitRef: envAny.VERCEL_GIT_COMMIT_REF || null,
-      commitMessage: envAny.VERCEL_GIT_COMMIT_MESSAGE || null,
-      repoOwner: envAny.VERCEL_GIT_REPO_OWNER || null,
-      repoSlug: envAny.VERCEL_GIT_REPO_SLUG || null,
-      deploymentUrl: envAny.VERCEL_URL ? `https://${envAny.VERCEL_URL}` : null,
-      vercelEnv: envAny.VERCEL_ENV || null,
+      // Note: Removed commitMessage, deploymentUrl, vercelEnv for security
       buildId: envAny.NEXT_BUILD_ID || null,
     } as const;
     let dbOk = false;

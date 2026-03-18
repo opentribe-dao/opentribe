@@ -2,9 +2,14 @@ import { database } from "@packages/db";
 import { exchangeRateService } from "@packages/polkadot/server";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { validateCronAuth } from "@/lib/cron-auth";
 
 // GET /cron/update-usd-amount - Update USD amounts for bounties and grants based on current exchange rates
 export const GET = async (request: NextRequest) => {
+  // Validate cron authentication
+  const authError = validateCronAuth(request);
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
     const refresh = searchParams.get("refresh") === "true";

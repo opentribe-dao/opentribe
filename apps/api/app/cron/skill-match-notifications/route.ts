@@ -1,6 +1,7 @@
 import { database } from "@packages/db";
 import { sendSkillMatchBountyEmail } from "@packages/email";
 import { NextResponse } from "next/server";
+import { validateCronAuth } from "@/lib/cron-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +9,10 @@ export const maxDuration = 300; // 5 minutes max
 
 // GET /cron/skill-match-notifications - Send skill match notifications for new bounties
 export async function GET(request: Request) {
+  // Validate cron authentication
+  const authError = validateCronAuth(request);
+  if (authError) return authError;
+
   try {
     const now = new Date();
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);

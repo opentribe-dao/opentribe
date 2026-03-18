@@ -7,6 +7,7 @@ import { motion } from "motion/react"
 import { cn } from "@packages/base/lib/utils"
 import { Button } from "./button"
 import { useIsMobile } from "@packages/base/hooks/use-mobile"
+import { usePrefersReducedMotion } from "@packages/base/hooks/use-prefers-reduced-motion"
 
 interface ExpandableTextProps {
   children: React.ReactNode
@@ -19,6 +20,7 @@ export function ExpandableText({ children, maxHeight = 400, className, mobileOnl
   const [isExpanded, setIsExpanded] = useState(false)
   const [fullHeight, setFullHeight] = useState<number>(0)
   const isMobile = useIsMobile()
+  const prefersReducedMotion = usePrefersReducedMotion()
   const contentRef = useRef<HTMLDivElement>(null)
 
   const isExpandable = !mobileOnly || isMobile
@@ -48,10 +50,14 @@ export function ExpandableText({ children, maxHeight = 400, className, mobileOnl
         animate={{
           height: isExpanded ? fullHeight : maxHeight,
         }}
-        transition={{
-          duration: 0.4,
-          ease: [0.4, 0, 0.2, 1], // Custom ease-out curve
-        }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : {
+                duration: 0.4,
+                ease: [0.4, 0, 0.2, 1],
+              }
+        }
       >
         <div ref={contentRef} className="prose prose-sm dark:prose-invert max-w-none px-4 py-6">
           {children}

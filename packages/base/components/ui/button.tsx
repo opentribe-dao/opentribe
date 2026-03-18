@@ -8,7 +8,7 @@ import { useHoverBackground } from "@packages/base/hooks/use-hover-background";
 import { cn } from "@packages/base/lib/utils";
 
 const buttonVariants = cva(
-  "hover-bg disabled:opacity-50'size-'])]:size-4 inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-sm outline-none transition-all [&_svg:not([class*= focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:bg-bg-disabled [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "hover-bg disabled:opacity-50 inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-sm outline-none transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:bg-bg-disabled [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {

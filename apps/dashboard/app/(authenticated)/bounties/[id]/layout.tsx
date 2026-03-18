@@ -4,8 +4,7 @@ import { Button } from "@packages/base/components/ui/button";
 import { ShareButton } from "@packages/base/components/ui/share-button";
 import { Edit2, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import router from "next/router";
+import { usePathname, useRouter } from "next/navigation";
 import { use } from "react";
 import { env } from "@/env";
 import {
@@ -39,6 +38,7 @@ export default function BountyLayout({
 }
 
 function BountyLayoutBody({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const {
     bounty,
     bountyLoading,

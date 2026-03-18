@@ -1,7 +1,7 @@
 import { Button } from "@packages/base/components/ui/button";
 import type { Step } from "@stepperize/react";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 import type { BountyDetails } from "@/hooks/use-bounty";
 import { useBountyForm } from "@/hooks/use-manage-bounty";
 
@@ -18,6 +18,7 @@ interface BountyStepNavigationButtonsProps {
 export const BountyStepNavigationButtonsComponent: React.FC<
   BountyStepNavigationButtonsProps
 > = ({ formData, currentIndex, steps, stepper }) => {
+  const router = useRouter();
   const { submitting, handleNext, handleBack, handleSubmit } = useBountyForm();
   const handleNextStep = () => {
     const advanced = handleNext();

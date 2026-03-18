@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@nosecone/next": "1.0.0-beta.7",
@@ -19,6 +22,9 @@
   },
   "devDependencies": {
     "@tooling/typescript-config": "workspace:*",
-    "typescript": "^5.8.3"
+    "@vitejs/plugin-react": "^4.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.4",
+    "vitest-mock-extended": "^3.0.0"
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
 import { ShareButton } from "@packages/base/components/ui/share-button";
 import { Edit2, Loader2 } from "lucide-react";
@@ -13,7 +14,6 @@ import {
 } from "../../components/bounty-provider";
 import { Header } from "../../components/header";
 import { PaymentModal } from "./payment-modal";
-import { Badge } from "@packages/base/components/ui/badge";
 
 const BOUNTY_REGEX = /^\/bounties\/[^/]+\/submissions\/[^/]+$/;
 

@@ -1,4 +1,4 @@
-import { authMiddleware, type AuthSession } from "@packages/auth/middleware";
+import { type AuthSession, authMiddleware } from "@packages/auth/middleware";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 describe("Auth Middleware", () => {

@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { ViewManager } from "@/lib/views";
 import { validateCronAuth } from "@/lib/cron-auth";
+import { ViewManager } from "@/lib/views";
 
 export async function GET(request: Request) {
   // Validate cron authentication
   const authError = validateCronAuth(request);
-  if (authError) return authError;
+  if (authError) {
+    return authError;
+  }
 
   try {
     const deleted = await ViewManager.cleanupExpired();
@@ -16,6 +18,6 @@ export async function GET(request: Request) {
   }
 }
 
-export async function OPTIONS() {
+export function OPTIONS() {
   return NextResponse.json({});
 }

@@ -2,6 +2,8 @@
     "extends": "@tooling/typescript-config/nextjs.json",
     "compilerOptions": {
         "baseUrl": ".",
+        "declaration": false,
+        "declarationMap": false,
         "paths": {
             "@/.source": ["./.source/index.ts"],
             "@/*": ["./*"]

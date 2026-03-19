@@ -4,11 +4,124 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { validateCronAuth } from "@/lib/cron-auth";
 
+const getTrackedTokens = async () => {
+  const [bountyTokens, grantTokens] = await Promise.all([
+    database.bounty.findMany({
+      select: { token: true },
+      where: {
+        amount: { not: null },
+      },
+      distinct: ["token"],
+    }),
+    database.grant.findMany({
+      select: { token: true },
+      where: {
+        OR: [
+          { totalFunds: { not: null } },
+          { minAmount: { not: null } },
+          { maxAmount: { not: null } },
+        ],
+      },
+      distinct: ["token"],
+    }),
+  ]);
+
+  return Array.from(
+    new Set([
+      ...bountyTokens
+        .map((b) => b.token)
+        .filter(
+          (token): token is string => token !== null && token !== undefined
+        ),
+      ...grantTokens
+        .map((g) => g.token)
+        .filter(
+          (token): token is string => token !== null && token !== undefined
+        ),
+    ])
+  );
+};
+
+const createTokenMapping = (tokens: string[]) => {
+  const tokenMapping = new Map<string, string>();
+  for (const token of tokens) {
+    tokenMapping.set(token.toUpperCase(), token);
+  }
+  return tokenMapping;
+};
+
+const updateBountyUsdAmounts = async (
+  tokenMapping: Map<string, string>,
+  exchangeRates: Record<string, number>
+) => {
+  let updatedBounties = 0;
+
+  for (const [upperToken, rate] of Object.entries(exchangeRates)) {
+    if (rate <= 0) {
+      continue;
+    }
+
+    const originalToken = tokenMapping.get(upperToken);
+    if (!originalToken) {
+      continue;
+    }
+
+    const result = await database.$executeRaw`
+      UPDATE "bounty" 
+      SET "amountUSD" = "amount" * ${rate}
+      WHERE "token" = ${originalToken} 
+      AND "amount" IS NOT NULL
+    `;
+    updatedBounties += result;
+    console.log(
+      `Updated ${result} bounties for token ${originalToken} with rate ${rate}`
+    );
+  }
+
+  return updatedBounties;
+};
+
+const updateGrantUsdAmounts = async (
+  tokenMapping: Map<string, string>,
+  exchangeRates: Record<string, number>
+) => {
+  let updatedGrants = 0;
+
+  for (const [upperToken, rate] of Object.entries(exchangeRates)) {
+    if (rate <= 0) {
+      continue;
+    }
+
+    const originalToken = tokenMapping.get(upperToken);
+    if (!originalToken) {
+      continue;
+    }
+
+    const result = await database.$executeRaw`
+      UPDATE "grant" 
+      SET 
+        "totalFundsUSD" = "totalFunds" * ${rate},
+        "minAmountUSD" = "minAmount" * ${rate},
+        "maxAmountUSD" = "maxAmount" * ${rate}
+      WHERE "token" = ${originalToken} 
+      AND ("totalFunds" IS NOT NULL OR "minAmount" IS NOT NULL OR "maxAmount" IS NOT NULL)
+    `;
+    updatedGrants += result;
+    console.log(
+      `Updated ${result} grants for token ${originalToken} with rate ${rate}`
+    );
+  }
+
+  return updatedGrants;
+};
+
 // GET /cron/update-usd-amount - Update USD amounts for bounties and grants based on current exchange rates
 export const GET = async (request: NextRequest) => {
   // Validate cron authentication
   const authError = validateCronAuth(request);
-  if (authError) return authError;
+  if (authError) {
+    return authError;
+  }
 
   try {
     const { searchParams } = new URL(request.url);
@@ -25,43 +138,7 @@ export const GET = async (request: NextRequest) => {
       console.log("Cache cleared due to refresh parameter");
     }
 
-    // Query all unique tokens from bounties and grants
-    const [bountyTokens, grantTokens] = await Promise.all([
-      database.bounty.findMany({
-        select: { token: true },
-        where: {
-          amount: { not: null },
-        },
-        distinct: ["token"],
-      }),
-      database.grant.findMany({
-        select: { token: true },
-        where: {
-          OR: [
-            { totalFunds: { not: null } },
-            { minAmount: { not: null } },
-            { maxAmount: { not: null } },
-          ],
-        },
-        distinct: ["token"],
-      }),
-    ]);
-
-    // Combine and deduplicate tokens, filtering out null values
-    const allTokens = Array.from(
-      new Set([
-        ...bountyTokens
-          .map((b) => b.token)
-          .filter(
-            (token): token is string => token !== null && token !== undefined
-          ),
-        ...grantTokens
-          .map((g) => g.token)
-          .filter(
-            (token): token is string => token !== null && token !== undefined
-          ),
-      ])
-    );
+    const allTokens = await getTrackedTokens();
 
     if (allTokens.length === 0) {
       console.log("No tokens found to update");
@@ -78,11 +155,7 @@ export const GET = async (request: NextRequest) => {
       `Found ${allTokens.length} unique tokens: ${allTokens.join(", ")}`
     );
 
-    // Create a mapping from original token case to uppercase for API calls
-    const tokenMapping = new Map<string, string>();
-    for (const token of allTokens) {
-      tokenMapping.set(token.toUpperCase(), token);
-    }
+    const tokenMapping = createTokenMapping(allTokens);
 
     console.log("Token mapping (API -> DB):", Object.fromEntries(tokenMapping));
 
@@ -90,48 +163,14 @@ export const GET = async (request: NextRequest) => {
     const exchangeRates = await exchangeRateService.getExchangeRates(allTokens);
     console.log("Exchange rates fetched:", exchangeRates);
 
-    // Update bounties using raw SQL for field multiplication
-    let updatedBounties = 0;
-    for (const [upperToken, rate] of Object.entries(exchangeRates)) {
-      if (rate > 0) {
-        const originalToken = tokenMapping.get(upperToken);
-        if (originalToken) {
-          const result = await database.$executeRaw`
-            UPDATE "bounty" 
-            SET "amountUSD" = "amount" * ${rate}
-            WHERE "token" = ${originalToken} 
-            AND "amount" IS NOT NULL
-          `;
-          updatedBounties += result;
-          console.log(
-            `Updated ${result} bounties for token ${originalToken} with rate ${rate}`
-          );
-        }
-      }
-    }
-
-    // Update grants using raw SQL for field multiplication
-    let updatedGrants = 0;
-    for (const [upperToken, rate] of Object.entries(exchangeRates)) {
-      if (rate > 0) {
-        const originalToken = tokenMapping.get(upperToken);
-        if (originalToken) {
-          const result = await database.$executeRaw`
-            UPDATE "grant" 
-            SET 
-              "totalFundsUSD" = "totalFunds" * ${rate},
-              "minAmountUSD" = "minAmount" * ${rate},
-              "maxAmountUSD" = "maxAmount" * ${rate}
-            WHERE "token" = ${originalToken} 
-            AND ("totalFunds" IS NOT NULL OR "minAmount" IS NOT NULL OR "maxAmount" IS NOT NULL)
-          `;
-          updatedGrants += result;
-          console.log(
-            `Updated ${result} grants for token ${originalToken} with rate ${rate}`
-          );
-        }
-      }
-    }
+    const updatedBounties = await updateBountyUsdAmounts(
+      tokenMapping,
+      exchangeRates
+    );
+    const updatedGrants = await updateGrantUsdAmounts(
+      tokenMapping,
+      exchangeRates
+    );
 
     const totalUpdated = updatedBounties + updatedGrants;
 

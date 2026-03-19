@@ -1,6 +1,6 @@
+import { skillsOptions } from "@packages/base";
 import { database as prisma } from "./index";
 import { assertSeedEnvironment } from "./seed-config";
-import { skillsOptions } from "@packages/base";
 
 // Helper function to get random skills
 function getRandomSkills(count = 7) {
@@ -272,7 +272,7 @@ async function main() {
         visibility: "PUBLISHED",
         amount: 5000,
         token: "DOT",
-        amountUSD: 25000,
+        amountUSD: 25_000,
         deadline: daysFromNow(30),
         skills: ["Rust", "Substrate", "XCM"],
         organizationId: organizations[0].id,
@@ -341,11 +341,11 @@ async function main() {
         description: "Funding for projects building the decentralized web.",
         status: "OPEN",
         visibility: "PUBLISHED",
-        totalFunds: 100000,
+        totalFunds: 100_000,
         token: "DOT",
-        totalFundsUSD: 500000,
+        totalFundsUSD: 500_000,
         minAmount: 5000,
-        maxAmount: 50000,
+        maxAmount: 50_000,
         organizationId: organizations[0].id,
         publishedAt: now,
         curators: {
@@ -362,11 +362,11 @@ async function main() {
         description: "Accelerator program for projects building on Moonbeam.",
         status: "OPEN",
         visibility: "PUBLISHED",
-        totalFunds: 50000,
+        totalFunds: 50_000,
         token: "GLMR",
-        totalFundsUSD: 25000,
-        minAmount: 10000,
-        maxAmount: 25000,
+        totalFundsUSD: 25_000,
+        minAmount: 10_000,
+        maxAmount: 25_000,
         organizationId: organizations[1].id,
         publishedAt: now,
         curators: {
@@ -383,11 +383,11 @@ async function main() {
         description: "Funding for DeFi projects building on Acala.",
         status: "OPEN",
         visibility: "PUBLISHED",
-        totalFunds: 75000,
+        totalFunds: 75_000,
         token: "ACA",
-        totalFundsUSD: 15000,
+        totalFundsUSD: 15_000,
         minAmount: 5000,
-        maxAmount: 20000,
+        maxAmount: 20_000,
         organizationId: organizations[2].id,
         publishedAt: now,
         curators: {
@@ -404,11 +404,11 @@ async function main() {
         description: "Open bounty program funded by the Polkadot Treasury.",
         status: "OPEN",
         visibility: "PUBLISHED",
-        totalFunds: 500000,
+        totalFunds: 500_000,
         token: "DOT",
-        totalFundsUSD: 2500000,
+        totalFundsUSD: 2_500_000,
         minAmount: 1000,
-        maxAmount: 100000,
+        maxAmount: 100_000,
         organizationId: organizations[3].id,
         publishedAt: now,
         curators: {

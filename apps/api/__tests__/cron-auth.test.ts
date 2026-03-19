@@ -10,8 +10,10 @@ describe("validateCronAuth", () => {
   });
 
   test("returns 500 when CRON_SECRET is missing", async () => {
-    delete process.env.CRON_SECRET;
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    process.env.CRON_SECRET = undefined;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {
+      // Suppress expected log noise during this test.
+    });
     const { validateCronAuth } = await import("../lib/cron-auth");
 
     const response = validateCronAuth(

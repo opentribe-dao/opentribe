@@ -215,7 +215,8 @@ We're looking for projects that:
         ],
         screening: [
           {
-            question: "Describe the problem your project solves for the Polkadot ecosystem.",
+            question:
+              "Describe the problem your project solves for the Polkadot ecosystem.",
             optional: false,
           },
           {
@@ -346,11 +347,13 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
         ],
         screening: [
           {
-            question: "How does your project leverage Moonbeam’s interoperability?",
+            question:
+              "How does your project leverage Moonbeam’s interoperability?",
             optional: false,
           },
           {
-            question: "Provide a technical architecture diagram or description.",
+            question:
+              "Provide a technical architecture diagram or description.",
             optional: false,
           },
         ],
@@ -686,7 +689,8 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
   ]);
 
   console.log(
-    `✅ Created ${curators.length} curators (${curators.filter((c) => c.grantId).length
+    `✅ Created ${curators.length} curators (${
+      curators.filter((c) => c.grantId).length
     } for grants, ${curators.filter((c) => c.bountyId).length} for bounties)`
   );
 

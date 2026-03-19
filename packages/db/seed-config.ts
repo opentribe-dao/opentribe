@@ -1,5 +1,5 @@
 export const assertSeedEnvironment = (
-  env: NodeJS.ProcessEnv = process.env,
+  env: NodeJS.ProcessEnv,
   scriptName: string
 ) => {
   if (env.NODE_ENV === "production") {
@@ -16,7 +16,6 @@ export const getSeedPasswords = (env: NodeJS.ProcessEnv = process.env) => {
 
   return {
     defaultSeedPassword,
-    superadminSeedPassword:
-      env.SEED_SUPERADMIN_PASSWORD || defaultSeedPassword,
+    superadminSeedPassword: env.SEED_SUPERADMIN_PASSWORD || defaultSeedPassword,
   };
 };

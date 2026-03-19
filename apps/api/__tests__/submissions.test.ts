@@ -19,8 +19,8 @@ const { getSubmissionAuth: getSubmissionAuthMock } = vi.hoisted(() => {
 
 // Mock organization-auth using hoisted functions
 vi.mock("../lib/organization-auth", () => ({
-  getOrganizationAuth: getOrganizationAuth,
-  hasRequiredRole: hasRequiredRole,
+  getOrganizationAuth,
+  hasRequiredRole,
 }));
 
 // Mock submission-auth using hoisted function
@@ -32,16 +32,16 @@ vi.mock("@/lib/submission-auth", () => ({
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
-import { POST as createSubmission } from "../app/api/v1/bounties/[id]/submissions/route";
-import { POST as announceWinners } from "../app/api/v1/bounties/[id]/winners/route";
-import { PATCH as reviewSubmission } from "../app/api/v1/bounties/[id]/submissions/[submissionId]/review/route";
+import { getSubmissionAuth } from "@/lib/submission-auth";
 import { GET as getBountyStats } from "../app/api/v1/bounties/[id]/stats/route";
+import { PATCH as reviewSubmission } from "../app/api/v1/bounties/[id]/submissions/[submissionId]/review/route";
 import {
+  DELETE as deleteMySubmission,
   GET as getMySubmission,
   PATCH as updateMySubmission,
-  DELETE as deleteMySubmission,
 } from "../app/api/v1/bounties/[id]/submissions/me/route";
-import { getSubmissionAuth } from "@/lib/submission-auth";
+import { POST as createSubmission } from "../app/api/v1/bounties/[id]/submissions/route";
+import { POST as announceWinners } from "../app/api/v1/bounties/[id]/winners/route";
 
 describe("Submission System Tests", () => {
   beforeEach(() => {
@@ -624,7 +624,7 @@ describe("Submission System Tests", () => {
       });
 
       // Simulate transaction outcome with winners and updated bounty
-      (database.$transaction as any) = vi.fn(async (fn: any) => ({
+      (database.$transaction as any) = vi.fn(async (_fn: any) => ({
         ...mockUpdatedBounty,
         status: "COMPLETED",
         submissions: [
@@ -777,7 +777,7 @@ describe("Submission System Tests", () => {
       }));
 
       // Mock transaction to capture winningAmountUSD
-      let capturedUpdates: any[] = [];
+      const capturedUpdates: any[] = [];
       (database.$transaction as any) = vi.fn(async (fn: any) => {
         const tx = {
           submission: {
@@ -1517,14 +1517,14 @@ describe("Submission System Tests", () => {
 
   describe("GET /api/v1/bounties/[id]/submissions/me", () => {
     test("should return user's submission when authenticated", async () => {
-      const mockSession = {
+      const _mockSession = {
         user: {
           id: "user-me",
           email: "me@example.com",
         },
       };
 
-      const mockBounty = {
+      const _mockBounty = {
         id: "bounty-me",
       };
 

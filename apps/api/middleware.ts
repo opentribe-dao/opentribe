@@ -1,9 +1,58 @@
-import * as Sentry from "@sentry/nextjs";
 import { getTrustedOrigins } from "@packages/auth/trusted-origins";
+import { getActiveSpan, setContext, setTag } from "@sentry/nextjs";
 import { type NextRequest, NextResponse } from "next/server";
 import { buildRequestLogMeta } from "./lib/request-log";
 
 const trustedOrigins = getTrustedOrigins();
+
+const setRequestContext = (
+  requestId: string,
+  request: NextRequest,
+  url: URL
+) => {
+  try {
+    setTag("request_id", requestId);
+    setContext("request", {
+      id: requestId,
+      method: request.method,
+      url: `${url.origin}${url.pathname}`,
+      pathname: url.pathname,
+    });
+    const activeSpan = getActiveSpan?.();
+    if (activeSpan && typeof activeSpan.setAttribute === "function") {
+      activeSpan.setAttribute("request.id", requestId);
+    }
+  } catch {
+    // Ignore Sentry instrumentation errors during request logging.
+  }
+};
+
+const setCorsHeaders = (response: NextResponse, origin: string) => {
+  if (corsOptions.allowedOrigins.includes("*") || isAllowedOrigin(origin)) {
+    response.headers.set("Access-Control-Allow-Origin", origin);
+  }
+
+  response.headers.set(
+    "Access-Control-Allow-Credentials",
+    corsOptions.credentials.toString()
+  );
+  response.headers.set(
+    "Access-Control-Allow-Methods",
+    corsOptions.allowedMethods.join(",")
+  );
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    corsOptions.allowedHeaders.join(",")
+  );
+  response.headers.set(
+    "Access-Control-Expose-Headers",
+    corsOptions.exposedHeaders.join(",")
+  );
+  response.headers.set(
+    "Access-Control-Max-Age",
+    corsOptions.maxAge?.toString() ?? ""
+  );
+};
 
 // Helper to check if origin is a Vercel preview deployment
 const isVercelPreview = (origin: string): boolean => {
@@ -82,26 +131,10 @@ export default async function middleware(request: NextRequest) {
       ? crypto.randomUUID()
       : `${startedAtMs}-${Math.random().toString(36).slice(2)}`);
 
-  // Attach request id to Sentry context and active span (if any)
-  try {
-    Sentry.setTag("request_id", requestId);
-    Sentry.setContext("request", {
-      id: requestId,
-      method: request.method,
-      url: `${url.origin}${url.pathname}`,
-      pathname: url.pathname,
-    });
-    const activeSpan = (Sentry as any).getActiveSpan?.();
-    if (activeSpan && typeof activeSpan.setAttribute === "function") {
-      activeSpan.setAttribute("request.id", requestId);
-    }
-  } catch {}
+  setRequestContext(requestId, request, url);
 
   const requestMeta = await buildRequestLogMeta(request);
   const method = request.method.toUpperCase();
-
-  // Try to get user-id from auth headers for logging
-  let userId: string | undefined;
   // const hasAuthHeaders =
   //   request.headers.get("cookie") || request.headers.get("authorization");
   // if (hasAuthHeaders) {
@@ -120,7 +153,11 @@ export default async function middleware(request: NextRequest) {
     message: string,
     meta: Record<string, unknown>
   ) => {
-    const logger: any = console as any;
+    const logger = console as Console & {
+      error?: (message: string, meta: Record<string, unknown>) => void;
+      info?: (message: string, meta: Record<string, unknown>) => void;
+      log?: (message: string, meta: Record<string, unknown>) => void;
+    };
     if (logger && typeof logger[level] === "function") {
       logger[level](message, meta);
     } else if (logger && typeof logger.log === "function") {
@@ -139,7 +176,6 @@ export default async function middleware(request: NextRequest) {
     body: requestMeta.body,
     contentLength: requestMeta.contentLength,
     startedAtMs,
-    ...(userId && { userId }),
   });
 
   // Handle CORS preflight OPTIONS requests
@@ -147,60 +183,14 @@ export default async function middleware(request: NextRequest) {
     const origin = request.headers.get("origin") ?? "";
     if (corsOptions.allowedOrigins.includes("*") || isAllowedOrigin(origin)) {
       const response = new NextResponse(null, { status: 204 });
-      response.headers.set("Access-Control-Allow-Origin", origin);
-      response.headers.set(
-        "Access-Control-Allow-Credentials",
-        corsOptions.credentials.toString()
-      );
-      response.headers.set(
-        "Access-Control-Allow-Methods",
-        corsOptions.allowedMethods.join(",")
-      );
-      response.headers.set(
-        "Access-Control-Allow-Headers",
-        corsOptions.allowedHeaders.join(",")
-      );
-      response.headers.set(
-        "Access-Control-Max-Age",
-        corsOptions.maxAge?.toString() ?? ""
-      );
+      setCorsHeaders(response, origin);
       return response;
     }
   }
 
-  // Handle organization routes - validate auth only
-  // Note: Membership checks are done in route handlers (Prisma doesn't work in Edge Runtime)
-  const pathname = request.nextUrl.pathname;
-
-  // if (pathname.startsWith("/api/v1/organizations/")) {
-  //   // Skip auth check for OPTIONS requests
-  //   if (request.method !== "OPTIONS") {
-  //     try {
-  //       // Check session using Edge-compatible authMiddleware
-  //       // const session = await authMiddleware(request);
-
-  //       if (!userId) {
-  //         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  //       }
-  //       // Membership validation is handled by route handlers using getOrganizationAuth
-  //     } catch (error) {
-  //       console.error("Error in organization auth middleware:", error);
-  //       return NextResponse.json(
-  //         { error: "Internal server error" },
-  //         { status: 500 }
-  //       );
-  //     }
-  //   }
-  // }
-
-  // Response
   const response = NextResponse.next();
-
-  // Correlate and pass timing hints downstream for per-route logging
   response.headers.set("x-request-id", requestId);
   response.headers.set("x-request-start", String(startedAtMs));
-
-  // Log total time taken and response size
   response.headers.append("x-response-logger", "true");
   response.headers.append(
     "Access-Control-Expose-Headers",
@@ -220,34 +210,7 @@ export default async function middleware(request: NextRequest) {
     status: response.status,
   });
 
-  // Allowed origins check
   const origin = request.headers.get("origin") ?? "";
-  if (corsOptions.allowedOrigins.includes("*") || isAllowedOrigin(origin)) {
-    response.headers.set("Access-Control-Allow-Origin", origin);
-  }
-
-  // Set default CORS headers
-  response.headers.set(
-    "Access-Control-Allow-Credentials",
-    corsOptions.credentials.toString()
-  );
-  response.headers.set(
-    "Access-Control-Allow-Methods",
-    corsOptions.allowedMethods.join(",")
-  );
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    corsOptions.allowedHeaders.join(",")
-  );
-  response.headers.set(
-    "Access-Control-Expose-Headers",
-    corsOptions.exposedHeaders.join(",")
-  );
-  response.headers.set(
-    "Access-Control-Max-Age",
-    corsOptions.maxAge?.toString() ?? ""
-  );
-
-  // Return
+  setCorsHeaders(response, origin);
   return response;
 }

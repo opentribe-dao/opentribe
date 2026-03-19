@@ -47,9 +47,7 @@ vi.mock("@packages/email", () => ({
   sendWeeklyDigestEmail,
 }));
 
-import {
-  GET,
-} from "../app/cron/weekly-digest/route";
+import { GET } from "../app/cron/weekly-digest/route";
 
 describe("Weekly Digest Cron", () => {
   const authHeader = {
@@ -70,7 +68,9 @@ describe("Weekly Digest Cron", () => {
   });
 
   test("rejects requests without cron auth", async () => {
-    const response = await GET(new Request("http://localhost:3002/cron/weekly-digest"));
+    const response = await GET(
+      new Request("http://localhost:3002/cron/weekly-digest")
+    );
 
     expect(response.status).toBe(401);
     expect(userFindMany).not.toHaveBeenCalled();
@@ -173,14 +173,17 @@ describe("Weekly Digest Cron", () => {
 
   test("limits concurrent email sends", async () => {
     userFindMany.mockResolvedValue(
-      Array.from({ length: WEEKLY_DIGEST_EMAIL_CONCURRENCY + 2 }, (_, index) => ({
-        id: `user-${index}`,
-        email: `user-${index}@example.com`,
-        firstName: `User${index}`,
-        username: `user-${index}`,
-        skills: ["Rust"],
-        applications: [],
-      }))
+      Array.from(
+        { length: WEEKLY_DIGEST_EMAIL_CONCURRENCY + 2 },
+        (_, index) => ({
+          id: `user-${index}`,
+          email: `user-${index}@example.com`,
+          firstName: `User${index}`,
+          username: `user-${index}`,
+          skills: ["Rust"],
+          applications: [],
+        })
+      )
     );
     bountyFindMany.mockResolvedValue([
       {

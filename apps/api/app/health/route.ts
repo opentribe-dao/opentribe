@@ -18,13 +18,15 @@ export const GET = (req: Request) => {
 
   const compute = async () => {
     const timestamp = new Date().toISOString();
-    const envAny = (process as any)?.env ?? {};
+    const runtimeEnv = process.env;
     const git = {
       commitSha:
-        envAny.VERCEL_GIT_COMMIT_SHA || envAny.NEXT_PUBLIC_GIT_SHA || null,
-      commitRef: envAny.VERCEL_GIT_COMMIT_REF || null,
+        runtimeEnv.VERCEL_GIT_COMMIT_SHA ||
+        runtimeEnv.NEXT_PUBLIC_GIT_SHA ||
+        null,
+      commitRef: runtimeEnv.VERCEL_GIT_COMMIT_REF || null,
       // Note: Removed commitMessage, deploymentUrl, vercelEnv for security
-      buildId: envAny.NEXT_BUILD_ID || null,
+      buildId: runtimeEnv.NEXT_BUILD_ID || null,
     } as const;
     let dbOk = false;
     let dbLatencyMs: number | null = null;
@@ -34,7 +36,7 @@ export const GET = (req: Request) => {
       await database.$queryRaw`SELECT 1`;
       dbLatencyMs = Date.now() - startedAt;
       dbOk = true;
-    } catch (error) {
+    } catch (_error) {
       dbOk = false;
     }
 
@@ -42,9 +44,9 @@ export const GET = (req: Request) => {
       data: {
         status: dbOk ? "ok" : "degraded",
         timestamp,
-        uptime: (Date.now() - startTime) / 1000 / 60 / 60 + " hrs",
+        uptime: `${(Date.now() - startTime) / 1000 / 60 / 60} hrs`,
         runtime: "nodejs",
-        region: (process as any)?.env?.VERCEL_REGION ?? "local",
+        region: runtimeEnv.VERCEL_REGION ?? "local",
         git,
         checks: {
           database: dbOk ? "ok" : "fail",

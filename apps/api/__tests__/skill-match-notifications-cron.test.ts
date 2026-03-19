@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { bountyFindMany, notificationSettingFindMany, sendSkillMatchBountyEmail } =
-  vi.hoisted(() => ({
-    bountyFindMany: vi.fn(),
-    notificationSettingFindMany: vi.fn(),
-    sendSkillMatchBountyEmail: vi.fn(),
-  }));
+const {
+  bountyFindMany,
+  notificationSettingFindMany,
+  sendSkillMatchBountyEmail,
+} = vi.hoisted(() => ({
+  bountyFindMany: vi.fn(),
+  notificationSettingFindMany: vi.fn(),
+  sendSkillMatchBountyEmail: vi.fn(),
+}));
 
 vi.mock("@packages/db", () => ({
   database: {

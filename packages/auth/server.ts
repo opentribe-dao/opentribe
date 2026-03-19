@@ -11,12 +11,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, customSession, organization } from "better-auth/plugins";
 import { defaultRoles } from "better-auth/plugins/admin/access";
-import {
-  shouldIncludeLocalhostOrigins,
-  trustedOrigins,
-} from "./trusted-origins";
-
-export { shouldIncludeLocalhostOrigins, trustedOrigins } from "./trusted-origins";
+import { trustedOrigins } from "./trusted-origins";
 
 /**
  * Role Architecture (Better Auth based):
@@ -212,7 +207,7 @@ const authOptions = {
       },
     }),
     organization({
-      allowUserToCreateOrganization: async (user) => {
+      allowUserToCreateOrganization: (_user) => {
         // Allow any authenticated user to create organizations
         return true;
       },
@@ -255,7 +250,7 @@ export const auth = betterAuth({
   ...authOptions,
   plugins: [
     ...authOptions.plugins,
-    customSession(async ({ user, session }, ctx) => {
+    customSession(async ({ user, session }, _ctx) => {
       // console.debug("Custom session:", user);
       return {
         user: {

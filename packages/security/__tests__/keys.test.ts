@@ -19,8 +19,8 @@ describe("Security Keys", () => {
 
     test("should work without Redis environment variables", () => {
       // Redis is optional, so missing env vars should not throw
-      delete process.env.UPSTASH_REDIS_REST_URL;
-      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+      process.env.UPSTASH_REDIS_REST_URL = undefined;
+      process.env.UPSTASH_REDIS_REST_TOKEN = undefined;
 
       const keysFn = keys();
       expect(() => keysFn()).not.toThrow();

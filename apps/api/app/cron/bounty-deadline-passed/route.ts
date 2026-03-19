@@ -7,7 +7,9 @@ import { validateCronAuth } from "@/lib/cron-auth";
 export const GET = async (request: Request) => {
   // Validate cron authentication
   const authError = validateCronAuth(request);
-  if (authError) return authError;
+  if (authError) {
+    return authError;
+  }
 
   try {
     console.log("Running bounty deadline passed cron job");
@@ -81,7 +83,7 @@ export const GET = async (request: Request) => {
     }));
 
     // Send winner reminder emails to bounty curators
-    const emailPromises = expiredBounties.map(async (bounty) => {
+    const emailPromises = expiredBounties.map((bounty) => {
       // Only send emails if there are submissions
       if (bounty.submissionCount === 0) {
         console.log(`Skipping email for bounty ${bounty.id} - no submissions`);
@@ -102,7 +104,7 @@ export const GET = async (request: Request) => {
             {
               id: bounty.id,
               title: bounty.title,
-              deadline: bounty.deadline!,
+              deadline: bounty.deadline || now,
               submissionCount: bounty.submissionCount,
               totalPrize,
               token: bounty.token,

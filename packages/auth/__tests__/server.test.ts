@@ -1,9 +1,11 @@
+import { auth } from "@packages/auth/server";
 import {
-  auth,
   shouldIncludeLocalhostOrigins,
   trustedOrigins,
-} from "@packages/auth/server";
+} from "@packages/auth/trusted-origins";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+
+const HTTP_URL_PATTERN = /^https?:\/\//;
 
 vi.mock("better-auth", () => ({
   betterAuth: vi.fn(() => ({
@@ -33,13 +35,17 @@ describe("Auth Server Configuration", () => {
   describe("trustedOrigins", () => {
     test("should exclude localhost origins in production", () => {
       expect(
-        shouldIncludeLocalhostOrigins({ VERCEL_TARGET_ENV: "production" } as NodeJS.ProcessEnv)
+        shouldIncludeLocalhostOrigins({
+          VERCEL_TARGET_ENV: "production",
+        } as NodeJS.ProcessEnv)
       ).toBe(false);
     });
 
     test("should include localhost origins outside production", () => {
       expect(
-        shouldIncludeLocalhostOrigins({ VERCEL_TARGET_ENV: "preview" } as NodeJS.ProcessEnv)
+        shouldIncludeLocalhostOrigins({
+          VERCEL_TARGET_ENV: "preview",
+        } as NodeJS.ProcessEnv)
       ).toBe(true);
     });
 
@@ -57,10 +63,10 @@ describe("Auth Server Configuration", () => {
 
     test("should be an array of strings", () => {
       expect(Array.isArray(trustedOrigins)).toBe(true);
-      trustedOrigins.forEach((origin) => {
+      for (const origin of trustedOrigins) {
         expect(typeof origin).toBe("string");
-        expect(origin).toMatch(/^https?:\/\//);
-      });
+        expect(origin).toMatch(HTTP_URL_PATTERN);
+      }
     });
   });
 

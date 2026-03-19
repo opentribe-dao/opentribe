@@ -40,7 +40,9 @@ async function mapWithConcurrency<T, R>(
 export const GET = async (request: Request) => {
   // Validate cron authentication
   const authError = validateCronAuth(request);
-  if (authError) return authError;
+  if (authError) {
+    return authError;
+  }
 
   try {
     console.log("Running weekly digest cron job");
@@ -256,7 +258,9 @@ export const GET = async (request: Request) => {
         userId: user.id,
         email: user.email,
         error:
-          result.error instanceof Error ? result.error.message : "Unknown error",
+          result.error instanceof Error
+            ? result.error.message
+            : "Unknown error",
       });
     });
 

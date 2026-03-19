@@ -55,10 +55,10 @@ describe("Auth Keys", () => {
 
     test("should allow optional OAuth environment variables", () => {
       // OAuth vars are optional, so missing them should not throw
-      delete process.env.GOOGLE_CLIENT_ID;
-      delete process.env.GOOGLE_CLIENT_SECRET;
-      delete process.env.GITHUB_CLIENT_ID;
-      delete process.env.GITHUB_CLIENT_SECRET;
+      process.env.GOOGLE_CLIENT_ID = undefined;
+      process.env.GOOGLE_CLIENT_SECRET = undefined;
+      process.env.GITHUB_CLIENT_ID = undefined;
+      process.env.GITHUB_CLIENT_SECRET = undefined;
       process.env.BETTER_AUTH_SECRET =
         "test-secret-key-for-testing-minimum-length";
 
@@ -67,7 +67,7 @@ describe("Auth Keys", () => {
     });
 
     test("should allow optional CRON_SECRET", () => {
-      delete process.env.CRON_SECRET;
+      process.env.CRON_SECRET = undefined;
       process.env.BETTER_AUTH_SECRET =
         "test-secret-key-for-testing-minimum-length";
 

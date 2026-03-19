@@ -13,6 +13,17 @@ import { Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+type ForgotPasswordClient = typeof authClient & {
+  forgetPassword: (input: {
+    email: string;
+    redirectTo: string;
+  }) => Promise<{
+    error?: {
+      message?: string;
+    };
+  }>;
+};
+
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -26,7 +37,7 @@ export default function ForgotPasswordPage() {
     setError("");
 
     try {
-      const result = await authClient.forgetPassword({
+      const result = await (authClient as ForgotPasswordClient).forgetPassword({
         email,
         redirectTo: `${window.location.origin}/reset-password`,
       });

@@ -9,7 +9,7 @@ describe("API env", () => {
   });
 
   test("allows CRON_SECRET to be omitted during startup", async () => {
-    delete process.env.CRON_SECRET;
+    process.env.CRON_SECRET = undefined;
 
     const { env } = await import("../env");
 

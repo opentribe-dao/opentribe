@@ -6,8 +6,8 @@ describe("security cache fallback", () => {
 
   beforeEach(() => {
     vi.resetModules();
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    process.env.UPSTASH_REDIS_REST_URL = undefined;
+    process.env.UPSTASH_REDIS_REST_TOKEN = undefined;
   });
 
   test("returns cache-miss semantics for reads without Redis", async () => {
@@ -31,7 +31,9 @@ describe("security cache fallback", () => {
   });
 
   test("warns once when Redis is disabled", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {
+      // Suppress expected warning output during this test.
+    });
 
     await import("../cache");
 
@@ -39,7 +41,8 @@ describe("security cache fallback", () => {
   });
 
   test("does not use the fallback when Redis is configured", async () => {
-    process.env.UPSTASH_REDIS_REST_URL = originalRedisUrl || "https://test.upstash.io";
+    process.env.UPSTASH_REDIS_REST_URL =
+      originalRedisUrl || "https://test.upstash.io";
     process.env.UPSTASH_REDIS_REST_TOKEN = originalRedisToken || "token";
 
     const { redis } = await import("../cache");

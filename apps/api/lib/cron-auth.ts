@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
-import { env } from "@/env";
 import { NextResponse } from "next/server";
+import { env } from "@/env";
 
 /**
  * Validates CRON_SECRET authorization header
@@ -18,8 +18,9 @@ export function validateCronAuth(request: Request): NextResponse | null {
     );
   }
 
-  const providedToken =
-    authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const providedToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null;
 
   if (!providedToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -14,7 +14,7 @@ export interface OrganizationAuth {
   };
 }
 
-type SessionData = {
+export type SessionData = {
   user: {
     id: string;
   };
@@ -24,7 +24,7 @@ type SessionData = {
  * Get organization authentication data.
  * Middleware already validated auth/membership, so this just retrieves the data.
  * This function performs the check to get userId and membership details.
- * 
+ *
  * @param request - NextRequest object (required for backward compatibility)
  * @param organizationId - Organization ID to check membership for
  * @param options - Optional parameters to avoid duplicate auth lookups
@@ -97,4 +97,3 @@ export function hasRequiredRole(
 ): boolean {
   return requiredRoles.includes(membership.role);
 }
-

@@ -3,115 +3,151 @@ import { sendBountyDeadlineReminderEmail } from "@packages/email";
 import { addDays } from "date-fns";
 import { validateCronAuth } from "@/lib/cron-auth";
 
+interface ReminderError {
+  bountyId: string;
+  email?: string;
+  error: string;
+}
+
+const getReminderWindow = (now: Date) => ({
+  startWindow: addDays(now, 2.5),
+  endWindow: addDays(now, 3.5),
+  lastReminderCutoff: addDays(now, -1),
+});
+
+const getBountiesApproachingDeadline = (now: Date) => {
+  const { startWindow, endWindow, lastReminderCutoff } = getReminderWindow(now);
+
+  return database.bounty.findMany({
+    where: {
+      status: "OPEN",
+      deadline: {
+        gte: startWindow,
+        lte: endWindow,
+      },
+      OR: [
+        { lastReminderSentAt: { equals: null } },
+        { lastReminderSentAt: { lt: lastReminderCutoff } },
+      ],
+    },
+    include: {
+      curators: {
+        include: {
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+              username: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          submissions: true,
+        },
+      },
+    },
+  });
+};
+
+const createReminderError = (
+  bountyId: string,
+  error: unknown,
+  email?: string
+): ReminderError => ({
+  bountyId,
+  ...(email ? { email } : {}),
+  error: error instanceof Error ? error.message : "Unknown error",
+});
+
+const sendCuratorReminderEmails = async (
+  bounty: Awaited<ReturnType<typeof getBountiesApproachingDeadline>>[number]
+) => {
+  let emailsSent = 0;
+  const errors: ReminderError[] = [];
+
+  for (const curator of bounty.curators) {
+    if (!curator.user) {
+      continue;
+    }
+
+    try {
+      await sendBountyDeadlineReminderEmail(
+        {
+          email: curator.user.email,
+          firstName: curator.user.firstName || undefined,
+          username: curator.user.username || undefined,
+        },
+        {
+          id: bounty.id,
+          title: bounty.title,
+          deadline: bounty.deadline as Date,
+          submissionCount: bounty._count.submissions,
+          totalPrize: bounty.amount?.toString() || "0",
+          token: bounty.token || "USD",
+        }
+      );
+      emailsSent++;
+    } catch (emailError) {
+      console.error(
+        `Failed to send reminder to ${curator.user.email}:`,
+        emailError
+      );
+      errors.push(
+        createReminderError(bounty.id, emailError, curator.user.email)
+      );
+    }
+  }
+
+  return { emailsSent, errors };
+};
+
+const processBountyReminder = async (
+  bounty: Awaited<ReturnType<typeof getBountiesApproachingDeadline>>[number],
+  now: Date
+) => {
+  if (!bounty.deadline) {
+    return { emailsSent: 0, errors: [] as ReminderError[] };
+  }
+
+  const { emailsSent, errors } = await sendCuratorReminderEmails(bounty);
+
+  await database.bounty.update({
+    where: { id: bounty.id },
+    data: { lastReminderSentAt: now },
+  });
+
+  return { emailsSent, errors };
+};
+
 // GET /cron/bounty-deadline-reminder - Send reminder emails for bounties ending in 3 days
 export const GET = async (request: Request) => {
-  // Validate cron authentication
   const authError = validateCronAuth(request);
-  if (authError) return authError;
+  if (authError) {
+    return authError;
+  }
 
   try {
     console.log("Running bounty deadline reminder cron job");
 
     // Get current date and date 3 days from now
     const now = new Date();
-    const threeDaysFromNow = addDays(now, 3);
-
-    // Find bounties with deadlines between now+2.5 days and now+3.5 days
-    // This gives us a 1-day window to ensure we catch bounties even if cron timing varies
-    const startWindow = addDays(now, 2.5);
-    const endWindow = addDays(now, 3.5);
-
-    const bounties = await database.bounty.findMany({
-      where: {
-        status: "OPEN",
-        deadline: {
-          gte: startWindow,
-          lte: endWindow,
-        },
-        // Only bounties that haven't had a reminder sent recently
-        OR: [
-          { lastReminderSentAt: { equals: null } },
-          { lastReminderSentAt: { lt: addDays(now, -1) } }, // Haven't sent reminder in last day
-        ],
-      },
-      include: {
-        curators: {
-          include: {
-            user: {
-              select: {
-                email: true,
-                firstName: true,
-                username: true,
-              },
-            },
-          },
-        },
-        _count: {
-          select: {
-            submissions: true,
-          },
-        },
-      },
-    });
+    const bounties = await getBountiesApproachingDeadline(now);
 
     console.log(`Found ${bounties.length} bounties approaching deadline`);
 
     let emailsSent = 0;
-    const errors = [];
+    const errors: ReminderError[] = [];
 
-    // Send reminder emails for each bounty
     for (const bounty of bounties) {
-      if (!bounty.deadline) continue;
-
       try {
-        // Send only to the bounty curators
-        for (const curator of bounty.curators) {
-          if (curator.user) {
-            try {
-              await sendBountyDeadlineReminderEmail(
-                {
-                  email: curator.user.email,
-                  firstName: curator.user.firstName || undefined,
-                  username: curator.user.username || undefined,
-                },
-                {
-                  id: bounty.id,
-                  title: bounty.title,
-                  deadline: bounty.deadline,
-                  submissionCount: bounty._count.submissions,
-                  totalPrize: bounty.amount?.toString() || "0",
-                  token: bounty.token || "USD",
-                }
-              );
-              emailsSent++;
-            } catch (emailError) {
-              console.error(
-                `Failed to send reminder to ${curator.user.email}:`,
-                emailError
-              );
-              errors.push({
-                bountyId: bounty.id,
-                email: curator.user.email,
-                error:
-                  emailError instanceof Error
-                    ? emailError.message
-                    : "Unknown error",
-              });
-            }
-          }
-        }
-
-        // Update last reminder sent timestamp
-        await database.bounty.update({
-          where: { id: bounty.id },
-          data: { lastReminderSentAt: now },
-        });
+        const result = await processBountyReminder(bounty, now);
+        emailsSent += result.emailsSent;
+        errors.push(...result.errors);
       } catch (error) {
         console.error(`Error processing bounty ${bounty.id}:`, error);
-        errors.push({
-          bountyId: bounty.id,
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
+        errors.push(createReminderError(bounty.id, error));
       }
     }
 

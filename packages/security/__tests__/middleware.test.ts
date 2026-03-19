@@ -1,7 +1,7 @@
 import {
+  noseconeMiddleware,
   noseconeOptions,
   noseconeOptionsWithToolbar,
-  noseconeMiddleware,
 } from "@packages/security/middleware";
 import { describe, expect, test } from "vitest";
 
@@ -38,9 +38,9 @@ describe("Security Middleware", () => {
         "xXSSProtection",
       ];
 
-      expectedDefaults.forEach((header) => {
+      for (const header of expectedDefaults) {
         expect(noseconeOptions).toHaveProperty(header);
-      });
+      }
     });
 
     test("should have X-Frame-Options set to SAMEORIGIN", () => {

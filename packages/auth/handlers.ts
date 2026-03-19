@@ -4,8 +4,8 @@ import {
   createRateLimiter,
   slidingWindow,
 } from "@packages/security/rate-limit";
-import { NextResponse } from "next/server";
 import { toNextJsHandler } from "better-auth/next-js";
+import { NextResponse } from "next/server";
 import { auth } from "./server";
 
 const { POST: authPost, GET: authGet } = toNextJsHandler(auth);
@@ -69,7 +69,7 @@ export const POST = async (request: Request) => {
   const rateLimitedAction = getRateLimitedAction(pathname);
 
   if (rateLimitedAction) {
-    if (!isRedisConfigured() && !isLocalRateLimitFallbackAllowed()) {
+    if (!(isRedisConfigured() || isLocalRateLimitFallbackAllowed())) {
       return NextResponse.json(
         { error: "Auth rate limiting is unavailable. Please contact support." },
         { status: 503 }

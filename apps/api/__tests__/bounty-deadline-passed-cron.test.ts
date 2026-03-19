@@ -230,7 +230,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
 
       // Act
       const response = await bountyDeadlineCron();
-      const data = await response.json();
+      const _data = await response.json();
 
       // Assert
       expect(response.status).toBe(200);
@@ -259,7 +259,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
 
       // Act
       const response = await bountyDeadlineCron();
-      const data = await response.json();
+      const _data = await response.json();
 
       // Assert
       expect(response.status).toBe(200);
@@ -296,7 +296,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
 
       // Act
       const response = await bountyDeadlineCron();
-      const data = await response.json();
+      const _data = await response.json();
 
       // Assert
       expect(response.status).toBe(200);
@@ -491,7 +491,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
 
       // Act
       const response = await bountyDeadlineCron();
-      const data = await response.json();
+      const _data = await response.json();
 
       // Assert
       expect(response.status).toBe(200);
@@ -523,7 +523,7 @@ describe("Bounty Deadline Passed Cron Job", () => {
 
       // Act
       const response = await bountyDeadlineCron();
-      const data = await response.json();
+      const _data = await response.json();
 
       // Assert
       expect(response.status).toBe(200);

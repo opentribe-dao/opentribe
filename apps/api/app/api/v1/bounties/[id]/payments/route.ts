@@ -153,7 +153,7 @@ export async function POST(
     const orgAuth = await getOrganizationAuth(
       request,
       submission.bounty.organizationId,
-      { session }
+      { userId: session.user.id }
     );
     if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

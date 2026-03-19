@@ -27,7 +27,7 @@ vi.mock("better-auth/next-js", () => ({
   })),
 }));
 
-import { POST, GET } from "../handlers";
+import { GET, POST } from "../handlers";
 
 describe("Auth Handlers", () => {
   const originalNodeEnv = process.env.NODE_ENV;
@@ -60,9 +60,9 @@ describe("Auth Handlers", () => {
   });
 
   describe("Handler integration", () => {
-    test("handlers should be callable with request and params", async () => {
+    test("handlers should be callable with request and params", () => {
       // Create mock request
-      const mockRequest = new Request("http://localhost:3002/api/auth/test", {
+      const _mockRequest = new Request("http://localhost:3002/api/auth/test", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,17 +80,20 @@ describe("Auth Handlers", () => {
 
   describe("rate limiting", () => {
     test("applies rate limiting to email sign-in requests", async () => {
-      const request = new Request("http://localhost:3002/api/auth/sign-in/email", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-forwarded-for": "127.0.0.1",
-        },
-        body: JSON.stringify({
-          email: "user@example.com",
-          password: "password123",
-        }),
-      });
+      const request = new Request(
+        "http://localhost:3002/api/auth/sign-in/email",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "127.0.0.1",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+            password: "password123",
+          }),
+        }
+      );
 
       await POST(request);
 
@@ -99,17 +102,20 @@ describe("Auth Handlers", () => {
 
     test("returns 429 when email sign-in is rate limited", async () => {
       limitMock.mockResolvedValue({ success: false });
-      const request = new Request("http://localhost:3002/api/auth/sign-in/email", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-forwarded-for": "127.0.0.1",
-        },
-        body: JSON.stringify({
-          email: "user@example.com",
-          password: "password123",
-        }),
-      });
+      const request = new Request(
+        "http://localhost:3002/api/auth/sign-in/email",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "127.0.0.1",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+            password: "password123",
+          }),
+        }
+      );
 
       const response = await POST(request);
 
@@ -118,16 +124,19 @@ describe("Auth Handlers", () => {
     });
 
     test("applies rate limiting to forgot-password requests", async () => {
-      const request = new Request("http://localhost:3002/api/auth/forget-password", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-forwarded-for": "127.0.0.1",
-        },
-        body: JSON.stringify({
-          email: "user@example.com",
-        }),
-      });
+      const request = new Request(
+        "http://localhost:3002/api/auth/forget-password",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "127.0.0.1",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+          }),
+        }
+      );
 
       await POST(request);
 
@@ -135,17 +144,20 @@ describe("Auth Handlers", () => {
     });
 
     test("applies rate limiting to reset-password requests", async () => {
-      const request = new Request("http://localhost:3002/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-forwarded-for": "127.0.0.1",
-        },
-        body: JSON.stringify({
-          email: "user@example.com",
-          token: "reset-token",
-        }),
-      });
+      const request = new Request(
+        "http://localhost:3002/api/auth/reset-password",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "127.0.0.1",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+            token: "reset-token",
+          }),
+        }
+      );
 
       await POST(request);
 
@@ -153,16 +165,19 @@ describe("Auth Handlers", () => {
     });
 
     test("does not rate limit unrelated auth POST routes", async () => {
-      const request = new Request("http://localhost:3002/api/auth/sign-up/email", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          email: "user@example.com",
-          password: "password123",
-        }),
-      });
+      const request = new Request(
+        "http://localhost:3002/api/auth/sign-up/email",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+            password: "password123",
+          }),
+        }
+      );
 
       await POST(request);
 
@@ -187,17 +202,20 @@ describe("Auth Handlers", () => {
         return Response.json(body);
       });
 
-      const request = new Request("http://localhost:3002/api/auth/sign-in/email", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-forwarded-for": "127.0.0.1",
-        },
-        body: JSON.stringify({
-          email: "user@example.com",
-          password: "password123",
-        }),
-      });
+      const request = new Request(
+        "http://localhost:3002/api/auth/sign-in/email",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "127.0.0.1",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+            password: "password123",
+          }),
+        }
+      );
 
       const response = await POST(request);
 
@@ -209,20 +227,23 @@ describe("Auth Handlers", () => {
 
     test("fails closed outside local environments when Redis is unavailable", async () => {
       process.env.NODE_ENV = "production";
-      delete process.env.UPSTASH_REDIS_REST_URL;
-      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+      process.env.UPSTASH_REDIS_REST_URL = undefined;
+      process.env.UPSTASH_REDIS_REST_TOKEN = undefined;
 
-      const request = new Request("http://localhost:3002/api/auth/sign-in/email", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-forwarded-for": "127.0.0.1",
-        },
-        body: JSON.stringify({
-          email: "user@example.com",
-          password: "password123",
-        }),
-      });
+      const request = new Request(
+        "http://localhost:3002/api/auth/sign-in/email",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "127.0.0.1",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+            password: "password123",
+          }),
+        }
+      );
 
       const response = await POST(request);
 

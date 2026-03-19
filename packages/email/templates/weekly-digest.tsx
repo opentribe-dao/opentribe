@@ -1,5 +1,4 @@
 import { Section } from "@react-email/components";
-import React from "react";
 import BaseTemplate from "./base-template";
 import {
   EmailButton,
@@ -64,7 +63,7 @@ export const WeeklyDigestEmail = ({
 
     {/* New Opportunities */}
     {(newBounties.length > 0 || newGrants.length > 0) && (
-      <React.Fragment>
+      <>
         <EmailText className="mb-4 font-semibold text-lg">
           🆕 New Opportunities
         </EmailText>
@@ -72,8 +71,11 @@ export const WeeklyDigestEmail = ({
         {newBounties.length > 0 && (
           <EmailCard className="mb-4">
             <EmailText className="mb-3 font-semibold">Fresh Bounties</EmailText>
-            {newBounties.map((bounty, idx) => (
-              <Section className="mb-3 last:mb-0" key={idx}>
+            {newBounties.map((bounty) => (
+              <Section
+                className="mb-3 last:mb-0"
+                key={`${bounty.organization}-${bounty.title}`}
+              >
                 <EmailLink href={bounty.url}>{bounty.title}</EmailLink>
                 <EmailText className="mt-1 text-white/60 text-xs">
                   {bounty.organization} • {bounty.amount}
@@ -88,8 +90,11 @@ export const WeeklyDigestEmail = ({
             <EmailText className="mb-3 font-semibold">
               Grant Opportunities
             </EmailText>
-            {newGrants.map((grant, idx) => (
-              <Section className="mb-3 last:mb-0" key={idx}>
+            {newGrants.map((grant) => (
+              <Section
+                className="mb-3 last:mb-0"
+                key={`${grant.organization}-${grant.title}`}
+              >
                 <EmailLink href={grant.url}>{grant.title}</EmailLink>
                 <EmailText className="mt-1 text-white/60 text-xs">
                   {grant.organization} • Up to {grant.amount}
@@ -100,19 +105,19 @@ export const WeeklyDigestEmail = ({
         )}
 
         <EmailDivider />
-      </React.Fragment>
+      </>
     )}
 
     {/* Application Updates */}
     {applicationUpdates.length > 0 && (
-      <React.Fragment>
+      <>
         <EmailText className="mb-4 font-semibold text-lg">
           📋 Your Application Updates
         </EmailText>
 
         <EmailCard>
-          {applicationUpdates.map((update, idx) => (
-            <Section className="mb-3 last:mb-0" key={idx}>
+          {applicationUpdates.map((update) => (
+            <Section className="mb-3 last:mb-0" key={update.url}>
               <EmailLink href={update.url}>{update.title}</EmailLink>
               <EmailText className="mt-1 text-xs">
                 Status:{" "}
@@ -125,7 +130,7 @@ export const WeeklyDigestEmail = ({
         </EmailCard>
 
         <EmailDivider />
-      </React.Fragment>
+      </>
     )}
 
     {/* Platform Stats */}

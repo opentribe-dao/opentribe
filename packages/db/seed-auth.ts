@@ -1,5 +1,6 @@
 import { auth } from "@packages/auth/server";
 import { skillsOptions } from "@packages/base";
+import type { User } from "./generated/client";
 import { database as prisma } from "./index";
 import { assertSeedEnvironment, getSeedPasswords } from "./seed-config";
 
@@ -15,39 +16,11 @@ function getRandomSkills(count = 7) {
   return shuffled.slice(0, count);
 }
 
-async function main() {
-  assertSeedEnvironment(process.env, "seed-auth.ts");
-
-  console.log("🌱 Starting database seed with Better Auth...");
-  console.log("📌 Using server-side auth API (no API server required)");
-
-  const { defaultSeedPassword, superadminSeedPassword } =
-    getSeedPasswords(process.env);
-
-  // Clean existing data
-  await prisma.$transaction([
-    prisma.submission.deleteMany(),
-    prisma.grantApplication.deleteMany(),
-    prisma.comment.deleteMany(),
-    prisma.like.deleteMany(),
-    prisma.vote.deleteMany(),
-    prisma.rFP.deleteMany(),
-    prisma.bounty.deleteMany(),
-    prisma.grant.deleteMany(),
-    prisma.curator.deleteMany(),
-    prisma.notificationSetting.deleteMany(),
-    prisma.member.deleteMany(),
-    prisma.organization.deleteMany(),
-    prisma.invitation.deleteMany(),
-    prisma.session.deleteMany(),
-    prisma.account.deleteMany(),
-    prisma.user.deleteMany(),
-  ]);
-
-  console.log("✅ Cleaned existing data");
-
-  // Create test users using Better Auth API
-  const testUsers = [
+const buildSeedUsers = (
+  defaultSeedPassword: string,
+  superadminSeedPassword: string
+) =>
+  [
     {
       email: "alice.rust@example.com",
       password: defaultSeedPassword,
@@ -63,7 +36,7 @@ async function main() {
         walletAddress: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
         github: "alice-substrate",
         twitter: "alice_web3",
-        profileCompleted: true, // Set to false to test onboarding flow
+        profileCompleted: true,
       },
     },
     {
@@ -163,68 +136,49 @@ async function main() {
         profileCompleted: true,
       },
     },
-  ];
+  ] as const;
 
-  console.log("📝 Creating users via Better Auth API...");
-  const createdUsers = [];
+const createSeedUser = async (
+  userData: ReturnType<typeof buildSeedUsers>[number]
+) => {
+  const result = await auth.api.signUpEmail({
+    body: {
+      email: userData.email,
+      password: userData.password,
+      name: userData.name,
+    },
+  });
 
-  for (const userData of testUsers) {
-    try {
-      console.log(`  Creating user: ${userData.email}`);
-
-      // Use auth.api.signUpEmail for server-side user creation
-      // This is the recommended approach for Node.js/seed scripts
-      const result = await auth.api.signUpEmail({
-        body: {
-          email: userData.email,
-          password: userData.password,
-          name: userData.name,
-        },
-      });
-
-      if (result.user) {
-        createdUsers.push(result.user);
-        console.log(`  ✅ Created: ${userData.email}`);
-
-        // Update the user with additional fields after creation
-        if (userData.data) {
-          await prisma.user.update({
-            where: { id: result.user.id },
-            data: {
-              emailVerified: true,
-              username: userData.username,
-              role: userData.role as any,
-              headline: userData.data.headline,
-              bio: userData.data.bio,
-              skills: userData.data.skills || undefined,
-              interests: userData.data.interests || undefined,
-              location: userData.data.location || undefined,
-              walletAddress: userData.data.walletAddress || undefined,
-              github: userData.data.github || undefined,
-              twitter: userData.data.twitter || undefined,
-              linkedin: userData.data.linkedin || undefined,
-              website: userData.data.website || undefined,
-              telegram: userData.data.telegram || undefined,
-              profileCompleted: userData.data.profileCompleted,
-            },
-          });
-        }
-      }
-    } catch (error) {
-      console.error(`  ❌ Error creating ${userData.email}:`, error);
-    }
+  if (!result.user) {
+    return null;
   }
 
-  if (createdUsers.length === 0) {
-    console.log("❌ No users created");
-    process.exit(1);
-  }
+  await prisma.user.update({
+    where: { id: result.user.id },
+    data: {
+      emailVerified: true,
+      username: userData.username,
+      role: userData.role,
+      headline: userData.data.headline,
+      bio: userData.data.bio,
+      skills: userData.data.skills || undefined,
+      interests: userData.data.interests || undefined,
+      location: userData.data.location || undefined,
+      walletAddress: userData.data.walletAddress || undefined,
+      github: userData.data.github || undefined,
+      twitter: userData.data.twitter || undefined,
+      linkedin: userData.data.linkedin || undefined,
+      website: userData.data.website || undefined,
+      telegram: userData.data.telegram || undefined,
+      profileCompleted: userData.data.profileCompleted,
+    },
+  });
 
+  return result.user;
+};
+
+const logSeedSummary = (createdUsers: User[]) => {
   console.log(`\n✅ Created ${createdUsers.length} users`);
-
-  // Now create organizations and other seed data...
-  // (Rest of the seed data creation would go here, using the created user IDs)
-
   console.log("\n🎉 Users seeded successfully!");
   console.log("\n📧 Seeded test accounts:");
   console.log("- alice.rust@example.com (Builder)");
@@ -237,6 +191,63 @@ async function main() {
   console.log(
     "Use SEED_DEFAULT_PASSWORD / SEED_SUPERADMIN_PASSWORD to control local credentials."
   );
+};
+
+async function main() {
+  assertSeedEnvironment(process.env, "seed-auth.ts");
+
+  console.log("🌱 Starting database seed with Better Auth...");
+  console.log("📌 Using server-side auth API (no API server required)");
+
+  const { defaultSeedPassword, superadminSeedPassword } = getSeedPasswords(
+    process.env
+  );
+  await prisma.$transaction([
+    prisma.submission.deleteMany(),
+    prisma.grantApplication.deleteMany(),
+    prisma.comment.deleteMany(),
+    prisma.like.deleteMany(),
+    prisma.vote.deleteMany(),
+    prisma.rFP.deleteMany(),
+    prisma.bounty.deleteMany(),
+    prisma.grant.deleteMany(),
+    prisma.curator.deleteMany(),
+    prisma.notificationSetting.deleteMany(),
+    prisma.member.deleteMany(),
+    prisma.organization.deleteMany(),
+    prisma.invitation.deleteMany(),
+    prisma.session.deleteMany(),
+    prisma.account.deleteMany(),
+    prisma.user.deleteMany(),
+  ]);
+
+  console.log("✅ Cleaned existing data");
+
+  const testUsers = buildSeedUsers(defaultSeedPassword, superadminSeedPassword);
+  console.log("📝 Creating users via Better Auth API...");
+  const createdUsers: User[] = [];
+
+  for (const userData of testUsers) {
+    try {
+      console.log(`  Creating user: ${userData.email}`);
+      const user = await createSeedUser(userData);
+      if (user) {
+        createdUsers.push(user);
+        console.log(`  ✅ Created: ${userData.email}`);
+      }
+    } catch (error) {
+      console.error(`  ❌ Error creating ${userData.email}:`, error);
+    }
+  }
+
+  if (createdUsers.length === 0) {
+    console.log("❌ No users created");
+    process.exit(1);
+  }
+
+  // Now create organizations and other seed data...
+  // (Rest of the seed data creation would go here, using the created user IDs)
+  logSeedSummary(createdUsers);
 }
 
 main()

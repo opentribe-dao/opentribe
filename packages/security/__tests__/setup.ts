@@ -18,8 +18,8 @@ vi.mock("@nosecone/next", () => ({
     xPoweredBy: "Opentribe",
     xXSSProtection: "0",
   },
-  createMiddleware: vi.fn((options) => {
-    return (request) => {
+  createMiddleware: vi.fn((_options) => {
+    return (_request) => {
       // Return a mock response with security headers
       return new Response("OK", {
         status: 200,

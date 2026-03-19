@@ -29,14 +29,22 @@ export const redis = isRedisConfigured
       {},
       {
         get: (_, prop) => {
-          return async () => {
+          return () => {
             // Writes succeed silently (caching is optional)
-            if (prop === "set") return "OK";
-            if (prop === "del") return 1;
-            if (prop === "keys") return [];
-            if (prop === "ttl") return -1;
+            if (prop === "set") {
+              return Promise.resolve("OK");
+            }
+            if (prop === "del") {
+              return Promise.resolve(1);
+            }
+            if (prop === "keys") {
+              return Promise.resolve([]);
+            }
+            if (prop === "ttl") {
+              return Promise.resolve(-1);
+            }
             // Reads return null (cache miss - caller should handle)
-            return null;
+            return Promise.resolve(null);
           };
         },
       }

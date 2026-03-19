@@ -75,7 +75,7 @@ export async function GET(
 
     // Organization membership check
     const orgAuth = await getOrganizationAuth(request, bounty.organizationId, {
-      session: sessionData,
+      userId: sessionData.user.id,
     });
     if (!orgAuth) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

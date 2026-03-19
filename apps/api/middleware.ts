@@ -1,19 +1,9 @@
 import * as Sentry from "@sentry/nextjs";
-import { authMiddleware } from "@packages/auth/middleware";
+import { getTrustedOrigins } from "@packages/auth/trusted-origins";
 import { type NextRequest, NextResponse } from "next/server";
-import { env } from "./env";
+import { buildRequestLogMeta } from "./lib/request-log";
 
-const trustedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://localhost:3002",
-  "https://opentribe.io",
-  "https://api.opentribe.io",
-  "https://dashboard.opentribe.io",
-  "https://dev.opentribe.io",
-  "https://api.dev.opentribe.io",
-  "https://dashboard.dev.opentribe.io",
-];
+const trustedOrigins = getTrustedOrigins();
 
 // Helper to check if origin is a Vercel preview deployment
 const isVercelPreview = (origin: string): boolean => {
@@ -98,7 +88,7 @@ export default async function middleware(request: NextRequest) {
     Sentry.setContext("request", {
       id: requestId,
       method: request.method,
-      url: url.toString(),
+      url: `${url.origin}${url.pathname}`,
       pathname: url.pathname,
     });
     const activeSpan = (Sentry as any).getActiveSpan?.();
@@ -107,61 +97,8 @@ export default async function middleware(request: NextRequest) {
     }
   } catch {}
 
-  // Redact sensitive headers
-  const redactHeader = (name: string, value: string | null) => {
-    if (!value) return value;
-    const lowered = name.toLowerCase();
-    if (lowered === "authorization") return "[redacted]";
-    if (lowered === "cookie") return "[redacted]";
-    if (lowered === "set-cookie") return "[redacted]";
-    return value;
-  };
-
-  const headersObj: Record<string, string> = {};
-  request.headers.forEach((v, k) => {
-    headersObj[k] = redactHeader(k, v) ?? "";
-  });
-
-  const queryObj: Record<string, string | string[]> = {};
-  url.searchParams.forEach((v, k) => {
-    if (k in queryObj) {
-      const existing = queryObj[k];
-      queryObj[k] = Array.isArray(existing) ? [...existing, v] : [existing, v];
-    } else {
-      queryObj[k] = v;
-    }
-  });
-
-  // Safely attempt to read a small JSON body without breaking downstream
+  const requestMeta = await buildRequestLogMeta(request);
   const method = request.method.toUpperCase();
-  const contentType = request.headers.get("content-type") || "";
-  const contentLengthHeader = request.headers.get("content-length");
-  const contentLength = contentLengthHeader ? Number(contentLengthHeader) : 0;
-  const shouldTryReadBody =
-    ["POST", "PUT", "PATCH"].includes(method) &&
-    contentType.includes("application/json") &&
-    // avoid logging very large bodies
-    (Number.isFinite(contentLength) ? contentLength <= 1024 * 64 : true);
-
-  let loggedBody: unknown;
-  if (shouldTryReadBody) {
-    try {
-      // Clone before consuming to avoid locking the original stream
-      const cloned = request.clone();
-      const text = (cloned as unknown as Request).text
-        ? await (cloned as unknown as Request).text()
-        : undefined;
-      if (text && text.length <= 1024 * 64) {
-        try {
-          loggedBody = JSON.parse(text);
-        } catch {
-          loggedBody = text;
-        }
-      }
-    } catch {
-      // ignore body logging errors
-    }
-  }
 
   // Try to get user-id from auth headers for logging
   let userId: string | undefined;
@@ -194,13 +131,13 @@ export default async function middleware(request: NextRequest) {
   emit("info", "api:request", {
     requestId,
     method,
-    url: url.toString(),
-    pathname: url.pathname,
-    search: url.search,
-    query: queryObj,
-    headers: headersObj,
-    body: loggedBody,
-    contentLength,
+    url: requestMeta.url,
+    pathname: requestMeta.pathname,
+    search: requestMeta.search,
+    query: requestMeta.query,
+    headers: requestMeta.headers,
+    body: requestMeta.body,
+    contentLength: requestMeta.contentLength,
     startedAtMs,
     ...(userId && { userId }),
   });
@@ -228,15 +165,6 @@ export default async function middleware(request: NextRequest) {
         corsOptions.maxAge?.toString() ?? ""
       );
       return response;
-    }
-  }
-
-  // for request path starting with `cron` add an if statement
-  if (request.nextUrl.pathname.startsWith("/cron")) {
-    // Verify this is called by our cron job (you can add auth here)
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 

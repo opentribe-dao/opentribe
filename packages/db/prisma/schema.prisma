@@ -479,6 +479,7 @@ model NotificationSetting {
   user      User                @relation("UserSetting", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, channel, type])
+  @@index([type, channel, isEnabled])
   @@map("notification_setting")
 }
 
@@ -545,6 +546,7 @@ enum NotificationType {
   BOUNTY_SUBMISSION
   COMMENT_REPLY
   NEW_BOUNTY_MATCHING_SKILLS
+  WEEKLY_DIGEST
 }
 
 enum CommentType {

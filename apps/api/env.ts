@@ -11,7 +11,7 @@ import { z } from "zod";
 export const env = createEnv({
   extends: [auth(), analytics(), core(), db(), email(), logging(), storage()],
   server: {
-    CRON_SECRET: z.string().min(32),
+    CRON_SECRET: z.string().min(32).optional(),
   },
   client: {},
   runtimeEnv: {

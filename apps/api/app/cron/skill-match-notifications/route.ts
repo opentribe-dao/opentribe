@@ -44,28 +44,34 @@ export async function GET(request: Request) {
       });
     }
 
-    // Get all active users with skills and email preferences enabled
-    const activeUsers = await database.user.findMany({
-      where: {
-        profileCompleted: true,
-        skills: {
-          isEmpty: false,
+    const activeNotificationSettings =
+      await database.notificationSetting.findMany({
+        where: {
+          channel: "EMAIL",
+          type: "NEW_BOUNTY_MATCHING_SKILLS",
+          isEnabled: true,
+          user: {
+            profileCompleted: true,
+            skills: {
+              isEmpty: false,
+            },
+          },
         },
-        // Check if user has skill match notifications enabled
-        preferences: {
-          path: ["notifications", "skillMatch"],
-          equals: true,
+        select: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              username: true,
+              firstName: true,
+              skills: true,
+              lastSeen: true,
+            },
+          },
         },
-      },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        firstName: true,
-        skills: true,
-        lastSeen: true,
-      },
-    });
+      });
+
+    const activeUsers = activeNotificationSettings.map((setting) => setting.user);
 
     let emailsSent = 0;
     const errors: string[] = [];

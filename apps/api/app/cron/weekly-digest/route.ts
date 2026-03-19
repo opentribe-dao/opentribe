@@ -3,6 +3,39 @@ import { sendWeeklyDigestEmail } from "@packages/email";
 import { startOfWeek, subDays } from "date-fns";
 import { validateCronAuth } from "@/lib/cron-auth";
 
+const WEEKLY_DIGEST_EMAIL_CONCURRENCY = 5;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>
+) {
+  const results: R[] = new Array(items.length);
+  let nextIndex = 0;
+
+  const runWorker = async () => {
+    while (true) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+
+      if (currentIndex >= items.length) {
+        return;
+      }
+
+      results[currentIndex] = await worker(items[currentIndex], currentIndex);
+    }
+  };
+
+  await Promise.all(
+    Array.from(
+      { length: Math.min(concurrency, Math.max(items.length, 1)) },
+      () => runWorker()
+    )
+  );
+
+  return results;
+}
+
 // GET /cron/weekly-digest - Send weekly digest emails to users (runs on Mondays)
 export const GET = async (request: Request) => {
   // Validate cron authentication
@@ -23,7 +56,7 @@ export const GET = async (request: Request) => {
         notificationSettings: {
           some: {
             channel: "EMAIL",
-            type: "NEW_BOUNTY_MATCHING_SKILLS", // Using this as proxy for digest preference
+            type: "WEEKLY_DIGEST",
             isEnabled: true,
           },
         },
@@ -121,28 +154,23 @@ export const GET = async (request: Request) => {
       Number(bountyAgg?._sum?.amountUSD ?? 0) +
       Number(grantsAgg?._sum?.totalFundsUSD ?? 0);
 
-    let emailsSent = 0;
-    const errors = [];
-
-    // Send digest to each user
-    for (const user of users) {
-      try {
-        // Get user's parsed skills
+    const emailResults = await mapWithConcurrency(
+      users,
+      WEEKLY_DIGEST_EMAIL_CONCURRENCY,
+      async (user) => {
         const userSkills =
           typeof user.skills === "string"
             ? JSON.parse(user.skills)
             : user.skills || [];
 
-        // Filter bounties matching user skills (if they have skills)
         const matchingBounties =
           userSkills.length > 0
             ? newBounties.filter((bounty) => {
                 const bountySkills = bounty.skills || [];
                 return bountySkills.some((skill) => userSkills.includes(skill));
               })
-            : newBounties.slice(0, 3); // Just show top 3 if no skills
+            : newBounties.slice(0, 3);
 
-        // Prepare application updates
         const applicationUpdates = user.applications
           .filter((app) => app.status !== "DRAFT")
           .map((app) => ({
@@ -151,58 +179,86 @@ export const GET = async (request: Request) => {
             id: app.id,
           }));
 
-        // Only send if there's content to share
         if (
           matchingBounties.length === 0 &&
           newGrants.length === 0 &&
           applicationUpdates.length === 0
         ) {
-          continue;
+          return { skipped: true };
         }
 
-        await sendWeeklyDigestEmail(
-          {
-            email: user.email,
-            firstName: user.firstName || undefined,
-            username: user.username || undefined,
-          },
-          {
-            weekStartDate: weekStartDate.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }),
-            newBounties: matchingBounties.slice(0, 3).map((b) => ({
-              id: b.id,
-              title: b.title,
-              organization: b.organization.name,
-              amount: `${b.amount || 0} ${b.token || "USD"}`,
-            })),
-            newGrants: newGrants.slice(0, 3).map((g) => ({
-              id: g.id,
-              title: g.title,
-              organization: g.organization.name,
-              amount: g.maxAmount ? g.maxAmount.toString() : "Variable",
-            })),
-            applicationUpdates,
-            platformStats: {
-              totalOpportunities,
-              totalPrizePool: totalPrizePool.toLocaleString(),
-              activeBuilders,
+        try {
+          await sendWeeklyDigestEmail(
+            {
+              email: user.email,
+              firstName: user.firstName || undefined,
+              username: user.username || undefined,
             },
-          }
-        );
+            {
+              weekStartDate: weekStartDate.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+              newBounties: matchingBounties.slice(0, 3).map((b) => ({
+                id: b.id,
+                title: b.title,
+                organization: b.organization.name,
+                amount: `${b.amount || 0} ${b.token || "USD"}`,
+              })),
+              newGrants: newGrants.slice(0, 3).map((g) => ({
+                id: g.id,
+                title: g.title,
+                organization: g.organization.name,
+                amount: g.maxAmount ? g.maxAmount.toString() : "Variable",
+              })),
+              applicationUpdates,
+              platformStats: {
+                totalOpportunities,
+                totalPrizePool: totalPrizePool.toLocaleString(),
+                activeBuilders,
+              },
+            }
+          );
 
-        emailsSent++;
-      } catch (error) {
-        console.error(`Failed to send digest to ${user.email}:`, error);
-        errors.push({
-          userId: user.id,
-          email: user.email,
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
+          return { skipped: false as const };
+        } catch (error) {
+          return {
+            skipped: false as const,
+            error,
+            user,
+          };
+        }
       }
-    }
+    );
+
+    let emailsSent = 0;
+    const errors: Array<{
+      userId: string;
+      email: string;
+      error: string;
+    }> = [];
+
+    emailResults.forEach((result, index) => {
+      const user = users[index];
+
+      if (result.skipped) {
+        return;
+      }
+
+      if (!("error" in result)) {
+        emailsSent++;
+        return;
+      }
+
+      console.error(`Failed to send digest to ${user.email}:`, result.error);
+      errors.push({
+        userId: user.id,
+        email: user.email,
+        error:
+          result.error instanceof Error ? result.error.message : "Unknown error",
+      });
+    });
 
     console.log(`Weekly digest job completed. Emails sent: ${emailsSent}`);
 

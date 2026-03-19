@@ -1026,6 +1026,22 @@ Each tutorial includes:
           isEnabled: true,
         },
       }),
+      prisma.notificationSetting.create({
+        data: {
+          userId: user.id,
+          channel: "EMAIL",
+          type: "NEW_BOUNTY_MATCHING_SKILLS",
+          isEnabled: true,
+        },
+      }),
+      prisma.notificationSetting.create({
+        data: {
+          userId: user.id,
+          channel: "EMAIL",
+          type: "WEEKLY_DIGEST",
+          isEnabled: true,
+        },
+      }),
     ])
   );
 

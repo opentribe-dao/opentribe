@@ -1,4 +1,5 @@
 import { database as prisma } from "./index";
+import { assertSeedEnvironment } from "./seed-config";
 import { skillsOptions } from "@packages/base";
 
 // Helper function to get random skills
@@ -11,6 +12,8 @@ function getRandomSkills(count = 7) {
 }
 
 async function main() {
+  assertSeedEnvironment(process.env, "seed-direct.ts");
+
   console.log("🌱 Starting direct database seed...");
 
   // Clean existing data
@@ -144,7 +147,7 @@ async function main() {
         email: "admin@opentribe.io",
         name: "Admin User",
         username: "admin",
-        role: "admin",
+        role: "superadmin",
         emailVerified: true,
         headline: "Platform Administrator",
         bio: "Managing the Opentribe platform.",

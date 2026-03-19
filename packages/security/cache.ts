@@ -33,6 +33,8 @@ export const redis = isRedisConfigured
             // Writes succeed silently (caching is optional)
             if (prop === "set") return "OK";
             if (prop === "del") return 1;
+            if (prop === "keys") return [];
+            if (prop === "ttl") return -1;
             // Reads return null (cache miss - caller should handle)
             return null;
           };

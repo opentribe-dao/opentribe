@@ -1,6 +1,7 @@
 import { auth } from "@packages/auth/server";
 import { skillsOptions } from "@packages/base";
 import { database as prisma } from "./index";
+import { assertSeedEnvironment, getSeedPasswords } from "./seed-config";
 
 // Helper function to get random skills
 function getRandomSkills(count = 7) {
@@ -15,8 +16,13 @@ function getRandomSkills(count = 7) {
 }
 
 async function main() {
+  assertSeedEnvironment(process.env, "seed-auth.ts");
+
   console.log("🌱 Starting database seed with Better Auth...");
   console.log("📌 Using server-side auth API (no API server required)");
+
+  const { defaultSeedPassword, superadminSeedPassword } =
+    getSeedPasswords(process.env);
 
   // Clean existing data
   await prisma.$transaction([
@@ -44,7 +50,7 @@ async function main() {
   const testUsers = [
     {
       email: "alice.rust@example.com",
-      password: "password123",
+      password: defaultSeedPassword,
       name: "Alice Chen",
       username: "alice_substrate",
       role: "user",
@@ -62,7 +68,7 @@ async function main() {
     },
     {
       email: "bob.ui@example.com",
-      password: "password123",
+      password: defaultSeedPassword,
       name: "Bob Martinez",
       username: "bob_designer",
       role: "user",
@@ -80,7 +86,7 @@ async function main() {
     },
     {
       email: "carol.writer@example.com",
-      password: "password123",
+      password: defaultSeedPassword,
       name: "Carol Thompson",
       username: "carol_docs",
       role: "user",
@@ -98,7 +104,7 @@ async function main() {
     },
     {
       email: "david.w3f@example.com",
-      password: "password123",
+      password: defaultSeedPassword,
       name: "David Kim",
       username: "david_w3f",
       role: "admin",
@@ -114,7 +120,7 @@ async function main() {
     },
     {
       email: "emma.moonbeam@example.com",
-      password: "password123",
+      password: defaultSeedPassword,
       name: "Emma Wilson",
       username: "emma_moonbeam",
       role: "admin",
@@ -130,7 +136,7 @@ async function main() {
     },
     {
       email: "frank.acala@example.com",
-      password: "password123",
+      password: defaultSeedPassword,
       name: "Frank Zhang",
       username: "frank_acala",
       role: "admin",
@@ -146,7 +152,7 @@ async function main() {
     },
     {
       email: "admin@opentribe.io",
-      password: "admin123",
+      password: superadminSeedPassword,
       name: "Admin User",
       username: "admin",
       role: "superadmin",
@@ -220,18 +226,17 @@ async function main() {
   // (Rest of the seed data creation would go here, using the created user IDs)
 
   console.log("\n🎉 Users seeded successfully!");
-  console.log("\n📧 Test User Credentials:");
-  console.log("- alice.rust@example.com / password123 (Builder)");
-  console.log("- bob.ui@example.com / password123 (Builder)");
-  console.log("- carol.writer@example.com / password123 (Builder)");
+  console.log("\n📧 Seeded test accounts:");
+  console.log("- alice.rust@example.com (Builder)");
+  console.log("- bob.ui@example.com (Builder)");
+  console.log("- carol.writer@example.com (Builder)");
+  console.log("- david.w3f@example.com (Org Admin - Web3 Foundation)");
+  console.log("- emma.moonbeam@example.com (Org Admin - Moonbeam)");
+  console.log("- frank.acala@example.com (Org Admin - Acala)");
+  console.log("- admin@opentribe.io (Platform Superadmin)");
   console.log(
-    "- david.w3f@example.com / password123 (Org Admin - Web3 Foundation)"
+    "Use SEED_DEFAULT_PASSWORD / SEED_SUPERADMIN_PASSWORD to control local credentials."
   );
-  console.log(
-    "- emma.moonbeam@example.com / password123 (Org Admin - Moonbeam)"
-  );
-  console.log("- frank.acala@example.com / password123 (Org Admin - Acala)");
-  console.log("- admin@opentribe.io / admin123 (Platform Superadmin)");
 }
 
 main()

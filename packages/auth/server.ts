@@ -11,18 +11,12 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, customSession, organization } from "better-auth/plugins";
 import { defaultRoles } from "better-auth/plugins/admin/access";
+import {
+  shouldIncludeLocalhostOrigins,
+  trustedOrigins,
+} from "./trusted-origins";
 
-export const trustedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://localhost:3002",
-  "https://opentribe.io",
-  "https://api.opentribe.io",
-  "https://dashboard.opentribe.io",
-  "https://dev.opentribe.io",
-  "https://api.dev.opentribe.io",
-  "https://dashboard.dev.opentribe.io",
-];
+export { shouldIncludeLocalhostOrigins, trustedOrigins } from "./trusted-origins";
 
 /**
  * Role Architecture (Better Auth based):
@@ -257,7 +251,7 @@ const authOptions = {
   ],
 } satisfies BetterAuthOptions;
 
-export const auth: ReturnType<typeof betterAuth> = betterAuth({
+export const auth = betterAuth({
   ...authOptions,
   plugins: [
     ...authOptions.plugins,

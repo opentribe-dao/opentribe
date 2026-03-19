@@ -1,5 +1,29 @@
-import { auth, trustedOrigins } from "@packages/auth/server";
+import {
+  auth,
+  shouldIncludeLocalhostOrigins,
+  trustedOrigins,
+} from "@packages/auth/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+
+vi.mock("better-auth", () => ({
+  betterAuth: vi.fn(() => ({
+    api: {
+      getSession: vi.fn(),
+    },
+  })),
+}));
+
+vi.mock("better-auth/plugins", () => ({
+  admin: vi.fn(() => ({ name: "admin-plugin" })),
+  customSession: vi.fn(() => ({ name: "custom-session-plugin" })),
+  organization: vi.fn(() => ({ name: "organization-plugin" })),
+}));
+
+vi.mock("better-auth/plugins/admin/access", () => ({
+  defaultRoles: {
+    admin: {},
+  },
+}));
 
 describe("Auth Server Configuration", () => {
   beforeEach(() => {
@@ -7,10 +31,16 @@ describe("Auth Server Configuration", () => {
   });
 
   describe("trustedOrigins", () => {
-    test("should include localhost origins for development", () => {
-      expect(trustedOrigins).toContain("http://localhost:3000");
-      expect(trustedOrigins).toContain("http://localhost:3001");
-      expect(trustedOrigins).toContain("http://localhost:3002");
+    test("should exclude localhost origins in production", () => {
+      expect(
+        shouldIncludeLocalhostOrigins({ VERCEL_TARGET_ENV: "production" } as NodeJS.ProcessEnv)
+      ).toBe(false);
+    });
+
+    test("should include localhost origins outside production", () => {
+      expect(
+        shouldIncludeLocalhostOrigins({ VERCEL_TARGET_ENV: "preview" } as NodeJS.ProcessEnv)
+      ).toBe(true);
     });
 
     test("should include production opentribe.io origins", () => {

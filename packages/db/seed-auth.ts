@@ -1,4 +1,4 @@
-import { authClient } from "@packages/auth/client";
+import { auth } from "@packages/auth/server";
 import { skillsOptions } from "@packages/base";
 import { database as prisma } from "./index";
 
@@ -16,7 +16,7 @@ function getRandomSkills(count = 7) {
 
 async function main() {
   console.log("🌱 Starting database seed with Better Auth...");
-  console.log("⚠️  Make sure the API server is running on port 3002!");
+  console.log("📌 Using server-side auth API (no API server required)");
 
   // Clean existing data
   await prisma.$transaction([
@@ -166,30 +166,24 @@ async function main() {
     try {
       console.log(`  Creating user: ${userData.email}`);
 
-      const res = await fetch("http://localhost:3002/api/auth/sign-up/email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Origin": "http://localhost:3000"
-        },
-        body: JSON.stringify({
+      // Use auth.api.signUpEmail for server-side user creation
+      // This is the recommended approach for Node.js/seed scripts
+      const result = await auth.api.signUpEmail({
+        body: {
           email: userData.email,
           password: userData.password,
-          name: userData.name
-        })
+          name: userData.name,
+        },
       });
 
-      const resultData = await res.json();
-      const result = { data: res.ok ? resultData : null, error: res.ok ? null : resultData };
-
-      if (result.data?.user) {
-        createdUsers.push(result.data.user);
+      if (result.user) {
+        createdUsers.push(result.user);
         console.log(`  ✅ Created: ${userData.email}`);
 
         // Update the user with additional fields after creation
         if (userData.data) {
           await prisma.user.update({
-            where: { id: result.data.user.id },
+            where: { id: result.user.id },
             data: {
               emailVerified: true,
               username: userData.username,
@@ -209,8 +203,6 @@ async function main() {
             },
           });
         }
-      } else {
-        console.log(`  ⚠️  Failed to create: ${userData.email}`, result.error);
       }
     } catch (error) {
       console.error(`  ❌ Error creating ${userData.email}:`, error);

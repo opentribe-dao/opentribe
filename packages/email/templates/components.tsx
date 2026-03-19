@@ -1,3 +1,4 @@
+import React from "react";
 import { Button, Hr, Link, Section, Text } from "@react-email/components";
 
 interface EmailButtonProps {

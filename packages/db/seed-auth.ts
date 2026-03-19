@@ -180,16 +180,20 @@ const createSeedUser = async (
 const logSeedSummary = (createdUsers: User[]) => {
   console.log(`\n✅ Created ${createdUsers.length} users`);
   console.log("\n🎉 Users seeded successfully!");
-  console.log("\n📧 Seeded test accounts:");
-  console.log("- alice.rust@example.com (Builder)");
-  console.log("- bob.ui@example.com (Builder)");
-  console.log("- carol.writer@example.com (Builder)");
-  console.log("- david.w3f@example.com (Org Admin - Web3 Foundation)");
-  console.log("- emma.moonbeam@example.com (Org Admin - Moonbeam)");
-  console.log("- frank.acala@example.com (Org Admin - Acala)");
-  console.log("- admin@opentribe.io (Platform Superadmin)");
+  console.log("\n📧 Test User Credentials:");
+  console.log("- alice.rust@example.com / password123 (Builder)");
+  console.log("- bob.ui@example.com / password123 (Builder)");
+  console.log("- carol.writer@example.com / password123 (Builder)");
   console.log(
-    "Use SEED_DEFAULT_PASSWORD / SEED_SUPERADMIN_PASSWORD to control local credentials."
+    "- david.w3f@example.com / password123 (Org Admin - Web3 Foundation)"
+  );
+  console.log(
+    "- emma.moonbeam@example.com / password123 (Org Admin - Moonbeam)"
+  );
+  console.log("- frank.acala@example.com / password123 (Org Admin - Acala)");
+  console.log("- admin@opentribe.io / admin123 (Platform Superadmin)");
+  console.log(
+    "Optional: set SEED_DEFAULT_PASSWORD / SEED_SUPERADMIN_PASSWORD to override these defaults."
   );
 };
 

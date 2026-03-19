@@ -8,14 +8,10 @@ export const assertSeedEnvironment = (
 };
 
 export const getSeedPasswords = (env: NodeJS.ProcessEnv = process.env) => {
-  const defaultSeedPassword = env.SEED_DEFAULT_PASSWORD;
-
-  if (!defaultSeedPassword) {
-    throw new Error("SEED_DEFAULT_PASSWORD must be set for seed-auth.ts");
-  }
+  const defaultSeedPassword = env.SEED_DEFAULT_PASSWORD || "password123";
 
   return {
     defaultSeedPassword,
-    superadminSeedPassword: env.SEED_SUPERADMIN_PASSWORD || defaultSeedPassword,
+    superadminSeedPassword: env.SEED_SUPERADMIN_PASSWORD || "admin123",
   };
 };

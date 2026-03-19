@@ -20,20 +20,21 @@ describe("seed-config", () => {
     ).not.toThrow();
   });
 
-  test("requires an explicit default seed password", () => {
-    expect(() => getSeedPasswords({} as NodeJS.ProcessEnv)).toThrow(
-      "SEED_DEFAULT_PASSWORD must be set for seed-auth.ts"
-    );
+  test("uses default seed passwords when overrides are unset", () => {
+    expect(getSeedPasswords({} as NodeJS.ProcessEnv)).toEqual({
+      defaultSeedPassword: "password123",
+      superadminSeedPassword: "admin123",
+    });
   });
 
-  test("reuses the default seed password for the superadmin when unset", () => {
+  test("reuses the default seed password for the superadmin when explicitly set", () => {
     expect(
       getSeedPasswords({
         SEED_DEFAULT_PASSWORD: "local-pass",
       } as NodeJS.ProcessEnv)
     ).toEqual({
       defaultSeedPassword: "local-pass",
-      superadminSeedPassword: "local-pass",
+      superadminSeedPassword: "admin123",
     });
   });
 

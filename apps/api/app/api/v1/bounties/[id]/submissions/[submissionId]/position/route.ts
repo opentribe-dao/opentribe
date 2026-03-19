@@ -6,7 +6,6 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
-import type { SessionData } from "@/lib/organization-auth";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -92,7 +91,7 @@ async function handlePositionPatch(
     const orgAuth = await getOrganizationAuth(
       request,
       submission.bounty.organizationId,
-      { session: sessionData as SessionData }
+      { userId: sessionData.user.id }
     );
     if (!orgAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -13,8 +13,6 @@ const isRedisConfigured = () =>
   Boolean(
     process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   );
-const isLocalRateLimitFallbackAllowed = () =>
-  ["development", "test"].includes(process.env.NODE_ENV ?? "");
 
 const signInRateLimiter = createRateLimiter({
   limiter: slidingWindow(5, "1 m"),
@@ -69,11 +67,8 @@ export const POST = async (request: Request) => {
   const rateLimitedAction = getRateLimitedAction(pathname);
 
   if (rateLimitedAction) {
-    if (!(isRedisConfigured() || isLocalRateLimitFallbackAllowed())) {
-      return NextResponse.json(
-        { error: "Auth rate limiting is unavailable. Please contact support." },
-        { status: 503 }
-      );
+    if (!isRedisConfigured()) {
+      return authPost(request);
     }
 
     const identifier = await getRateLimitIdentifier(request);

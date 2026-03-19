@@ -919,7 +919,7 @@ describe("Submission System Tests", () => {
       expect(getOrganizationAuth).toHaveBeenCalledWith(
         expect.any(Object),
         "org-1",
-        { session: mockSession }
+        { userId: mockSession.user.id }
       );
       expect(database.submission.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1022,7 +1022,7 @@ describe("Submission System Tests", () => {
       expect(getOrganizationAuth).toHaveBeenCalledWith(
         expect.any(Object),
         "org-1",
-        { session: mockSession }
+        { userId: mockSession.user.id }
       );
     });
 
@@ -1319,7 +1319,7 @@ describe("Submission System Tests", () => {
       expect(getOrganizationAuth).toHaveBeenCalledWith(
         expect.any(Object),
         "org-1",
-        { session: mockSession }
+        { userId: mockSession.user.id }
       );
       // Verify pendingReview query excludes winners
       expect(database.submission.count).toHaveBeenCalledWith(

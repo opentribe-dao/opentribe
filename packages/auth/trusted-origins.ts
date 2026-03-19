@@ -20,7 +20,7 @@ export const shouldIncludeLocalhostOrigins = (
     return env.VERCEL_TARGET_ENV !== "production";
   }
 
-  return env.NODE_ENV !== "production";
+  return true;
 };
 
 export const getTrustedOrigins = (env: NodeJS.ProcessEnv = process.env) => [

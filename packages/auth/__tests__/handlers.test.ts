@@ -225,10 +225,10 @@ describe("Auth Handlers", () => {
       });
     });
 
-    test("fails closed outside local environments when Redis is unavailable", async () => {
+    test("keeps auth available when Redis is unavailable", async () => {
       process.env.NODE_ENV = "production";
-      process.env.UPSTASH_REDIS_REST_URL = undefined;
-      process.env.UPSTASH_REDIS_REST_TOKEN = undefined;
+      delete process.env.UPSTASH_REDIS_REST_URL;
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
       const request = new Request(
         "http://localhost:3002/api/auth/sign-in/email",
@@ -247,9 +247,9 @@ describe("Auth Handlers", () => {
 
       const response = await POST(request);
 
-      expect(response.status).toBe(503);
+      expect(response.status).toBe(200);
       expect(limitMock).not.toHaveBeenCalled();
-      expect(authPostMock).not.toHaveBeenCalled();
+      expect(authPostMock).toHaveBeenCalledTimes(1);
     });
   });
 });

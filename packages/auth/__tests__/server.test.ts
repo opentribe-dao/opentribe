@@ -33,7 +33,7 @@ describe("Auth Server Configuration", () => {
   });
 
   describe("trustedOrigins", () => {
-    test("should exclude localhost origins in production", () => {
+    test("should exclude localhost origins on Vercel production", () => {
       expect(
         shouldIncludeLocalhostOrigins({
           VERCEL_TARGET_ENV: "production",
@@ -45,6 +45,14 @@ describe("Auth Server Configuration", () => {
       expect(
         shouldIncludeLocalhostOrigins({
           VERCEL_TARGET_ENV: "preview",
+        } as NodeJS.ProcessEnv)
+      ).toBe(true);
+    });
+
+    test("should include localhost origins for local production-mode runs", () => {
+      expect(
+        shouldIncludeLocalhostOrigins({
+          NODE_ENV: "production",
         } as NodeJS.ProcessEnv)
       ).toBe(true);
     });

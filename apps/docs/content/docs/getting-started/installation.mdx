@@ -141,14 +141,11 @@ pnpm db:push
 
 <Step title="Seed Test Data">
 
-The API server must be running before seeding:
-
 ```bash
-# Terminal 1: Start the API server
-pnpm dev
-
-# Terminal 2: Seed the database
+# Seed users with proper Better Auth credentials
 pnpm db:seed:auth  # Creates test users with proper auth
+
+# Seed organizations, bounties, grants, etc.
 pnpm db:seed       # Creates organizations, bounties, etc.
 ```
 

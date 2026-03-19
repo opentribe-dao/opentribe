@@ -105,8 +105,8 @@ pnpm dev
 6. Seed the database with test data:
 
 ```bash
-# IMPORTANT: The API server must be running in a separate terminal window(step 5) before seeding
-# This uses Better Auth's API to create users with properly hashed passwords
+# This uses Better Auth's server-side API to create users with properly hashed passwords
+# The API server does not need to be running before seeding
 
 # Option 1: Use the auth-based seeder (recommended)
 pnpm db:seed:auth

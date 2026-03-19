@@ -13,6 +13,19 @@ const isRedisConfigured = () =>
   Boolean(
     process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   );
+const localRateLimitState = new Map<string, number[]>();
+let warnedAboutMissingRedis = false;
+
+const emitMissingRedisWarning = () => {
+  if (warnedAboutMissingRedis) {
+    return;
+  }
+
+  warnedAboutMissingRedis = true;
+  console.error(
+    "[auth] Upstash Redis is not configured; using in-memory auth rate limiting fallback."
+  );
+};
 
 const signInRateLimiter = createRateLimiter({
   limiter: slidingWindow(5, "1 m"),
@@ -46,9 +59,6 @@ const getRateLimitedAction = (pathname: string) => {
 };
 
 const getRateLimitIdentifier = async (request: Request) => {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const ip = forwardedFor?.split(",")[0]?.trim() || "unknown";
-
   try {
     const payload = await request.clone().json();
     const email =
@@ -56,10 +66,40 @@ const getRateLimitIdentifier = async (request: Request) => {
         ? payload.email.trim().toLowerCase()
         : "unknown";
 
-    return `${ip}:${email}`;
+    return email;
   } catch {
-    return ip;
+    return "unknown";
   }
+};
+
+const applyLocalRateLimit = (
+  key: string,
+  options: { maxAttempts: number; windowMs: number }
+) => {
+  const now = Date.now();
+  const cutoff = now - options.windowMs;
+  const attempts = (localRateLimitState.get(key) || []).filter(
+    (timestamp) => timestamp > cutoff
+  );
+
+  if (attempts.length >= options.maxAttempts) {
+    localRateLimitState.set(key, attempts);
+    return { success: false };
+  }
+
+  attempts.push(now);
+  localRateLimitState.set(key, attempts);
+  return { success: true };
+};
+
+const getLocalFallbackOptions = (keyPrefix: string) =>
+  keyPrefix === "sign-in"
+    ? { maxAttempts: 5, windowMs: 60_000 }
+    : { maxAttempts: 3, windowMs: 15 * 60_000 };
+
+export const __resetLocalRateLimitStateForTests = () => {
+  localRateLimitState.clear();
+  warnedAboutMissingRedis = false;
 };
 
 export const POST = async (request: Request) => {
@@ -67,14 +107,28 @@ export const POST = async (request: Request) => {
   const rateLimitedAction = getRateLimitedAction(pathname);
 
   if (rateLimitedAction) {
+    const identifier = await getRateLimitIdentifier(request);
+    const key = `${rateLimitedAction.keyPrefix}:${identifier}`;
+
     if (!isRedisConfigured()) {
+      emitMissingRedisWarning();
+
+      const { success } = applyLocalRateLimit(
+        key,
+        getLocalFallbackOptions(rateLimitedAction.keyPrefix)
+      );
+
+      if (!success) {
+        return NextResponse.json(
+          { error: "Too many requests. Please try again later." },
+          { status: 429 }
+        );
+      }
+
       return authPost(request);
     }
 
-    const identifier = await getRateLimitIdentifier(request);
-    const { success } = await rateLimitedAction.limiter.limit(
-      `${rateLimitedAction.keyPrefix}:${identifier}`
-    );
+    const { success } = await rateLimitedAction.limiter.limit(key);
 
     if (!success) {
       return NextResponse.json(

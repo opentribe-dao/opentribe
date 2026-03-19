@@ -27,7 +27,11 @@ vi.mock("better-auth/next-js", () => ({
   })),
 }));
 
-import { GET, POST } from "../handlers";
+import {
+  __resetLocalRateLimitStateForTests,
+  GET,
+  POST,
+} from "../handlers";
 
 describe("Auth Handlers", () => {
   const originalNodeEnv = process.env.NODE_ENV;
@@ -39,6 +43,7 @@ describe("Auth Handlers", () => {
     limitMock.mockResolvedValue({ success: true });
     authGetMock.mockResolvedValue(new Response(null, { status: 200 }));
     authPostMock.mockResolvedValue(new Response(null, { status: 200 }));
+    __resetLocalRateLimitStateForTests();
     process.env.NODE_ENV = originalNodeEnv;
     process.env.UPSTASH_REDIS_REST_URL = originalRedisUrl;
     process.env.UPSTASH_REDIS_REST_TOKEN = originalRedisToken;
@@ -229,6 +234,7 @@ describe("Auth Handlers", () => {
       process.env.NODE_ENV = "production";
       delete process.env.UPSTASH_REDIS_REST_URL;
       delete process.env.UPSTASH_REDIS_REST_TOKEN;
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       const request = new Request(
         "http://localhost:3002/api/auth/sign-in/email",
@@ -250,6 +256,39 @@ describe("Auth Handlers", () => {
       expect(response.status).toBe(200);
       expect(limitMock).not.toHaveBeenCalled();
       expect(authPostMock).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        "[auth] Upstash Redis is not configured; using in-memory auth rate limiting fallback."
+      );
+    });
+
+    test("uses in-memory fallback throttling when Redis is unavailable", async () => {
+      process.env.NODE_ENV = "production";
+      delete process.env.UPSTASH_REDIS_REST_URL;
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+      vi.spyOn(console, "error").mockImplementation(() => {});
+
+      const createRequest = () =>
+        new Request("http://localhost:3002/api/auth/sign-in/email", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            email: "user@example.com",
+            password: "password123",
+          }),
+        });
+
+      for (let index = 0; index < 5; index += 1) {
+        const response = await POST(createRequest());
+        expect(response.status).toBe(200);
+      }
+
+      const blockedResponse = await POST(createRequest());
+
+      expect(blockedResponse.status).toBe(429);
+      expect(limitMock).not.toHaveBeenCalled();
+      expect(authPostMock).toHaveBeenCalledTimes(5);
     });
   });
 });

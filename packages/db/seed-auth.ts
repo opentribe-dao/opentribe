@@ -177,21 +177,37 @@ const createSeedUser = async (
   return result.user;
 };
 
-const logSeedSummary = (createdUsers: User[]) => {
+const logSeedSummary = (
+  createdUsers: User[],
+  passwords: {
+    defaultSeedPassword: string;
+    superadminSeedPassword: string;
+  }
+) => {
   console.log(`\n✅ Created ${createdUsers.length} users`);
   console.log("\n🎉 Users seeded successfully!");
   console.log("\n📧 Test User Credentials:");
-  console.log("- alice.rust@example.com / password123 (Builder)");
-  console.log("- bob.ui@example.com / password123 (Builder)");
-  console.log("- carol.writer@example.com / password123 (Builder)");
   console.log(
-    "- david.w3f@example.com / password123 (Org Admin - Web3 Foundation)"
+    `- alice.rust@example.com / ${passwords.defaultSeedPassword} (Builder)`
   );
   console.log(
-    "- emma.moonbeam@example.com / password123 (Org Admin - Moonbeam)"
+    `- bob.ui@example.com / ${passwords.defaultSeedPassword} (Builder)`
   );
-  console.log("- frank.acala@example.com / password123 (Org Admin - Acala)");
-  console.log("- admin@opentribe.io / admin123 (Platform Superadmin)");
+  console.log(
+    `- carol.writer@example.com / ${passwords.defaultSeedPassword} (Builder)`
+  );
+  console.log(
+    `- david.w3f@example.com / ${passwords.defaultSeedPassword} (Org Admin - Web3 Foundation)`
+  );
+  console.log(
+    `- emma.moonbeam@example.com / ${passwords.defaultSeedPassword} (Org Admin - Moonbeam)`
+  );
+  console.log(
+    `- frank.acala@example.com / ${passwords.defaultSeedPassword} (Org Admin - Acala)`
+  );
+  console.log(
+    `- admin@opentribe.io / ${passwords.superadminSeedPassword} (Platform Superadmin)`
+  );
   console.log(
     "Optional: set SEED_DEFAULT_PASSWORD / SEED_SUPERADMIN_PASSWORD to override these defaults."
   );
@@ -251,7 +267,10 @@ async function main() {
 
   // Now create organizations and other seed data...
   // (Rest of the seed data creation would go here, using the created user IDs)
-  logSeedSummary(createdUsers);
+  logSeedSummary(createdUsers, {
+    defaultSeedPassword,
+    superadminSeedPassword,
+  });
 }
 
 main()

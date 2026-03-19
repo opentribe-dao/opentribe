@@ -233,7 +233,7 @@ We're looking for projects that:
         maxAmount: 500_000,
         totalFunds: 45_000_000,
         token: "DOT",
-        status: "OPEN",
+        status: "CLOSED",
         visibility: "PUBLISHED",
         source: "NATIVE",
         organizationId: organizations[0].id,
@@ -300,7 +300,7 @@ Focus areas include:
         maxAmount: 100_000,
         totalFunds: 10_000_000,
         token: "DOT",
-        status: "OPEN",
+        status: "CLOSED",
         visibility: "PUBLISHED",
         source: "NATIVE",
         organizationId: organizations[0].id,
@@ -362,7 +362,7 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
         maxAmount: 50_000,
         totalFunds: 10_000_000,
         token: "GLMR",
-        status: "OPEN",
+        status: "CLOSED",
         visibility: "PUBLISHED",
         source: "NATIVE",
         organizationId: organizations[1].id,
@@ -997,6 +997,69 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
             title: "Substrate RPC",
             url: "https://docs.substrate.io/reference/rpc/",
             description: "RPC specifications",
+          },
+        ],
+      },
+    }),
+    prisma.rFP.create({
+      data: {
+        title: "RFP#000: KryptOS — Total Privacy Operating System",
+        slug: "000-privacy-os",
+        description: `KryptOS is a proposal for a comprehensive privacy platform built on top of Polkadot stack, ZK (Zero-Knowledge) primitives, and the broader Dotsama ecosystem.
+
+## The Proposal
+
+KryptOS aims to provide a complete privacy solution that allows users to interact with Web3 without revealing their identity, transaction history, or metadata. This extends the privacy guarantees of substrate-based chains to the application layer.
+
+## Scope
+
+The scope of this RFP includes but is not limited to:
+
+1. **Relay Chain Privacy Bridge**: Private bridge between Kusama Relay Chain and other chains in the ecosystem
+2. **Anonymous Governance Participation**: Shield identity while participating in on-chain governance
+3. **Private Smart Contracts**: Confidential execution environment for smart contracts
+4. **Privacy-Preserving Cross-Chain Messaging**: Private cross-chain communication via XCM
+5. **ZK-Enabled Identity Layer**: Self-sovereign identity system using zero-knowledge proofs
+
+## Key Requirements
+
+- All implementations must be open-source under a permissive license
+- Continuous security audits by reputable firms
+- Comprehensive documentation and developer guides
+- Integration with existing Polkadot SDK modules
+
+## Evaluation Criteria
+
+- Demonstrated expertise in ZK cryptography
+- Modular and extensible architecture
+- Performance benchmarks under various network conditions
+- Quality of test suites and documentation
+
+## Acceptance Criteria
+
+- Functional implementation of at least one component from the scope
+- Passed third-party security audit with no critical vulnerabilities
+- Open-source with permissive license
+- Integration with Polkadot SDK (FRAME)
+- Formal verification for critical components where applicable
+- Test coverage > 80% for core logic
+- Native support for privacy-preserving cross-chain messaging via XCM`,
+        grantId: kusamaGrants[1].id,
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        publishedAt: daysFromNow(-30),
+        viewCount: 0,
+        voteCount: 0,
+        resources: [
+          {
+            title: "Kusama Vision RFP Listing",
+            url: "https://zk.kusama.vision/rfps/#000-privacy-os",
+            description: "Published RFP listing for KryptOS on Kusama Vision",
+          },
+          {
+            title: "Source Markdown",
+            url: "https://codeberg.org/kusama-zk/RFPs/src/branch/main/rfp/000-privacy-os.md",
+            description: "Original markdown source for the KryptOS RFP",
           },
         ],
       },

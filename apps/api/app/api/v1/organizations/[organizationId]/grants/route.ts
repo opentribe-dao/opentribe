@@ -1,9 +1,9 @@
 import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
-import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Query params schema
 const queryParamsSchema = z.object({

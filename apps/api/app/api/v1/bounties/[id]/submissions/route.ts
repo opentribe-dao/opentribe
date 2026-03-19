@@ -2,10 +2,10 @@ import { auth } from "@packages/auth/server";
 import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
 import { sendBountyFirstSubmissionEmail } from "@packages/email";
-import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Schema for submission creation
 const createSubmissionSchema = z.object({

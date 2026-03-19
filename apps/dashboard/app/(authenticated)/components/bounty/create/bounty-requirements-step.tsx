@@ -89,7 +89,7 @@ export const BountyRequirementsStepComponent: React.FC<
             type="date"
             value={formData.deadline}
           />
-          <CalendarIcon className="-translate-y-1/2 absolute top-1/2 right-3 h-4 w-4 text-white/40" />
+          <CalendarIcon className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-white/40" />
         </div>
       </div>
 

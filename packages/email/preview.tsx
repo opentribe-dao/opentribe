@@ -36,7 +36,7 @@ const templates = [
 ];
 
 // Create preview directory
-const previewDir = path.join(__dirname, "preview");
+const previewDir = path.join(import.meta.dirname, "preview");
 if (!fs.existsSync(previewDir)) {
   fs.mkdirSync(previewDir, { recursive: true });
 }

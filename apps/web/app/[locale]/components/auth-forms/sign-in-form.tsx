@@ -149,7 +149,7 @@ export const SignInForm = ({ onSuccess, redirectTo }: SignInFormProps) => {
                       type={showPassword ? "text" : "password"}
                     />
                     <Button
-                      className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
+                      className="!absolute !rounded-lg top-1/2 right-0 flex w-1/5 -translate-y-1/2 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                       // variant="outline"
                       // size="icon"
                       disabled={isLoading}

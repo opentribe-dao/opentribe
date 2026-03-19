@@ -15,7 +15,6 @@ import { getTokenLogo } from "@packages/base/lib/utils";
 import {
   DollarSign,
   FileText,
-  Filter,
   Loader2,
   Plus,
   Search,
@@ -198,7 +197,7 @@ const GrantsPage = () => {
         {/* Search and Filters */}
         <div className="flex items-center gap-4">
           <div className="relative max-w-md flex-1">
-            <Search className="-translate-y-1/2 absolute top-1/2 left-3 z-10 h-4 w-4 text-white/40" />
+            <Search className="absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-white/40" />
             <Input
               className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
               onChange={(e) => setSearchQuery(e.target.value)}

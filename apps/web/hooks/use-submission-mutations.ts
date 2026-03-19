@@ -142,4 +142,4 @@ export function useDeleteSubmission(bountyId: string) {
 }
 
 // Export types
-export type { SubmissionUpdateData, Submission };
+export type { Submission, SubmissionUpdateData };

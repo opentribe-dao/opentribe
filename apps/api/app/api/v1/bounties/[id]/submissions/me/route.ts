@@ -1,10 +1,10 @@
 import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import { database } from "@packages/db";
-import { getSubmissionAuth } from "@/lib/submission-auth";
-import { formatZodError } from "@/lib/zod-errors";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getSubmissionAuth } from "@/lib/submission-auth";
+import { formatZodError } from "@/lib/zod-errors";
 
 export async function OPTIONS() {
   return NextResponse.json({});

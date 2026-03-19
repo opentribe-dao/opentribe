@@ -1,7 +1,7 @@
 import { createContact } from "@packages/email";
-import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatZodError } from "@/lib/zod-errors";
 
 const subscribeSchema = z.object({
   email: z.email("Invalid email address"),

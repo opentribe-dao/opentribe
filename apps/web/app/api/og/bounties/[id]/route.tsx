@@ -39,7 +39,7 @@ export async function GET(
     try {
       const amountRaw = (bounty as Bounty)?.amount;
       const token = (bounty as Bounty)?.token || "DOT";
-      const amount = amountRaw != null ? Number(amountRaw) : 0;
+      const amount = amountRaw == null ? 0 : Number(amountRaw);
       if (!amount || Number.isNaN(amount)) return null;
       const short =
         amount >= 1000 ? `${Math.round(amount / 100) / 10}K` : `${amount}`;

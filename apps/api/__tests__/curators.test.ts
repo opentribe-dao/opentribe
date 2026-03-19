@@ -2,8 +2,8 @@ import { database } from "@packages/db";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GET as getCurators } from "../app/api/v1/bounties/[id]/curators/route";
-import { POST as addCurator } from "../app/api/v1/organizations/[organizationId]/bounties/[id]/curators/route";
 import { DELETE as removeCurator } from "../app/api/v1/organizations/[organizationId]/bounties/[id]/curators/[curatorId]/route";
+import { POST as addCurator } from "../app/api/v1/organizations/[organizationId]/bounties/[id]/curators/route";
 import { getOrganizationAuth } from "../lib/organization-auth";
 
 // Mock database

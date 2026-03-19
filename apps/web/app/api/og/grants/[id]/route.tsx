@@ -37,8 +37,8 @@ export async function GET(
   const token = (grant as Grant)?.token || "DOT";
   const minRaw = (grant as Grant)?.minAmount;
   const maxRaw = (grant as Grant)?.maxAmount;
-  const min = minRaw != null ? Number(minRaw) : null;
-  const max = maxRaw != null ? Number(maxRaw) : null;
+  const min = minRaw == null ? null : Number(minRaw);
+  const max = maxRaw == null ? null : Number(maxRaw);
   const range = (() => {
     const fmtMin =
       typeof min === "number" && !Number.isNaN(min)

@@ -80,9 +80,7 @@ async function getSubmission(
   return data;
 }
 
-const normalizeSubmissionAnswers = (
-  answers: RawAnswers
-): ScreeningAnswer[] => {
+const normalizeSubmissionAnswers = (answers: RawAnswers): ScreeningAnswer[] => {
   if (!answers) {
     return [];
   }
@@ -249,30 +247,32 @@ export default function SubmissionDetailPage({
                   Screening Questions
                 </h2>
                 <div className="space-y-4">
-                  {submission.answers.map((answer: ScreeningAnswer, idx: number) => (
-                    <div
-                      className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
-                      key={`${answer.question}-${idx}`}
-                    >
-                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-pink-600/20">
-                        <span className="font-bold text-pink-400 text-xs">
-                          {idx + 1}
-                        </span>
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        <h4 className="font-medium text-white/80">
-                          {answer.question}
-                        </h4>
-                        <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-                          <p className="whitespace-pre-line text-sm text-white/70">
-                            {answer.answer?.trim()
-                              ? answer.answer
-                              : "No answer provided."}
-                          </p>
+                  {submission.answers.map(
+                    (answer: ScreeningAnswer, idx: number) => (
+                      <div
+                        className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                        key={`${answer.question}-${idx}`}
+                      >
+                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-pink-600/20">
+                          <span className="font-bold text-pink-400 text-xs">
+                            {idx + 1}
+                          </span>
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <h4 className="font-medium text-white/80">
+                            {answer.question}
+                          </h4>
+                          <div className="rounded-lg border border-white/5 bg-black/20 p-3">
+                            <p className="whitespace-pre-line text-sm text-white/70">
+                              {answer.answer?.trim()
+                                ? answer.answer
+                                : "No answer provided."}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </section>
             )}
@@ -290,7 +290,7 @@ export default function SubmissionDetailPage({
               <h3 className="mb-4 font-medium text-sm text-white/60">
                 Submitted By
               </h3>
-                <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3">
                 <div className="h-12 w-12 shrink-0 rounded-full bg-linear-to-br from-pink-500 to-purple-600">
                   {submission.submitter.image ? (
                     <Image
@@ -379,9 +379,9 @@ export default function SubmissionDetailPage({
                 <SubmissionActions
                   bountyId={submission.bounty.id}
                   className="w-full"
-                  layout="column"
                   isBountyComplete={isBountyComplete}
                   isDeadlineDue={isDeadlineDue}
+                  layout="column"
                   submissionId={submission.id}
                   submitterId={submission.submitter.id}
                 />

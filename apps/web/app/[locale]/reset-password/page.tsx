@@ -122,7 +122,7 @@ export default function ResetPasswordPage() {
                 value={password}
               />
               <button
-                className="-translate-y-1/2 absolute top-1/2 right-3 text-white/60 hover:text-white"
+                className="absolute top-1/2 right-3 -translate-y-1/2 text-white/60 hover:text-white"
                 onClick={() => setShowPassword(!showPassword)}
                 type="button"
               >
@@ -141,7 +141,7 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
               />
               <button
-                className="-translate-y-1/2 absolute top-1/2 right-3 text-white/60 hover:text-white"
+                className="absolute top-1/2 right-3 -translate-y-1/2 text-white/60 hover:text-white"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 type="button"
               >

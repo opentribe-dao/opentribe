@@ -80,11 +80,11 @@ export default function EditRFPPage({
   const fetchRFPDetails = async () => {
     try {
       setLoadingData(true);
-      
+
       if (!activeOrg?.id) {
         throw new Error("No organization selected");
       }
-      
+
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${activeOrg.id}/rfps/${id}`,
         {

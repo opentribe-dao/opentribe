@@ -14,10 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type ForgotPasswordClient = typeof authClient & {
-  forgetPassword: (input: {
-    email: string;
-    redirectTo: string;
-  }) => Promise<{
+  forgetPassword: (input: { email: string; redirectTo: string }) => Promise<{
     error?: {
       message?: string;
     };

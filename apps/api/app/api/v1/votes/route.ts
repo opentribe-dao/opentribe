@@ -1,9 +1,9 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
-import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatZodError } from "@/lib/zod-errors";
 
 export async function OPTIONS() {
   return NextResponse.json({});

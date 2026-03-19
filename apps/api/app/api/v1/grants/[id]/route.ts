@@ -1,9 +1,9 @@
+import { auth } from "@packages/auth/server";
 import type { Prisma } from "@packages/db";
 import { database } from "@packages/db";
+import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { ViewManager } from "@/lib/views";
-import { auth } from "@packages/auth/server";
-import { headers } from "next/headers";
 
 // Type for GET API response
 type GrantWithRelations = Prisma.GrantGetPayload<{

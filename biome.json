@@ -6,7 +6,6 @@
   },
   "files": {
     "includes": [
-      "**",
       "!**/packages/base/components/ui",
       "!**/packages/base/lib",
       "!**/packages/base/hooks",

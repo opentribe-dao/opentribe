@@ -47,7 +47,7 @@ function formatPosition(position: number): string {
   if (position === 3) {
     return "3rd";
   }
-  
+
   const j = position % 10;
   const k = position % 100;
   if (j === 1 && k !== 11) {
@@ -112,7 +112,10 @@ type SubmissionForFilter = {
 };
 
 // Helper function to check if submission matches search query
-function matchesSearch(submission: SubmissionForFilter, query: string): boolean {
+function matchesSearch(
+  submission: SubmissionForFilter,
+  query: string
+): boolean {
   const lowerQuery = query.toLowerCase();
   if (query.trim() === "") {
     return true;
@@ -238,9 +241,7 @@ function SubmissionCard({ submission, bounty }: SubmissionCardProps) {
             </Badge>
             {hasPosition && isNotSpam && (
               <div className="flex items-center gap-1">
-                <Trophy
-                  className={`h-3 w-3 ${getTrophyIconColor(position)}`}
-                />
+                <Trophy className={`h-3 w-3 ${getTrophyIconColor(position)}`} />
                 <span className="font-medium text-white text-xs">
                   {formatPosition(position)}
                 </span>
@@ -355,9 +356,7 @@ export default function SubmissionsPage() {
     const winners = submissions
       .filter(
         (s) =>
-          s.position != null &&
-          s.winningAmount != null &&
-          s.status !== "SPAM" // Exclude SPAM submissions from winners
+          s.position != null && s.winningAmount != null && s.status !== "SPAM" // Exclude SPAM submissions from winners
       )
       .sort((a, b) => {
         const aPos = a.position ?? null;
@@ -411,12 +410,12 @@ export default function SubmissionsPage() {
     if (!bounty?.winnings || selectedWinners.size === 0) {
       return false;
     }
-    
+
     // Check that selectedWinners count matches expected positions
     if (selectedWinners.size !== expectedWinnerCount) {
       return false;
     }
-    
+
     // Check that all positions from 1 to expectedWinnerCount are covered
     const selectedPositions = new Set<number>();
     for (const [, winnerData] of selectedWinners) {
@@ -424,14 +423,14 @@ export default function SubmissionsPage() {
         selectedPositions.add(winnerData.position);
       }
     }
-    
+
     // Verify all positions from 1 to expectedWinnerCount are present
     for (let i = 1; i <= expectedWinnerCount; i++) {
       if (!selectedPositions.has(i)) {
         return false;
       }
     }
-    
+
     return true;
   }, [selectedWinners, expectedWinnerCount, bounty?.winnings]);
 
@@ -459,8 +458,7 @@ export default function SubmissionsPage() {
       );
     } else if (sortBy === "comments") {
       list.sort(
-        (a, b) =>
-          (b.stats?.commentsCount || 0) - (a.stats?.commentsCount || 0)
+        (a, b) => (b.stats?.commentsCount || 0) - (a.stats?.commentsCount || 0)
       );
     } else {
       // newest (default)
@@ -494,7 +492,7 @@ export default function SubmissionsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <div className="relative sm:w-64">
-            <Search className="-translate-y-1/2 absolute top-1/2 left-3 z-10 h-4 w-4 text-white/40" />
+            <Search className="absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-white/40" />
             <Input
               className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -503,9 +501,9 @@ export default function SubmissionsPage() {
             />
           </div>
           <Select
-            onValueChange={(v: "all" | "SUBMITTED" | "SPAM" | "WITHDRAWN" | "winners") =>
-              setStatusFilter(v)
-            }
+            onValueChange={(
+              v: "all" | "SUBMITTED" | "SPAM" | "WITHDRAWN" | "winners"
+            ) => setStatusFilter(v)}
             value={statusFilter}
           >
             <SelectTrigger className="w-[160px] border-white/10 bg-white/5 text-white">
@@ -778,7 +776,8 @@ export default function SubmissionsPage() {
                           Announce Winners ({selectedWinners.size}
                           {expectedWinnerCount > 0
                             ? `/${expectedWinnerCount}`
-                            : ""})
+                            : ""}
+                          )
                         </>
                       )}
                     </Button>

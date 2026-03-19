@@ -1,10 +1,10 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { PaymentService } from "@packages/polkadot/server";
-import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Schema for payment verification
 const verifyPaymentSchema = z.object({

@@ -1,11 +1,11 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendPaymentConfirmationEmail } from "@packages/email";
-import { formatZodError } from "@/lib/zod-errors";
-import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Schema for payment creation
 const createPaymentSchema = z.object({
@@ -173,7 +173,7 @@ export async function POST(
       },
     });
 
-    if (!isOwnerOrAdmin && !isCurator) {
+    if (!(isOwnerOrAdmin || isCurator)) {
       return NextResponse.json(
         {
           error:

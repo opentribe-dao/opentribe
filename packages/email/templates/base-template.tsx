@@ -1,4 +1,3 @@
-import React, { type CSSProperties, type ReactNode } from "react";
 import {
   Body,
   Head,
@@ -9,6 +8,7 @@ import {
   Tailwind,
   Text,
 } from "@react-email/components";
+import type { CSSProperties, ReactNode } from "react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_WEB_URL || "https://opentribe.io";
 const LOGOMARK_URL = `${BASE_URL}/logomark.png`;
@@ -79,8 +79,8 @@ export const BaseTemplate = ({
   <Tailwind>
     <Html>
       <Head>
-        <meta name="color-scheme" content="dark" />
-        <meta name="supported-color-schemes" content="dark" />
+        <meta content="dark" name="color-scheme" />
+        <meta content="dark" name="supported-color-schemes" />
         <style>{colorSchemeStyles}</style>
       </Head>
       <Preview>{preview}</Preview>
@@ -98,8 +98,8 @@ export const BaseTemplate = ({
           cellPadding="0"
           cellSpacing="0"
           role="presentation"
-          width="100%"
           style={{ width: "100%", borderSpacing: 0 }}
+          width="100%"
         >
           <tbody>
             <tr>
@@ -127,7 +127,6 @@ export const BaseTemplate = ({
                                   alt="Opentribe logomark"
                                   height="28"
                                   src={LOGOMARK_URL}
-                                  width="28"
                                   style={{
                                     display: "block",
                                     border: "0",
@@ -135,6 +134,7 @@ export const BaseTemplate = ({
                                     height: "28px",
                                     width: "28px",
                                   }}
+                                  width="28"
                                 />
                               </td>
                               <td>
@@ -142,7 +142,6 @@ export const BaseTemplate = ({
                                   alt="Opentribe"
                                   height="16"
                                   src={WORDMARK_URL}
-                                  width="160"
                                   style={{
                                     display: "block",
                                     border: "0",
@@ -150,6 +149,7 @@ export const BaseTemplate = ({
                                     height: "16px",
                                     width: "160px",
                                   }}
+                                  width="160"
                                 />
                               </td>
                             </tr>

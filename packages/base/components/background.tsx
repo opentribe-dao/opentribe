@@ -12,20 +12,20 @@ export function Background() {
   }, []);
 
   return (
-    <div className="-z-10 fixed inset-0 bg-[#0a0a0a]">
+    <div className="fixed inset-0 -z-10 bg-[#0a0a0a]">
       {/* Main gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
 
       {/* Primary color blobs with heavy blur for soft glow effect */}
       <div className="absolute inset-0">
         {/* Pink/Purple glow - top left area */}
-        <div className="-left-[0%] -top-[10%] absolute h-[40vh] w-[40vw] rounded-full bg-gradient-to-br from-[#E6007A]/40 to-purple-700/30 blur-[480px]" />
+        <div className="absolute -top-[10%] -left-[0%] h-[40vh] w-[40vw] rounded-full bg-gradient-to-br from-[#E6007A]/40 to-purple-700/30 blur-[480px]" />
 
         {/* Purple central glow */}
         <div className="absolute top-[30%] left-[20%] h-[40vh] w-[40vw] rounded-full bg-purple-600/25 blur-[400px]" />
 
         {/* Blue glow - bottom right area */}
-        <div className="-bottom-[10%] -right-[10%] absolute h-[60vh] w-[60vw] rounded-full bg-gradient-to-tl from-blue-600/30 to-blue-800/20 blur-[480px]" />
+        <div className="absolute -right-[10%] -bottom-[10%] h-[60vh] w-[60vw] rounded-full bg-gradient-to-tl from-blue-600/30 to-blue-800/20 blur-[480px]" />
 
         {/* Additional ambient glows */}
         <div className="absolute top-[10%] left-[70%] h-[30vh] w-[30vw] rounded-full bg-purple-500/20 blur-[80px]" />
@@ -34,7 +34,7 @@ export function Background() {
 
       {/* Subtle concentric stadium shapes - left side */}
       <div
-        className="-left-[40%] absolute top-[10%] h-[60vh] w-[80vw]"
+        className="absolute top-[10%] -left-[40%] h-[60vh] w-[80vw]"
         style={{ transform: `translateY(${scrollY * 0.05}px)` }}
       >
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100">
@@ -66,7 +66,7 @@ export function Background() {
 
       {/* Subtle concentric stadium shapes - right side */}
       <div
-        className="-right-[40%] absolute bottom-[10%] h-[60vh] w-[80vw]"
+        className="absolute -right-[40%] bottom-[10%] h-[60vh] w-[80vw]"
         style={{ transform: `translateY(${-scrollY * 0.05}px)` }}
       >
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100">

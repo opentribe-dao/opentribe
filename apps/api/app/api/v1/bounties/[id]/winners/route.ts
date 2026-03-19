@@ -1,12 +1,12 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendBountyWinnerEmail } from "@packages/email";
-import { formatZodError } from "@/lib/zod-errors";
 import { exchangeRateService } from "@packages/polkadot/server";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Schema for announcing winners
 const announceWinnersSchema = z.object({
@@ -69,7 +69,7 @@ export async function POST(
       },
     });
 
-    if (!isOwnerOrAdmin && !isCurator) {
+    if (!(isOwnerOrAdmin || isCurator)) {
       return NextResponse.json(
         {
           error:

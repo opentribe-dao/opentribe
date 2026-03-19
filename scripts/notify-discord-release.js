@@ -139,7 +139,7 @@ async function sendDiscordNotification(release) {
   const embed = {
     title,
     description,
-    color: 0xe6007a,
+    color: 0xe6_00_7a,
     fields: [
       {
         name: "📦 Version",

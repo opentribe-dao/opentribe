@@ -462,7 +462,7 @@ export default function BuilderOnboardingPage() {
                     value={formData.username}
                   />
                   {isCheckingUsername && (
-                    <div className="-translate-y-1/2 absolute top-1/2 right-3">
+                    <div className="absolute top-1/2 right-3 -translate-y-1/2">
                       <Loader2 className="h-4 w-4 animate-spin text-white/40" />
                     </div>
                   )}

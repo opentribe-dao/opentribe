@@ -23,7 +23,7 @@ const FROM_EMAIL = `Opentribe <${FROM_EMAIL_ADDRESS}>`;
 const BASE_URL = process.env.NEXT_PUBLIC_WEB_URL;
 const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL;
 
-export { FROM_EMAIL_ADDRESS, FROM_EMAIL, BASE_URL, DASHBOARD_URL };
+export { BASE_URL, DASHBOARD_URL, FROM_EMAIL, FROM_EMAIL_ADDRESS };
 
 interface EmailUser {
   email: string;

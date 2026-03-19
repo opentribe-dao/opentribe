@@ -27,11 +27,7 @@ vi.mock("better-auth/next-js", () => ({
   })),
 }));
 
-import {
-  __resetLocalRateLimitStateForTests,
-  GET,
-  POST,
-} from "../handlers";
+import { __resetLocalRateLimitStateForTests, GET, POST } from "../handlers";
 
 describe("Auth Handlers", () => {
   const originalNodeEnv = process.env.NODE_ENV;

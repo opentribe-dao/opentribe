@@ -1,6 +1,5 @@
 import { auth } from "@packages/auth/server";
 import { OPTIONAL_URL_REGEX } from "@packages/base/lib/utils";
-import { formatZodError } from "@/lib/zod-errors";
 import type {
   GrantApplication,
   Member,
@@ -14,6 +13,7 @@ import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { formatZodError } from "@/lib/zod-errors";
 
 export async function OPTIONS() {
   return NextResponse.json({});

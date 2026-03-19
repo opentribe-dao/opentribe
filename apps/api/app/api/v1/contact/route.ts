@@ -1,7 +1,7 @@
 import { resend } from "@packages/email";
-import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatZodError } from "@/lib/zod-errors";
 
 const contactSchema = z.object({
   organizationName: z.string().min(2, "Organization name is required"),

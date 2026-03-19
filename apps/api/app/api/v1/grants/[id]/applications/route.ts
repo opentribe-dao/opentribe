@@ -1,10 +1,10 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendGrantFirstApplicationEmail } from "@packages/email";
-import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Schema for grant application creation
 const createApplicationSchema = z.object({

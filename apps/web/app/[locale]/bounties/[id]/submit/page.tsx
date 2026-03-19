@@ -327,7 +327,7 @@ const BountySubmissionPage = () => {
                       Submission Link *
                     </Label>
                     <div className="relative mt-2">
-                      <Link2 className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                      <Link2 className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                       <Input
                         className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
                         id="submissionUrl"
@@ -464,9 +464,9 @@ const BountySubmissionPage = () => {
                                 formData.responses[question.question] === "Yes"
                                   ? "yes"
                                   : formData.responses[question.question] ===
-                                    "No"
-                                  ? "no"
-                                  : undefined
+                                      "No"
+                                    ? "no"
+                                    : undefined
                               }
                             >
                               <div className="flex items-center gap-6">
@@ -477,7 +477,7 @@ const BountySubmissionPage = () => {
                                     value="yes"
                                   />
                                   <Label
-                                    className="text-white cursor-pointer"
+                                    className="cursor-pointer text-white"
                                     htmlFor={`${index}-yes`}
                                   >
                                     Yes
@@ -490,7 +490,7 @@ const BountySubmissionPage = () => {
                                     value="no"
                                   />
                                   <Label
-                                    className="text-white cursor-pointer"
+                                    className="cursor-pointer text-white"
                                     htmlFor={`${index}-no`}
                                   >
                                     No

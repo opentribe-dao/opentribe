@@ -82,10 +82,10 @@ export class ExchangeRateService {
       const cacheKey = `${CACHE_KEY_PREFIX}:${token.toUpperCase()}`;
       try {
         const cached = await redis.get<number>(cacheKey);
-        if (cached !== null) {
-          result[token.toUpperCase()] = cached;
-        } else {
+        if (cached === null) {
           tokensToFetch.push(token.toUpperCase());
+        } else {
+          result[token.toUpperCase()] = cached;
         }
       } catch (error) {
         console.error(`Failed to check cache for token ${token}:`, error);

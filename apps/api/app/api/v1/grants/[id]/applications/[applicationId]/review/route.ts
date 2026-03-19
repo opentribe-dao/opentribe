@@ -1,12 +1,12 @@
 import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendGrantStatusUpdateEmail } from "@packages/email";
-import { formatZodError } from "@/lib/zod-errors";
 import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/env";
+import { formatZodError } from "@/lib/zod-errors";
 
 export async function OPTIONS() {
   return NextResponse.json({});

@@ -3,16 +3,16 @@ import { database } from "@packages/db";
 import { exchangeRateService } from "@packages/polkadot/server";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { POST as announceWinners } from "../app/api/v1/bounties/[id]/winners/route";
+import { POST as recordPayment } from "../app/api/v1/bounties/[id]/payments/route";
 import { PATCH as assignPosition } from "../app/api/v1/bounties/[id]/submissions/[submissionId]/position/route";
 import { PATCH as reviewSubmission } from "../app/api/v1/bounties/[id]/submissions/[submissionId]/review/route";
 import { PATCH as resetWinners } from "../app/api/v1/bounties/[id]/winners/reset/route";
-import { POST as recordPayment } from "../app/api/v1/bounties/[id]/payments/route";
-import { POST as createBounty } from "../app/api/v1/organizations/[organizationId]/bounties/route";
+import { POST as announceWinners } from "../app/api/v1/bounties/[id]/winners/route";
 import {
-  PATCH as updateBounty,
   DELETE as deleteBounty,
+  PATCH as updateBounty,
 } from "../app/api/v1/organizations/[organizationId]/bounties/[id]/route";
+import { POST as createBounty } from "../app/api/v1/organizations/[organizationId]/bounties/route";
 import { getOrganizationAuth, hasRequiredRole } from "../lib/organization-auth";
 
 // Mock database

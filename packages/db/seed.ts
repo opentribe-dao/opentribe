@@ -434,6 +434,229 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
 
   console.log(`✅ Created ${grants.length} grants`);
 
+  // Create Kusama Vision external grants (Web3 Foundation)
+  const kusamaGrants = await Promise.all([
+    prisma.grant.create({
+      data: {
+        title: "Proof of Personhood Bounty",
+        slug: "proof-of-personhood-bounty",
+        description: `How do you prove you are a real, unique human - without revealing who you are? That is the question this grant exists to answer.
+
+We fund projects building Proof of Personhood systems for the Kusama network. The goal: let every person prove they are present only once, without surveillance, without biometric databases, and without leaking identity or behavior data.
+
+## What We Fund
+
+- Sybil-resistant identity systems using cryptographic or social verification
+- Privacy-preserving designs that treat anonymity as a hard requirement
+- Cross-application solutions that work beyond a single platform
+- Proposals with clear, testable assumptions about security and scalability
+- Protections against identity farming, coercion, and collusion
+
+## What We Don't Fund
+
+- Biometric collection or centralized identity databases
+- Systems that require deanonymization as part of verification
+- Designs that rely on institutional trust rather than verifiable mechanisms
+
+## How It Works
+
+This grant runs on a rolling basis with no fixed deadline. Submit a proposal when you are ready. Each proposal is reviewed individually by the curatorial committee. Funding is provided in DOT through the Kusama network.
+
+Before submitting, review the participation charter which covers privacy-by-design requirements, engagement standards, and evaluation criteria. Proposals are assessed on technical soundness, privacy guarantees, and practical feasibility.
+
+Apply through the external submission form. Join the community space to discuss ideas before submitting.`,
+        summary:
+          "Funding Proof of Personhood systems that resist Sybil attacks while preserving privacy on Kusama",
+        instructions: `Submit your proposal through the external application form. Each proposal is reviewed individually by the curatorial committee. Funding is provided in DOT through the Kusama network.`,
+        resources: [
+          {
+            title: "Kusama Referenda #498",
+            url: "https://kusama.subsquare.io/referenda/498",
+            description:
+              "On-chain reference for the Proof of Personhood bounty funding",
+          },
+          {
+            title: "PoP Community Space",
+            url: "https://matrix.to/#/#kusama-pop-bounty:matrix.org",
+            description:
+              "Join the Matrix channel to discuss proposals and connect with curators",
+          },
+        ],
+        skills: [
+          "identity",
+          "privacy",
+          "cryptography",
+          "sybil-resistance",
+          "decentralized-systems",
+        ],
+        token: "DOT",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        source: "EXTERNAL",
+        applicationUrl: "https://formstr.app/i/kusama-pop",
+        organizationId: organizations[0].id,
+        publishedAt: daysFromNow(-3),
+        viewCount: 45,
+        applicationCount: 0,
+      },
+    }),
+    prisma.grant.create({
+      data: {
+        title: "Kusama ZK Bounty",
+        slug: "kusama-zk-bounty",
+        description: `Most blockchains make everything visible by default. Zero-knowledge proofs change that - they let you prove something is true without revealing the underlying data. This grant funds builders making that capability native to Kusama.
+
+We support projects integrating zero-knowledge technology across the full stack: runtime-level proof verification, privacy-preserving smart contracts, and end-user applications that protect data by default.
+
+## Areas We Fund
+
+- ZK proof verification built directly into parachain runtimes
+- Optimized ZK libraries targeting PolkaVM and the RISC-V execution environment
+- Selective disclosure systems for credentials, membership, and reputation
+- Privacy-preserving governance - participate in OpenGov without exposing voting patterns
+- Private DeFi - transaction privacy, hidden balances, confidential swaps
+- Post-quantum proof systems secure against future computing advances
+
+This is not an exhaustive list. If your project advances privacy on Kusama through zero-knowledge technology, we want to hear about it - whether you are building infrastructure, developer tooling, or end-user applications.
+
+## Funding Details
+
+Funding comes from a shared 10M DOT pool allocated across Kusama bounty programs. Proposals are evaluated on technical merit, real-world feasibility, and contribution to the open ecosystem. Funded work is expected to run in production conditions on Kusama, not just in test environments.
+
+Applications are reviewed on a rolling basis. There is no deadline - submit when your proposal is ready.`,
+        summary:
+          "Funding zero-knowledge proof integration across Kusama runtimes, smart contracts, and applications",
+        instructions: `Submit your proposal through the external application form. Funding comes from a shared 10M DOT pool. Applications are reviewed on a rolling basis.`,
+        resources: [
+          {
+            title: "ZK Community Space",
+            url: "https://matrix.to/#/#kusama-zk:virto.community",
+            description:
+              "Join the Matrix channel to discuss zero-knowledge projects and proposals",
+          },
+        ],
+        skills: [
+          "zero-knowledge",
+          "cryptography",
+          "privacy",
+          "smart-contracts",
+          "rust",
+        ],
+        token: "DOT",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        source: "EXTERNAL",
+        applicationUrl:
+          "https://puffy-xylophone-2a5.notion.site/95b593191de28385bf208189cec1887b",
+        organizationId: organizations[0].id,
+        publishedAt: daysFromNow(-5),
+        viewCount: 78,
+        applicationCount: 0,
+      },
+    }),
+    prisma.grant.create({
+      data: {
+        title: "KSM Art & Social Experiments Initiative",
+        slug: "ksm-art-social-experiments",
+        description: `Technology shapes society - but who shapes technology? This initiative funds artists, researchers, and cultural practitioners who explore that question through the lens of the cypherpunk movement.
+
+We support projects that critically examine digital identity, privacy, censorship, surveillance, and the power dynamics between users and platforms. The work can live on-chain, off-chain, or somewhere in between. What matters is that it engages seriously with these themes and contributes to broader cultural discourse.
+
+## What We Fund
+
+- Visual art - generative art, data art, painting, sculpture, digital installations, on-chain or hybrid works
+- Performance and live art - theatre, music, dance, immersive environments, site-specific interventions
+- Film, sound, and media - experimental cinema, audio works, publications, expanded media
+- Research and social experiments - academic inquiry, participatory projects, DAOs as artistic practice
+- Writing and criticism - essays, publications, and texts engaging with decentralized culture
+
+## Funding Details
+
+Funding is primarily available for projects up to 10,000 USD, paid in DOT on the Kusama network. Larger proposals are considered on a case-by-case basis. Funding structure, payment schedule, and number of installments are agreed individually based on the proposal.
+
+Funded participants are expected to share knowledge publicly through documentation, presentations, or other formats appropriate to the project. On-chain submissions such as NFTs will be deployed on the Kusama blockchain.
+
+## How to Apply
+
+Submit a single PDF (maximum 15 pages, English language) containing:
+1. Contact details - name, country of residence, preferred contact
+2. Project description - 500 to 1000 words covering the project and motivation
+3. Motivation letter - up to 400 words on your interest in the initiative's themes
+4. Supporting materials - images, sketches, references illustrating the project
+5. Previous work - at least three relevant previously realized projects or publications
+6. Budget overview - anticipated costs and required resources
+7. Project timeline - estimated work plan and delivery schedule
+8. CV or portfolio link
+
+Applications are reviewed on a rolling basis by a curatorial committee with backgrounds in art, research, culture, and decentralized technology. There is no fixed deadline.`,
+        summary:
+          "Funding artistic and social experiments exploring cypherpunk themes on Kusama",
+        instructions: `Submit a single PDF (max 15 pages) through the external application form. Applications are reviewed on a rolling basis.`,
+        resources: [
+          {
+            title: "Basis & Terms",
+            url: "https://art.ksm.vision/basis-terms/",
+            description:
+              "Full program terms, selection criteria, and legal conditions",
+          },
+          {
+            title: "Kusama Vision",
+            url: "https://kusama.network/vision",
+            description: "Overview of the broader Kusama Vision bounty program",
+          },
+        ],
+        skills: [
+          "art",
+          "design",
+          "research",
+          "social-experiments",
+          "content-creation",
+        ],
+        minAmount: 1000,
+        maxAmount: 10_000,
+        totalFunds: 100_000,
+        token: "DOT",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        source: "EXTERNAL",
+        applicationUrl: "https://ksmart.notion.site",
+        organizationId: organizations[0].id,
+        publishedAt: daysFromNow(-7),
+        viewCount: 32,
+        applicationCount: 0,
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${kusamaGrants.length} Kusama Vision grants`);
+
+  // Create curators for Kusama grants
+  const kusamaCurators = await Promise.all([
+    prisma.curator.create({
+      data: {
+        userId: users[6].id, // Admin
+        grantId: kusamaGrants[0].id,
+        contact: "hello@kusama-pop-bounty.matrix.org",
+      },
+    }),
+    prisma.curator.create({
+      data: {
+        userId: users[6].id, // Admin
+        grantId: kusamaGrants[1].id,
+        contact: "hello@kusama-zk.virto.community",
+      },
+    }),
+    prisma.curator.create({
+      data: {
+        userId: users[6].id, // Admin
+        grantId: kusamaGrants[2].id,
+        contact: "https://art.ksm.vision/contact/",
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${kusamaCurators.length} Kusama grant curators`);
+
   // Create realistic bounties
   const bounties = await Promise.all([
     prisma.bounty.create({

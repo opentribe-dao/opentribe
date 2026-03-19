@@ -111,7 +111,7 @@ export function useBountyCurators(
 
   const addCuratorMutation = useMutation({
     mutationFn: async (userId: string) => {
-      if (!organizationId || !bountyId) throw new Error("Missing params");
+      if (!(organizationId && bountyId)) throw new Error("Missing params");
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bountyId}/curators`,
         {
@@ -140,7 +140,7 @@ export function useBountyCurators(
 
   const removeCuratorMutation = useMutation({
     mutationFn: async (curatorId: string) => {
-      if (!organizationId || !bountyId) throw new Error("Missing params");
+      if (!(organizationId && bountyId)) throw new Error("Missing params");
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/api/v1/organizations/${organizationId}/bounties/${bountyId}/curators/${curatorId}`,
         {
@@ -245,7 +245,7 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   // Save mutation
   const saveMutation = useMutation({
     mutationFn: async (data: Partial<BountyDetails>) => {
-      if (!bounty || !organizationId) {
+      if (!(bounty && organizationId)) {
         throw new Error("No bounty or organization found");
       }
 
@@ -290,7 +290,7 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (!bounty || !organizationId) {
+      if (!(bounty && organizationId)) {
         throw new Error("No bounty or organization found");
       }
 
@@ -321,12 +321,16 @@ export function useBountySettings(bounty: BountyDetails | undefined) {
   const validateSettingsForm = useCallback((): boolean => {
     // Step 1: Basic fields validation
     if (
-      !formData.title ||
-      !formData.description ||
-      !Array.isArray(formData.skills) ||
+      !(
+        formData.title &&
+        formData.description &&
+        Array.isArray(formData.skills)
+      ) ||
       formData.skills.length === 0
     ) {
-      toast.error("Please fill in all required fields (title, description, skills)");
+      toast.error(
+        "Please fill in all required fields (title, description, skills)"
+      );
       return false;
     }
 

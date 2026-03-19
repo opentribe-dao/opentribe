@@ -188,7 +188,7 @@ export default function RFPsPage() {
             <div className="flex flex-col gap-4 sm:flex-row">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-white/40" />
+                  <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-white/40" />
                   <Input
                     className="border-white/10 bg-white/5 pl-10 text-white"
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -236,9 +236,7 @@ export default function RFPsPage() {
         {/* RFPs Table */}
         {(() => {
           const hasFilters =
-            searchTerm ||
-            statusFilter !== "all" ||
-            visibilityFilter !== "all";
+            searchTerm || statusFilter !== "all" || visibilityFilter !== "all";
           const emptyMessage = hasFilters
             ? "No RFPs found matching your filters"
             : "No RFPs created yet";
@@ -274,13 +272,21 @@ export default function RFPsPage() {
                 <TableHeader>
                   <TableRow className="border-white/10">
                     <TableHead className="px-6 py-3 text-white">RFP</TableHead>
-                    <TableHead className="px-6 py-3 text-white">GRANT</TableHead>
-                    <TableHead className="px-6 py-3 text-white">STATUS</TableHead>
-                    <TableHead className="px-6 py-3 text-white">VISIBILITY</TableHead>
+                    <TableHead className="px-6 py-3 text-white">
+                      GRANT
+                    </TableHead>
+                    <TableHead className="px-6 py-3 text-white">
+                      STATUS
+                    </TableHead>
+                    <TableHead className="px-6 py-3 text-white">
+                      VISIBILITY
+                    </TableHead>
                     <TableHead className="px-6 py-3 text-center text-white">
                       STATS
                     </TableHead>
-                    <TableHead className="px-6 py-3 text-white">CREATED</TableHead>
+                    <TableHead className="px-6 py-3 text-white">
+                      CREATED
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

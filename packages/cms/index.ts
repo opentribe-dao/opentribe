@@ -5,7 +5,7 @@ import {
   type Post,
 } from "content-collections";
 
-export type { Post, Legal };
+export type { Legal, Post };
 
 export const blog = {
   getPosts: (): Post[] => allPosts || [],

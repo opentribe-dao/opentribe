@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@packages/base/components/ui/select";
-import { Calendar, Filter, Loader2, Plus, Search, Users } from "lucide-react";
+import { Calendar, Loader2, Plus, Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -232,7 +232,7 @@ const BountiesPage = () => {
         {/* Search and Filters */}
         <div className="flex items-center gap-4">
           <div className="relative max-w-md flex-1">
-            <Search className="-translate-y-1/2 absolute top-1/2 left-3 z-10 h-4 w-4 text-white/40" />
+            <Search className="absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-white/40" />
             <Input
               className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -269,25 +269,26 @@ const BountiesPage = () => {
             </SelectTrigger>
             <SelectContent className="border-white/10 bg-zinc-900">
               {STATUSES.map((status) => (
-                <SelectItem key={status.value} value={status.value} className="text-white">
+                <SelectItem
+                  className="text-white"
+                  key={status.value}
+                  value={status.value}
+                >
                   {status.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select
-            onValueChange={setVisibilityFilter}
-            value={visibilityFilter}
-          >
+          <Select onValueChange={setVisibilityFilter} value={visibilityFilter}>
             <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="border-white/10 bg-zinc-900">
               {VISIBILITIES.map((visibility) => (
                 <SelectItem
+                  className="text-white"
                   key={visibility.value}
                   value={visibility.value}
-                  className="text-white"
                 >
                   {visibility.label}
                 </SelectItem>
@@ -355,9 +356,7 @@ const BountiesPage = () => {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <Badge
-                        className={getVisibilityColor(bounty.visibility)}
-                      >
+                      <Badge className={getVisibilityColor(bounty.visibility)}>
                         {getVisibilityLabel(bounty.visibility)}
                       </Badge>
                     </td>
@@ -384,22 +383,26 @@ const BountiesPage = () => {
                   <td className="px-6 py-12 text-center" colSpan={5}>
                     <div className="space-y-3">
                       <p className="text-white/60">
-                        {searchQuery || filterStatus !== "all" || visibilityFilter !== "all"
+                        {searchQuery ||
+                        filterStatus !== "all" ||
+                        visibilityFilter !== "all"
                           ? "No bounties match your search criteria"
                           : "No bounties yet"}
                       </p>
-                      {!searchQuery && filterStatus === "all" && visibilityFilter === "all" && (
-                        <Button
-                          asChild
-                          className="border-white/20 text-white hover:bg-white/10"
-                          variant="outline"
-                        >
-                          <Link href="/bounties/create">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Create your first bounty
-                          </Link>
-                        </Button>
-                      )}
+                      {!searchQuery &&
+                        filterStatus === "all" &&
+                        visibilityFilter === "all" && (
+                          <Button
+                            asChild
+                            className="border-white/20 text-white hover:bg-white/10"
+                            variant="outline"
+                          >
+                            <Link href="/bounties/create">
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create your first bounty
+                            </Link>
+                          </Button>
+                        )}
                     </div>
                   </td>
                 </tr>

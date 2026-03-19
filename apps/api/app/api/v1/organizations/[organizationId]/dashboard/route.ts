@@ -119,7 +119,9 @@ export async function GET(
       }),
     ]);
 
-    const totalAwarded = Number(totalAwardedAggregate._sum.winningAmountUSD || 0);
+    const totalAwarded = Number(
+      totalAwardedAggregate._sum.winningAmountUSD || 0
+    );
 
     // Urgent actions data
     const now = new Date();
@@ -285,7 +287,7 @@ export async function GET(
         id: `deadline-${b.id}`,
         type: "DEADLINE_APPROACHING",
         title: `Deadline approaching: ${b.title}`,
-        description: `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left to deadline`,
+        description: `${daysLeft} day${daysLeft === 1 ? "" : "s"} left to deadline`,
         deadline: b.deadline || undefined,
         resourceId: b.id,
         resourceType: "bounty",

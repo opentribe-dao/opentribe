@@ -59,7 +59,7 @@ export async function PATCH(
       },
     });
 
-    if (!isOwnerOrAdmin && !isCurator) {
+    if (!(isOwnerOrAdmin || isCurator)) {
       return NextResponse.json(
         { error: "You don't have permission to manage submissions" },
         { status: 403 }

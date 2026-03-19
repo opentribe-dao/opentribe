@@ -106,7 +106,11 @@ export default function SubmissionReviewPage({
           newSelected.delete(subId);
         }
       }
-      newSelected.set(targetSubmissionId, { position: winnerPosition, amount, username });
+      newSelected.set(targetSubmissionId, {
+        position: winnerPosition,
+        amount,
+        username,
+      });
     }
 
     setSelectedWinners(newSelected);
@@ -114,10 +118,10 @@ export default function SubmissionReviewPage({
 
   /**
    * Handles position assignment with confirmation dialog if position is already taken.
-   * 
+   *
    * This function checks if the selected position is already assigned to another submission.
    * If it is, shows a confirmation dialog before reassigning. Otherwise, assigns directly.
-   * 
+   *
    * Note: Winners are determined by position assignment ONLY, not by submission status.
    * The status field remains unchanged during position assignment.
    */
@@ -137,8 +141,11 @@ export default function SubmissionReviewPage({
 
     // Check if position is already assigned to another submission
     const conflictingWinner = Array.from(selectedWinners.entries()).find(
-      ([subId, data]) => subId !== submissionId && data.position === assignedPosition
-    ) as [string, { position: number; amount: string; username: string }] | undefined;
+      ([subId, data]) =>
+        subId !== submissionId && data.position === assignedPosition
+    ) as
+      | [string, { position: number; amount: string; username: string }]
+      | undefined;
 
     if (conflictingWinner) {
       // Position is already taken - show confirmation dialog
@@ -200,10 +207,10 @@ export default function SubmissionReviewPage({
 
   /**
    * Handles marking a submission as SPAM.
-   * 
+   *
    * Important: Winners (submissions with assigned positions) cannot be marked as SPAM.
    * The position must be cleared first. This prevents accidental marking of winners.
-   * 
+   *
    * SPAM status replaces the old REJECTED status and is used for inappropriate/spam submissions.
    */
   const handleMarkAsSpam = () => {
@@ -259,12 +266,12 @@ export default function SubmissionReviewPage({
 
   /**
    * Gets available positions for assignment.
-   * 
+   *
    * Positions are determined by:
    * 1. Must exist in bounty.winnings structure
    * 2. Must be between 1 and bounty.winnerCount
    * 3. Must not be already assigned to another submission
-   * 
+   *
    * This function validates positions on the frontend to provide immediate feedback
    * before API validation. The API also validates positions independently.
    */
@@ -410,7 +417,10 @@ export default function SubmissionReviewPage({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {submission.answers.map((answer) => (
-                    <div className="space-y-2" key={`${answer.question}-${answer.answer}`}>
+                    <div
+                      className="space-y-2"
+                      key={`${answer.question}-${answer.answer}`}
+                    >
                       <p className="font-medium text-sm text-white/80">
                         {answer.question}
                       </p>
@@ -468,7 +478,9 @@ export default function SubmissionReviewPage({
             {submission.status === "SUBMITTED" && (
               <Card className="border-white/10 bg-white/5 backdrop-blur-md">
                 <CardHeader>
-                  <CardTitle className="text-white">Assign Winner Position</CardTitle>
+                  <CardTitle className="text-white">
+                    Assign Winner Position
+                  </CardTitle>
                   <CardDescription className="text-white/60">
                     {submission.position
                       ? `Currently assigned to position ${submission.position}`
@@ -484,7 +496,8 @@ export default function SubmissionReviewPage({
                         const isSelected =
                           selectedPosition === pos.position ||
                           submission.position === pos.position;
-                        let buttonClasses = "rounded-lg border p-4 transition-all";
+                        let buttonClasses =
+                          "rounded-lg border p-4 transition-all";
                         if (isSelected) {
                           buttonClasses +=
                             " border-[#E6007A] bg-[#E6007A]/20 text-white";
@@ -497,34 +510,36 @@ export default function SubmissionReviewPage({
                         }
                         return (
                           <button
-                            type="button"
                             className={buttonClasses}
                             disabled={!pos.available}
                             key={pos.position}
                             onClick={() =>
                               pos.available && setSelectedPosition(pos.position)
                             }
+                            type="button"
                           >
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium">
-                              Position #{pos.position}
-                            </span>
-                            <Trophy className="h-4 w-4" />
-                          </div>
-                          <div className="mt-1 text-sm">
-                            {formatAmount(pos.amount)} {submission.bounty.token}
-                          </div>
-                          {submission.position === pos.position && (
-                            <div className="mt-1 text-white/80 text-xs">
-                              Current position
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">
+                                Position #{pos.position}
+                              </span>
+                              <Trophy className="h-4 w-4" />
                             </div>
-                          )}
-                          {!pos.available && submission.position !== pos.position && (
-                            <div className="mt-1 text-white/40 text-xs">
-                              Already taken
+                            <div className="mt-1 text-sm">
+                              {formatAmount(pos.amount)}{" "}
+                              {submission.bounty.token}
                             </div>
-                          )}
-                        </button>
+                            {submission.position === pos.position && (
+                              <div className="mt-1 text-white/80 text-xs">
+                                Current position
+                              </div>
+                            )}
+                            {!pos.available &&
+                              submission.position !== pos.position && (
+                                <div className="mt-1 text-white/40 text-xs">
+                                  Already taken
+                                </div>
+                              )}
+                          </button>
                         );
                       })}
                     </div>
@@ -578,7 +593,9 @@ export default function SubmissionReviewPage({
                       <span>
                         <Button
                           className="bg-red-600 hover:bg-red-700"
-                          disabled={actionLoading || submission.position !== null}
+                          disabled={
+                            actionLoading || submission.position !== null
+                          }
                           onClick={handleMarkAsSpam}
                           variant="destructive"
                         >
@@ -587,13 +604,15 @@ export default function SubmissionReviewPage({
                           ) : (
                             <X className="mr-2 h-4 w-4" />
                           )}
-                          { "Mark as SPAM"}
+                          {"Mark as SPAM"}
                         </Button>
                       </span>
                     </TooltipTrigger>
                     {submission.position !== null && (
                       <TooltipContent>
-                        <p>Cannot mark winners as SPAM. Clear position first.</p>
+                        <p>
+                          Cannot mark winners as SPAM. Clear position first.
+                        </p>
                       </TooltipContent>
                     )}
                   </Tooltip>
@@ -850,7 +869,10 @@ export default function SubmissionReviewPage({
       </div>
 
       {/* Position Reassignment Confirmation Dialog */}
-      <AlertDialog open={showReassignDialog} onOpenChange={setShowReassignDialog}>
+      <AlertDialog
+        onOpenChange={setShowReassignDialog}
+        open={showReassignDialog}
+      >
         <AlertDialogContent className="border-white/10 bg-zinc-900">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">
@@ -858,8 +880,9 @@ export default function SubmissionReviewPage({
             </AlertDialogTitle>
             <AlertDialogDescription className="text-white/60">
               Position {pendingPosition} is already assigned to{" "}
-              {conflictingSubmission?.username || "another submission"}. Reassigning
-              will clear the position from that submission and assign it to this one.
+              {conflictingSubmission?.username || "another submission"}.
+              Reassigning will clear the position from that submission and
+              assign it to this one.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -867,8 +890,8 @@ export default function SubmissionReviewPage({
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={confirmPositionReassignment}
               className="bg-[#E6007A] hover:bg-[#E6007A]/90"
+              onClick={confirmPositionReassignment}
             >
               Reassign Position
             </AlertDialogAction>
@@ -893,8 +916,8 @@ export default function SubmissionReviewPage({
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={confirmMarkAsSpam}
               className="bg-red-600 hover:bg-red-700"
+              onClick={confirmMarkAsSpam}
             >
               Mark as SPAM
             </AlertDialogAction>

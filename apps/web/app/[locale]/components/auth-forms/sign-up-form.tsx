@@ -66,7 +66,9 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
         return;
       }
 
-      toast.success("Account created successfully! Please check your inbox or spam for the verification email.");
+      toast.success(
+        "Account created successfully! Please check your inbox or spam for the verification email."
+      );
 
       if (onSuccess) {
         onSuccess();
@@ -150,7 +152,7 @@ export const SignUpForm = ({ onSuccess, redirectTo }: SignUpFormProps) => {
                       type={showPassword ? "text" : "password"}
                     />
                     <Button
-                      className="-translate-y-1/2 !absolute !rounded-lg top-1/2 right-0 flex w-1/5 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
+                      className="!absolute !rounded-lg top-1/2 right-0 flex w-1/5 -translate-y-1/2 items-center justify-center rounded-l-none bg-transparent hover:bg-transparent"
                       // variant="outline"
                       // size="icon"
                       disabled={isLoading}

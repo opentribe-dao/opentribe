@@ -1,8 +1,8 @@
 import { database } from "@packages/db";
-import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
-import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Schema for adding a curator
 const addCuratorSchema = z.object({

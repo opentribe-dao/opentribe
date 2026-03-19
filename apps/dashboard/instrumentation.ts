@@ -1,5 +1,5 @@
-import * as Sentry from "@sentry/nextjs";
 import { initializeSentry } from "@packages/logging/instrumentation";
+import * as Sentry from "@sentry/nextjs";
 
 export const register = initializeSentry();
 

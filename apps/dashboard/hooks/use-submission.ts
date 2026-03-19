@@ -56,7 +56,7 @@ export type SubmissionDetails = {
     twitter?: string;
     website?: string;
   };
-}
+};
 
 export function useSubmission() {
   const [submission, setSubmission] = useState<SubmissionDetails | null>(null);
@@ -153,15 +153,14 @@ export function useSubmission() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          if (
-            response.status === 400 &&
-            errorData.error?.includes("winner")
-          ) {
+          if (response.status === 400 && errorData.error?.includes("winner")) {
             throw new Error(
               "Cannot mark winner as SPAM. Clear position first."
             );
           }
-          throw new Error(errorData.error || "Failed to mark submission as SPAM");
+          throw new Error(
+            errorData.error || "Failed to mark submission as SPAM"
+          );
         }
 
         toast.success("Submission marked as SPAM");
@@ -199,7 +198,9 @@ export function useSubmission() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || "Failed to unmark submission as SPAM");
+          throw new Error(
+            errorData.error || "Failed to unmark submission as SPAM"
+          );
         }
 
         toast.success("Submission unmarked as SPAM");

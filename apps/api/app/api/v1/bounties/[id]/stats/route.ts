@@ -108,11 +108,11 @@ export async function GET(
           })
         : Promise.resolve(0), // Return 0 if deadline hasn't passed or winners already announced
       database.submission.count({
-        where: { 
-          bountyId: bounty.id, 
+        where: {
+          bountyId: bounty.id,
           isWinner: true,
           position: { not: null },
-          status: "SUBMITTED", 
+          status: "SUBMITTED",
         },
       }),
       database.submission.count({

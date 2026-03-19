@@ -111,7 +111,7 @@ async function handlePositionPatch(
       },
     });
 
-    if (!isOwnerOrAdmin && !isCurator) {
+    if (!(isOwnerOrAdmin || isCurator)) {
       return NextResponse.json(
         { error: "You don't have permission to assign positions" },
         { status: 403 }

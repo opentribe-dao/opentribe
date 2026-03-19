@@ -77,7 +77,9 @@ describe("Position Assignment Tests", () => {
       (database.submission.findFirst as any)
         .mockResolvedValueOnce(null) // No existing winner at position
         .mockResolvedValueOnce(mockUpdatedSubmission); // Return updated submission
-      (database.submission.update as any).mockResolvedValue(mockUpdatedSubmission);
+      (database.submission.update as any).mockResolvedValue(
+        mockUpdatedSubmission
+      );
       (database.$transaction as any).mockImplementation(async (callback) => {
         return await callback({
           submission: {
@@ -101,7 +103,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -110,7 +115,9 @@ describe("Position Assignment Tests", () => {
       expect(data.submission.position).toBe(1);
       expect(data.submission.winningAmount).toBe(1000);
       expect(data.submission.winningAmountUSD).toBe(7000);
-      expect(exchangeRateService.getExchangeRates).toHaveBeenCalledWith(["DOT"]);
+      expect(exchangeRateService.getExchangeRates).toHaveBeenCalledWith([
+        "DOT",
+      ]);
     });
 
     test("should clear position and set winningAmountUSD to null", async () => {
@@ -155,7 +162,9 @@ describe("Position Assignment Tests", () => {
         organizationId: "org-1",
         role: "admin",
       });
-      (database.submission.update as any).mockResolvedValue(mockUpdatedSubmission);
+      (database.submission.update as any).mockResolvedValue(
+        mockUpdatedSubmission
+      );
       (database.$transaction as any).mockImplementation(async (callback) => {
         return await callback({
           submission: {
@@ -179,7 +188,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -232,7 +244,9 @@ describe("Position Assignment Tests", () => {
       (exchangeRateService.getExchangeRates as any).mockResolvedValue({
         DOT: 7.0,
       });
-      (database.submission.findFirst as any).mockResolvedValue(mockExistingWinner);
+      (database.submission.findFirst as any).mockResolvedValue(
+        mockExistingWinner
+      );
       (database.submission.update as any).mockResolvedValue({});
       (database.$transaction as any).mockImplementation(async (callback) => {
         return await callback({
@@ -257,7 +271,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
 
       // Assert
@@ -321,7 +338,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -376,7 +396,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -403,7 +426,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
 
       // Assert
@@ -451,7 +477,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
 
       // Assert
@@ -504,7 +533,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -562,7 +594,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -620,7 +655,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -675,7 +713,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
       const data = await response.json();
 
@@ -710,7 +751,10 @@ describe("Position Assignment Tests", () => {
       );
 
       const response = await assignPosition(request, {
-        params: Promise.resolve({ id: "bounty-1", submissionId: "submission-1" }),
+        params: Promise.resolve({
+          id: "bounty-1",
+          submissionId: "submission-1",
+        }),
       });
 
       // Assert
@@ -718,4 +762,3 @@ describe("Position Assignment Tests", () => {
     });
   });
 });
-

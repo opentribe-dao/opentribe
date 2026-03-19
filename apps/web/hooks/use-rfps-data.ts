@@ -349,4 +349,4 @@ export function useRfpsData(filters: RFPsFilters = {}) {
 }
 
 // Export types for use in components
-export type { RFP, RFPsResponse, RFPsFilters, TopBounty };
+export type { RFP, RFPsFilters, RFPsResponse, TopBounty };

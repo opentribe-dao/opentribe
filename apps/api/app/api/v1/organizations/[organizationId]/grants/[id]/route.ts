@@ -1,11 +1,11 @@
 import { OPTIONAL_URL_REGEX, URL_REGEX } from "@packages/base/lib/utils";
 import type { Prisma } from "@packages/db";
 import { database } from "@packages/db";
-import { formatZodError } from "@/lib/zod-errors";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 import { ViewManager } from "@/lib/views";
+import { formatZodError } from "@/lib/zod-errors";
 
 // Type for GET API response
 type GrantWithRelations = Prisma.GrantGetPayload<{

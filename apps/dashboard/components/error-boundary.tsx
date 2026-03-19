@@ -111,5 +111,5 @@ function DefaultErrorFallback({
   );
 }
 
-export { ErrorBoundary, DefaultErrorFallback };
 export type { ErrorBoundaryProps };
+export { DefaultErrorFallback, ErrorBoundary };

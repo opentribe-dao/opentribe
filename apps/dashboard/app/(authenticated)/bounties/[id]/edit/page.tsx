@@ -402,8 +402,8 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     currentStep > step.id
                       ? "bg-green-500 text-white"
                       : currentStep === step.id
-                      ? "bg-[#E6007A] text-white"
-                      : "bg-white/10 text-white/60"
+                        ? "bg-[#E6007A] text-white"
+                        : "bg-white/10 text-white/60"
                   }`}
                 >
                   {currentStep > step.id ? (
@@ -531,10 +531,10 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           {index === 0
                             ? "1st Place"
                             : index === 1
-                            ? "2nd Place"
-                            : index === 2
-                            ? "3rd Place"
-                            : `${winner.position}th Place`}
+                              ? "2nd Place"
+                              : index === 2
+                                ? "3rd Place"
+                                : `${winner.position}th Place`}
                         </span>
                         <Input
                           className="flex-1 border-white/10 bg-white/5 text-white"
@@ -587,7 +587,7 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       type="date"
                       value={formData.deadline}
                     />
-                    <CalendarIcon className="-translate-y-1/2 absolute top-1/2 right-3 h-4 w-4 text-white/40" />
+                    <CalendarIcon className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                   </div>
                 </div>
 
@@ -823,10 +823,10 @@ const EditBountyPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           {index === 0
                             ? "1st"
                             : index === 1
-                            ? "2nd"
-                            : index === 2
-                            ? "3rd"
-                            : `${winner.position}th`}{" "}
+                              ? "2nd"
+                              : index === 2
+                                ? "3rd"
+                                : `${winner.position}th`}{" "}
                           Place: {winner.amount} {formData.token}
                         </p>
                       ))}

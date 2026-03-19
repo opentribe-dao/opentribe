@@ -13,7 +13,7 @@ interface OAuthButtonsProps {
 
 const normalizeBaseUrl = () => {
   const browserOrigin =
-    typeof window !== "undefined" ? window.location.origin : "";
+    typeof window === "undefined" ? "" : window.location.origin;
   const configuredOrigin = env.NEXT_PUBLIC_WEB_URL ?? "";
   const base = (configuredOrigin || browserOrigin).trim();
   return base.endsWith("/") ? base.slice(0, -1) : base;

@@ -84,27 +84,6 @@ export default function GrantDetailPage({
     notFound();
   }
 
-  // Calculate date range
-  const getDateRange = () => {
-    const start = new Date();
-    const end = new Date();
-    end.setMonth(end.getMonth() + 3);
-    return {
-      start: start.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      end: end.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-    };
-  };
-
-  const dateRange = getDateRange();
-
   return (
     <div className="min-h-screen">
       {/* Glass Header Card */}
@@ -301,109 +280,136 @@ export default function GrantDetailPage({
                 </section>
               )}
 
-              {/* Funding Details */}
-              <div className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-                <h3 className="mb-3 font-semibold text-lg">
-                  Funding is just the start
-                </h3>
-                <p className="text-white/70">
-                  {grant.minAmount && grant.maxAmount ? (
-                    <>
-                      Grants range from{" "}
-                      {formatCurrency(
-                        Number(grant.minAmount),
-                        String(grant.token)
-                      )}{" "}
-                      to{" "}
-                      {formatCurrency(
-                        Number(grant.maxAmount),
-                        String(grant.token)
-                      )}{" "}
-                      in {grant.token || "DOT"} capital, designed to help teams
-                      scale.
-                    </>
-                  ) : (
-                    <>
-                      Total funding available:{" "}
-                      {formatCurrency(
-                        Number(grant.totalFunds || 0),
-                        String(grant.token)
-                      )}{" "}
-                      {grant.token || "DOT"}
-                    </>
-                  )}
-                </p>
-              </div>
+              {/* Funding Details — hidden when no amount data */}
+              {(grant.minAmount || grant.maxAmount || grant.totalFunds) && (
+                <div className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                  <h3 className="mb-3 font-semibold text-lg">
+                    Funding is just the start
+                  </h3>
+                  <p className="text-white/70">
+                    {grant.minAmount && grant.maxAmount ? (
+                      <>
+                        Grants range from{" "}
+                        {formatCurrency(
+                          Number(grant.minAmount),
+                          String(grant.token)
+                        )}{" "}
+                        to{" "}
+                        {formatCurrency(
+                          Number(grant.maxAmount),
+                          String(grant.token)
+                        )}{" "}
+                        in {grant.token || "DOT"} capital, designed to help
+                        teams scale.
+                      </>
+                    ) : grant.totalFunds ? (
+                      <>
+                        Total funding available:{" "}
+                        {formatCurrency(
+                          Number(grant.totalFunds),
+                          String(grant.token)
+                        )}{" "}
+                        {grant.token || "DOT"}
+                      </>
+                    ) : null}
+                  </p>
+                </div>
+              )}
             </section>
           </div>
 
           {/* Right Sidebar */}
           <div className="space-y-6">
-            {/* Grant Price Card */}
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <h3 className="mb-2 flex items-center gap-2 font-medium text-sm text-white/60">
-                {getTokenLogo(grant.token) ? (
-                  // Show token logo if available
-                  <img
-                    alt={grant.token || "Token"}
-                    className="h-4 w-4 rounded-full bg-white/10 object-contain"
-                    src={getTokenLogo(grant.token) || ""}
-                  />
-                ) : (
-                  <DollarSign className="h-4 w-4 rounded-full bg-[#DBE7FF] p-0.5 text-black" />
-                )}{" "}
-                Grant Prize
-              </h3>
-              <div className="font-bold font-heading text-2xl">
-                {grant.minAmount && grant.maxAmount ? (
-                  <>
-                    {formatCurrency(
-                      Number(grant.minAmount),
-                      String(grant.token)
-                    )}{" "}
-                    -{" "}
-                    {formatCurrency(
-                      Number(grant.maxAmount),
-                      String(grant.token)
-                    )}
-                  </>
-                ) : grant.minAmount ? (
-                  <>
-                    From{" "}
-                    {formatCurrency(
-                      Number(grant.minAmount),
-                      String(grant.token)
-                    )}
-                  </>
-                ) : grant.maxAmount ? (
-                  <>
-                    Up to{" "}
-                    {formatCurrency(
-                      Number(grant.maxAmount),
-                      String(grant.token)
-                    )}
-                  </>
-                ) : (
-                  "Variable"
-                )}
+            {/* Grant Prize Card — hidden when no amount data */}
+            {(grant.minAmount || grant.maxAmount) && (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                <h3 className="mb-2 flex items-center gap-2 font-medium text-sm text-white/60">
+                  {getTokenLogo(grant.token) ? (
+                    // Show token logo if available
+                    <img
+                      alt={grant.token || "Token"}
+                      className="h-4 w-4 rounded-full bg-white/10 object-contain"
+                      src={getTokenLogo(grant.token) || ""}
+                    />
+                  ) : (
+                    <DollarSign className="h-4 w-4 rounded-full bg-[#DBE7FF] p-0.5 text-black" />
+                  )}{" "}
+                  Grant Prize
+                </h3>
+                <div className="font-bold font-heading text-2xl">
+                  {grant.minAmount && grant.maxAmount ? (
+                    <>
+                      {formatCurrency(
+                        Number(grant.minAmount),
+                        String(grant.token)
+                      )}{" "}
+                      -{" "}
+                      {formatCurrency(
+                        Number(grant.maxAmount),
+                        String(grant.token)
+                      )}
+                    </>
+                  ) : grant.minAmount ? (
+                    <>
+                      From{" "}
+                      {formatCurrency(
+                        Number(grant.minAmount),
+                        String(grant.token)
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      Up to{" "}
+                      {formatCurrency(
+                        Number(grant.maxAmount),
+                        String(grant.token)
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Grant Validity Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
               <h3 className="mb-3 flex items-center gap-2 font-medium text-sm text-white/60">
                 <Clock className="h-4 w-4" /> Grant Validity
               </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-white/60">Start Date</span>
-                  <span className="font-medium">{dateRange.start}</span>
+              {grant.publishedAt ? (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-white/60">Start Date</span>
+                    <span className="font-medium">
+                      {new Date(grant.publishedAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                  {grant.deadline ? (
+                    <div className="flex justify-between">
+                      <span className="text-white/60">End Date</span>
+                      <span className="font-medium">
+                        {new Date(grant.deadline).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between">
+                      <span className="text-white/60">End Date</span>
+                      <span className="font-medium text-white/50">
+                        Rolling basis
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">End Date</span>
-                  <span className="font-medium">{dateRange.end}</span>
-                </div>
-              </div>
+              ) : (
+                <p className="text-sm text-white/50">Rolling basis</p>
+              )}
             </div>
 
             {/* Contact Card */}
@@ -472,7 +478,7 @@ export default function GrantDetailPage({
                 <h3 className="mb-4 font-medium text-sm text-white/60">
                   Recent Applicants
                 </h3>
-                <div className="-space-x-2 flex">
+                <div className="flex -space-x-2">
                   {grant.applications.map((app: any, idx: number) => (
                     <div
                       className="h-10 w-10 rounded-full border-2 border-[#0a0a0a] bg-gradient-to-br from-pink-500 to-purple-600"

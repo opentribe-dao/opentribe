@@ -1,10 +1,10 @@
+import { auth } from "@packages/auth/server";
 import type { Prisma } from "@packages/db";
 import { database } from "@packages/db";
-import { type NextRequest, NextResponse } from "next/server";
-import { ViewManager } from "@/lib/views";
-import { auth } from "@packages/auth/server";
 import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import { getOrganizationAuth } from "@/lib/organization-auth";
+import { ViewManager } from "@/lib/views";
 
 // Type for GET API response
 type BountyWithRelations = Prisma.BountyGetPayload<{

@@ -417,4 +417,4 @@ export function useGrantsData(filters: GrantsFilters = {}) {
 }
 
 // Export types for use in components
-export type { Grant, GrantsResponse, GrantsFilters, GrantSkillCount, TopRfp };
+export type { Grant, GrantSkillCount, GrantsFilters, GrantsResponse, TopRfp };

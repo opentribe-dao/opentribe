@@ -14,7 +14,7 @@ export function useGrantSettings(grant: Grant | undefined) {
   // Pause/Resume mutation (toggle status between OPEN and PAUSED)
   const pauseResumeMutation = useMutation({
     mutationFn: async (newStatus: "OPEN" | "PAUSED") => {
-      if (!grant || !organizationId) {
+      if (!(grant && organizationId)) {
         throw new Error("No grant or organization found");
       }
 
@@ -56,7 +56,7 @@ export function useGrantSettings(grant: Grant | undefined) {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (!grant || !organizationId) {
+      if (!(grant && organizationId)) {
         throw new Error("No grant or organization found");
       }
 

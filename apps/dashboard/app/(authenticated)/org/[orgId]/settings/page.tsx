@@ -835,7 +835,7 @@ export default function OrganizationSettingsPage({
               <CardTitle className="text-white">Current Members</CardTitle>
               <CardDescription className="text-white/60">
                 {organization.members.length} member
-                {organization.members.length !== 1 ? "s" : ""}
+                {organization.members.length === 1 ? "" : "s"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -933,7 +933,7 @@ export default function OrganizationSettingsPage({
                   </CardTitle>
                   <CardDescription className="text-white/60">
                     {pendingInvitations.length} pending invitation
-                    {pendingInvitations.length !== 1 ? "s" : ""}
+                    {pendingInvitations.length === 1 ? "" : "s"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -1141,7 +1141,7 @@ function OrganizationLocationField({
       </div>
 
       <div className="relative">
-        <MapPin className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-4 h-4 w-4 text-white/50" />
+        <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/50" />
         <Input
           className="border-white/20 bg-white/10 pl-11 text-white placeholder:text-white/40"
           disabled={disabled}

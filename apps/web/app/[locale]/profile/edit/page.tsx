@@ -355,7 +355,7 @@ const EditProfilePage = () => {
                   Location
                 </Label>
                 <div className="relative mt-2">
-                  <MapPin className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                  <MapPin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     className="border-white/10 bg-white/5 pl-10 text-white"
                     id="location"
@@ -538,7 +538,7 @@ const EditProfilePage = () => {
                   Twitter
                 </Label>
                 <div className="relative mt-2">
-                  <Twitter className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                  <Twitter className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     className="border-white/10 bg-white/5 pl-10 text-white"
                     id="twitter"
@@ -559,7 +559,7 @@ const EditProfilePage = () => {
                   GitHub
                 </Label>
                 <div className="relative mt-2">
-                  <Github className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                  <Github className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     className="border-white/10 bg-white/5 pl-10 text-white"
                     id="github"
@@ -580,7 +580,7 @@ const EditProfilePage = () => {
                   LinkedIn
                 </Label>
                 <div className="relative mt-2">
-                  <Linkedin className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                  <Linkedin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     className="border-white/10 bg-white/5 pl-10 text-white"
                     id="linkedin"
@@ -601,7 +601,7 @@ const EditProfilePage = () => {
                   Website
                 </Label>
                 <div className="relative mt-2">
-                  <Globe className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                  <Globe className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     className="border-white/10 bg-white/5 pl-10 text-white"
                     id="website"
@@ -623,7 +623,7 @@ const EditProfilePage = () => {
                   Telegram
                 </Label>
                 <div className="relative mt-2">
-                  <Send className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                  <Send className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     className="border-white/10 bg-white/5 pl-10 text-white"
                     id="telegram"

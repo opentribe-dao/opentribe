@@ -115,7 +115,7 @@ const UserMenu = ({
   }`;
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={onOpenChange}>
+    <DropdownMenu onOpenChange={onOpenChange} open={isOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           className="flex h-auto items-center gap-2 rounded-lg p-2 hover:bg-white/10"
@@ -134,7 +134,9 @@ const UserMenu = ({
               {userInitials}
             </div>
           )}
-          <span className="hidden md:inline font-medium text-white">{firstName}</span>
+          <span className="hidden font-medium text-white md:inline">
+            {firstName}
+          </span>
           <ChevronDown className="h-4 w-4 text-white/70" />
         </Button>
       </DropdownMenuTrigger>
@@ -237,7 +239,7 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      
+
       const clickedOutsideMobileMenu =
         isMobileMenuOpen &&
         mobileMenuRef.current &&
@@ -303,7 +305,7 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
   return (
     <header className="sticky top-0 left-0 z-40 w-full border-white/10 border-b bg-black/90 backdrop-blur-xl">
       <div className="container relative mx-auto flex min-h-20 flex-row items-center justify-between px-4">
-        <div className="flex items-center shrink-0">
+        <div className="flex shrink-0 items-center">
           <Link
             className="flex items-center gap-2"
             href="/"
@@ -334,8 +336,6 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
           {session?.user ? (
             <div ref={userMenuRef}>
               <UserMenu
-                onSignOut={handleSignOut}
-                user={session.user}
                 isOpen={isUserMenuOpen}
                 onOpenChange={(open) => {
                   setUserMenuOpen(open);
@@ -344,14 +344,16 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
                     setMobileMenuOpen(false);
                   }
                 }}
+                onSignOut={handleSignOut}
+                user={session.user}
               />
             </div>
           ) : (
             <>
               <AuthModal>
                 <Button
+                  className="rounded-full px-4 font-bold font-heading text-sm md:px-8 md:text-base"
                   onPointerDown={() => setMobileMenuOpen(false)}
-                  className="rounded-full font-bold font-heading text-sm md:text-base px-4 md:px-8"
                   size="lg"
                   variant="secondary"
                 >
@@ -363,7 +365,6 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
           )}
           <div className="flex shrink-0 items-center lg:hidden">
             <Button
-              ref={hamburgerButtonRef}
               onClick={() => {
                 // Close user menu if open
                 if (isUserMenuOpen) {
@@ -372,6 +373,7 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
                 // Toggle mobile menu
                 setMobileMenuOpen((prev) => !prev);
               }}
+              ref={hamburgerButtonRef}
               variant="ghost"
             >
               {isMobileMenuOpen ? (
@@ -382,8 +384,8 @@ export const Header = ({ dictionary: _dictionary }: HeaderProps) => {
             </Button>
             {isMobileMenuOpen && (
               <div
-                ref={mobileMenuRef}
                 className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background px-6 py-4 shadow-lg"
+                ref={mobileMenuRef}
               >
                 {navigationItems.map((item) => (
                   <div key={item.title}>

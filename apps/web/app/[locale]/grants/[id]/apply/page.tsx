@@ -581,11 +581,11 @@ const GrantApplicationPage = () => {
                           // Show token logo if available
                           <img
                             alt={grant.token || "Token"}
-                            className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 rounded-full bg-white/10 object-contain"
+                            className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 rounded-full bg-white/10 object-contain"
                             src={getTokenLogo(grant.token) || ""}
                           />
                         ) : (
-                          <DollarSign className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-white/40" />
+                          <DollarSign className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/40" />
                         )}
                         <Input
                           className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/40"

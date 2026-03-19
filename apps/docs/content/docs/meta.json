@@ -1,13 +1,13 @@
 {
-  "title": "Documentation",
-  "pages": [
-    "index",
-    "getting-started",
-    "guides",
-    "payments",
-    "platform",
-    "api",
-    "developers",
-    "help"
-  ]
+    "title": "Documentation",
+    "pages": [
+        "index",
+        "getting-started",
+        "guides",
+        "payments",
+        "platform",
+        "api",
+        "developers",
+        "help"
+    ]
 }

@@ -1,5 +1,5 @@
-import React from "react";
 import { Button, Hr, Link, Section, Text } from "@react-email/components";
+import type React from "react";
 
 interface EmailButtonProps {
   readonly href: string;

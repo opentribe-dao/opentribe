@@ -72,7 +72,9 @@ export function PrizeDistributionCard({
               onValueChange={(value) => updateFormData("token", value)}
               value={formData.token}
             >
-              <SelectTrigger className={`border-white/10 bg-white/5 text-white ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}>
+              <SelectTrigger
+                className={`border-white/10 bg-white/5 text-white ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-white/10 bg-zinc-900">
@@ -97,7 +99,9 @@ export function PrizeDistributionCard({
             onValueChange={(value: string) => updateFormData("split", value)}
             value={formData.split}
           >
-            <SelectTrigger className={`border-white/10 bg-white/5 text-white ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}>
+            <SelectTrigger
+              className={`border-white/10 bg-white/5 text-white ${isLocked ? "cursor-not-allowed opacity-60" : ""}`}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="border-white/10 bg-zinc-900">

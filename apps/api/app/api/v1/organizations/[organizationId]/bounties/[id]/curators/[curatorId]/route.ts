@@ -1,6 +1,6 @@
 import { database } from "@packages/db";
-import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 import { type NextRequest, NextResponse } from "next/server";
+import { getOrganizationAuth, hasRequiredRole } from "@/lib/organization-auth";
 
 export function OPTIONS() {
   return new NextResponse(null, {

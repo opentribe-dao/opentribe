@@ -4,8 +4,8 @@ import { useSession } from "@packages/auth/client";
 import { Button } from "@packages/base/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DeleteConfirmationDialog } from "../../../components/delete-confirmation-dialog";
 import { useDeleteSubmission } from "@/hooks/use-submission-mutations";
+import { DeleteConfirmationDialog } from "../../../components/delete-confirmation-dialog";
 
 type SubmissionActionsProps = {
   bountyId: string;

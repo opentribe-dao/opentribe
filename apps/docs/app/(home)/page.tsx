@@ -30,7 +30,9 @@ export default function HomePage() {
                 </h1>
 
                 <p className="max-w-2xl text-fd-muted-foreground text-lg">
-                    The complete guide to using Opentribe - connecting builders with opportunities across the Polkadot ecosystem through grants, bounties, and RFPs.
+                    The complete guide to using Opentribe - connecting builders
+                    with opportunities across the Polkadot ecosystem through
+                    grants, bounties, and RFPs.
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-4">
@@ -43,7 +45,7 @@ export default function HomePage() {
                     </Link>
                     <Link
                         href="/docs/payments/overview"
-                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
+                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 font-medium backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10"
                     >
                         <Zap className="h-4 w-4" />
                         How Payments Work
@@ -92,7 +94,7 @@ export default function HomePage() {
             </section>
 
             {/* Quick Links */}
-            <section className="container mx-auto border-t border-white/5 py-16">
+            <section className="container mx-auto border-white/5 border-t py-16">
                 <h2 className="mb-8 text-center font-bold text-2xl">
                     Popular Documentation
                 </h2>
@@ -129,7 +131,7 @@ function FeatureCard({
     description: string
 }) {
     return (
-        <div className="flex flex-col gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-6 backdrop-blur-sm transition-all hover:bg-white/[0.04] hover:border-white/10">
+        <div className="flex flex-col gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-6 backdrop-blur-sm transition-all hover:border-white/10 hover:bg-white/[0.04]">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-pink-500/10 text-pink-500">
                 {icon}
             </div>
@@ -151,7 +153,7 @@ function QuickLink({
     return (
         <Link
             href={href}
-            className="group flex flex-col gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-4 backdrop-blur-sm transition-all hover:bg-white/[0.04] hover:border-white/10"
+            className="group flex flex-col gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-4 backdrop-blur-sm transition-all hover:border-white/10 hover:bg-white/[0.04]"
         >
             <div className="flex items-center justify-between">
                 <h3 className="font-medium">{title}</h3>

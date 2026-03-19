@@ -91,14 +91,13 @@ export function CuratorsCard({ bounty }: CuratorsCardProps) {
   };
 
   const { data: session } = useSession();
-  
+
   const currentUserMember = membersData?.find(
     (m) => m.userId === session?.user?.id
   );
 
   const isOwnerOrAdmin =
-    currentUserMember?.role === "owner" ||
-    currentUserMember?.role === "admin";
+    currentUserMember?.role === "owner" || currentUserMember?.role === "admin";
 
   return (
     <Card className="border-white/10 bg-white/5">

@@ -15,12 +15,8 @@ import remarkGfm from "remark-gfm";
 import { useBountyContext } from "../../components/bounty-provider";
 
 export default function BountyOverviewPage() {
-  const {
-    bounty,
-    bountyLoading,
-    bountyPending,
-    bountyError,
-  } = useBountyContext();
+  const { bounty, bountyLoading, bountyPending, bountyError } =
+    useBountyContext();
 
   // Show loader if loading or pending (query might be disabled waiting for activeOrg)
   if (bountyLoading || bountyPending) {
@@ -120,49 +116,49 @@ export default function BountyOverviewPage() {
             <CardContent>
               <div className="space-y-3">
                 {sortedWinnings.map(([position, amount], index) => (
-                <div
-                  className="flex items-center justify-between rounded-lg bg-white/5 p-3"
-                  key={position}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                        index === 0
-                          ? "bg-yellow-500/20"
-                          : index === 1
-                            ? "bg-gray-400/20"
-                            : index === 2
-                              ? "bg-orange-600/20"
-                              : "bg-white/10"
-                      }`}
-                    >
-                      <Trophy
-                        className={`h-5 w-5 ${
+                  <div
+                    className="flex items-center justify-between rounded-lg bg-white/5 p-3"
+                    key={position}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
                           index === 0
-                            ? "text-yellow-500"
+                            ? "bg-yellow-500/20"
                             : index === 1
-                              ? "text-gray-400"
+                              ? "bg-gray-400/20"
                               : index === 2
-                                ? "text-orange-600"
-                                : "text-white/60"
+                                ? "bg-orange-600/20"
+                                : "bg-white/10"
                         }`}
-                      />
+                      >
+                        <Trophy
+                          className={`h-5 w-5 ${
+                            index === 0
+                              ? "text-yellow-500"
+                              : index === 1
+                                ? "text-gray-400"
+                                : index === 2
+                                  ? "text-orange-600"
+                                  : "text-white/60"
+                          }`}
+                        />
+                      </div>
+                      <span className="font-medium text-white">
+                        {index === 0
+                          ? "1st"
+                          : index === 1
+                            ? "2nd"
+                            : index === 2
+                              ? "3rd"
+                              : `${position}th`}{" "}
+                        Place
+                      </span>
                     </div>
-                    <span className="font-medium text-white">
-                      {index === 0
-                        ? "1st"
-                        : index === 1
-                          ? "2nd"
-                          : index === 2
-                            ? "3rd"
-                            : `${position}th`}{" "}
-                      Place
+                    <span className="font-semibold text-white">
+                      {amount} {bountyData.token}
                     </span>
                   </div>
-                  <span className="font-semibold text-white">
-                    {amount} {bountyData.token}
-                  </span>
-                </div>
                 ))}
               </div>
             </CardContent>

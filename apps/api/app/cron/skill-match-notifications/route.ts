@@ -61,6 +61,44 @@ const getActiveSkillMatchUsers = async () => {
   return activeNotificationSettings.map((setting) => setting.user);
 };
 
+const getLegacySkillMatchUsers = () =>
+  database.user.findMany({
+    where: {
+      profileCompleted: true,
+      skills: {
+        isEmpty: false,
+      },
+      preferences: {
+        path: ["notifications", "skillMatch"],
+        equals: true,
+      },
+    },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      firstName: true,
+      skills: true,
+      lastSeen: true,
+    },
+  });
+
+const getAllActiveSkillMatchUsers = async () => {
+  const [notificationSettingUsers, legacyPreferenceUsers] = await Promise.all([
+    getActiveSkillMatchUsers(),
+    getLegacySkillMatchUsers(),
+  ]);
+
+  return Array.from(
+    new Map(
+      [...notificationSettingUsers, ...legacyPreferenceUsers].map((user) => [
+        user.id,
+        user,
+      ])
+    ).values()
+  );
+};
+
 const findMatchingBounties = (
   userSkills: string[],
   bounties: Awaited<ReturnType<typeof getRecentSkillMatchBounties>>
@@ -95,7 +133,7 @@ const isInactiveUser = (lastSeen: Date | null, now: Date) =>
   Boolean(lastSeen && lastSeen < new Date(now.getTime() - THIRTY_DAYS_MS));
 
 const sendSkillMatchEmailToUser = async (
-  user: Awaited<ReturnType<typeof getActiveSkillMatchUsers>>[number],
+  user: Awaited<ReturnType<typeof getAllActiveSkillMatchUsers>>[number],
   newBounties: Awaited<ReturnType<typeof getRecentSkillMatchBounties>>,
   now: Date
 ) => {
@@ -158,7 +196,7 @@ export async function GET(request: Request) {
       });
     }
 
-    const activeUsers = await getActiveSkillMatchUsers();
+    const activeUsers = await getAllActiveSkillMatchUsers();
 
     let emailsSent = 0;
     const errors: string[] = [];

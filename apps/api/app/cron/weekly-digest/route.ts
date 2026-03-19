@@ -160,36 +160,38 @@ export const GET = async (request: Request) => {
       users,
       WEEKLY_DIGEST_EMAIL_CONCURRENCY,
       async (user) => {
-        const userSkills =
-          typeof user.skills === "string"
-            ? JSON.parse(user.skills)
-            : user.skills || [];
-
-        const matchingBounties =
-          userSkills.length > 0
-            ? newBounties.filter((bounty) => {
-                const bountySkills = bounty.skills || [];
-                return bountySkills.some((skill) => userSkills.includes(skill));
-              })
-            : newBounties.slice(0, 3);
-
-        const applicationUpdates = user.applications
-          .filter((app) => app.status !== "DRAFT")
-          .map((app) => ({
-            title: app.grant.title,
-            status: app.status,
-            id: app.id,
-          }));
-
-        if (
-          matchingBounties.length === 0 &&
-          newGrants.length === 0 &&
-          applicationUpdates.length === 0
-        ) {
-          return { skipped: true };
-        }
-
         try {
+          const userSkills =
+            typeof user.skills === "string"
+              ? JSON.parse(user.skills)
+              : user.skills || [];
+
+          const matchingBounties =
+            userSkills.length > 0
+              ? newBounties.filter((bounty) => {
+                  const bountySkills = bounty.skills || [];
+                  return bountySkills.some((skill) =>
+                    userSkills.includes(skill)
+                  );
+                })
+              : newBounties.slice(0, 3);
+
+          const applicationUpdates = user.applications
+            .filter((app) => app.status !== "DRAFT")
+            .map((app) => ({
+              title: app.grant.title,
+              status: app.status,
+              id: app.id,
+            }));
+
+          if (
+            matchingBounties.length === 0 &&
+            newGrants.length === 0 &&
+            applicationUpdates.length === 0
+          ) {
+            return { skipped: true };
+          }
+
           await sendWeeklyDigestEmail(
             {
               email: user.email,

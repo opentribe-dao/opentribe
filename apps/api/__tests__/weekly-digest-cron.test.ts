@@ -216,4 +216,52 @@ describe("Weekly Digest Cron", () => {
     expect(data.emailsSent).toBe(WEEKLY_DIGEST_EMAIL_CONCURRENCY + 2);
     expect(maxInFlight).toBeLessThanOrEqual(WEEKLY_DIGEST_EMAIL_CONCURRENCY);
   });
+
+  test("continues when a user has malformed skills payload", async () => {
+    userFindMany.mockResolvedValue([
+      {
+        id: "user-1",
+        email: "bad@example.com",
+        firstName: "Bad",
+        username: "bad",
+        skills: "{not-json}",
+        applications: [],
+      },
+      {
+        id: "user-2",
+        email: "good@example.com",
+        firstName: "Good",
+        username: "good",
+        skills: ["Rust"],
+        applications: [],
+      },
+    ]);
+    bountyFindMany.mockResolvedValue([
+      {
+        id: "bounty-1",
+        title: "Rust bounty",
+        skills: ["Rust"],
+        amount: 100,
+        token: "DOT",
+        organization: { name: "Org" },
+      },
+    ]);
+
+    const response = await GET(
+      new Request("http://localhost:3002/cron/weekly-digest", {
+        headers: authHeader,
+      })
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.emailsSent).toBe(1);
+    expect(data.errors).toEqual([
+      {
+        userId: "user-1",
+        email: "bad@example.com",
+        error: expect.stringContaining("JSON"),
+      },
+    ]);
+  });
 });

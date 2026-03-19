@@ -40,10 +40,10 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://opentribe:opentribe_dev@postgres:5432/opentribe
-      BETTER_AUTH_SECRET: rq+MmXcamqhjGCda/lW1sd6H9PiUYu4Vzlw51c0ohjg=
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: http://localhost:3002
-      RESEND_FROM: hello@opentribe.io
-      RESEND_TOKEN: re_hN2zcNEh_MAdkQQqMjj7BerPVjXC45UL3
+      RESEND_FROM: ${RESEND_FROM:-hello@opentribe.io}
+      RESEND_TOKEN: ${RESEND_TOKEN}
       NEXT_PUBLIC_API_URL: http://localhost:3002
       NEXT_PUBLIC_WEB_URL: http://localhost:3000
       NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
@@ -81,7 +81,7 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://opentribe:opentribe_dev@postgres:5432/opentribe
-      BETTER_AUTH_SECRET: rq+MmXcamqhjGCda/lW1sd6H9PiUYu4Vzlw51c0ohjg=
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: http://localhost:3002
       NEXT_PUBLIC_API_URL: http://localhost:3002
       NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
@@ -120,7 +120,7 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://opentribe:opentribe_dev@postgres:5432/opentribe
-      BETTER_AUTH_SECRET: rq+MmXcamqhjGCda/lW1sd6H9PiUYu4Vzlw51c0ohjg=
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: http://localhost:3002
       NEXT_PUBLIC_API_URL: http://localhost:3002
       NEXT_PUBLIC_WEB_URL: http://localhost:3000

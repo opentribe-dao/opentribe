@@ -84,6 +84,9 @@ export default function GrantDetailPage({
     notFound();
   }
 
+  const hideApplicationCountBadge =
+    grant.source === "EXTERNAL" && grant._count.applications === 0;
+
   return (
     <div className="min-h-screen">
       {/* Glass Header Card */}
@@ -131,15 +134,19 @@ export default function GrantDetailPage({
               {/* Actions */}
               <div className="mt-4 grid grid-cols-2 gap-4 md:mt-0">
                 {/* Application count badge */}
-                <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
-                  <span className="font-medium text-sm">
-                    {grant._count.applications} applications
-                  </span>
-                </div>
+                {!hideApplicationCountBadge && (
+                  <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
+                    <span className="font-medium text-sm">
+                      {grant._count.applications} applications
+                    </span>
+                  </div>
+                )}
 
                 <ShareButton url={`/grants/${grantId}`} />
-                <div className="col-span-2 w-full">
+                <div
+                  className={`${hideApplicationCountBadge ? "col-span-1" : "col-span-2"} w-full`}
+                >
                   {(() => {
                     switch (true) {
                       case !!grant.userApplicationId:

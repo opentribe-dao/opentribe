@@ -440,35 +440,35 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
       data: {
         title: "Proof of Personhood Bounty",
         slug: "proof-of-personhood-bounty",
-        description: `How do you prove you are a real, unique human - without revealing who you are? That is the question this grant exists to answer.
+        description: `How do you prove you are a real, unique human - without revealing who you are? That is the question this bounty exists to answer.
 
-We fund projects building Proof of Personhood systems for the Kusama network. The goal: let every person prove they are present only once, without surveillance, without biometric databases, and without leaking identity or behavior data.
+We fund projects that build Proof of Personhood systems for the Kusama network. The goal is simple to state and hard to achieve: let every person prove they are present only once, without surveillance, without biometric databases, and without leaking identity or behavior data.
 
-## What We Fund
+What we are looking for:
 
-- Sybil-resistant identity systems using cryptographic or social verification
-- Privacy-preserving designs that treat anonymity as a hard requirement
-- Cross-application solutions that work beyond a single platform
-- Proposals with clear, testable assumptions about security and scalability
-- Protections against identity farming, coercion, and collusion
+- Systems that resist Sybil attacks through cryptographic or social mechanisms
+- Designs that treat privacy as a hard requirement, not an afterthought
+- Solutions that work across different applications rather than serving a single use case
+- Clear, testable assumptions about security, scalability, and adoption
+- Protection against identity farming, coercion, and collusion
 
-## What We Don't Fund
+What we are not looking for:
 
 - Biometric collection or centralized identity databases
-- Systems that require deanonymization as part of verification
-- Designs that rely on institutional trust rather than verifiable mechanisms
+- Systems that deanonymize users as part of verification
+- Proposals that rely on trust rather than verifiable mechanisms
 
-## How It Works
+This bounty operates on a rolling basis - there is no deadline. Submit a proposal when you are ready. Funding is provided in DOT through the Kusama network. Each proposal is evaluated individually by the curatorial committee.
 
-This grant runs on a rolling basis with no fixed deadline. Submit a proposal when you are ready. Each proposal is reviewed individually by the curatorial committee. Funding is provided in DOT through the Kusama network.
-
-Before submitting, review the participation charter which covers privacy-by-design requirements, engagement standards, and evaluation criteria. Proposals are assessed on technical soundness, privacy guarantees, and practical feasibility.
-
-Apply through the external submission form. Join the community space to discuss ideas before submitting.`,
+Before submitting, review the full participation charter which covers privacy requirements, engagement standards, and evaluation criteria.`,
         summary:
           "Funding Proof of Personhood systems that resist Sybil attacks while preserving privacy on Kusama",
-        instructions: `Submit your proposal through the external application form. Each proposal is reviewed individually by the curatorial committee. Funding is provided in DOT through the Kusama network.`,
         resources: [
+          {
+            title: "Original Grant Website",
+            url: "https://k51qzi5uqu5dk1h0t1ofq49oww8ykmcnsxl1h3m0d41pb58eog9f9yjjwxnnwh.ipns.dweb.link/",
+            description: "Primary source page for the Proof of Personhood bounty",
+          },
           {
             title: "Kusama Referenda #498",
             url: "https://kusama.subsquare.io/referenda/498",
@@ -504,30 +504,32 @@ Apply through the external submission form. Join the community space to discuss 
       data: {
         title: "Kusama ZK Bounty",
         slug: "kusama-zk-bounty",
-        description: `Most blockchains make everything visible by default. Zero-knowledge proofs change that - they let you prove something is true without revealing the underlying data. This grant funds builders making that capability native to Kusama.
+        description: `Most blockchains make everything visible by default. Zero-knowledge proofs change that - they let you prove something is true without revealing the underlying data. This bounty funds builders who are making that capability native to Kusama.
 
-We support projects integrating zero-knowledge technology across the full stack: runtime-level proof verification, privacy-preserving smart contracts, and end-user applications that protect data by default.
+We support projects that integrate zero-knowledge technology across the full stack: runtime-level proof verification, privacy-preserving smart contracts, and end-user applications that protect data by default.
 
-## Areas We Fund
+Areas we actively fund:
 
-- ZK proof verification built directly into parachain runtimes
-- Optimized ZK libraries targeting PolkaVM and the RISC-V execution environment
+- ZK proof verification built into parachain runtimes
+- Optimized ZK libraries targeting PolkaVM and RISC-V
 - Selective disclosure systems for credentials, membership, and reputation
-- Privacy-preserving governance - participate in OpenGov without exposing voting patterns
+- Privacy-preserving governance - participate in OpenGov without exposing your voting patterns
 - Private DeFi - transaction privacy, hidden balances, confidential swaps
-- Post-quantum proof systems secure against future computing advances
+- Post-quantum proof systems that remain secure against future computing advances
 
 This is not an exhaustive list. If your project advances privacy on Kusama through zero-knowledge technology, we want to hear about it - whether you are building infrastructure, developer tooling, or end-user applications.
 
-## Funding Details
-
 Funding comes from a shared 10M DOT pool allocated across Kusama bounty programs. Proposals are evaluated on technical merit, real-world feasibility, and contribution to the open ecosystem. Funded work is expected to run in production conditions on Kusama, not just in test environments.
 
-Applications are reviewed on a rolling basis. There is no deadline - submit when your proposal is ready.`,
+Rolling applications, no deadline.`,
         summary:
           "Funding zero-knowledge proof integration across Kusama runtimes, smart contracts, and applications",
-        instructions: `Submit your proposal through the external application form. Funding comes from a shared 10M DOT pool. Applications are reviewed on a rolling basis.`,
         resources: [
+          {
+            title: "Original Grant Website",
+            url: "https://zk.kusama.vision/#apply",
+            description: "Primary source page for the Kusama ZK bounty",
+          },
           {
             title: "ZK Community Space",
             url: "https://matrix.to/#/#kusama-zk:virto.community",
@@ -562,47 +564,32 @@ Applications are reviewed on a rolling basis. There is no deadline - submit when
 
 We support projects that critically examine digital identity, privacy, censorship, surveillance, and the power dynamics between users and platforms. The work can live on-chain, off-chain, or somewhere in between. What matters is that it engages seriously with these themes and contributes to broader cultural discourse.
 
-## What We Fund
+What we fund:
 
 - Visual art - generative art, data art, painting, sculpture, digital installations, on-chain or hybrid works
 - Performance and live art - theatre, music, dance, immersive environments, site-specific interventions
 - Film, sound, and media - experimental cinema, audio works, publications, expanded media
 - Research and social experiments - academic inquiry, participatory projects, DAOs as artistic practice
-- Writing and criticism - essays, publications, and texts engaging with decentralized culture
+- Writing and criticism - essays, publications, and texts that engage with decentralized culture
 
-## Funding Details
+Funding is primarily available for projects up to 10,000 USD, paid in DOT on the Kusama network. Larger proposals are considered on a case-by-case basis.
 
-Funding is primarily available for projects up to 10,000 USD, paid in DOT on the Kusama network. Larger proposals are considered on a case-by-case basis. Funding structure, payment schedule, and number of installments are agreed individually based on the proposal.
-
-Funded participants are expected to share knowledge publicly through documentation, presentations, or other formats appropriate to the project. On-chain submissions such as NFTs will be deployed on the Kusama blockchain.
-
-## How to Apply
-
-Submit a single PDF (maximum 15 pages, English language) containing:
-1. Contact details - name, country of residence, preferred contact
-2. Project description - 500 to 1000 words covering the project and motivation
-3. Motivation letter - up to 400 words on your interest in the initiative's themes
-4. Supporting materials - images, sketches, references illustrating the project
-5. Previous work - at least three relevant previously realized projects or publications
-6. Budget overview - anticipated costs and required resources
-7. Project timeline - estimated work plan and delivery schedule
-8. CV or portfolio link
+To apply, submit a single PDF (maximum 15 pages, English language) containing: your contact details, a project description of 500 to 1000 words, a motivation letter of up to 400 words, supporting visual materials, documentation of at least three previous works, a budget overview, a project timeline, and a CV or portfolio link.
 
 Applications are reviewed on a rolling basis by a curatorial committee with backgrounds in art, research, culture, and decentralized technology. There is no fixed deadline.`,
         summary:
           "Funding artistic and social experiments exploring cypherpunk themes on Kusama",
-        instructions: `Submit a single PDF (max 15 pages) through the external application form. Applications are reviewed on a rolling basis.`,
         resources: [
+          {
+            title: "Original Grant Website",
+            url: "https://art.ksm.vision/#participate",
+            description: "Primary source page for the KSM Art initiative",
+          },
           {
             title: "Basis & Terms",
             url: "https://art.ksm.vision/basis-terms/",
             description:
               "Full program terms, selection criteria, and legal conditions",
-          },
-          {
-            title: "Kusama Vision",
-            url: "https://kusama.network/vision",
-            description: "Overview of the broader Kusama Vision bounty program",
           },
         ],
         skills: [
@@ -1003,7 +990,7 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
     }),
     prisma.rFP.create({
       data: {
-        title: "RFP#000: KryptOS — Total Privacy Operating System",
+        title: "KryptOS — Total Privacy Operating System",
         slug: "000-privacy-os",
         description: `KryptOS is a proposal for a comprehensive privacy platform built on top of Polkadot stack, ZK (Zero-Knowledge) primitives, and the broader Dotsama ecosystem.
 

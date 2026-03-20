@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
         orderBy = { applicationCount: "desc" };
         break;
       case "MOST_RFPs":
-        orderBy = { rfpCount: "desc" };
+        orderBy = { rfps: { _count: "desc" } };
         break;
       case "NEWEST":
       default:
@@ -187,6 +187,11 @@ export async function GET(request: NextRequest) {
             industry: true,
           },
         },
+        _count: {
+          select: {
+            rfps: true,
+          },
+        },
       },
       orderBy,
       take: limit + 1,
@@ -199,8 +204,9 @@ export async function GET(request: NextRequest) {
       grants.pop();
     }
 
-    const transformedGrants = grants.map((grant) => ({
+    const transformedGrants = grants.map(({ _count, ...grant }) => ({
       ...grant,
+      rfpCount: _count.rfps,
       minAmount: grant.minAmount
         ? Number.parseFloat(grant.minAmount.toString())
         : undefined,

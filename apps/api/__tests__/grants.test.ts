@@ -94,6 +94,9 @@ describe("Grant Management", () => {
       updatedAt: new Date("2024-01-01"),
       applicationCount: 5,
       rfpCount: 2,
+      _count: {
+        rfps: 2,
+      },
       organization: {
         id: "org-1",
         name: "Test Organization",
@@ -125,6 +128,29 @@ describe("Grant Management", () => {
       expect(data.pagination.hasMore).toBe(false);
       expect(data.filters.statuses).toEqual([]);
       expect(data.filters.sort).toBe("newest"); // Fixed: should be lowercase
+    });
+
+    test("should return rfpCount from related rfp count instead of stale column", async () => {
+      const mockGrants = [
+        {
+          ...mockGrant,
+          rfpCount: 0,
+          _count: {
+            rfps: 1,
+          },
+        },
+      ];
+
+      vi.mocked(database.grant.findMany).mockResolvedValue(mockGrants as any);
+
+      const request = new NextRequest(
+        "http://localhost:3002/api/v1/grants?status=OPEN"
+      );
+      const response = await getGrants(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.grants[0].rfpCount).toBe(1);
     });
 
     test("should filter grants by status list", async () => {

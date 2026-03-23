@@ -155,6 +155,7 @@ function GrantsContentSectionComponent({
                 rfpCount={grant.rfpCount}
                 skills={grant.skills}
                 slug={grant.slug}
+                source={grant.source}
                 status={grant.status}
                 summary={grant.summary}
                 title={grant.title}

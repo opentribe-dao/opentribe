@@ -264,6 +264,10 @@ export async function DELETE(
           organizationId,
         },
       },
+      select: {
+        id: true,
+        grantId: true,
+      },
     });
 
     if (!existingRfp) {
@@ -273,11 +277,22 @@ export async function DELETE(
       );
     }
 
-    // Delete the RFP
-    await database.rFP.delete({
-      where: {
-        id: rfpId,
-      },
+    // Delete the RFP and decrement grant's rfpCount in an atomic transaction
+    await database.$transaction(async (tx) => {
+      await tx.rFP.delete({
+        where: {
+          id: rfpId,
+        },
+      });
+
+      await tx.grant.update({
+        where: { id: existingRfp.grantId },
+        data: {
+          rfpCount: {
+            decrement: 1,
+          },
+        },
+      });
     });
 
     return NextResponse.json({ message: "RFP deleted successfully" });

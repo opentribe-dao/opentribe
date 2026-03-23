@@ -990,7 +990,7 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
     }),
     prisma.rFP.create({
       data: {
-        title: "KryptOS — Total Privacy Operating System",
+        title: "KryptOS - Total Privacy Operating System",
         slug: "000-privacy-os",
         description: `KryptOS is a proposal for a comprehensive privacy platform built on top of Polkadot stack, ZK (Zero-Knowledge) primitives, and the broader Dotsama ecosystem.
 

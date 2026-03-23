@@ -441,6 +441,7 @@ const GrantApplicationPage = () => {
               rfpCount={grant.rfps.length}
               skills={grant.skills}
               slug={grant.slug}
+              source={grant.source}
               status={grant.status}
               summary={grant.summary}
               title={grant.title}

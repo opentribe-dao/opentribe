@@ -162,7 +162,7 @@ Applications are reviewed on a rolling basis by a curatorial committee with back
 
 export const productionSeedRfps = [
   {
-    title: 'KryptOS — Total Privacy Operating System',
+    title: 'KryptOS - Total Privacy Operating System',
     slug: '000-privacy-os',
     description:
       'Original Kusama Vision RFP linked to the Kusama ZK grant program.',

@@ -312,3 +312,6 @@ frontend_todos.md
 GEMINI.md
 WARP.md
 *.mdc
+
+# Import data (contains emails/PII)
+data/

@@ -22,10 +22,30 @@ const staticRoutes: RouteConfig[] = [
   { path: "/bounties", priority: 0.8, changeFrequency: "weekly" },
   { path: "/grants", priority: 0.8, changeFrequency: "weekly" },
   { path: "/rfps", priority: 0.8, changeFrequency: "weekly" },
+  { path: "/organizations", priority: 0.8, changeFrequency: "weekly" },
   { path: "/changelog", priority: 0.5, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.5, changeFrequency: "monthly" },
   { path: "/faq", priority: 0.5, changeFrequency: "monthly" },
 ];
+
+interface SitemapSlug {
+  slug: string;
+}
+
+async function fetchSlugs(endpoint: string): Promise<SitemapSlug[]> {
+  try {
+    const apiUrl = env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) return [];
+    const res = await fetch(`${apiUrl}${endpoint}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.slugs || data || [];
+  } catch {
+    return [];
+  }
+}
 
 function getBaseUrl(): URL {
   const fromPublic = env.NEXT_PUBLIC_WEB_URL;
@@ -71,6 +91,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(page.date || Date.now()),
       changeFrequency: "yearly",
       priority: 0.3,
+    });
+  }
+
+  // Add ecosystem profile pages
+  const profileSlugs = await fetchSlugs(
+    "/api/v1/profiles/sitemap-slugs"
+  );
+  for (const { slug } of profileSlugs) {
+    entries.push({
+      url: new URL(`/profile/${slug}`, base).href,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    });
+  }
+
+  // Add organization pages
+  const orgSlugs = await fetchSlugs(
+    "/api/v1/organizations/sitemap-slugs"
+  );
+  for (const { slug } of orgSlugs) {
+    entries.push({
+      url: new URL(`/organizations/${slug}`, base).href,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     });
   }
 

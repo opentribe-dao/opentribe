@@ -12,6 +12,7 @@
   "dependencies": {
     "@content-collections/mdx": "^0.2.2",
     "@hookform/resolvers": "^3.9.1",
+    "@packages/auth": "workspace:*",
     "@packages/base": "workspace:*",
     "@packages/cms": "workspace:*",
     "@packages/email": "workspace:*",
@@ -21,6 +22,7 @@
     "@packages/polkadot": "workspace:*",
     "@packages/security": "workspace:*",
     "@packages/seo": "workspace:*",
+    "@polkadot/extension-dapp": "^0.56.3",
     "@radix-ui/react-icons": "^1.3.2",
     "@sentry/nextjs": "^10.21.0",
     "@t3-oss/env-nextjs": "^0.13.4",

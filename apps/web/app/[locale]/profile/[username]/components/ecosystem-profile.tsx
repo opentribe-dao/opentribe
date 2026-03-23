@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "@packages/auth/client";
 import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
 import { getSkillLabel } from "@packages/base/lib/skills";
 import {
   CheckCircle,
+  Clock,
   ExternalLink,
   FileText,
   Github,
@@ -21,6 +23,8 @@ import {
   UserCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { env } from "@/env";
 
 interface Contribution {
   id: string;
@@ -61,6 +65,8 @@ interface EcosystemProfileProps {
   profile: EcosystemProfileData;
 }
 
+type ClaimUIState = "unclaimed" | "own_profile" | "pending" | "loading";
+
 const formatStatus = (status: string) => {
   return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
@@ -82,11 +88,64 @@ const getStatusColor = (status: string) => {
 };
 
 export function EcosystemProfile({ profile }: EcosystemProfileProps) {
+  const { data: session } = useSession();
+  const [claimUIState, setClaimUIState] = useState<ClaimUIState>("loading");
+
   const initials = profile.displayName
     .split(" ")
     .map((n) => n[0])
     .join("")
     .slice(0, 2);
+
+  // Check claim status for the current user
+  useEffect(() => {
+    async function checkClaimStatus() {
+      // If profile is already claimed
+      if (profile.claimedByUserId) {
+        // Check if it's the current user's profile
+        if (session?.user && profile.claimedByUserId === session.user.id) {
+          setClaimUIState("own_profile");
+        } else {
+          // Claimed by someone else - don't show CTA
+          setClaimUIState("unclaimed"); // Will be hidden because claimedByUserId is set
+        }
+        return;
+      }
+
+      // Profile not claimed - check if user has a pending claim
+      if (session?.user && profile.id) {
+        try {
+          const res = await fetch(
+            `${env.NEXT_PUBLIC_API_URL}/api/v1/ecosystem/profiles/${profile.id}/claim`,
+            { credentials: "include" }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const pendingClaim = data.claims?.find(
+              (c: any) => c.status === "PENDING"
+            );
+            const verifiedClaim = data.claims?.find(
+              (c: any) => c.status === "VERIFIED"
+            );
+            if (verifiedClaim) {
+              setClaimUIState("own_profile");
+            } else if (pendingClaim) {
+              setClaimUIState("pending");
+            } else {
+              setClaimUIState("unclaimed");
+            }
+            return;
+          }
+        } catch {
+          // Silently fail - just show default state
+        }
+      }
+
+      setClaimUIState("unclaimed");
+    }
+
+    checkClaimStatus();
+  }, [session, profile.id, profile.claimedByUserId]);
 
   return (
     <div className="min-h-screen">
@@ -239,8 +298,8 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
               </Card>
             )}
 
-            {/* Claim Profile CTA */}
-            {!profile.claimedByUserId && (
+            {/* Claim Profile CTA - Unclaimed */}
+            {!profile.claimedByUserId && claimUIState === "unclaimed" && (
               <Card className="border-[#E6007A]/30 bg-gradient-to-br from-[#E6007A]/10 to-purple-600/10 backdrop-blur-md">
                 <CardContent className="p-6">
                   <div className="mb-4 flex items-center gap-3">
@@ -261,6 +320,48 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
                       Claim this profile
                     </Button>
                   </Link>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Own Profile - Already claimed by this user */}
+            {claimUIState === "own_profile" && (
+              <Card className="border-green-500/30 bg-green-500/5 backdrop-blur-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-green-500/20 p-2">
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">
+                        This is your profile
+                      </h3>
+                      <p className="text-sm text-white/60">
+                        This ecosystem profile is linked to your account.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Pending Claim */}
+            {claimUIState === "pending" && (
+              <Card className="border-yellow-500/30 bg-yellow-500/5 backdrop-blur-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-yellow-500/20 p-2">
+                      <Clock className="h-5 w-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">
+                        Claim pending review
+                      </h3>
+                      <p className="text-sm text-white/60">
+                        Your claim for this profile is being reviewed.
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}

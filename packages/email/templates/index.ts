@@ -1,6 +1,8 @@
 // Base template and components
 export { default as BaseTemplate } from "./base-template";
 export { default as BountyDeadlineReminderEmail } from "./bounty-deadline-reminder";
+// Claim Flow
+export { default as ClaimVerificationEmail } from "./claim-verification";
 // Bounty Emails
 export { default as BountyFirstSubmissionEmail } from "./bounty-first-submission";
 export { default as BountySkillMatchEmail } from "./bounty-skill-match";

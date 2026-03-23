@@ -87,7 +87,7 @@ export default function GrantsPage() {
             }}
             value={status}
           >
-            <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[150px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -104,7 +104,7 @@ export default function GrantsPage() {
             }}
             value={source}
           >
-            <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[150px]">
               <SelectValue placeholder="Source" />
             </SelectTrigger>
             <SelectContent>
@@ -120,7 +120,7 @@ export default function GrantsPage() {
             }}
             value={fundingSource}
           >
-            <SelectTrigger className="w-[160px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[160px]">
               <SelectValue placeholder="Funding" />
             </SelectTrigger>
             <SelectContent>
@@ -131,7 +131,7 @@ export default function GrantsPage() {
           </Select>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
+        <div className="overflow-x-auto rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
           <Table>
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">

@@ -1,0 +1,143 @@
+import { requireSuperAdmin, unauthorizedResponse } from "@/lib/admin-auth";
+import { formatZodError } from "@/lib/zod-errors";
+import { database } from "@packages/db";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+const updateClaimSchema = z.object({
+  status: z.enum(["PENDING", "VERIFIED", "REJECTED", "EXPIRED"]),
+  reviewNotes: z.string().optional(),
+});
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const admin = await requireSuperAdmin();
+    if (!admin) return unauthorizedResponse();
+
+    const { id } = await params;
+
+    const claim = await database.claimRequest.findUnique({
+      where: { id },
+      include: {
+        ecosystemProfile: {
+          include: {
+            contributions: {
+              include: {
+                grantApplication: {
+                  select: { id: true, title: true, status: true },
+                },
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            github: true,
+            walletAddress: true,
+          },
+        },
+      },
+    });
+
+    if (!claim) {
+      return NextResponse.json(
+        { error: "Claim request not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ data: claim });
+  } catch (error) {
+    console.error("Admin claim detail error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch claim" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const admin = await requireSuperAdmin();
+    if (!admin) return unauthorizedResponse();
+
+    const { id } = await params;
+    const body = await request.json();
+    const validated = updateClaimSchema.parse(body);
+
+    const claim = await database.claimRequest.findUnique({
+      where: { id },
+      select: { ecosystemProfileId: true, userId: true },
+    });
+
+    if (!claim) {
+      return NextResponse.json(
+        { error: "Claim request not found" },
+        { status: 404 }
+      );
+    }
+
+    // Use transaction if approving - also update the ecosystem profile
+    if (validated.status === "VERIFIED") {
+      const result = await database.$transaction(async (tx) => {
+        const updatedClaim = await tx.claimRequest.update({
+          where: { id },
+          data: {
+            status: validated.status,
+            reviewNotes: validated.reviewNotes,
+            reviewedBy: admin.userId,
+          },
+        });
+
+        // Link the ecosystem profile to the claiming user
+        await tx.ecosystemProfile.update({
+          where: { id: claim.ecosystemProfileId },
+          data: {
+            claimedByUserId: claim.userId,
+            claimedAt: new Date(),
+          },
+        });
+
+        return updatedClaim;
+      });
+
+      return NextResponse.json({ data: result });
+    }
+
+    // For rejection or other status changes
+    const updatedClaim = await database.claimRequest.update({
+      where: { id },
+      data: {
+        status: validated.status,
+        reviewNotes: validated.reviewNotes,
+        reviewedBy: admin.userId,
+      },
+    });
+
+    return NextResponse.json({ data: updatedClaim });
+  } catch (error) {
+    console.error("Admin claim update error:", error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(formatZodError(error), { status: 400 });
+    }
+    return NextResponse.json(
+      { error: "Failed to update claim" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200 });
+}

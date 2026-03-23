@@ -15,12 +15,15 @@ export const trustedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:3002",
+  "http://localhost:3003",
   "https://opentribe.io",
   "https://api.opentribe.io",
   "https://dashboard.opentribe.io",
+  "https://admin.opentribe.io",
   "https://dev.opentribe.io",
   "https://api.dev.opentribe.io",
   "https://dashboard.dev.opentribe.io",
+  "https://admin.dev.opentribe.io",
 ];
 
 /**

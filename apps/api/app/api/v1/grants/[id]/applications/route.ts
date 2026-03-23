@@ -2,6 +2,7 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendGrantFirstApplicationEmail } from "@packages/email";
 import { formatZodError } from "@/lib/zod-errors";
+import { resolveApplicationApplicantBatch } from "@/lib/resolve-applicant";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -86,7 +87,14 @@ export async function GET(
             username: true,
             firstName: true,
             lastName: true,
+            email: true,
             image: true,
+            bio: true,
+            location: true,
+            skills: true,
+            github: true,
+            linkedin: true,
+            website: true,
           },
         },
         rfp: {
@@ -108,7 +116,15 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ applications });
+    // Resolve applicants (handles both User-linked and EcosystemProfile-linked apps)
+    const applicantMap = await resolveApplicationApplicantBatch(applications);
+
+    const transformedApplications = applications.map((app) => ({
+      ...app,
+      applicant: applicantMap.get(app.id) ?? app.applicant,
+    }));
+
+    return NextResponse.json({ applications: transformedApplications });
   } catch (error) {
     console.error("Error fetching applications:", error);
     return NextResponse.json(

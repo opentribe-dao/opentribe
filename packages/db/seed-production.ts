@@ -16,9 +16,8 @@ import {
  * Required in production:
  * - ALLOW_PRODUCTION_SEED_UPSERT=true
  *
- * Optional:
- * - SEED_PRODUCTION_OWNER_EMAIL=<existing user email>
- *   defaults to david.w3f@example.com
+ * The organization is platform-managed (managedByPlatform: true)
+ * and does not require an owner user.
  */
 
 type Logger = {
@@ -28,11 +27,6 @@ type Logger = {
 };
 
 type SeedDb = {
-  user: {
-    findUnique: (args: {
-      where: { email: string };
-    }) => Promise<{ id: string } | null>;
-  };
   organization: {
     upsert: (args: {
       where: { slug: string };
@@ -40,18 +34,9 @@ type SeedDb = {
       create: Record<string, unknown>;
     }) => Promise<{ id: string; slug: string }>;
   };
-  member: {
-    upsert: (args: {
-      where: {
-        organizationId_userId: { organizationId: string; userId: string };
-      };
-      update: Record<string, unknown>;
-      create: Record<string, unknown>;
-    }) => Promise<unknown>;
-  };
   grant: {
     upsert: (args: {
-      where: { slug: string };
+      where: { externalId: string };
       update: Record<string, unknown>;
       create: Record<string, unknown>;
     }) => Promise<{ id: string; slug: string }>;
@@ -93,12 +78,10 @@ export const runProductionSeed = async ({
   db = prismaClient as unknown as SeedDb,
   now = new Date(),
   logger = defaultLogger,
-  ownerEmail = "david.w3f@example.com",
 }: {
   db?: SeedDb;
   now?: Date;
   logger?: Logger;
-  ownerEmail?: string;
 } = {}) => {
   const daysFromNow = (days: number): Date => {
     const date = new Date(now);
@@ -107,10 +90,6 @@ export const runProductionSeed = async ({
   };
 
   logger.log("🌱 Starting production-safe Kusama upsert...");
-
-  const owner = await db.user.findUnique({
-    where: { email: ownerEmail },
-  });
 
   const organization = await db.organization.upsert({
     where: { slug: productionSeedOrganization.slug },
@@ -125,65 +104,52 @@ export const runProductionSeed = async ({
       location: productionSeedOrganization.location,
       isVerified: productionSeedOrganization.isVerified,
       visibility: productionSeedOrganization.visibility,
+      orgType: productionSeedOrganization.orgType,
+      managedByPlatform: productionSeedOrganization.managedByPlatform,
+      claimableBy: productionSeedOrganization.claimableBy,
+      ecosystemSource: productionSeedOrganization.ecosystemSource,
     },
     create: {
       ...productionSeedOrganization,
     },
   });
 
-  if (owner) {
-    await db.member.upsert({
-      where: {
-        organizationId_userId: {
-          organizationId: organization.id,
-          userId: owner.id,
-        },
-      },
-      update: {
-        role: "owner",
-      },
-      create: {
-        organizationId: organization.id,
-        userId: owner.id,
-        role: "owner",
-      },
-    });
-  } else {
-    logger.warn(
-      `Skipping owner membership upsert because seed owner ${ownerEmail} was not found`
-    );
-  }
-
   const grants = await Promise.all(
     productionSeedGrants.map((grant) =>
       db.grant.upsert({
-        where: { slug: grant.slug },
+        where: { externalId: grant.externalId },
         update: {
           title: grant.title,
+          slug: grant.slug,
           summary: grant.summary,
           description: grant.description,
-          instructions: grant.instructions,
           resources: [...grant.resources],
           skills: [...grant.skills],
           token: grant.token,
           status: grant.status,
           visibility: grant.visibility,
           source: grant.source,
+          fundingSource: grant.fundingSource,
+          onChainRef: grant.onChainRef,
+          onChainRefUrl: grant.onChainRefUrl,
           applicationUrl: grant.applicationUrl,
           organizationId: organization.id,
         },
         create: {
           title: grant.title,
           slug: grant.slug,
+          externalId: grant.externalId,
           summary: grant.summary,
           description: grant.description,
-          instructions: grant.instructions,
           resources: [...grant.resources],
           skills: [...grant.skills],
           token: grant.token,
           status: grant.status,
           visibility: grant.visibility,
           source: grant.source,
+          fundingSource: grant.fundingSource,
+          onChainRef: grant.onChainRef,
+          onChainRefUrl: grant.onChainRefUrl,
           applicationUrl: grant.applicationUrl,
           organizationId: organization.id,
           publishedAt: daysFromNow(grant.publishedOffsetDays),
@@ -257,10 +223,7 @@ export const runProductionSeed = async ({
 
 const main = async () => {
   assertProductionSeedPermission(process.env);
-  await runProductionSeed({
-    ownerEmail:
-      process.env.SEED_PRODUCTION_OWNER_EMAIL || "david.w3f@example.com",
-  });
+  await runProductionSeed();
 };
 
 if (

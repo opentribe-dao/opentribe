@@ -82,6 +82,10 @@ async function main() {
         location: "Zug, Switzerland",
         isVerified: true,
         visibility: "VERIFIED",
+        orgType: "FOUNDATION",
+        managedByPlatform: true,
+        claimableBy: "github:w3f",
+        ecosystemSource: "W3F_GRANTS",
         members: {
           create: {
             userId: users[3].id, // David
@@ -440,6 +444,7 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
       data: {
         title: "Proof of Personhood Bounty",
         slug: "proof-of-personhood-bounty",
+        externalId: "kusama:proof-of-personhood-bounty",
         description: `How do you prove you are a real, unique human - without revealing who you are? That is the question this bounty exists to answer.
 
 We fund projects that build Proof of Personhood systems for the Kusama network. The goal is simple to state and hard to achieve: let every person prove they are present only once, without surveillance, without biometric databases, and without leaking identity or behavior data.
@@ -493,6 +498,9 @@ Before submitting, review the full participation charter which covers privacy re
         status: "OPEN",
         visibility: "PUBLISHED",
         source: "EXTERNAL",
+        fundingSource: "TREASURY",
+        onChainRef: "kusama-referenda-498",
+        onChainRefUrl: "https://kusama.subsquare.io/referenda/498",
         applicationUrl: "https://formstr.app/i/kusama-pop",
         organizationId: organizations[0].id,
         publishedAt: daysFromNow(-3),
@@ -504,6 +512,7 @@ Before submitting, review the full participation charter which covers privacy re
       data: {
         title: "Kusama ZK Bounty",
         slug: "kusama-zk-bounty",
+        externalId: "kusama:kusama-zk-bounty",
         description: `Most blockchains make everything visible by default. Zero-knowledge proofs change that - they let you prove something is true without revealing the underlying data. This bounty funds builders who are making that capability native to Kusama.
 
 We support projects that integrate zero-knowledge technology across the full stack: runtime-level proof verification, privacy-preserving smart contracts, and end-user applications that protect data by default.
@@ -548,6 +557,9 @@ Rolling applications, no deadline.`,
         status: "OPEN",
         visibility: "PUBLISHED",
         source: "EXTERNAL",
+        fundingSource: "TREASURY",
+        onChainRef: "kusama-referenda-507",
+        onChainRefUrl: "https://kusama.subsquare.io/referenda/507",
         applicationUrl:
           "https://puffy-xylophone-2a5.notion.site/95b593191de28385bf208189cec1887b",
         organizationId: organizations[0].id,
@@ -560,6 +572,7 @@ Rolling applications, no deadline.`,
       data: {
         title: "KSM Art & Social Experiments Initiative",
         slug: "ksm-art-social-experiments",
+        externalId: "kusama:ksm-art-social-experiments",
         description: `Technology shapes society - but who shapes technology? This initiative funds artists, researchers, and cultural practitioners who explore that question through the lens of the cypherpunk movement.
 
 We support projects that critically examine digital identity, privacy, censorship, surveillance, and the power dynamics between users and platforms. The work can live on-chain, off-chain, or somewhere in between. What matters is that it engages seriously with these themes and contributes to broader cultural discourse.
@@ -606,6 +619,9 @@ Applications are reviewed on a rolling basis by a curatorial committee with back
         status: "OPEN",
         visibility: "PUBLISHED",
         source: "EXTERNAL",
+        fundingSource: "TREASURY",
+        onChainRef: "kusama-referenda-404",
+        onChainRefUrl: "https://kusama.subsquare.io/referenda/404",
         applicationUrl: "https://ksmart.notion.site",
         organizationId: organizations[0].id,
         publishedAt: daysFromNow(-7),

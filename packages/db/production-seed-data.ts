@@ -11,12 +11,20 @@ export const productionSeedOrganization = {
   location: 'Zug, Switzerland',
   isVerified: true,
   visibility: 'VERIFIED',
+  orgType: 'FOUNDATION',
+  managedByPlatform: true,
+  claimableBy: 'github:w3f',
+  ecosystemSource: 'W3F_GRANTS',
 } as const;
 
 export const productionSeedGrants = [
   {
     title: 'Proof of Personhood Bounty',
     slug: 'proof-of-personhood-bounty',
+    externalId: 'kusama:proof-of-personhood-bounty',
+    fundingSource: 'TREASURY',
+    onChainRef: 'kusama-referenda-498',
+    onChainRefUrl: 'https://kusama.subsquare.io/referenda/498',
     summary:
       'Funding Proof of Personhood systems that resist Sybil attacks while preserving privacy on Kusama',
     description: `How do you prove you are a real, unique human - without revealing who you are? That is the question this bounty exists to answer.
@@ -69,6 +77,10 @@ Before submitting, review the full participation charter which covers privacy re
   {
     title: 'Kusama ZK Bounty',
     slug: 'kusama-zk-bounty',
+    externalId: 'kusama:kusama-zk-bounty',
+    fundingSource: 'TREASURY',
+    onChainRef: 'kusama-referenda-507',
+    onChainRefUrl: 'https://kusama.subsquare.io/referenda/507',
     summary:
       'Funding zero-knowledge proof integration across Kusama runtimes, smart contracts, and applications',
     description: `Most blockchains make everything visible by default. Zero-knowledge proofs change that - they let you prove something is true without revealing the underlying data. This bounty funds builders who are making that capability native to Kusama.
@@ -119,6 +131,10 @@ Rolling applications, no deadline.`,
   {
     title: 'KSM Art & Social Experiments Initiative',
     slug: 'ksm-art-social-experiments',
+    externalId: 'kusama:ksm-art-social-experiments',
+    fundingSource: 'TREASURY',
+    onChainRef: 'kusama-referenda-404',
+    onChainRefUrl: 'https://kusama.subsquare.io/referenda/404',
     summary:
       'Funding artistic and social experiments exploring cypherpunk themes on Kusama',
     description: `Technology shapes society - but who shapes technology? This initiative funds artists, researchers, and cultural practitioners who explore that question through the lens of the cypherpunk movement.

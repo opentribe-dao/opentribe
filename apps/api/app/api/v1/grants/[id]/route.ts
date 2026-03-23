@@ -2,6 +2,7 @@ import type { Prisma } from "@packages/db";
 import { database } from "@packages/db";
 import { type NextRequest, NextResponse } from "next/server";
 import { ViewManager } from "@/lib/views";
+import { resolveApplicationApplicantBatch } from "@/lib/resolve-applicant";
 import { auth } from "@packages/auth/server";
 import { headers } from "next/headers";
 
@@ -164,6 +165,7 @@ export async function GET(
           },
           select: {
             id: true,
+            userId: true,
             title: true,
             status: true,
             budget: true,
@@ -174,7 +176,14 @@ export async function GET(
                 username: true,
                 firstName: true,
                 lastName: true,
+                email: true,
                 image: true,
+                bio: true,
+                location: true,
+                skills: true,
+                github: true,
+                linkedin: true,
+                website: true,
               },
             },
           },
@@ -206,9 +215,17 @@ export async function GET(
       await vm.recordViewForEntity(`grant:${grant.id}`);
     }
 
+    // Resolve applicants for embedded applications (handles User + EcosystemProfile)
+    const applicantMap = await resolveApplicationApplicantBatch(grant.applications);
+    const transformedApplications = grant.applications.map((app) => ({
+      ...app,
+      applicant: applicantMap.get(app.id) ?? app.applicant,
+    }));
+
     const response: GetGrantResponse = {
       grant: {
         ...grant,
+        applications: transformedApplications as any,
         userApplicationId: null,
         canApply: true,
       },

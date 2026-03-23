@@ -5,13 +5,7 @@ import {
 } from "../seed-production";
 
 const createMockDb = () => ({
-  user: {
-    findUnique: vi.fn(),
-  },
   organization: {
-    upsert: vi.fn(),
-  },
-  member: {
     upsert: vi.fn(),
   },
   grant: {
@@ -47,12 +41,10 @@ describe("seed-production", () => {
   test("upserts organization, grants, and rfps without deleting data", async () => {
     const db = createMockDb();
 
-    db.user.findUnique.mockResolvedValue({ id: "user-1" });
     db.organization.upsert.mockResolvedValue({
       id: "org-1",
       slug: "web3-foundation",
     });
-    db.member.upsert.mockResolvedValue({ id: "member-1" });
     db.grant.upsert
       .mockResolvedValueOnce({
         id: "grant-1",
@@ -76,23 +68,50 @@ describe("seed-production", () => {
     });
 
     expect(db.organization.upsert).toHaveBeenCalledTimes(1);
-    expect(db.member.upsert).toHaveBeenCalledTimes(1);
     expect(db.grant.upsert).toHaveBeenCalledTimes(3);
     expect(db.rFP.upsert).toHaveBeenCalledTimes(1);
     expect(db.grant.update).toHaveBeenCalledTimes(3);
 
+    // Organization upsert includes new platform-managed fields
     expect(db.organization.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { slug: "web3-foundation" },
+        update: expect.objectContaining({
+          orgType: "FOUNDATION",
+          managedByPlatform: true,
+          claimableBy: "github:w3f",
+          ecosystemSource: "W3F_GRANTS",
+        }),
+      })
+    );
+
+    // Grants use externalId as the where clause and include new fields
+    expect(db.grant.upsert).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        where: { externalId: "kusama:proof-of-personhood-bounty" },
+        create: expect.objectContaining({
+          organizationId: "org-1",
+          externalId: "kusama:proof-of-personhood-bounty",
+          fundingSource: "TREASURY",
+          onChainRef: "kusama-referenda-498",
+          onChainRefUrl: "https://kusama.subsquare.io/referenda/498",
+        }),
+        update: expect.objectContaining({
+          fundingSource: "TREASURY",
+          onChainRef: "kusama-referenda-498",
+          onChainRefUrl: "https://kusama.subsquare.io/referenda/498",
+        }),
       })
     );
 
     expect(db.grant.upsert).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        where: { slug: "kusama-zk-bounty" },
+        where: { externalId: "kusama:kusama-zk-bounty" },
         create: expect.objectContaining({
           organizationId: "org-1",
+          fundingSource: "TREASURY",
         }),
         update: expect.not.objectContaining({
           publishedAt: expect.anything(),
@@ -116,10 +135,9 @@ describe("seed-production", () => {
     );
   });
 
-  test("skips owner membership upsert when seed owner is missing", async () => {
+  test("does not look up or upsert owner membership", async () => {
     const db = createMockDb();
 
-    db.user.findUnique.mockResolvedValue(null);
     db.organization.upsert.mockResolvedValue({
       id: "org-1",
       slug: "web3-foundation",
@@ -136,21 +154,18 @@ describe("seed-production", () => {
       });
     db.rFP.upsert.mockResolvedValue({ id: "rfp-1", slug: "000-privacy-os" });
 
-    const logger = {
-      log: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-    };
-
     await runProductionSeed({
       db: db as never,
       now: new Date("2026-03-22T00:00:00.000Z"),
-      logger,
+      logger: {
+        log: vi.fn(),
+        error: vi.fn(),
+        warn: vi.fn(),
+      },
     });
 
-    expect(db.member.upsert).not.toHaveBeenCalled();
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining("Skipping owner membership upsert")
-    );
+    // Platform-managed org has no owner lookup or member upsert
+    expect(db).not.toHaveProperty("user");
+    expect(db).not.toHaveProperty("member");
   });
 });

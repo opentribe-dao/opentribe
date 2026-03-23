@@ -20,6 +20,7 @@ interface GrantCardProps {
   token: string;
   rfpCount: number;
   applicationCount: number;
+  source: string;
   status: string;
   summary: string;
   skills: string[];
@@ -36,6 +37,7 @@ export function GrantCard({
   token,
   rfpCount,
   applicationCount,
+  source,
   status,
   summary,
 }: GrantCardProps) {
@@ -107,7 +109,11 @@ export function GrantCard({
               {rfpCount} RFPs
             </span>
           </div>
-          <span className="text-pink-400">{applicationCount} applications</span>
+          {source !== "EXTERNAL" && (
+            <span className="text-pink-400">
+              {applicationCount} applications
+            </span>
+          )}
         </div>
       </Card>
     </Link>

@@ -215,7 +215,8 @@ We're looking for projects that:
         ],
         screening: [
           {
-            question: "Describe the problem your project solves for the Polkadot ecosystem.",
+            question:
+              "Describe the problem your project solves for the Polkadot ecosystem.",
             optional: false,
           },
           {
@@ -232,7 +233,7 @@ We're looking for projects that:
         maxAmount: 500_000,
         totalFunds: 45_000_000,
         token: "DOT",
-        status: "OPEN",
+        status: "CLOSED",
         visibility: "PUBLISHED",
         source: "NATIVE",
         organizationId: organizations[0].id,
@@ -299,7 +300,7 @@ Focus areas include:
         maxAmount: 100_000,
         totalFunds: 10_000_000,
         token: "DOT",
-        status: "OPEN",
+        status: "CLOSED",
         visibility: "PUBLISHED",
         source: "NATIVE",
         organizationId: organizations[0].id,
@@ -346,11 +347,13 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
         ],
         screening: [
           {
-            question: "How does your project leverage Moonbeam’s interoperability?",
+            question:
+              "How does your project leverage Moonbeam’s interoperability?",
             optional: false,
           },
           {
-            question: "Provide a technical architecture diagram or description.",
+            question:
+              "Provide a technical architecture diagram or description.",
             optional: false,
           },
         ],
@@ -359,7 +362,7 @@ Moonbeam's Ethereum compatibility combined with Polkadot's cross-chain features 
         maxAmount: 50_000,
         totalFunds: 10_000_000,
         token: "GLMR",
-        status: "OPEN",
+        status: "CLOSED",
         visibility: "PUBLISHED",
         source: "NATIVE",
         organizationId: organizations[1].id,
@@ -430,6 +433,216 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
   ]);
 
   console.log(`✅ Created ${grants.length} grants`);
+
+  // Create Kusama Vision external grants (Web3 Foundation)
+  const kusamaGrants = await Promise.all([
+    prisma.grant.create({
+      data: {
+        title: "Proof of Personhood Bounty",
+        slug: "proof-of-personhood-bounty",
+        description: `How do you prove you are a real, unique human - without revealing who you are? That is the question this bounty exists to answer.
+
+We fund projects that build Proof of Personhood systems for the Kusama network. The goal is simple to state and hard to achieve: let every person prove they are present only once, without surveillance, without biometric databases, and without leaking identity or behavior data.
+
+What we are looking for:
+
+- Systems that resist Sybil attacks through cryptographic or social mechanisms
+- Designs that treat privacy as a hard requirement, not an afterthought
+- Solutions that work across different applications rather than serving a single use case
+- Clear, testable assumptions about security, scalability, and adoption
+- Protection against identity farming, coercion, and collusion
+
+What we are not looking for:
+
+- Biometric collection or centralized identity databases
+- Systems that deanonymize users as part of verification
+- Proposals that rely on trust rather than verifiable mechanisms
+
+This bounty operates on a rolling basis - there is no deadline. Submit a proposal when you are ready. Funding is provided in DOT through the Kusama network. Each proposal is evaluated individually by the curatorial committee.
+
+Before submitting, review the full participation charter which covers privacy requirements, engagement standards, and evaluation criteria.`,
+        summary:
+          "Funding Proof of Personhood systems that resist Sybil attacks while preserving privacy on Kusama",
+        resources: [
+          {
+            title: "Original Grant Website",
+            url: "https://k51qzi5uqu5dk1h0t1ofq49oww8ykmcnsxl1h3m0d41pb58eog9f9yjjwxnnwh.ipns.dweb.link/",
+            description: "Primary source page for the Proof of Personhood bounty",
+          },
+          {
+            title: "Kusama Referenda #498",
+            url: "https://kusama.subsquare.io/referenda/498",
+            description:
+              "On-chain reference for the Proof of Personhood bounty funding",
+          },
+          {
+            title: "PoP Community Space",
+            url: "https://matrix.to/#/#kusama-pop-bounty:matrix.org",
+            description:
+              "Join the Matrix channel to discuss proposals and connect with curators",
+          },
+        ],
+        skills: [
+          "identity",
+          "privacy",
+          "cryptography",
+          "sybil-resistance",
+          "decentralized-systems",
+        ],
+        token: "DOT",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        source: "EXTERNAL",
+        applicationUrl: "https://formstr.app/i/kusama-pop",
+        organizationId: organizations[0].id,
+        publishedAt: daysFromNow(-3),
+        viewCount: 45,
+        applicationCount: 0,
+      },
+    }),
+    prisma.grant.create({
+      data: {
+        title: "Kusama ZK Bounty",
+        slug: "kusama-zk-bounty",
+        description: `Most blockchains make everything visible by default. Zero-knowledge proofs change that - they let you prove something is true without revealing the underlying data. This bounty funds builders who are making that capability native to Kusama.
+
+We support projects that integrate zero-knowledge technology across the full stack: runtime-level proof verification, privacy-preserving smart contracts, and end-user applications that protect data by default.
+
+Areas we actively fund:
+
+- ZK proof verification built into parachain runtimes
+- Optimized ZK libraries targeting PolkaVM and RISC-V
+- Selective disclosure systems for credentials, membership, and reputation
+- Privacy-preserving governance - participate in OpenGov without exposing your voting patterns
+- Private DeFi - transaction privacy, hidden balances, confidential swaps
+- Post-quantum proof systems that remain secure against future computing advances
+
+This is not an exhaustive list. If your project advances privacy on Kusama through zero-knowledge technology, we want to hear about it - whether you are building infrastructure, developer tooling, or end-user applications.
+
+Funding comes from a shared 10M DOT pool allocated across Kusama bounty programs. Proposals are evaluated on technical merit, real-world feasibility, and contribution to the open ecosystem. Funded work is expected to run in production conditions on Kusama, not just in test environments.
+
+Rolling applications, no deadline.`,
+        summary:
+          "Funding zero-knowledge proof integration across Kusama runtimes, smart contracts, and applications",
+        resources: [
+          {
+            title: "Original Grant Website",
+            url: "https://zk.kusama.vision/#apply",
+            description: "Primary source page for the Kusama ZK bounty",
+          },
+          {
+            title: "ZK Community Space",
+            url: "https://matrix.to/#/#kusama-zk:virto.community",
+            description:
+              "Join the Matrix channel to discuss zero-knowledge projects and proposals",
+          },
+        ],
+        skills: [
+          "zero-knowledge",
+          "cryptography",
+          "privacy",
+          "smart-contracts",
+          "rust",
+        ],
+        token: "DOT",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        source: "EXTERNAL",
+        applicationUrl:
+          "https://puffy-xylophone-2a5.notion.site/95b593191de28385bf208189cec1887b",
+        organizationId: organizations[0].id,
+        publishedAt: daysFromNow(-5),
+        viewCount: 78,
+        applicationCount: 0,
+      },
+    }),
+    prisma.grant.create({
+      data: {
+        title: "KSM Art & Social Experiments Initiative",
+        slug: "ksm-art-social-experiments",
+        description: `Technology shapes society - but who shapes technology? This initiative funds artists, researchers, and cultural practitioners who explore that question through the lens of the cypherpunk movement.
+
+We support projects that critically examine digital identity, privacy, censorship, surveillance, and the power dynamics between users and platforms. The work can live on-chain, off-chain, or somewhere in between. What matters is that it engages seriously with these themes and contributes to broader cultural discourse.
+
+What we fund:
+
+- Visual art - generative art, data art, painting, sculpture, digital installations, on-chain or hybrid works
+- Performance and live art - theatre, music, dance, immersive environments, site-specific interventions
+- Film, sound, and media - experimental cinema, audio works, publications, expanded media
+- Research and social experiments - academic inquiry, participatory projects, DAOs as artistic practice
+- Writing and criticism - essays, publications, and texts that engage with decentralized culture
+
+Funding is primarily available for projects up to 10,000 USD, paid in DOT on the Kusama network. Larger proposals are considered on a case-by-case basis.
+
+To apply, submit a single PDF (maximum 15 pages, English language) containing: your contact details, a project description of 500 to 1000 words, a motivation letter of up to 400 words, supporting visual materials, documentation of at least three previous works, a budget overview, a project timeline, and a CV or portfolio link.
+
+Applications are reviewed on a rolling basis by a curatorial committee with backgrounds in art, research, culture, and decentralized technology. There is no fixed deadline.`,
+        summary:
+          "Funding artistic and social experiments exploring cypherpunk themes on Kusama",
+        resources: [
+          {
+            title: "Original Grant Website",
+            url: "https://art.ksm.vision/#participate",
+            description: "Primary source page for the KSM Art initiative",
+          },
+          {
+            title: "Basis & Terms",
+            url: "https://art.ksm.vision/basis-terms/",
+            description:
+              "Full program terms, selection criteria, and legal conditions",
+          },
+        ],
+        skills: [
+          "art",
+          "design",
+          "research",
+          "social-experiments",
+          "content-creation",
+        ],
+        minAmount: 1000,
+        maxAmount: 10_000,
+        totalFunds: 100_000,
+        token: "DOT",
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        source: "EXTERNAL",
+        applicationUrl: "https://ksmart.notion.site",
+        organizationId: organizations[0].id,
+        publishedAt: daysFromNow(-7),
+        viewCount: 32,
+        applicationCount: 0,
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${kusamaGrants.length} Kusama Vision grants`);
+
+  // Create curators for Kusama grants
+  const kusamaCurators = await Promise.all([
+    prisma.curator.create({
+      data: {
+        userId: users[6].id, // Admin
+        grantId: kusamaGrants[0].id,
+        contact: "hello@kusama-pop-bounty.matrix.org",
+      },
+    }),
+    prisma.curator.create({
+      data: {
+        userId: users[6].id, // Admin
+        grantId: kusamaGrants[1].id,
+        contact: "hello@kusama-zk.virto.community",
+      },
+    }),
+    prisma.curator.create({
+      data: {
+        userId: users[6].id, // Admin
+        grantId: kusamaGrants[2].id,
+        contact: "https://art.ksm.vision/contact/",
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${kusamaCurators.length} Kusama grant curators`);
 
   // Create realistic bounties
   const bounties = await Promise.all([
@@ -686,7 +899,8 @@ Join leading projects already building with aUSD across Polkadot parachains.`,
   ]);
 
   console.log(
-    `✅ Created ${curators.length} curators (${curators.filter((c) => c.grantId).length
+    `✅ Created ${curators.length} curators (${
+      curators.filter((c) => c.grantId).length
     } for grants, ${curators.filter((c) => c.bountyId).length} for bounties)`
   );
 
@@ -770,6 +984,69 @@ Enable lightweight blockchain interaction without running full nodes, crucial fo
             title: "Substrate RPC",
             url: "https://docs.substrate.io/reference/rpc/",
             description: "RPC specifications",
+          },
+        ],
+      },
+    }),
+    prisma.rFP.create({
+      data: {
+        title: "KryptOS - Total Privacy Operating System",
+        slug: "000-privacy-os",
+        description: `KryptOS is a proposal for a comprehensive privacy platform built on top of Polkadot stack, ZK (Zero-Knowledge) primitives, and the broader Dotsama ecosystem.
+
+## The Proposal
+
+KryptOS aims to provide a complete privacy solution that allows users to interact with Web3 without revealing their identity, transaction history, or metadata. This extends the privacy guarantees of substrate-based chains to the application layer.
+
+## Scope
+
+The scope of this RFP includes but is not limited to:
+
+1. **Relay Chain Privacy Bridge**: Private bridge between Kusama Relay Chain and other chains in the ecosystem
+2. **Anonymous Governance Participation**: Shield identity while participating in on-chain governance
+3. **Private Smart Contracts**: Confidential execution environment for smart contracts
+4. **Privacy-Preserving Cross-Chain Messaging**: Private cross-chain communication via XCM
+5. **ZK-Enabled Identity Layer**: Self-sovereign identity system using zero-knowledge proofs
+
+## Key Requirements
+
+- All implementations must be open-source under a permissive license
+- Continuous security audits by reputable firms
+- Comprehensive documentation and developer guides
+- Integration with existing Polkadot SDK modules
+
+## Evaluation Criteria
+
+- Demonstrated expertise in ZK cryptography
+- Modular and extensible architecture
+- Performance benchmarks under various network conditions
+- Quality of test suites and documentation
+
+## Acceptance Criteria
+
+- Functional implementation of at least one component from the scope
+- Passed third-party security audit with no critical vulnerabilities
+- Open-source with permissive license
+- Integration with Polkadot SDK (FRAME)
+- Formal verification for critical components where applicable
+- Test coverage > 80% for core logic
+- Native support for privacy-preserving cross-chain messaging via XCM`,
+        grantId: kusamaGrants[1].id,
+        status: "OPEN",
+        visibility: "PUBLISHED",
+        publishedAt: daysFromNow(-30),
+        viewCount: 0,
+        voteCount: 0,
+        resources: [
+          {
+            title: "Kusama Vision RFP Listing",
+            url: "https://zk.kusama.vision/rfps/#000-privacy-os",
+            description: "Published RFP listing for KryptOS on Kusama Vision",
+          },
+          {
+            title: "Source Markdown",
+            url: "https://codeberg.org/kusama-zk/RFPs/src/branch/main/rfp/000-privacy-os.md",
+            description: "Original markdown source for the KryptOS RFP",
           },
         ],
       },
@@ -1023,6 +1300,22 @@ Each tutorial includes:
           userId: user.id,
           channel: "EMAIL",
           type: "COMMENT_REPLY",
+          isEnabled: true,
+        },
+      }),
+      prisma.notificationSetting.create({
+        data: {
+          userId: user.id,
+          channel: "EMAIL",
+          type: "NEW_BOUNTY_MATCHING_SKILLS",
+          isEnabled: true,
+        },
+      }),
+      prisma.notificationSetting.create({
+        data: {
+          userId: user.id,
+          channel: "EMAIL",
+          type: "WEEKLY_DIGEST",
           isEnabled: true,
         },
       }),

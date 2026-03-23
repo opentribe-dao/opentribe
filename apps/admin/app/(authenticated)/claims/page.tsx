@@ -76,7 +76,7 @@ export default function ClaimsPage() {
           </TabsList>
 
           <TabsContent className="mt-4" value={tab}>
-            <div className="rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
+            <div className="overflow-x-auto rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
               <Table>
                 <TableHeader>
                   <TableRow className="border-white/10 hover:bg-transparent">

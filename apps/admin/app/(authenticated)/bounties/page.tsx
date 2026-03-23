@@ -72,7 +72,7 @@ export default function BountiesPage() {
             }}
             value={status}
           >
-            <SelectTrigger className="w-[180px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[180px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -86,7 +86,7 @@ export default function BountiesPage() {
           </Select>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
+        <div className="overflow-x-auto rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
           <Table>
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">

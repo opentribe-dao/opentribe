@@ -89,7 +89,7 @@ export default function ProfilesPage() {
             }}
             value={source}
           >
-            <SelectTrigger className="w-[200px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[200px]">
               <SelectValue placeholder="Source" />
             </SelectTrigger>
             <SelectContent>
@@ -111,7 +111,7 @@ export default function ProfilesPage() {
             }}
             value={claimed}
           >
-            <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[150px]">
               <SelectValue placeholder="Claimed" />
             </SelectTrigger>
             <SelectContent>
@@ -127,7 +127,7 @@ export default function ProfilesPage() {
             }}
             value={contactable}
           >
-            <SelectTrigger className="w-[160px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[160px]">
               <SelectValue placeholder="Contactable" />
             </SelectTrigger>
             <SelectContent>
@@ -138,7 +138,7 @@ export default function ProfilesPage() {
           </Select>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
+        <div className="overflow-x-auto rounded-lg border border-white/10 bg-white/5 backdrop-blur-[10px]">
           <Table>
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">

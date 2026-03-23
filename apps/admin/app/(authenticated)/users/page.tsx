@@ -87,7 +87,7 @@ export default function UsersPage() {
             }}
             value={role}
           >
-            <SelectTrigger className="w-[150px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[150px]">
               <SelectValue placeholder="Role" />
             </SelectTrigger>
             <SelectContent>
@@ -104,7 +104,7 @@ export default function UsersPage() {
             }}
             value={status}
           >
-            <SelectTrigger className="w-[180px] border-white/10 bg-white/5 text-white">
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white sm:w-[180px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "true";
 
     if (!refresh) {
-      const cached = await redis.get<TopGrant[] | string>(CACHE_KEY);
+      let cached; try { cached = await redis.get<TopGrant[] | string>(CACHE_KEY); } catch { cached = null; }
       if (cached) {
         const data: TopGrant[] =
           typeof cached === "string"
@@ -36,9 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     const topGrants = await getTopGrants();
-    await redis.set(CACHE_KEY, JSON.stringify(topGrants), {
-      ex: CACHE_TTL_SECONDS,
-    });
+    try { await redis.set(CACHE_KEY, JSON.stringify(topGrants), { ex: CACHE_TTL_SECONDS }); } catch {}
 
     return withHeaders(NextResponse.json({ data: topGrants }));
   } catch {

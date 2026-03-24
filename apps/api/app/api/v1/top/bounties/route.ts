@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "true";
 
     if (!refresh) {
-      const cached = await redis.get<TopBounty[] | string>(CACHE_KEY);
+      let cached; try { cached = await redis.get<TopBounty[] | string>(CACHE_KEY); } catch { cached = null; }
       if (cached) {
         const data: TopBounty[] =
           typeof cached === "string"
@@ -34,9 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const topBounties = await getTopBounties();
-    await redis.set(CACHE_KEY, JSON.stringify(topBounties), {
-      ex: CACHE_TTL_SECONDS,
-    });
+    try { await redis.set(CACHE_KEY, JSON.stringify(topBounties), { ex: CACHE_TTL_SECONDS }); } catch {}
 
     return withHeaders(NextResponse.json({ data: topBounties }));
   } catch (error) {

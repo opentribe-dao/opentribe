@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "true";
 
     if (!refresh) {
-      const cached = await redis.get<TopRFP[] | string>(CACHE_KEY);
+      let cached; try { cached = await redis.get<TopRFP[] | string>(CACHE_KEY); } catch { cached = null; }
       if (cached) {
         const data: TopRFP[] =
           typeof cached === "string"
@@ -35,9 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     const topRfps = await getTopRfps();
-    await redis.set(CACHE_KEY, JSON.stringify(topRfps), {
-      ex: CACHE_TTL_SECONDS,
-    });
+    try { await redis.set(CACHE_KEY, JSON.stringify(topRfps), { ex: CACHE_TTL_SECONDS }); } catch {}
 
     return withHeaders(NextResponse.json({ data: topRfps }));
   } catch (error) {

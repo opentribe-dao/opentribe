@@ -46,11 +46,14 @@
 | D5 | Source badges show raw enum `W3F_GRANTS` | Unfriendly display | Add source label formatter |
 | D6 | Ecosystem profile contributions show "Role: APPLICANT" without grant title | Missing context | API should include `grantApplication.title` in contribution response |
 | D7 | Grant applications page shows "by Unknown" in header | Missing org name | Need to include `organization.name` in grant detail fetch |
+| D8 | **External grant detail shows "Grant Prize: Variable"** | Misleading — external grants don't have amounts | Hide prize/validity cards for EXTERNAL grants without amounts, or show "Varies by application" |
+| D9 | **External grant shows fake validity dates (Mar 25 - Jun 25)** | Dates are auto-generated from publishedAt, not real | External grants should show "Rolling" or "No deadline" instead of fake 3-month range |
+| D10 | External grant shows "0 applications" badge | W3F Grants Program has 21 imported apps but Kusama grants have 0 | Kusama grants are EXTERNAL with external application URL — 0 is correct for native apps, but confusing. Consider showing "External Applications" instead |
 
 ### Infrastructure
 | # | Issue | Impact | Fix Needed |
 |---|-------|--------|-----------|
-| I1 | Stats endpoints (bounties/grants/rfps) return 500 | Sidebar stats error on homepage | Redis/Upstash not configured locally — pre-existing issue |
+| I1 | Stats endpoints (bounties/grants/rfps) return 500 | Sidebar stats error on homepage | **FIXED** — graceful Redis fallback added to all 7 endpoints |
 | I2 | Sitemap slug endpoints return 404 | Dynamic sitemap entries missing | Create `/api/v1/profiles/sitemap-slugs` and `/api/v1/organizations/sitemap-slugs` endpoints |
 | I3 | Server-side cache (`revalidate: 300`) causes stale data during testing | Fixes not visible immediately | Reduced to 60s for applications page; other pages still 300s |
 

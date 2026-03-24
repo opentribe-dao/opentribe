@@ -49,21 +49,32 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const refresh = searchParams.get("refresh") === "true";
 
+    // Try Redis cache first, but gracefully handle Redis being unavailable
     if (!refresh) {
-      const cached = await redis.get<HomepageStatsResponse | string>(CACHE_KEY);
-      if (cached) {
-        const data: HomepageStatsResponse =
-          typeof cached === "string"
-            ? (JSON.parse(cached) as HomepageStatsResponse)
-            : (cached as HomepageStatsResponse);
-        return withHeaders(NextResponse.json({ data }));
+      try {
+        const cached = await redis.get<HomepageStatsResponse | string>(CACHE_KEY);
+        if (cached) {
+          const data: HomepageStatsResponse =
+            typeof cached === "string"
+              ? (JSON.parse(cached) as HomepageStatsResponse)
+              : (cached as HomepageStatsResponse);
+          return withHeaders(NextResponse.json({ data }));
+        }
+      } catch {
+        // Redis unavailable — skip cache, calculate fresh
       }
     }
 
     const stats = await calculateHomepageStats();
-    await redis.set(CACHE_KEY, JSON.stringify(stats), {
-      ex: CACHE_TTL_SECONDS,
-    });
+
+    // Try to cache, but don't fail if Redis is unavailable
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(stats), {
+        ex: CACHE_TTL_SECONDS,
+      });
+    } catch {
+      // Redis unavailable — continue without caching
+    }
 
     return withHeaders(NextResponse.json({ data: stats }));
   } catch (error) {

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     // Try to get from cache first
     if (!refresh) {
-      const cached = await redis.get<RfpStatsResponse | string>(CACHE_KEY);
+      let cached; try { cached = await redis.get<RfpStatsResponse | string>(CACHE_KEY); } catch { cached = null; }
       if (cached) {
         const data: RfpStatsResponse =
           typeof cached === "string"
@@ -32,9 +32,7 @@ export async function GET(request: NextRequest) {
     const stats = await getRfpStats();
 
     // Store in cache
-    await redis.set(CACHE_KEY, JSON.stringify(stats), {
-      ex: CACHE_TTL_SECONDS,
-    });
+    try { await redis.set(CACHE_KEY, JSON.stringify(stats), { ex: CACHE_TTL_SECONDS }); } catch {}
 
     return withHeaders(NextResponse.json(stats));
   } catch (error) {

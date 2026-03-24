@@ -545,8 +545,8 @@ export function UserProfile({ profile: initialProfile, stats: initialStats }: Us
                               className="block"
                               href={
                                 item.type === "application"
-                                  ? `/grants/${item.grant.slug || item.grant.id}/applications/${item.id}`
-                                  : `/bounties/${item.bounty.slug || item.bounty.id}/submissions/${item.id}`
+                                  ? `/grants/${item.grant?.slug || item.grant?.id || item.grantId || "#"}`
+                                  : `/bounties/${item.bounty?.slug || item.bounty?.id || item.bountyId || "#"}`
                               }
                             >
                               <div className="flex items-start justify-between">
@@ -562,13 +562,14 @@ export function UserProfile({ profile: initialProfile, stats: initialStats }: Us
                                     <p className="font-medium text-white">
                                       {item.title ||
                                         (item.type === "application"
-                                          ? item.grant.title
-                                          : item.bounty.title)}
+                                          ? item.grant?.title
+                                          : item.bounty?.title) ||
+                                        "Untitled"}
                                     </p>
                                     <p className="text-sm text-white/60">
                                       {item.type === "application"
-                                        ? `Applied to ${item.grant.organization.name}`
-                                        : `Submitted to ${item.bounty.organization.name}`}
+                                        ? `Applied to ${item.grant?.organization?.name || item.grant?.title || "Grant"}`
+                                        : `Submitted to ${item.bounty?.organization?.name || item.bounty?.title || "Bounty"}`}
                                     </p>
                                     <p className="mt-1 text-white/40 text-xs">
                                       {formatDate(item.createdAt)}
@@ -707,19 +708,30 @@ export function UserProfile({ profile: initialProfile, stats: initialStats }: Us
                 </CardContent>
               </Card>
 
-              {/* Ecosystem Contributions from claimed profiles */}
-              {(profile as any)?.claimedProfiles?.length > 0 && (
-                <Card className="mt-6 border-white/10 bg-white/5 backdrop-blur-md">
-                  <CardHeader>
-                    <CardTitle className="text-white">
-                      Ecosystem Contributions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {(profile as any).claimedProfiles.map((ep: any) =>
-                      (ep.contributions || []).map((c: any) => (
+              {/* Ecosystem Contributions — only show for contributions
+                  NOT already backfilled into the Activity section */}
+              {(() => {
+                const claimedProfiles = (profile as any)?.claimedProfiles || [];
+                const backfilledAppIds = new Set(
+                  (profile.applications || []).map((a: any) => a.id)
+                );
+                const unshownContributions = claimedProfiles.flatMap((ep: any) =>
+                  (ep.contributions || []).filter(
+                    (c: any) => c.grantApplication && !backfilledAppIds.has(c.grantApplication.id)
+                  ).map((c: any) => ({ ...c, source: ep.source }))
+                );
+                if (unshownContributions.length === 0) return null;
+                return (
+                  <Card className="mt-6 border-white/10 bg-white/5 backdrop-blur-md">
+                    <CardHeader>
+                      <CardTitle className="text-white">
+                        Ecosystem Contributions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {unshownContributions.map((c: any) => (
                         <div
-                          key={c.id || `${ep.id}-${c.grantApplication?.id}`}
+                          key={c.id || c.grantApplication?.id}
                           className="rounded-lg bg-white/5 p-4"
                         >
                           <div className="flex items-start justify-between">
@@ -732,28 +744,9 @@ export function UserProfile({ profile: initialProfile, stats: initialStats }: Us
                                   {c.grantApplication?.title || "Grant Application"}
                                 </p>
                                 <p className="text-sm text-white/60">
-                                  {c.grantApplication?.grant?.title || ep.source?.replace(/_/g, " ")}
-                                  {" · "}
-                                  {c.role?.replace(/_/g, " ")}
+                                  {c.grantApplication?.grant?.title || c.source?.replace(/_/g, " ")}
+                                  {" · "}{c.role?.replace(/_/g, " ")}
                                 </p>
-                                {c.grantApplication?.grantMilestones?.length > 0 && (
-                                  <div className="mt-2 flex gap-1">
-                                    {c.grantApplication.grantMilestones.map((m: any) => (
-                                      <span
-                                        key={m.id}
-                                        className={`inline-block rounded px-2 py-0.5 text-xs ${
-                                          m.status === "ACCEPTED"
-                                            ? "bg-green-500/20 text-green-400"
-                                            : m.status === "SUBMITTED"
-                                              ? "bg-yellow-500/20 text-yellow-400"
-                                              : "bg-white/10 text-white/50"
-                                        }`}
-                                      >
-                                        M{m.number}: {m.status}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
                               </div>
                             </div>
                             <Badge className="bg-green-500/20 text-green-400 border-0">
@@ -761,11 +754,11 @@ export function UserProfile({ profile: initialProfile, stats: initialStats }: Us
                             </Badge>
                           </div>
                         </div>
-                      ))
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+                      ))}
+                    </CardContent>
+                  </Card>
+                );
+              })()}
             </div>
           </div>
         )}

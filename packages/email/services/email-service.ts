@@ -5,6 +5,7 @@ import {
   BountySkillMatchEmail,
   BountyWinnerEmail,
   BountyWinnerReminderEmail,
+  ClaimVerificationEmail,
   CommentReplyEmail,
   GrantFirstApplicationEmail,
   GrantStatusUpdateEmail,
@@ -492,6 +493,28 @@ export async function sendSkillMatchBountyEmail(
       prizeAmount: `${bounty.prizeAmount} ${bounty.token}`,
       deadline: bounty.deadline.toLocaleDateString(),
       bountyUrl,
+    }),
+  });
+}
+
+// Claim Flow Emails
+
+export async function sendClaimVerificationEmail(
+  recipientEmail: string,
+  profileName: string,
+  verificationToken: string,
+  verificationCode: string
+) {
+  const verificationUrl = `${BASE_URL}/profile/claim/verify?token=${verificationToken}`;
+
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to: [recipientEmail],
+    subject: "Verify your profile claim on Opentribe",
+    react: ClaimVerificationEmail({
+      profileName,
+      verificationUrl,
+      verificationCode,
     }),
   });
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "@packages/auth/client";
 import { Badge } from "@packages/base/components/ui/badge";
 import { Button } from "@packages/base/components/ui/button";
 import {
@@ -11,7 +12,7 @@ import {
 import { getSkillLabel } from "@packages/base/lib/skills";
 import {
   CheckCircle,
-  ExternalLink,
+  Clock,
   FileText,
   Github,
   Globe,
@@ -21,6 +22,8 @@ import {
   UserCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { env } from "@/env";
 
 interface Contribution {
   id: string;
@@ -61,6 +64,8 @@ interface EcosystemProfileProps {
   profile: EcosystemProfileData;
 }
 
+type ClaimUIState = "unclaimed" | "own_profile" | "pending" | "loading";
+
 const formatStatus = (status: string) => {
   return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
@@ -82,11 +87,60 @@ const getStatusColor = (status: string) => {
 };
 
 export function EcosystemProfile({ profile }: EcosystemProfileProps) {
+  const { data: session } = useSession();
+  const [claimUIState, setClaimUIState] = useState<ClaimUIState>("loading");
+
   const initials = profile.displayName
     .split(" ")
     .map((n) => n[0])
     .join("")
     .slice(0, 2);
+
+  // Check claim status for the current user
+  useEffect(() => {
+    async function checkClaimStatus() {
+      if (profile.claimedByUserId) {
+        if (session?.user && profile.claimedByUserId === session.user.id) {
+          setClaimUIState("own_profile");
+        } else {
+          setClaimUIState("unclaimed");
+        }
+        return;
+      }
+
+      if (session?.user && profile.id) {
+        try {
+          const res = await fetch(
+            `${env.NEXT_PUBLIC_API_URL}/api/v1/ecosystem/profiles/${profile.id}/claim`,
+            { credentials: "include" }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const verifiedClaim = data.claims?.find(
+              (c: any) => c.status === "VERIFIED"
+            );
+            const pendingClaim = data.claims?.find(
+              (c: any) => c.status === "PENDING"
+            );
+            if (verifiedClaim) {
+              setClaimUIState("own_profile");
+            } else if (pendingClaim) {
+              setClaimUIState("pending");
+            } else {
+              setClaimUIState("unclaimed");
+            }
+            return;
+          }
+        } catch {
+          // Silently fail
+        }
+      }
+
+      setClaimUIState("unclaimed");
+    }
+
+    checkClaimStatus();
+  }, [session, profile.id, profile.claimedByUserId]);
 
   return (
     <div className="min-h-screen">
@@ -95,7 +149,6 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
         <Card className="mb-8 border-white/10 bg-white/5 backdrop-blur-md">
           <CardContent className="p-8">
             <div className="flex flex-col items-start gap-6 md:flex-row">
-              {/* Avatar */}
               <div className="flex-shrink-0">
                 {profile.image ? (
                   <img
@@ -112,7 +165,6 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
                 )}
               </div>
 
-              {/* Profile Info */}
               <div className="flex-grow">
                 <div className="flex items-start justify-between">
                   <div>
@@ -133,12 +185,10 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
                   </div>
                 </div>
 
-                {/* Bio */}
                 {profile.bio && (
                   <p className="mb-4 max-w-3xl text-white/70">{profile.bio}</p>
                 )}
 
-                {/* Location */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   {profile.location && (
                     <div className="flex items-center gap-1 text-white/60">
@@ -148,7 +198,6 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
                   )}
                 </div>
 
-                {/* Social Links */}
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   {profile.twitter && (
                     <a
@@ -213,9 +262,7 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
         </Card>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Left Column - Skills & Claim CTA */}
           <div className="space-y-6">
-            {/* Skills */}
             {profile.skills && profile.skills.length > 0 && (
               <Card className="border-white/10 bg-white/5 backdrop-blur-md">
                 <CardHeader>
@@ -239,8 +286,8 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
               </Card>
             )}
 
-            {/* Claim Profile CTA */}
-            {!profile.claimedByUserId && (
+            {/* Claim Profile CTA - Unclaimed */}
+            {!profile.claimedByUserId && claimUIState === "unclaimed" && (
               <Card className="border-[#E6007A]/30 bg-gradient-to-br from-[#E6007A]/10 to-purple-600/10 backdrop-blur-md">
                 <CardContent className="p-6">
                   <div className="mb-4 flex items-center gap-3">
@@ -264,9 +311,50 @@ export function EcosystemProfile({ profile }: EcosystemProfileProps) {
                 </CardContent>
               </Card>
             )}
+
+            {/* Own Profile */}
+            {claimUIState === "own_profile" && (
+              <Card className="border-green-500/30 bg-green-500/5 backdrop-blur-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-green-500/20 p-2">
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">
+                        This is your profile
+                      </h3>
+                      <p className="text-sm text-white/60">
+                        This ecosystem profile is linked to your account.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Pending Claim */}
+            {claimUIState === "pending" && (
+              <Card className="border-yellow-500/30 bg-yellow-500/5 backdrop-blur-md">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-yellow-500/20 p-2">
+                      <Clock className="h-5 w-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">
+                        Claim pending review
+                      </h3>
+                      <p className="text-sm text-white/60">
+                        Your claim for this profile is being reviewed.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
-          {/* Right Column - Contributions */}
           <div className="lg:col-span-2">
             <Card className="border-white/10 bg-white/5 backdrop-blur-md">
               <CardHeader>

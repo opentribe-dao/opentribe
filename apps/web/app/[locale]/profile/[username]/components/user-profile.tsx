@@ -155,10 +155,32 @@ export function UserProfile({ profile, stats }: UserProfileProps) {
 
   const isOwnProfile = profile?.isOwnProfile ?? false;
   const isPrivateProfile = profile?.private && !isOwnProfile;
+  const claimableProfile = profile?.claimableProfile;
 
   return (
     <div className="min-h-screen">
       <div className="container relative z-10 mx-auto px-4 py-12">
+        {/* Claimable ecosystem profile banner */}
+        {claimableProfile && (
+          <div className="mb-6 rounded-xl border border-[#E6007A]/30 bg-[#E6007A]/10 p-4 backdrop-blur-md">
+            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+              <div>
+                <p className="font-medium text-white">
+                  An ecosystem profile matching your username was found
+                </p>
+                <p className="text-sm text-white/60">
+                  Claim it to link your {claimableProfile.source?.replace(/_/g, " ")} contributions to your account.
+                </p>
+              </div>
+              <a
+                href={`/profile/claim/${claimableProfile.slug}`}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#E6007A] px-4 py-2 text-sm font-medium text-white hover:bg-[#E6007A]/90"
+              >
+                Claim Profile
+              </a>
+            </div>
+          </div>
+        )}
         {/* Profile Header */}
         <Card className="mb-8 border-white/10 bg-white/5 backdrop-blur-md">
           <CardContent className="p-8">

@@ -58,9 +58,30 @@ export async function GET(
         });
       }
 
+      // Check if there's an unclaimed EcosystemProfile with the same slug
+      // that the user might want to claim
+      const matchingEcosystemProfile = await database.ecosystemProfile.findFirst({
+        where: {
+          slug: { equals: slug, mode: "insensitive" },
+          claimedByUserId: null,
+        },
+        select: {
+          id: true,
+          slug: true,
+          displayName: true,
+          github: true,
+          githubAccountId: true,
+          source: true,
+        },
+      });
+
       return NextResponse.json({
         type: "user",
-        data: user,
+        data: {
+          ...user,
+          // Include claimable ecosystem profile if found
+          claimableProfile: matchingEcosystemProfile || undefined,
+        },
       });
     }
 

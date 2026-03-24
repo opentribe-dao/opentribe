@@ -24,18 +24,28 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "true";
 
     if (!refresh) {
-      let cached; try { cached = await redis.get<TopRFP[] | string>(CACHE_KEY); } catch { cached = null; }
-      if (cached) {
-        const data: TopRFP[] =
-          typeof cached === "string"
-            ? (JSON.parse(cached) as TopRFP[])
-            : (cached as TopRFP[]);
-        return withHeaders(NextResponse.json({ data }));
+      try {
+        const cached = await redis.get<TopRFP[] | string>(CACHE_KEY);
+        if (cached) {
+          const data: TopRFP[] =
+            typeof cached === "string"
+              ? (JSON.parse(cached) as TopRFP[])
+              : (cached as TopRFP[]);
+          return withHeaders(NextResponse.json({ data }));
+        }
+      } catch {
+        // Redis unavailable — skip cache
       }
     }
 
     const topRfps = await getTopRfps();
-    try { await redis.set(CACHE_KEY, JSON.stringify(topRfps), { ex: CACHE_TTL_SECONDS }); } catch {}
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(topRfps), {
+        ex: CACHE_TTL_SECONDS,
+      });
+    } catch {
+      // Redis unavailable — skip caching
+    }
 
     return withHeaders(NextResponse.json({ data: topRfps }));
   } catch (error) {

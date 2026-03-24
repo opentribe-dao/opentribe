@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
 
     // Try to get from cache first
     if (!refresh) {
-      let cached; try { cached = await redis.get<BountyStatsResponse | string>(CACHE_KEY); } catch { cached = null; }
+      let cached: BountyStatsResponse | string | null = null;
+      try { cached = await redis.get<BountyStatsResponse | string>(CACHE_KEY); } catch { /* Redis unavailable */ }
       if (cached) {
         const data: BountyStatsResponse =
           typeof cached === "string"

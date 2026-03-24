@@ -25,18 +25,28 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "true";
 
     if (!refresh) {
-      let cached; try { cached = await redis.get<TopGrant[] | string>(CACHE_KEY); } catch { cached = null; }
-      if (cached) {
-        const data: TopGrant[] =
-          typeof cached === "string"
-            ? (JSON.parse(cached) as TopGrant[])
-            : (cached as TopGrant[]);
-        return withHeaders(NextResponse.json({ data }));
+      try {
+        const cached = await redis.get<TopGrant[] | string>(CACHE_KEY);
+        if (cached) {
+          const data: TopGrant[] =
+            typeof cached === "string"
+              ? (JSON.parse(cached) as TopGrant[])
+              : (cached as TopGrant[]);
+          return withHeaders(NextResponse.json({ data }));
+        }
+      } catch {
+        // Redis unavailable — skip cache
       }
     }
 
     const topGrants = await getTopGrants();
-    try { await redis.set(CACHE_KEY, JSON.stringify(topGrants), { ex: CACHE_TTL_SECONDS }); } catch {}
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(topGrants), {
+        ex: CACHE_TTL_SECONDS,
+      });
+    } catch {
+      // Redis unavailable — skip caching
+    }
 
     return withHeaders(NextResponse.json({ data: topGrants }));
   } catch {

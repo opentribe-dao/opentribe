@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
 
     // Try to get from cache first
     if (!refresh) {
-      let cached; try { cached = await redis.get<GrantStatsResponse | string>(CACHE_KEY); } catch { cached = null; }
+      let cached: GrantStatsResponse | string | null = null;
+      try {
+        cached = await redis.get<GrantStatsResponse | string>(CACHE_KEY);
+      } catch { /* Redis unavailable */ }
       if (cached) {
         const data: GrantStatsResponse =
           typeof cached === "string"
@@ -32,7 +35,9 @@ export async function GET(request: NextRequest) {
     const stats = await getGrantStats();
 
     // Store in cache
-    try { await redis.set(CACHE_KEY, JSON.stringify(stats), { ex: CACHE_TTL_SECONDS }); } catch {}
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(stats), { ex: CACHE_TTL_SECONDS });
+    } catch { /* Redis unavailable */ }
 
     return withHeaders(NextResponse.json(stats));
   } catch (error) {

@@ -75,7 +75,7 @@ export async function GET(
     // Fetch applications (only submitted ones for public view)
     const applications = await database.grantApplication.findMany({
       where: {
-        grantId,
+        grantId: grant.id,
         status: {
           not: "DRAFT",
         },

@@ -67,12 +67,13 @@ interface EcosystemProfileProps {
 
 type ClaimUIState = "unclaimed" | "own_profile" | "pending" | "loading";
 
-const formatStatus = (status: string) => {
+const formatStatus = (status?: string) => {
+  if (!status) return "Unknown";
   return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
-const getStatusColor = (status: string) => {
-  switch (status.toUpperCase()) {
+const getStatusColor = (status?: string) => {
+  switch ((status || "").toUpperCase()) {
     case "APPROVED":
     case "COMPLETED":
       return "bg-green-500/20 text-green-400 border-0";

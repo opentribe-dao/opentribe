@@ -215,15 +215,15 @@ export function OrganizationsDirectory({
                     <div className="flex items-center gap-1.5">
                       <Building2 className="h-3.5 w-3.5" />
                       <span>
-                        {org._count.grants} grant
-                        {org._count.grants !== 1 ? "s" : ""}
+                        {org._count?.grants ?? 0} grant
+                        {(org._count?.grants ?? 0) !== 1 ? "s" : ""}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Users className="h-3.5 w-3.5" />
                       <span>
-                        {org._count.members} member
-                        {org._count.members !== 1 ? "s" : ""}
+                        {org._count?.members ?? 0} member
+                        {(org._count?.members ?? 0) !== 1 ? "s" : ""}
                       </span>
                     </div>
                   </div>

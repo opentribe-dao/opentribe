@@ -91,9 +91,15 @@ const authOptions = {
           : "localhost",
     },
     defaultCookieAttributes: {
-      secure: true,
+      secure:
+        process.env.VERCEL_TARGET_ENV === "production" ||
+        process.env.VERCEL_TARGET_ENV === "staging",
       httpOnly: true,
-      sameSite: "none",
+      sameSite:
+        process.env.VERCEL_TARGET_ENV === "production" ||
+        process.env.VERCEL_TARGET_ENV === "staging"
+          ? "none" as const
+          : "lax" as const,
     },
   },
   trustedOrigins: [

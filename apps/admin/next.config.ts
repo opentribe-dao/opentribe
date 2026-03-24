@@ -26,6 +26,19 @@ nextConfig.images.remotePatterns.push(
   }
 );
 
+// Proxy API requests through Next.js to share auth cookies (same-origin)
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+nextConfig.rewrites = async () => [
+  {
+    source: "/api/v1/:path*",
+    destination: `${apiUrl}/api/v1/:path*`,
+  },
+  {
+    source: "/api/auth/:path*",
+    destination: `${apiUrl}/api/auth/:path*`,
+  },
+];
+
 // Enable standalone mode for Docker deployments
 if (process.env.OUTPUT_STANDALONE === "true") {
   nextConfig.output = "standalone";

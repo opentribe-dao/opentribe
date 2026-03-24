@@ -183,9 +183,26 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
+    const search = searchParams.get("search") || undefined;
+    const type = searchParams.get("type") || undefined;
+    const pageSize = Number.parseInt(searchParams.get("pageSize") || String(limit));
+
+    const where: any = {
+      visibility: { in: ["ACTIVE", "VERIFIED"] },
+    };
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { slug: { contains: search, mode: "insensitive" } },
+      ];
+    }
+    if (type && type !== "all") {
+      where.orgType = type.toUpperCase();
+    }
+
     const [organizations, total] = await Promise.all([
       database.organization.findMany({
-        where: { visibility: "ACTIVE" },
+        where,
         include: {
           members: {
             include: {
@@ -199,21 +216,31 @@ export async function GET(request: NextRequest) {
               },
             },
           },
+          _count: {
+            select: {
+              grants: true,
+              members: true,
+              bounties: true,
+            },
+          },
         },
         skip,
-        take: limit,
+        take: pageSize,
         orderBy: { createdAt: "desc" },
       }),
-      database.organization.count({ where: { visibility: "ACTIVE" } }),
+      database.organization.count({ where }),
     ]);
 
     return NextResponse.json({
       organizations,
+      total,
+      page,
+      pageSize,
       pagination: {
         page,
-        limit,
+        limit: pageSize,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / pageSize),
       },
     });
   } catch (error) {

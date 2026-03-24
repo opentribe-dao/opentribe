@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+// Use relative URL to go through Next.js rewrite proxy (same-origin, shares cookies)
+// In production, this can be swapped to the direct API URL
+const API_BASE = typeof window !== "undefined" ? "" : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002");
 
 interface FetchOptions extends RequestInit {
   params?: Record<string, string | number | undefined>;
@@ -10,7 +12,7 @@ export async function adminFetch<T>(
 ): Promise<T> {
   const { params, ...fetchOptions } = options;
 
-  let url = `${API_URL}/api/v1/admin${path}`;
+  let url = `${API_BASE}/api/v1/admin${path}`;
 
   if (params) {
     const searchParams = new URLSearchParams();

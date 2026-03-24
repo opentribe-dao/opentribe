@@ -133,7 +133,7 @@ async function calculatePlatformStats(): Promise<
   ]);
   const uniqueBuilderIds = new Set<string>([
     ...submissionUsers.map((u) => u.userId),
-    ...applicationUsers.map((u) => u.userId),
+    ...applicationUsers.map((u) => u.userId).filter((id): id is string => id !== null),
   ]);
 
   const [bountyAgg, grantsAgg] = await Promise.all([

@@ -24,7 +24,8 @@ export async function requireSuperAdmin(): Promise<AdminSession | null> {
     return null;
   }
 
-  if (session.user.role !== "superadmin") {
+  const userRole = (session.user as any).role as string | undefined;
+  if (userRole !== "superadmin") {
     return null;
   }
 
@@ -34,7 +35,7 @@ export async function requireSuperAdmin(): Promise<AdminSession | null> {
       id: session.user.id,
       email: session.user.email,
       name: session.user.name,
-      role: session.user.role,
+      role: userRole,
     },
   };
 }

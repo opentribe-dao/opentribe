@@ -274,7 +274,6 @@ export async function POST(
         summary: validatedData.summary,
         description: validatedData.description,
         timeline: validatedData.timeline || undefined,
-        milestones: validatedData.milestones || undefined,
         budget: validatedData.budget || undefined,
         responses: validatedData.responses || undefined,
         status: "SUBMITTED",
@@ -359,8 +358,8 @@ export async function POST(
                   ? `$${application.budget.toLocaleString()}`
                   : "Not specified",
                 applicant: {
-                  firstName: application.applicant.firstName || undefined,
-                  username: application.applicant.username || "Anonymous",
+                  firstName: application.applicant?.firstName || undefined,
+                  username: application.applicant?.username || "Anonymous",
                 },
               }
             );

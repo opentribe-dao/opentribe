@@ -473,12 +473,12 @@ export async function GET(
 
     const applicationActivities = recentApplications.map((a) => {
       const actorName =
-        a.applicant.firstName || a.applicant.username || "Someone";
+        a.applicant?.firstName || a.applicant?.username || "Someone";
       return {
         id: `app-${a.id}`,
         type: "NEW_APPLICATION" as const,
         actorName,
-        actorAvatar: a.applicant.image || undefined,
+        actorAvatar: a.applicant?.image || undefined,
         action: "applied to a grant",
         resourceTitle: a.grant.title,
         resourceUrl: `/grants/${a.grant.id}/applications/${a.id}`,

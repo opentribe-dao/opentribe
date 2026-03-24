@@ -84,23 +84,28 @@ export default function GrantDetailPage({
     notFound();
   }
 
-  // Calculate date range
+  // Calculate date range from grant data
   const getDateRange = () => {
+    const formatDate = (d: Date) =>
+      d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+    // Use actual grant dates if available
+    if (grant.deadline) {
+      const startDate = grant.publishedAt ? new Date(grant.publishedAt) : new Date(grant.createdAt);
+      return { start: formatDate(startDate), end: formatDate(new Date(grant.deadline)) };
+    }
+
+    // External/rolling grants with no deadline
+    if (grant.source === "EXTERNAL" || !grant.deadline) {
+      const startDate = grant.publishedAt ? new Date(grant.publishedAt) : new Date(grant.createdAt);
+      return { start: formatDate(startDate), end: "Rolling — No deadline" };
+    }
+
+    // Fallback
     const start = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 3);
-    return {
-      start: start.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      end: end.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-    };
+    return { start: formatDate(start), end: formatDate(end) };
   };
 
   const dateRange = getDateRange();
@@ -386,8 +391,16 @@ export default function GrantDetailPage({
                       String(grant.token)
                     )}
                   </>
+                ) : grant.totalFunds ? (
+                  <>
+                    {formatCurrency(
+                      Number(grant.totalFunds),
+                      String(grant.token)
+                    )}{" "}
+                    pool
+                  </>
                 ) : (
-                  "Variable"
+                  "Open"
                 )}
               </div>
             </div>

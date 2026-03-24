@@ -33,7 +33,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { env } from "@/env";
 
 interface UserProfileData {
   id: string;
@@ -150,12 +151,61 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export function UserProfile({ profile, stats }: UserProfileProps) {
+export function UserProfile({ profile: initialProfile, stats: initialStats }: UserProfileProps) {
   const [activeTab, setActiveTab] = useState("activity");
+  const [profile, setProfile] = useState(initialProfile);
+  const [stats, setStats] = useState(initialStats);
+  const [loading, setLoading] = useState(!initialProfile?.applications);
+
+  // Fetch full profile data with applications/submissions if not provided
+  useEffect(() => {
+    if (initialProfile?.applications) {
+      setLoading(false);
+      return;
+    }
+    const username = initialProfile?.username;
+    if (!username) {
+      setLoading(false);
+      return;
+    }
+    async function fetchFullProfile() {
+      try {
+        const res = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/users/${username}`,
+          { credentials: "include" }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const fullProfile = data.user || data;
+          setProfile((prev: any) => ({
+            ...prev,
+            ...fullProfile,
+            // Keep server-provided fields that the user API might not have
+            claimableProfile: prev?.claimableProfile,
+            claimedProfiles: prev?.claimedProfiles,
+          }));
+          if (data.stats) setStats(data.stats);
+          else {
+            setStats({
+              totalApplications: (fullProfile.applications || []).length,
+              totalSubmissions: (fullProfile.submissions || []).length,
+              totalWins: (fullProfile.wonSubmissions || []).length,
+              organizations: (fullProfile.members || []).length,
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch full profile:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchFullProfile();
+  }, [initialProfile]);
 
   const isOwnProfile = profile?.isOwnProfile ?? false;
   const isPrivateProfile = profile?.private && !isOwnProfile;
-  const claimableProfile = profile?.claimableProfile;
+  const claimableProfile = (profile as any)?.claimableProfile;
 
   return (
     <div className="min-h-screen">
@@ -656,6 +706,66 @@ export function UserProfile({ profile, stats }: UserProfileProps) {
                   </Tabs>
                 </CardContent>
               </Card>
+
+              {/* Ecosystem Contributions from claimed profiles */}
+              {(profile as any)?.claimedProfiles?.length > 0 && (
+                <Card className="mt-6 border-white/10 bg-white/5 backdrop-blur-md">
+                  <CardHeader>
+                    <CardTitle className="text-white">
+                      Ecosystem Contributions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {(profile as any).claimedProfiles.map((ep: any) =>
+                      (ep.contributions || []).map((c: any) => (
+                        <div
+                          key={c.id || `${ep.id}-${c.grantApplication?.id}`}
+                          className="rounded-lg bg-white/5 p-4"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3">
+                              <div className="rounded-lg bg-[#E6007A]/20 p-2">
+                                <FileText className="h-4 w-4 text-[#E6007A]" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-white">
+                                  {c.grantApplication?.title || "Grant Application"}
+                                </p>
+                                <p className="text-sm text-white/60">
+                                  {c.grantApplication?.grant?.title || ep.source?.replace(/_/g, " ")}
+                                  {" · "}
+                                  {c.role?.replace(/_/g, " ")}
+                                </p>
+                                {c.grantApplication?.grantMilestones?.length > 0 && (
+                                  <div className="mt-2 flex gap-1">
+                                    {c.grantApplication.grantMilestones.map((m: any) => (
+                                      <span
+                                        key={m.id}
+                                        className={`inline-block rounded px-2 py-0.5 text-xs ${
+                                          m.status === "ACCEPTED"
+                                            ? "bg-green-500/20 text-green-400"
+                                            : m.status === "SUBMITTED"
+                                              ? "bg-yellow-500/20 text-yellow-400"
+                                              : "bg-white/10 text-white/50"
+                                        }`}
+                                      >
+                                        M{m.number}: {m.status}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <Badge className="bg-green-500/20 text-green-400 border-0">
+                              {c.grantApplication?.status || "VERIFIED"}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         )}

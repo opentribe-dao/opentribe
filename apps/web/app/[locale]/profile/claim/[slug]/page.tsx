@@ -71,23 +71,55 @@ export default function ClaimProfilePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [existingClaims, setExistingClaims] = useState<any[]>([]);
 
-  // Fetch the ecosystem profile data
+  // Fetch the ecosystem profile data directly (not via profile resolver,
+  // because slug might also match a User username)
   useEffect(() => {
     async function fetchProfile() {
       try {
+        // First try the ecosystem profiles API directly by slug
         const res = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${slug}/public`,
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/ecosystem/profiles?query=${encodeURIComponent(slug)}&pageSize=1`,
           { credentials: "include" }
         );
-        if (!res.ok) {
-          setLoading(false);
-          return;
+        if (res.ok) {
+          const data = await res.json();
+          const profiles = data.profiles || [];
+          const match = profiles.find(
+            (p: any) => p.slug === slug || p.slug?.toLowerCase() === slug.toLowerCase()
+          );
+          if (match) {
+            // Fetch full profile details via the resolver
+            const detailRes = await fetch(
+              `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${slug}/public`,
+              { credentials: "include" }
+            );
+            if (detailRes.ok) {
+              const detailData = await detailRes.json();
+              if (detailData.type === "ecosystem") {
+                setProfile(detailData.data);
+              } else if (detailData.type === "user" && detailData.data?.claimableProfile) {
+                // User exists with same slug — use the claimable profile data
+                setProfile({
+                  ...detailData.data.claimableProfile,
+                  contributions: [],
+                });
+              }
+            }
+          }
         }
-        const data = await res.json();
-        if (data.type === "ecosystem") {
-          setProfile(data.data);
-        } else if (data.type === "redirect") {
-          router.push(data.target || `/profile/${slug}`);
+
+        // Fallback: try the profile resolver directly
+        if (!profile) {
+          const fallbackRes = await fetch(
+            `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${slug}/public`,
+            { credentials: "include" }
+          );
+          if (fallbackRes.ok) {
+            const data = await fallbackRes.json();
+            if (data.type === "ecosystem") {
+              setProfile(data.data);
+            }
+          }
         }
       } catch (error) {
         console.error("Failed to fetch profile:", error);

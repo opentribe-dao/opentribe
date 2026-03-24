@@ -66,7 +66,7 @@ async function getGrantApplications(
     // Fetch applications
     const appsRes = await fetch(
       `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications`,
-      { next: { revalidate: 300 }, cache: "force-cache" }
+      { next: { revalidate: 60 } }
     );
     if (!appsRes.ok) return null;
     const appsData = await appsRes.json();
@@ -74,7 +74,7 @@ async function getGrantApplications(
     // Fetch grant info separately (the applications API doesn't include it)
     const grantRes = await fetch(
       `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
-      { next: { revalidate: 300 }, cache: "force-cache" }
+      { next: { revalidate: 60 } }
     );
     const grantData = grantRes.ok ? await grantRes.json() : null;
 

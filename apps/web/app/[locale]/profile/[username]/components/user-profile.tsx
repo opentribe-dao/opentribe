@@ -153,8 +153,8 @@ const getStatusColor = (status: string) => {
 export function UserProfile({ profile, stats }: UserProfileProps) {
   const [activeTab, setActiveTab] = useState("activity");
 
-  const isOwnProfile = profile.isOwnProfile;
-  const isPrivateProfile = profile.private && !isOwnProfile;
+  const isOwnProfile = profile?.isOwnProfile ?? false;
+  const isPrivateProfile = profile?.private && !isOwnProfile;
 
   return (
     <div className="min-h-screen">

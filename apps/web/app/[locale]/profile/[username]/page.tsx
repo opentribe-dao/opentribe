@@ -64,17 +64,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {};
   }
 
+  const userData = profile.type === "user" ? (profile.data.user || profile.data) : null;
   const name =
     profile.type === "user"
-      ? profile.data.user.name
+      ? userData?.name || "Unknown"
       : profile.data.displayName;
   const bio =
     profile.type === "user"
-      ? profile.data.user.headline || profile.data.user.bio
+      ? userData?.headline || userData?.bio
       : profile.data.bio;
   const skills =
     profile.type === "user"
-      ? profile.data.user.skills
+      ? userData?.skills
       : profile.data.skills;
 
   const title = clampTitle(`${name} | Opentribe Profile`);
@@ -112,7 +113,10 @@ export default async function ProfilePage({ params }: Props) {
     return <EcosystemProfile profile={profile.data} />;
   }
 
+  // API returns user data directly in profile.data (no .user wrapper)
+  const userData = profile.data.user || profile.data;
+  const stats = profile.data.stats || {};
   return (
-    <UserProfile profile={profile.data.user} stats={profile.data.stats} />
+    <UserProfile profile={userData} stats={stats} />
   );
 }

@@ -130,7 +130,11 @@ export default async function GrantApplicationsPage({ params }: Props) {
     notFound();
   }
 
-  const { grant, applications, total } = data;
+  // API may return { applications: [...] } without grant wrapper,
+  // or { grant: {...}, applications: [...] }
+  const grant = data.grant || { id, title: "Grant", slug: id };
+  const applications = data.applications || [];
+  const total = data.total || applications.length;
 
   return (
     <div className="min-h-screen">
@@ -140,9 +144,9 @@ export default async function GrantApplicationsPage({ params }: Props) {
           <div className="mb-2 flex items-center gap-2 text-sm text-white/50">
             <Link
               className="hover:text-white/80"
-              href={`/grants/${grant.slug || grant.id}`}
+              href={`/grants/${grant.slug || grant.id || id}`}
             >
-              {grant.title}
+              {grant.title || "Grant"}
             </Link>
             <span>/</span>
             <span>Applications</span>

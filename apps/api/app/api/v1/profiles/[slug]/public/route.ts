@@ -59,7 +59,6 @@ export async function GET(
       }
 
       // Check if there's an unclaimed EcosystemProfile with the same slug
-      // that the user might want to claim
       const matchingEcosystemProfile = await database.ecosystemProfile.findFirst({
         where: {
           slug: { equals: slug, mode: "insensitive" },
@@ -75,12 +74,50 @@ export async function GET(
         },
       });
 
+      // Fetch claimed ecosystem profiles and their contributions
+      const claimedProfiles = await database.ecosystemProfile.findMany({
+        where: { claimedByUserId: user.id },
+        select: {
+          id: true,
+          slug: true,
+          displayName: true,
+          source: true,
+          contributions: {
+            include: {
+              grantApplication: {
+                select: {
+                  id: true,
+                  title: true,
+                  status: true,
+                  grant: {
+                    select: {
+                      id: true,
+                      title: true,
+                      slug: true,
+                    },
+                  },
+                  grantMilestones: {
+                    select: {
+                      id: true,
+                      number: true,
+                      title: true,
+                      status: true,
+                    },
+                    orderBy: { number: "asc" as const },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
       return NextResponse.json({
         type: "user",
         data: {
           ...user,
-          // Include claimable ecosystem profile if found
           claimableProfile: matchingEcosystemProfile || undefined,
+          claimedProfiles: claimedProfiles.length > 0 ? claimedProfiles : undefined,
         },
       });
     }

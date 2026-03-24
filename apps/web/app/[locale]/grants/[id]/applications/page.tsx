@@ -63,15 +63,34 @@ async function getGrantApplications(
   id: string
 ): Promise<GrantApplicationsData | null> {
   try {
-    const res = await fetch(
+    // Fetch applications
+    const appsRes = await fetch(
       `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}/applications`,
-      {
-        next: { revalidate: 300 },
-        cache: "force-cache",
-      }
+      { next: { revalidate: 300 }, cache: "force-cache" }
     );
-    if (!res.ok) return null;
-    return res.json();
+    if (!appsRes.ok) return null;
+    const appsData = await appsRes.json();
+
+    // Fetch grant info separately (the applications API doesn't include it)
+    const grantRes = await fetch(
+      `${env.NEXT_PUBLIC_API_URL}/api/v1/grants/${id}`,
+      { next: { revalidate: 300 }, cache: "force-cache" }
+    );
+    const grantData = grantRes.ok ? await grantRes.json() : null;
+
+    return {
+      grant: grantData
+        ? {
+            id: grantData.id,
+            title: grantData.title,
+            slug: grantData.slug || id,
+            token: grantData.token,
+            organization: grantData.organization || { name: "Unknown" },
+          }
+        : { id, title: "Grant", slug: id, organization: { name: "Unknown" } },
+      applications: appsData.applications || appsData || [],
+      total: appsData.total || (appsData.applications || appsData || []).length,
+    };
   } catch {
     return null;
   }
@@ -130,11 +149,7 @@ export default async function GrantApplicationsPage({ params }: Props) {
     notFound();
   }
 
-  // API may return { applications: [...] } without grant wrapper,
-  // or { grant: {...}, applications: [...] }
-  const grant = data.grant || { id, title: "Grant", slug: id };
-  const applications = data.applications || [];
-  const total = data.total || applications.length;
+  const { grant, applications, total } = data;
 
   return (
     <div className="min-h-screen">
@@ -144,7 +159,7 @@ export default async function GrantApplicationsPage({ params }: Props) {
           <div className="mb-2 flex items-center gap-2 text-sm text-white/50">
             <Link
               className="hover:text-white/80"
-              href={`/grants/${grant.slug || grant.id || id}`}
+              href={`/grants/${grant.slug || id}`}
             >
               {grant.title || "Grant"}
             </Link>

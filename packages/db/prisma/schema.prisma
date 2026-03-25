@@ -722,6 +722,7 @@ enum NotificationType {
   BOUNTY_SUBMISSION
   COMMENT_REPLY
   NEW_BOUNTY_MATCHING_SKILLS
+  WEEKLY_DIGEST
 }
 
 enum CommentType {

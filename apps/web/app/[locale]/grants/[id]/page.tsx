@@ -391,15 +391,13 @@ export default function GrantDetailPage({
                       String(grant.token)
                     )}
                   </>
-                ) : grant.source === "EXTERNAL" ? (
-                  "Externally Funded"
                 ) : grant.totalFunds ? (
                   formatCurrency(
                     Number(grant.totalFunds),
                     String(grant.token)
                   )
                 ) : (
-                  "Open"
+                  "Varies by proposal"
                 )}
               </div>
             </div>

@@ -156,13 +156,13 @@ async function calculatePlatformStats(): Promise<
       },
     }),
     database.grant.aggregate({
-      _sum: { totalFundsUSD: true },
+      _sum: { totalFundsUSD: true, totalFunds: true },
       where: { visibility: "PUBLISHED", status: "OPEN" },
     }),
   ]);
 
-  const bountyTotal = Number(bountyAgg?._sum?.amountUSD ?? 0);
-  const grantTotal = Number(grantsAgg?._sum?.totalFundsUSD ?? 0);
+  const bountyTotal = Number(bountyAgg?._sum?.amountUSD ?? bountyAgg?._sum?.amount ?? 0);
+  const grantTotal = Number(grantsAgg?._sum?.totalFundsUSD ?? grantsAgg?._sum?.totalFunds ?? 0);
   const totalRewards = formatCurrency(bountyTotal + grantTotal);
 
   return {

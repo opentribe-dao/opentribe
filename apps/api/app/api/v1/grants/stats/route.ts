@@ -73,7 +73,8 @@ async function getGrantStats(): Promise<GrantStatsResponse> {
     },
   });
 
-  // Get total funds from published grants (prefer USD, fallback to DOT amounts)
+  // Get total funds from published grants
+  // Priority: totalFundsUSD > totalFunds > sum of maxAmounts as indicator
   const grantsAggregate = await database.grant.aggregate({
     where: {
       visibility: "PUBLISHED",
@@ -82,12 +83,15 @@ async function getGrantStats(): Promise<GrantStatsResponse> {
     _sum: {
       totalFundsUSD: true,
       totalFunds: true,
+      maxAmountUSD: true,
+      maxAmount: true,
     },
   });
 
-  // Use USD if available, otherwise use raw token amounts as fallback
   const totalFunds = grantsAggregate._sum.totalFundsUSD
     || grantsAggregate._sum.totalFunds
+    || grantsAggregate._sum.maxAmountUSD
+    || grantsAggregate._sum.maxAmount
     || 0;
 
   return {

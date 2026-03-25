@@ -92,20 +92,20 @@ export default function GrantDetailPage({
     // Use actual grant dates if available
     if (grant.deadline) {
       const startDate = grant.publishedAt ? new Date(grant.publishedAt) : new Date(grant.createdAt);
-      return { start: formatDate(startDate), end: formatDate(new Date(grant.deadline)) };
+      return { start: formatDate(startDate), end: formatDate(new Date(grant.deadline)), isRolling: false };
     }
 
     // External/rolling grants with no deadline
     if (grant.source === "EXTERNAL" || !grant.deadline) {
       const startDate = grant.publishedAt ? new Date(grant.publishedAt) : new Date(grant.createdAt);
-      return { start: formatDate(startDate), end: "Rolling — No deadline" };
+      return { start: formatDate(startDate), end: "No Deadline", isRolling: true };
     }
 
     // Fallback
     const start = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 3);
-    return { start: formatDate(start), end: formatDate(end) };
+    return { start: formatDate(start), end: formatDate(end), isRolling: false };
   };
 
   const dateRange = getDateRange();
@@ -391,14 +391,13 @@ export default function GrantDetailPage({
                       String(grant.token)
                     )}
                   </>
+                ) : grant.source === "EXTERNAL" ? (
+                  "Externally Funded"
                 ) : grant.totalFunds ? (
-                  <>
-                    {formatCurrency(
-                      Number(grant.totalFunds),
-                      String(grant.token)
-                    )}{" "}
-                    pool
-                  </>
+                  formatCurrency(
+                    Number(grant.totalFunds),
+                    String(grant.token)
+                  )
                 ) : (
                   "Open"
                 )}
@@ -408,7 +407,7 @@ export default function GrantDetailPage({
             {/* Grant Validity Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
               <h3 className="mb-3 flex items-center gap-2 font-medium text-sm text-white/60">
-                <Clock className="h-4 w-4" /> Grant Validity
+                <Clock className="h-4 w-4" /> {dateRange.isRolling ? "Grant Validity — Rolling" : "Grant Validity"}
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">

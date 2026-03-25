@@ -176,7 +176,8 @@ export function parseEvaluationFile(
   if (!parsed) return null;
 
   // Extract status (case-insensitive: "Accepted", "accepted", "ACCEPTED")
-  const statusMatch = content.match(/\*\*Status\*\*:?\s*(\w+)/i);
+  // Handles both **Status:** Value and **Status**: Value
+  const statusMatch = content.match(/\*\*Status:?\*\*:?\s*(\w+)/i);
   const statusStr = statusMatch ? statusMatch[1].trim().toLowerCase() : "unknown";
   const status: ParsedEvaluation["status"] =
     statusStr === "accepted"

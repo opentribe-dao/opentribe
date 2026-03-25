@@ -323,6 +323,9 @@ const JUNK_LINE_PATTERNS = [
   /^the\s+team\s+/i,
   /^our\s+team\s+/i,
   /^we\s+(have|are|will)/i,
+  /^(?:discord|telegram|email|twitter|medium|element|signal|matrix|slack|riot)$/i, // Contact channels, not people
+  /^(?:team\s*name|team\s*repos?|accounts?|organisation|founder|--+|\(personal\))$/i, // Placeholder entries
+  /^[a-g]\.\s+(?:contact|website|linkedin|email|github|telegram)/i, // Lettered list items (a. Contact Email, g. LinkedIn)
 ];
 
 function isJunkTeamLine(line: string): boolean {

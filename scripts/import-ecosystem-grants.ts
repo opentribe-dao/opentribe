@@ -686,7 +686,11 @@ async function importDeliveries(
 
         // Update milestone with evaluation data
         const newStatus =
-          evaluation.status === "accepted" ? "ACCEPTED" : "REJECTED";
+          evaluation.status === "accepted"
+            ? "ACCEPTED"
+            : evaluation.status === "rejected"
+              ? "REJECTED"
+              : "UNDER_REVIEW";
 
         await database.grantMilestone.updateMany({
           where: {

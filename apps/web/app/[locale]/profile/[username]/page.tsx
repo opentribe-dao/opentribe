@@ -37,8 +37,7 @@ async function getProfile(slug: string): Promise<ProfileResponse | null> {
     const res = await fetch(
       `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${slug}/public`,
       {
-        next: { revalidate: 300 },
-        cache: "force-cache",
+        next: { revalidate: 60 },
       }
     );
     if (!res.ok) return null;
@@ -110,7 +109,28 @@ export default async function ProfilePage({ params }: Props) {
   }
 
   if (profile.type === "ecosystem") {
-    return <EcosystemProfile profile={profile.data} />;
+    // Map API contribution shape to component's expected shape
+    const mappedProfile = {
+      ...profile.data,
+      contributions: (profile.data.contributions || []).map((c: any) => ({
+        id: c.id,
+        title: c.grantApplication?.title || "Unknown",
+        role: c.role,
+        status: c.grantApplication?.status || "PENDING",
+        milestoneCount: c.grantApplication?.milestones?.length || 0,
+        completedMilestones: (c.grantApplication?.milestones || []).filter(
+          (m: any) => m.status === "ACCEPTED" || m.status === "COMPLETED"
+        ).length,
+        grant: c.grantApplication?.grant
+          ? {
+              id: c.grantApplication.grant.id,
+              slug: c.grantApplication.grant.slug,
+              title: c.grantApplication.grant.title,
+            }
+          : undefined,
+      })),
+    };
+    return <EcosystemProfile profile={mappedProfile} />;
   }
 
   // API returns user data directly in profile.data (no .user wrapper)

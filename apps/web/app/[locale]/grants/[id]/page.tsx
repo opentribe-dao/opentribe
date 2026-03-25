@@ -330,14 +330,18 @@ export default function GrantDetailPage({
                       in {grant.token || "DOT"} capital, designed to help teams
                       scale.
                     </>
-                  ) : (
+                  ) : grant.totalFunds && Number(grant.totalFunds) > 0 ? (
                     <>
                       Total funding available:{" "}
                       {formatCurrency(
-                        Number(grant.totalFunds || 0),
+                        Number(grant.totalFunds),
                         String(grant.token)
-                      )}{" "}
-                      {grant.token || "DOT"}
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      Funding varies by proposal. Review the grant details and
+                      apply with your budget estimate.
                     </>
                   )}
                 </p>

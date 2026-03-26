@@ -28,7 +28,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { env } from "@/env";
-import { AuthModal } from "../../components/auth-modal";
+import { AuthModal } from "../../../components/auth-modal";
 
 type ClaimMethod = "GITHUB_OAUTH" | "WALLET_SIGNATURE" | "EMAIL_VERIFICATION";
 
@@ -549,10 +549,15 @@ export default function ClaimProfilePage() {
 
         {/* Auth check */}
         {!session?.user && (
-          <Card className="mb-8 border-yellow-500/30 bg-yellow-500/10 backdrop-blur-md">
-            <CardContent className="p-6">
-              <p className="mb-4 text-white/80">
-                You need to be signed in to claim a profile.
+          <Card className="mb-8 border-[#E6007A]/30 bg-gradient-to-br from-[#E6007A]/10 to-purple-600/10 backdrop-blur-md">
+            <CardContent className="p-8 text-center">
+              <Shield className="mx-auto mb-4 h-10 w-10 text-[#E6007A]" />
+              <h2 className="mb-2 font-semibold text-lg text-white">
+                Sign in to claim this profile
+              </h2>
+              <p className="mb-6 text-sm text-white/60">
+                You need to be signed in to claim an ecosystem profile. Sign in
+                or create an account to get started.
               </p>
               <AuthModal redirectTo={`/profile/claim/${slug}`}>
                 <Button className="bg-[#E6007A] text-white hover:bg-[#FF1493]">
@@ -858,14 +863,12 @@ export default function ClaimProfilePage() {
         )}
       </div>
 
-      {/* Auth modal for non-authenticated users */}
-      {showAuthModal && (
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          redirectTo={`/profile/claim/${slug}`}
-        />
-      )}
+      {/* Auth modal for non-authenticated users clicking claim methods */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        redirectTo={`/profile/claim/${slug}`}
+      />
     </div>
   );
 }

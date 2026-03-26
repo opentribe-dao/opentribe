@@ -311,7 +311,7 @@ export default function ClaimProfilePage() {
       const profileAddresses = profile?.walletAddresses || [];
       let matchingAccount = null;
 
-      // Try importing polkadot address comparison
+      // Compare using @packages/polkadot (handles different SS58 formats)
       try {
         const { isSameAddress } = await import("@packages/polkadot");
         for (const account of accounts) {
@@ -324,18 +324,32 @@ export default function ClaimProfilePage() {
           if (matchingAccount) break;
         }
       } catch {
-        // Fallback: let the user sign with any account, server will verify
-        matchingAccount = accounts[0];
+        // Fallback: simple string comparison (same format only)
+        for (const account of accounts) {
+          if (profileAddresses.includes(account.address)) {
+            matchingAccount = account;
+            break;
+          }
+        }
       }
 
       if (!matchingAccount) {
-        // No exact match found - let user choose (use first account)
-        // The server will verify the address against the profile
-        toast.info(
-          "No matching wallet found. Signing with your first available account."
+        const shortAddrs = profileAddresses
+          .map((a: string) => `${a.slice(0, 8)}...${a.slice(-6)}`)
+          .join(", ");
+        toast.error(
+          `None of your wallet accounts match this profile. Expected: ${shortAddrs}`
         );
-        matchingAccount = accounts[0];
+        setClaimState({
+          step: "error",
+          errorMessage: `No matching account found in your wallet. This profile requires signing from one of these addresses: ${profileAddresses.join(", ")}`,
+        });
+        return;
       }
+
+      toast.info(
+        `Signing with ${matchingAccount.meta?.name || matchingAccount.address.slice(0, 8)}...`
+      );
 
       // Sign the challenge
       const injector = await web3FromAddress(matchingAccount.address);

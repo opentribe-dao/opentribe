@@ -224,7 +224,7 @@ const authOptions = {
           ? "opentribe.io"
           : process.env.VERCEL_TARGET_ENV === "staging"
             ? "dev.opentribe.io"
-            : undefined, // auto-detect from Host header in dev
+            : "localhost:3000", // Web app domain — SIWP message is signed here, not on the API port
     }),
     admin({
       defaultRole: "user",

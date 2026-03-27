@@ -47,5 +47,10 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@10.11.0",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@talismn/siws": "^1.0.0",
+    "@zig-zag/better-siwp": "^0.1.1",
+    "@zig-zag/chains": "^1.0.1"
+  }
 }

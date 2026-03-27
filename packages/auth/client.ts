@@ -5,6 +5,7 @@ import {
   organizationClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
+import { siwpClient } from "@zig-zag/better-siwp/client";
 
 // Create the auth client with proper configuration
 const authClient = createAuthClient({
@@ -16,6 +17,7 @@ const authClient = createAuthClient({
     adminClient(),
     organizationClient(),
     customSessionClient(),
+    siwpClient(),
     inferAdditionalFields({
       user: {
         // Only include fields that are in the custom session

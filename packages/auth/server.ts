@@ -10,6 +10,7 @@ import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, customSession, organization } from "better-auth/plugins";
+import { siwp } from "@zig-zag/better-siwp";
 
 export const trustedOrigins = [
   "http://localhost:3000",
@@ -217,6 +218,14 @@ const authOptions = {
 
   plugins: [
     nextCookies(),
+    siwp({
+      domain:
+        process.env.VERCEL_TARGET_ENV === "production"
+          ? "opentribe.io"
+          : process.env.VERCEL_TARGET_ENV === "staging"
+            ? "dev.opentribe.io"
+            : undefined, // auto-detect from Host header in dev
+    }),
     admin({
       defaultRole: "user",
       adminRoles: ["admin", "superadmin"],

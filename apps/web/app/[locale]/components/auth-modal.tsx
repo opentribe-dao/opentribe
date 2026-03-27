@@ -30,10 +30,14 @@ export const AuthModal = ({
   redirectTo,
 }: AuthModalProps) => {
   const [open, setOpen] = useState(isOpen);
-  const [loading, setLoading] = useState<"google" | "github" | "email" | null>(
-    null
-  );
+  const [loading, setLoading] = useState<
+    "google" | "github" | "email" | "wallet" | null
+  >(null);
   const [showEmailSignIn, setShowEmailSignIn] = useState(false);
+  const [walletAccounts, setWalletAccounts] = useState<
+    Array<{ address: string; name?: string; source?: string }>
+  >([]);
+  const [showAccountPicker, setShowAccountPicker] = useState(false);
   const router = useRouter();
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
@@ -56,6 +60,124 @@ export const AuthModal = ({
     }
   };
 
+  const handleWalletSignIn = async (selectedAddress?: string) => {
+    try {
+      setLoading("wallet");
+
+      const { web3Enable, web3Accounts, web3FromAddress } = await import(
+        "@polkadot/extension-dapp"
+      );
+
+      const extensions = await web3Enable("Opentribe");
+      if (extensions.length === 0) {
+        toast.error(
+          "No Polkadot wallet found. Install Talisman, Polkadot.js, or SubWallet."
+        );
+        setLoading(null);
+        return;
+      }
+
+      const accounts = await web3Accounts();
+      if (accounts.length === 0) {
+        toast.error("No accounts found in your wallet.");
+        setLoading(null);
+        return;
+      }
+
+      // If multiple accounts and none pre-selected, show picker
+      if (accounts.length > 1 && !selectedAddress) {
+        setWalletAccounts(
+          accounts.map((a) => ({
+            address: a.address,
+            name: a.meta?.name,
+            source: a.meta?.source,
+          }))
+        );
+        setShowAccountPicker(true);
+        setLoading(null);
+        return;
+      }
+
+      const account = selectedAddress
+        ? accounts.find((a) => a.address === selectedAddress) || accounts[0]
+        : accounts[0];
+
+      setShowAccountPicker(false);
+
+      // 1. Get nonce from Better Auth SIWP endpoint
+      const nonceRes = await authClient.siwp.nonce({
+        walletAddress: account.address,
+      });
+      if (nonceRes.error) {
+        throw new Error("Failed to get nonce");
+      }
+      const { nonce } = nonceRes.data;
+
+      // 2. Build SIWS message
+      const { SiwsMessage } = await import("@talismn/siws");
+      const { polkadot } = await import("@zig-zag/chains");
+
+      const siwsMessage = new SiwsMessage({
+        domain: window.location.host,
+        address: account.address,
+        statement: "Sign in to Opentribe with your Polkadot wallet",
+        uri: window.location.origin,
+        version: "1.0.0",
+        chainId: `${polkadot.network}:${polkadot.genesisHash.slice(2, 34)}`,
+        nonce,
+        issuedAt: Date.now(),
+        expirationTime: Date.now() + 24 * 60 * 60 * 1000,
+      });
+      const message = siwsMessage.prepareMessage();
+
+      // 3. Sign with wallet
+      const injector = await web3FromAddress(account.address);
+      const signRaw = injector.signer?.signRaw;
+      if (!signRaw) {
+        throw new Error("Wallet does not support message signing");
+      }
+
+      const { signature } = await signRaw({
+        address: account.address,
+        data: message,
+        type: "bytes",
+      });
+
+      // 4. Verify with Better Auth SIWP endpoint → creates session
+      const verifyRes = await authClient.siwp.verify({
+        message,
+        signature,
+        walletAddress: account.address,
+      });
+
+      if (verifyRes.error) {
+        throw new Error(
+          verifyRes.error.message || "Wallet authentication failed"
+        );
+      }
+
+      toast.success("Signed in with wallet!");
+      setOpen(false);
+
+      // Redirect
+      const target = redirectTo || "/";
+      router.push(target);
+      router.refresh();
+    } catch (error: any) {
+      if (
+        error?.message?.includes("Cancelled") ||
+        error?.message?.includes("Rejected")
+      ) {
+        toast.error("Signing cancelled.");
+      } else {
+        toast.error(
+          error?.message || "Failed to sign in with wallet. Please try again."
+        );
+      }
+      setLoading(null);
+    }
+  };
+
   const handleEmailSignIn = () => {
     setOpen(false);
     setShowEmailSignIn(true);
@@ -63,9 +185,6 @@ export const AuthModal = ({
 
   const handleEmailModalClose = (open: boolean) => {
     setShowEmailSignIn(open);
-    if (!open) {
-      // Optionally reopen the main modal after closing email modal
-    }
   };
 
   return (
@@ -181,8 +300,80 @@ export const AuthModal = ({
               <div className="text-white/50 text-xs">OR</div>
             </div>
 
-            {/* Email button */}
-            <div className="px-6">
+            {/* Wallet & Email buttons */}
+            <div className="space-y-3 px-6">
+              {/* Account picker for multiple wallet accounts */}
+              {showAccountPicker && walletAccounts.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-left text-sm text-white/60">
+                    Select an account:
+                  </p>
+                  {walletAccounts.map((acc) => (
+                    <Button
+                      key={acc.address}
+                      className="h-auto w-full justify-start border-white/20 bg-white/5 py-3 text-left font-mono text-white hover:bg-white/10"
+                      disabled={loading === "wallet"}
+                      onClick={() => handleWalletSignIn(acc.address)}
+                      type="button"
+                      variant="outline"
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-sans text-sm font-medium">
+                          {acc.name || "Account"}
+                          {acc.source && (
+                            <span className="ml-2 text-xs text-white/40">
+                              ({acc.source})
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-xs text-white/50">
+                          {acc.address.slice(0, 10)}...{acc.address.slice(-6)}
+                        </span>
+                      </div>
+                    </Button>
+                  ))}
+                  <Button
+                    className="w-full text-white/50"
+                    onClick={() => {
+                      setShowAccountPicker(false);
+                      setWalletAccounts([]);
+                    }}
+                    size="sm"
+                    type="button"
+                    variant="ghost"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  className="h-12 w-full border-white/20 bg-white/5 font-medium text-white hover:bg-white/10"
+                  disabled={loading !== null}
+                  onClick={() => handleWalletSignIn()}
+                  type="button"
+                  variant="outline"
+                >
+                  {loading === "wallet" ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <svg
+                      className="mr-2 h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1 0-6h.75M21 12a2.25 2.25 0 0 1-2.25 2.25H15a3 3 0 1 0 0 6h.75M21 12V9m0 3v3M3 5.25h12M3 18.75h12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                      />
+                    </svg>
+                  )}
+                  Continue with Polkadot Wallet
+                </Button>
+              )}
+
               <Button
                 className="h-12 w-full border-white/20 bg-white/5 font-medium text-white hover:bg-white/10"
                 disabled={loading !== null}

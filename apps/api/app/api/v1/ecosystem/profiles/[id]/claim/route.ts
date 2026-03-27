@@ -288,7 +288,48 @@ async function handleWalletClaim(
     );
   }
 
-  // Generate a challenge nonce
+  // Check if user has a SIWP account (signed in with wallet) that matches
+  const siwpAccount = await database.account.findFirst({
+    where: {
+      userId,
+      providerId: "siwp",
+    },
+  });
+
+  if (siwpAccount) {
+    // Check if the SIWP wallet address matches any of the profile's addresses
+    const { isSameAddress } = await import("@packages/polkadot");
+    const addressMatched = profile.walletAddresses.some((addr: string) =>
+      isSameAddress(siwpAccount.accountId, addr)
+    );
+
+    if (addressMatched) {
+      // Auto-approve — user authenticated with the matching wallet
+      const claim = await database.claimRequest.create({
+        data: {
+          ecosystemProfileId: profileId,
+          userId,
+          method: "WALLET_SIGNATURE",
+          status: "VERIFIED",
+          verificationData: {
+            matchType: "siwp_account",
+            walletAddress: siwpAccount.accountId,
+          },
+          expiresAt,
+        },
+      });
+
+      await processVerifiedClaim(claim.id, userId, profileId, "WALLET_SIGNATURE");
+
+      return NextResponse.json({
+        claimId: claim.id,
+        status: "VERIFIED",
+        message: "Wallet identity verified. Profile claimed successfully!",
+      });
+    }
+  }
+
+  // No SIWP match — fall back to challenge/sign flow
   const challenge = generateChallenge(profileId, userId);
 
   const claim = await database.claimRequest.create({

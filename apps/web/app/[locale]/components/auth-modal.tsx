@@ -329,27 +329,11 @@ export const AuthModal = ({
                   {loading === "wallet" ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <svg
+                    <img
+                      src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwMCAyMDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPHBhdGggZmlsbD0iI2U2MDA3YSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMjAwMCAxMDAwQzIwMDAgNDQ3LjcxNSAxNTUyLjI4NSAwIDEwMDAgMCA0NDcuNzE1IDAgMCA0NDcuNzE1IDAgMTAwMGMwIDU1Mi4yODUgNDQ3LjcxNSAxMDAwIDEwMDAgMTAwMCA1NTIuMjg1IDAgMTAwMC00NDcuNzE1IDEwMDAtMTAwMFoiLz4KICAgIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjU0LjI3IDQ0MS43OGMwIDgxLjcxLTExMy44NCAxNDcuOTUtMjU0LjI3IDE0Ny45NXMtMjU0LjI3LTY2LjI0LTI1NC4yNy0xNDcuOTVTODU5LjU3IDI5My44MyAxMDAwIDI5My44M3MyNTQuMjcgNjYuMjQgMjU0LjI3IDE0Ny45NVoiLz4KICAgIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjU0LjI3IDE1NTYuMmMwIDgxLjcxLTExMy44NCAxNDcuOTUtMjU0LjI3IDE0Ny45NXMtMjU0LjI3LTY2LjI0LTI1NC4yNy0xNDcuOTUgMTEzLjg0LTE0Ny45NSAyNTQuMjctMTQ3Ljk1IDI1NC4yNyA2Ni4yNCAyNTQuMjcgMTQ3Ljk1WiIvPgogICAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTY0NC42MDggNTAwLjE3NGM3MC43NjMgNDAuODU2IDcxLjIwOCAxNzIuNTY0Ljk5MyAyOTQuMTgtNzAuMjE1IDEyMS42MTUtMTg0LjUgMTg3LjA4NC0yNTUuMjYzIDE0Ni4yMjktNzAuNzY0LTQwLjg1NS03MS4yMDktMTcyLjU2NC0uOTk0LTI5NC4xOCA3MC4yMTUtMTIxLjYxNSAxODQuNS0xODcuMDg0IDI1NS4yNjQtMTQ2LjIyOVoiLz4KICAgIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xNjA5LjY4OSAxMDU3LjQxM2M3MC43NjMgNDAuODU1IDcxLjIwOCAxNzIuNTY0Ljk5MyAyOTQuMTgtNzAuMjE0IDEyMS42MTUtMTg0LjUgMTg3LjA4NC0yNTUuMjYzIDE0Ni4yMjktNzAuNzYzLTQwLjg1Ni03MS4yMDgtMTcyLjU2NC0uOTk0LTI5NC4xOCA3MC4yMTUtMTIxLjYxNSAxODQuNS0xODcuMDg0IDI1NS4yNjQtMTQ2LjIyOVoiLz4KICAgIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik02NDUuNjIgMTIwMy42MTRjNzAuMjE1IDEyMS42MTUgNjkuNzcgMjUzLjMyNC0uOTkzIDI5NC4xNzktNzAuNzYzIDQwLjg1NS0xODUuMDQ5LTI0LjYxNC0yNTUuMjYzLTE0Ni4yMy03MC4yMTUtMTIxLjYxNS02OS43Ny0yNTMuMzIzLjk5My0yOTQuMTc4IDcwLjc2NC00MC44NTYgMTg1LjA0OSAyNC42MTMgMjU1LjI2NCAxNDYuMjI5WiIvPgogICAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE2MTAuNjMxIDY0Ni40MjNjNzAuMjE1IDEyMS42MTUgNjkuNzcgMjUzLjMyNC0uOTkzIDI5NC4xNzktNzAuNzY0IDQwLjg1NS0xODUuMDUtMjQuNjE0LTI1NS4yNjQtMTQ2LjIzLTcwLjIxNS0xMjEuNjE1LTY5Ljc3LTI1My4zMjMuOTk0LTI5NC4xNzkgNzAuNzYzLTQwLjg1NSAxODUuMDQ4IDI0LjYxNCAyNTUuMjYzIDE0Ni4yM1oiLz4KPC9zdmc+"
+                      alt="Polkadot"
                       className="mr-2 h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <circle cx="12" cy="12" r="12" fill="#E6007A" />
-                      <circle cx="12" cy="5.5" r="1.8" fill="white" />
-                      <circle cx="12" cy="18.5" r="1.8" fill="white" />
-                      <circle cx="5.5" cy="8.75" r="1.8" fill="white" />
-                      <circle cx="18.5" cy="8.75" r="1.8" fill="white" />
-                      <circle cx="5.5" cy="15.25" r="1.8" fill="white" />
-                      <circle cx="18.5" cy="15.25" r="1.8" fill="white" />
-                      <circle cx="12" cy="12" r="3" fill="white" />
-                      <line x1="12" y1="7.3" x2="12" y2="9" stroke="white" strokeWidth="1.2" />
-                      <line x1="12" y1="15" x2="12" y2="16.7" stroke="white" strokeWidth="1.2" />
-                      <line x1="7.1" y1="9.6" x2="9.3" y2="10.8" stroke="white" strokeWidth="1.2" />
-                      <line x1="14.7" y1="13.2" x2="16.9" y2="14.4" stroke="white" strokeWidth="1.2" />
-                      <line x1="7.1" y1="14.4" x2="9.3" y2="13.2" stroke="white" strokeWidth="1.2" />
-                      <line x1="14.7" y1="10.8" x2="16.9" y2="9.6" stroke="white" strokeWidth="1.2" />
-                    </svg>
+                    />
                   )}
                   Continue with Polkadot
                 </Button>

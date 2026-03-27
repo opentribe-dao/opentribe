@@ -1,5 +1,6 @@
 import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 import ws from "ws";
 import { PrismaClient } from "./generated/client";
 import { keys } from "./keys";
@@ -15,10 +16,11 @@ const isLocalDatabase =
 let database: PrismaClient;
 
 if (isLocalDatabase) {
-  // Local development with standard PostgreSQL
-  database = globalForPrisma.prisma || new PrismaClient();
+  // Local development with standard PostgreSQL adapter (Prisma 7)
+  const adapter = new PrismaPg({ connectionString: databaseUrl });
+  database = globalForPrisma.prisma || new PrismaClient({ adapter });
 } else {
-  // Production with Neon serverless (Prisma 6.6.0+ API)
+  // Production with Neon serverless
   neonConfig.webSocketConstructor = ws;
   const adapter = new PrismaNeon({ connectionString: databaseUrl });
   database = globalForPrisma.prisma || new PrismaClient({ adapter });

@@ -228,6 +228,10 @@ const authOptions = {
     }),
     admin({
       defaultRole: "user",
+      roles: {
+        admin: new Set(["admin"]),
+        superadmin: new Set(["admin"]),
+      },
       adminRoles: ["admin", "superadmin"],
     }),
     organization({

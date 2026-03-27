@@ -5,7 +5,8 @@ import {
   organizationClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
-import { siwpClient } from "@zig-zag/better-siwp/client";
+// Import from main package — /client subpath has CJS resolution issues with Turbopack
+import { siwpClient } from "@zig-zag/better-siwp";
 
 // Create the auth client with proper configuration
 const authClient = createAuthClient({

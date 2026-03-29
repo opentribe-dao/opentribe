@@ -841,6 +841,7 @@ enum ClaimMethod {
   GITHUB_OAUTH
   WALLET_SIGNATURE
   EMAIL_VERIFICATION
+  ADMIN_LINK
 }
 
 enum ClaimStatus {

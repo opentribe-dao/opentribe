@@ -101,3 +101,37 @@ export function useDeleteProfile() {
     },
   });
 }
+
+export function useMergeProfiles() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      targetId,
+      sourceProfileId,
+    }: {
+      targetId: string;
+      sourceProfileId: string;
+    }) =>
+      adminFetch(`/ecosystem-profiles/${targetId}/merge`, {
+        method: "POST",
+        body: JSON.stringify({ sourceProfileId }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "profiles"] });
+    },
+  });
+}
+
+export function useLinkProfileToUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ profileId, userId }: { profileId: string; userId: string }) =>
+      adminFetch(`/ecosystem-profiles/${profileId}/link`, {
+        method: "POST",
+        body: JSON.stringify({ userId }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "profiles"] });
+    },
+  });
+}

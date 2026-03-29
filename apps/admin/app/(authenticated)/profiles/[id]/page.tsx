@@ -12,16 +12,27 @@ import { Input } from "@packages/base/components/ui/input";
 import { Label } from "@packages/base/components/ui/label";
 import { Skeleton } from "@packages/base/components/ui/skeleton";
 import { Textarea } from "@packages/base/components/ui/textarea";
-import { ArrowLeftIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  GitMerge,
+  Link2,
+  Loader2,
+  Search,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Header } from "../../components/header";
 import {
   useAdminProfile,
+  useAdminProfiles,
   useDeleteProfile,
+  useLinkProfileToUser,
+  useMergeProfiles,
   useUpdateProfile,
 } from "@/hooks/use-admin-profiles";
+import { useAdminUsers } from "@/hooks/use-admin-users";
 
 export default function ProfileDetailPage() {
   const params = useParams();
@@ -114,6 +125,61 @@ export default function ProfileDetailPage() {
     name: string;
     email: string;
   } | null;
+
+  // Merge & Link state
+  const [mergeSearch, setMergeSearch] = useState("");
+  const [linkSearch, setLinkSearch] = useState("");
+  const mergeProfiles = useMergeProfiles();
+  const linkToUser = useLinkProfileToUser();
+
+  const { data: mergeResults } = useAdminProfiles({
+    search: mergeSearch,
+    limit: 5,
+  });
+  const { data: userResults } = useAdminUsers({
+    search: linkSearch,
+    limit: 5,
+  });
+
+  const mergeProfilesList = (mergeResults as any)?.data?.filter(
+    (p: any) => p.id !== id
+  ) || [];
+  const usersList = (userResults as any)?.data || [];
+
+  const handleMerge = async (sourceId: string, sourceName: string) => {
+    if (
+      !confirm(
+        `Merge "${sourceName}" into "${profile.displayName}"?\n\nContributions will be moved to this profile and "${sourceName}" will be deleted. This cannot be undone.`
+      )
+    )
+      return;
+    try {
+      await mergeProfiles.mutateAsync({
+        targetId: id,
+        sourceProfileId: sourceId,
+      });
+      toast.success(`Merged "${sourceName}" into this profile`);
+      setMergeSearch("");
+    } catch (err: any) {
+      toast.error(err?.message || "Merge failed");
+    }
+  };
+
+  const handleLink = async (userId: string, userName: string) => {
+    if (
+      !confirm(
+        `Link this profile to user "${userName}"?\n\nThis will bypass the claim flow and directly connect them.`
+      )
+    )
+      return;
+    try {
+      await linkToUser.mutateAsync({ profileId: id, userId });
+      toast.success(`Linked to ${userName}`);
+      setLinkSearch("");
+    } catch (err: any) {
+      toast.error(err?.message || "Link failed");
+    }
+  };
 
   return (
     <>
@@ -334,6 +400,128 @@ export default function ProfileDetailPage() {
               </div>
             ) : (
               <p className="text-sm text-white/40">No contributions</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Link to User */}
+        {!claimedBy && (
+          <Card className="border-white/10 bg-white/5 backdrop-blur-[10px]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Link2 className="h-5 w-5 text-[#E6007A]" />
+                Link to User
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4 text-sm text-white/50">
+                Directly link this ecosystem profile to an existing user
+                (bypasses claim flow).
+              </p>
+              <div className="relative mb-3">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                <Input
+                  className="border-white/10 bg-white/5 pl-9 text-white"
+                  onChange={(e) => setLinkSearch(e.target.value)}
+                  placeholder="Search users by name or email..."
+                  value={linkSearch}
+                />
+              </div>
+              {linkSearch.length > 1 && (
+                <div className="space-y-2">
+                  {usersList.length > 0 ? (
+                    usersList.map((u: any) => (
+                      <div
+                        className="flex items-center justify-between rounded-lg bg-white/5 p-3"
+                        key={u.id}
+                      >
+                        <div>
+                          <p className="text-sm text-white">{u.name}</p>
+                          <p className="text-xs text-white/40">{u.email}</p>
+                        </div>
+                        <Button
+                          disabled={linkToUser.isPending}
+                          onClick={() => handleLink(u.id, u.name)}
+                          size="sm"
+                          variant="outline"
+                        >
+                          {linkToUser.isPending ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            "Link"
+                          )}
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-white/40">No users found</p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Merge with Another Profile */}
+        <Card className="border-white/10 bg-white/5 backdrop-blur-[10px]">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <GitMerge className="h-5 w-5 text-purple-400" />
+              Merge Another Profile Into This One
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-white/50">
+              Search for a duplicate profile to merge into this one.
+              Contributions will be moved here and the source profile will be
+              deleted.
+            </p>
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+              <Input
+                className="border-white/10 bg-white/5 pl-9 text-white"
+                onChange={(e) => setMergeSearch(e.target.value)}
+                placeholder="Search profiles by name or GitHub..."
+                value={mergeSearch}
+              />
+            </div>
+            {mergeSearch.length > 1 && (
+              <div className="space-y-2">
+                {mergeProfilesList.length > 0 ? (
+                  mergeProfilesList.map((p: any) => (
+                    <div
+                      className="flex items-center justify-between rounded-lg bg-white/5 p-3"
+                      key={p.id}
+                    >
+                      <div>
+                        <p className="text-sm text-white">
+                          {p.displayName}
+                        </p>
+                        <p className="text-xs text-white/40">
+                          {p.github ? `@${p.github}` : p.email || p.slug} ·{" "}
+                          {p._count?.contributions || 0} contributions
+                        </p>
+                      </div>
+                      <Button
+                        disabled={mergeProfiles.isPending}
+                        onClick={() =>
+                          handleMerge(p.id, p.displayName)
+                        }
+                        size="sm"
+                        variant="outline"
+                      >
+                        {mergeProfiles.isPending ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Merge"
+                        )}
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-white/40">No profiles found</p>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>

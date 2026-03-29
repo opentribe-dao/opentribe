@@ -96,6 +96,59 @@ async function fetchRepoFiles(
     }));
 }
 
+/**
+ * Fetch the GitHub username of the author who added a file (first commit).
+ * Uses the commits API with path filter.
+ */
+async function fetchFileAuthor(
+  owner: string,
+  repo: string,
+  filePath: string,
+  branch: string
+): Promise<{ username: string; date: string } | null> {
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits?path=${encodeURIComponent(filePath)}&sha=${branch}&per_page=1&page=1`;
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github.v3+json",
+    "User-Agent": "opentribe-import",
+  };
+  if (process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+
+  try {
+    // The commits API returns newest first. We want the oldest (first commit).
+    // Use per_page=1 and get the Link header to find the last page.
+    const response = await fetch(url, { headers });
+    if (!response.ok) return null;
+
+    // Check Link header for last page
+    const linkHeader = response.headers.get("Link");
+    let commits: any[] = await response.json();
+
+    if (linkHeader) {
+      // Parse last page URL from Link header
+      const lastMatch = linkHeader.match(/<([^>]+)>;\s*rel="last"/);
+      if (lastMatch) {
+        const lastResponse = await fetch(lastMatch[1], { headers });
+        if (lastResponse.ok) {
+          commits = await lastResponse.json();
+        }
+      }
+    }
+
+    // Get the last commit (oldest = file creation)
+    const lastCommit = commits[commits.length - 1];
+    if (!lastCommit) return null;
+
+    return {
+      username: lastCommit.author?.login || lastCommit.commit?.author?.name || null,
+      date: lastCommit.commit?.author?.date || lastCommit.commit?.committer?.date || null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function fetchFileContent(url: string): Promise<string> {
   const headers: Record<string, string> = {
     "User-Agent": "opentribe-import",
@@ -418,6 +471,22 @@ async function importSource(config: SourceConfig): Promise<{
         try {
           const externalId = `${config.source}:${app.slug}`;
 
+          // Fetch the GitHub PR author who submitted this application
+          let prAuthor: { username: string; date: string } | null = null;
+          if (!skipGitHub) {
+            prAuthor = await fetchFileAuthor(
+              config.repoOwner,
+              config.repoName,
+              `${config.applicationsDir}/${filename}`,
+              config.branch
+            );
+            if (prAuthor && verbose) {
+              logger.log(`  PR author for ${filename}: ${prAuthor.username} (${prAuthor.date})`);
+            }
+          }
+
+          const submittedAt = prAuthor?.date ? new Date(prAuthor.date) : new Date();
+
           // Create GrantApplication
           const application = await database.grantApplication.upsert({
             where: {
@@ -438,7 +507,8 @@ async function importSource(config: SourceConfig): Promise<{
                 ? parseBudget(app.totalCosts)
                 : undefined,
               paymentAddress: app.paymentAddress,
-              status: "APPROVED", // All imported apps are accepted
+              status: "APPROVED",
+              submittedAt,
             },
             create: {
               grantId,
@@ -452,11 +522,20 @@ async function importSource(config: SourceConfig): Promise<{
               paymentAddress: app.paymentAddress,
               status: "APPROVED",
               label: "Reviewed",
-              submittedAt: new Date(),
-              decidedAt: new Date(),
+              submittedAt,
+              decidedAt: submittedAt,
             },
           });
           stats.applications++;
+
+          // If the first team member (applicant) has no GitHub, use the PR author
+          if (
+            prAuthor?.username &&
+            app.teamMembers.length > 0 &&
+            !app.teamMembers[0].github
+          ) {
+            app.teamMembers[0].github = prAuthor.username;
+          }
 
           // Create EcosystemProfiles + Contributions for team members
           for (let i = 0; i < app.teamMembers.length; i++) {

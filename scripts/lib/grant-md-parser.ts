@@ -228,6 +228,39 @@ function extractSummary(sections: Section[]): string | undefined {
 
 // --- Contact Info ---
 
+/** Clean a raw email value from markdown: strips markdown links, angle brackets, obfuscation, takes first from comma list */
+function cleanEmail(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  let email = raw.trim();
+
+  // Skip non-email values
+  if (/^\(provided|^N\/A$|^-$/i.test(email)) return undefined;
+
+  // Extract from markdown link: [email](mailto:email)
+  const mdMatch = email.match(/\[([^\]]+@[^\]]+)\]\(mailto:/);
+  if (mdMatch) email = mdMatch[1];
+
+  // Extract from angle brackets: <email>
+  email = email.replace(/^<|>$/g, "");
+
+  // Fix obfuscated: name (dot) name (@) domain
+  email = email.replace(/\s*\(dot\)\s*/gi, ".").replace(/\s*\(@\)\s*/gi, "@");
+
+  // Strip prefix junk: "- (personal)email" → "email"
+  const emailMatch = email.match(
+    /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/
+  );
+  if (emailMatch) email = emailMatch[1];
+
+  // Take first email if comma-separated
+  if (email.includes(",")) email = email.split(",")[0].trim();
+
+  // Final validation
+  if (!email.includes("@")) return undefined;
+
+  return email.toLowerCase().trim();
+}
+
 function extractContact(sections: Section[]): ParsedContact {
   const contactSection = findSectionContent(sections, "contact");
   // Also check the team section header area (Fast Grants puts contact inline)
@@ -238,9 +271,10 @@ function extractContact(sections: Section[]): ParsedContact {
     name:
       extractBulletValue(searchText, "contact name") ||
       extractBulletValue(searchText, "name"),
-    email:
+    email: cleanEmail(
       extractBulletValue(searchText, "contact email") ||
-      extractBulletValue(searchText, "email"),
+        extractBulletValue(searchText, "email")
+    ),
     website:
       extractBulletValue(searchText, "website") ||
       extractBulletValue(searchText, "web"),

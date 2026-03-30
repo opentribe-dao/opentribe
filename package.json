@@ -49,6 +49,7 @@
   "packageManager": "pnpm@10.11.0",
   "type": "module",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
     "@talismn/siws": "^1.0.0",
     "@zig-zag/better-siwp": "^0.1.2",
     "@zig-zag/chains": "^1.1.0"

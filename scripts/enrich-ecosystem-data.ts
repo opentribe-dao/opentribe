@@ -587,9 +587,10 @@ async function matchPayments() {
               paymentChain: "polkadot",
               paymentAddress: address,
               paidAt: new Date(matchedTransfer.block_timestamp * 1000),
-              payerAddress:
+              payerAddress: (
                 matchedTransfer.from_account_display?.display ||
-                matchedTransfer.from,
+                matchedTransfer.from
+              ).replace(/\x00/g, ""),
             },
           });
           matched++;
@@ -631,6 +632,113 @@ async function matchPayments() {
   }
 }
 
+// --- Phase: GitHub Reverse Lookup Enrichment ---
+
+async function enrichViaGithub() {
+  console.log("\n=== Phase: GitHub Reverse Lookup (Wisesama) ===\n");
+
+  // Get all profiles with GitHub handles that don't already have on-chain identity
+  const profiles = await database.ecosystemProfile.findMany({
+    where: {
+      github: { not: null },
+      onChainName: null,
+    },
+    select: {
+      id: true,
+      displayName: true,
+      github: true,
+      walletAddresses: true,
+      twitter: true,
+      website: true,
+      email: true,
+    },
+    take: limit,
+  });
+
+  console.log(`Found ${profiles.length} profiles with GitHub (no on-chain identity yet)`);
+
+  let found = 0;
+  let updated = 0;
+  let walletsAdded = 0;
+
+  for (let i = 0; i < profiles.length; i++) {
+    const profile = profiles[i];
+    const github = profile.github!.replace(/^@/, "").toLowerCase();
+
+    try {
+      const response = await fetch(
+        `${WISESAMA_API}/identity/github/${encodeURIComponent(github)}`
+      );
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      const result = data.data;
+
+      if (!result?.found || result.count === 0) continue;
+
+      found++;
+      const identity = result.identities[0]; // Take the best match
+
+      if (verbose) {
+        console.log(
+          `  ${github} → ${identity.displayName} (${identity.address?.slice(0, 15)}...) verified=${identity.isVerified}`
+        );
+      }
+
+      if (dryRun) continue;
+
+      const updates: Record<string, any> = {};
+      const existingWallets = new Set(profile.walletAddresses || []);
+
+      // Add wallet address
+      if (identity.address && !existingWallets.has(identity.address)) {
+        updates.walletAddresses = [...(profile.walletAddresses || []), identity.address];
+        walletsAdded++;
+      }
+
+      // Set on-chain identity data
+      if (identity.displayName) {
+        updates.onChainName = identity.displayName;
+      }
+      updates.onChainVerified = identity.isVerified ?? false;
+
+      // Enrich empty social fields from identity
+      if (identity.twitter && !profile.twitter) {
+        updates.twitter = identity.twitter;
+      }
+      if (identity.web && !profile.website) {
+        updates.website = identity.web;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await database.ecosystemProfile.update({
+          where: { id: profile.id },
+          data: updates,
+        });
+        updated++;
+      }
+    } catch (err) {
+      if (verbose) {
+        console.error(`  Error for ${github}:`, err);
+      }
+    }
+
+    // Rate limit: ~2 req/s
+    if (i % 5 === 4) await sleep(500);
+
+    // Progress
+    if ((i + 1) % 50 === 0) {
+      console.log(`  Progress: ${i + 1}/${profiles.length} (found: ${found})`);
+    }
+  }
+
+  console.log("\n--- GitHub Reverse Lookup Summary ---");
+  console.log(`  Profiles checked: ${profiles.length}`);
+  console.log(`  Identities found: ${found}`);
+  console.log(`  Profiles updated: ${updated}`);
+  console.log(`  Wallets added: ${walletsAdded}`);
+}
+
 // --- Main ---
 
 async function main() {
@@ -644,6 +752,10 @@ async function main() {
   try {
     if (phase === "identity" || phase === "all") {
       await enrichIdentities();
+    }
+
+    if (phase === "github" || phase === "all") {
+      await enrichViaGithub();
     }
 
     if (phase === "payments" || phase === "all") {

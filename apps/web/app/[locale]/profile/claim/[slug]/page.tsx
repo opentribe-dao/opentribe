@@ -152,17 +152,39 @@ export default function ClaimProfilePage() {
               message: "This profile has been claimed and linked to your account.",
             });
           }
-          // If there's a pending claim, show pending
+          // If there's a pending claim, determine the right UI state
           const pending = data.claims?.find(
             (c: any) => c.status === "PENDING"
           );
           if (pending && !verified) {
-            setClaimState({
-              step: "pending",
-              claimId: pending.id,
-              method: pending.method,
-              message: "Your claim is pending review.",
-            });
+            // Email claim that hasn't had code entered yet — show code input
+            if (
+              pending.method === "EMAIL_VERIFICATION" &&
+              !pending.emailVerified &&
+              !pending.awaitingAdminReview
+            ) {
+              setClaimState({
+                step: "verifying",
+                method: "EMAIL_VERIFICATION",
+                claimId: pending.id,
+                maskedEmail: pending.maskedEmail,
+                message: "Enter the verification code sent to your email.",
+              });
+            } else if (
+              pending.method === "WALLET_SIGNATURE" &&
+              pending.hasChallenge
+            ) {
+              // Wallet claim with outstanding challenge — let user retry
+              setClaimState({ step: "choose" });
+            } else {
+              // Genuinely awaiting admin review
+              setClaimState({
+                step: "pending",
+                claimId: pending.id,
+                method: pending.method,
+                message: "Your claim is pending review.",
+              });
+            }
           }
         }
       } catch (error) {

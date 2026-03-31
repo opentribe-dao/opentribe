@@ -135,6 +135,21 @@ export default async function ProfilePage({ params }: Props) {
 
   // API returns user data directly in profile.data (no .user wrapper)
   const userData = profile.data.user || profile.data;
+
+  // Private profiles return minimal data — show a simple private notice
+  if (userData.private) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="mb-2 font-bold text-2xl text-white">
+            {userData.username ? `@${userData.username}` : "Private Profile"}
+          </h1>
+          <p className="text-white/60">This profile is private.</p>
+        </div>
+      </div>
+    );
+  }
+
   const stats = profile.data.stats || {};
   return (
     <UserProfile profile={userData} stats={stats} />

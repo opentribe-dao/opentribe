@@ -1,4 +1,5 @@
 import { requireSuperAdmin, unauthorizedResponse } from "@/lib/admin-auth";
+import { processVerifiedClaim } from "@/lib/claim-processing";
 import { formatZodError } from "@/lib/zod-errors";
 import { database } from "@packages/db";
 import type { NextRequest } from "next/server";
@@ -88,28 +89,31 @@ export async function PATCH(
       );
     }
 
-    // Use transaction if approving - also update the ecosystem profile
+    // Use shared claim-processing path for approval
     if (validated.status === "VERIFIED") {
-      const result = await database.$transaction(async (tx) => {
-        const updatedClaim = await tx.claimRequest.update({
-          where: { id },
-          data: {
-            status: validated.status,
-            reviewNotes: validated.reviewNotes,
-            reviewedBy: admin.userId,
-          },
-        });
+      await database.claimRequest.update({
+        where: { id },
+        data: {
+          status: "VERIFIED",
+          reviewNotes: validated.reviewNotes,
+          reviewedBy: admin.userId,
+        },
+      });
 
-        // Link the ecosystem profile to the claiming user
-        await tx.ecosystemProfile.update({
-          where: { id: claim.ecosystemProfileId },
-          data: {
-            claimedByUserId: claim.userId,
-            claimedAt: new Date(),
-          },
-        });
+      // Run the same post-claim workflow as self-service claims
+      await processVerifiedClaim(
+        id,
+        claim.userId,
+        claim.ecosystemProfileId,
+        "ADMIN_LINK"
+      );
 
-        return updatedClaim;
+      const result = await database.claimRequest.findUnique({
+        where: { id },
+        include: {
+          ecosystemProfile: { select: { displayName: true, slug: true } },
+          user: { select: { name: true, email: true } },
+        },
       });
 
       return NextResponse.json({ data: result });

@@ -197,7 +197,9 @@ export async function GET(
     ) {
       return NextResponse.json({
         type: "redirect",
-        target: `/profile/${ecosystemProfile.claimedBy.username}`,
+        data: {
+          slug: ecosystemProfile.claimedBy.username,
+        },
       });
     }
 

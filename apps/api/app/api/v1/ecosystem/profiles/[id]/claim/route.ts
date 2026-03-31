@@ -151,6 +151,7 @@ export async function GET(
         id: true,
         method: true,
         status: true,
+        verificationData: true,
         createdAt: true,
         expiresAt: true,
       },
@@ -159,7 +160,25 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ claims });
+    // Sanitize: don't expose secrets (code/token/challenge) but expose state flags
+    const sanitized = claims.map((c) => {
+      const vd = c.verificationData as Record<string, any> | null;
+      return {
+        id: c.id,
+        method: c.method,
+        status: c.status,
+        createdAt: c.createdAt,
+        expiresAt: c.expiresAt,
+        // For email claims: tell the client whether the code has been verified yet
+        emailVerified: vd?.emailVerified ?? false,
+        awaitingAdminReview: vd?.awaitingAdminReview ?? false,
+        // For wallet claims: whether a challenge is outstanding
+        hasChallenge: !!vd?.challenge,
+        maskedEmail: vd?.emailSentTo ? maskEmail(vd.emailSentTo) : undefined,
+      };
+    });
+
+    return NextResponse.json({ claims: sanitized });
   } catch (error) {
     console.error("Claim status check error:", error);
     return NextResponse.json(

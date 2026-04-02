@@ -10,6 +10,7 @@ import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, customSession, organization } from "better-auth/plugins";
+import { adminAc } from "better-auth/plugins/admin/access";
 import { siwp } from "@zig-zag/better-siwp";
 
 export const trustedOrigins = [
@@ -229,8 +230,8 @@ const authOptions = {
     admin({
       defaultRole: "user",
       roles: {
-        admin: new Set(["admin"]),
-        superadmin: new Set(["admin"]),
+        admin: adminAc,
+        superadmin: adminAc,
       },
       adminRoles: ["admin", "superadmin"],
     }),
@@ -274,7 +275,7 @@ const authOptions = {
   ],
 } satisfies BetterAuthOptions;
 
-export const auth: ReturnType<typeof betterAuth> = betterAuth({
+export const auth = betterAuth({
   ...authOptions,
   plugins: [
     ...authOptions.plugins,

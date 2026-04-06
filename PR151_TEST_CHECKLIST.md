@@ -1008,7 +1008,7 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 
 - **Build:** ✅ Verified locally — All tests passing, no build errors
 - **Phases 0-3:** ✅ PASSED — Environment, build, schema, seed, auth, and navigation all working
-- **Phase 4:** 🔄 IN PROGRESS — User (1-5✅, 6⚠️, 7-8⬜), Organization (1✅, 2-3⬜, 4-6✅, 7⬜, 8✅), Grant (1✅, 2-7⬜), Bounty/Profiles/Settings — not started
+- **Phase 4:** 🔄 IN PROGRESS — User (1-5✅, 6⁉️, 7-8⬜), Organization (1✅, 2-3⬜, 4-6✅, 7⬜, 8✅), Grant (1✅, 2-7⬜), Bounty/Profiles/Settings — not started
 - **Merge Status:** ⏳ IN PROGRESS — Pending completion of Phase 4 remaining tests and Phase 5+
 
 ---
@@ -1084,9 +1084,9 @@ Answer: [ <copy from api/.env.local> ]
 - ✅ Test 4.1.1: User list loads with 8 users, pagination 20/page, search bar visible
 - ✅ Test 4.1.2: Search by name/email works, filters results with React Query debounce (brief "0 results" state is intentional)
 - ✅ Test 4.1.3: Filter by role works, 3 admins displayed correctly  
-- ⚠️ Test 4.1.4: Filter by status untestable — no banned users in seed data (all 8 users marked "Active")
+- ⁉️ Test 4.1.4: Filter by status untestable — no banned users in seed data (all 8 users marked "Active")
 - ✅ Test 4.1.5: Click user → detail page loads full profile with Name, Email, Role, Created date, Avatar
-- ⚠️ Test 4.1.6: **ISSUE FOUND — Role change (PATCH) API fails silently:**
+- ⁉️ Test 4.1.6: **BLOCKER — Role change (PATCH) API fails silently:**
   - UI: Dropdown accepts selection, but change does not persist after reload
   - Root cause: Needs investigation (possible API validation, state management, or permission check issue)
   - Severity: **HIGH** — Blocking core admin functionality for user role management

@@ -9,8 +9,7 @@
     "test": "NODE_ENV=test vitest run",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "db:analyze": "prisma generate --no-hints --schema=prisma/schema.prisma",
-    "db:build": "prisma generate --no-hints --schema=prisma/schema.prisma"
+    "db:generate": "pnpm --filter @packages/db run db:generate"
   },
   "dependencies": {
     "@packages/analytics": "workspace:*",

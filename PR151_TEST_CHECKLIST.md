@@ -665,7 +665,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 | 3  | Table structure            | Columns: Profile, Claimer, Method, Status, Date, Action | ✅ | Column headers and data verified |
 | 4  | Empty state message        | Shows empty state when tab is empty    | ✅ | "All" tab shows 5 total claims correctly |
 
-**Test 5.1 Result**: ✅ **PASS** — Claims queue page structure, filtering, and data loading fully functional
+**Test 5.1 Result**: ✅ — Claims queue page structure, filtering, and data loading fully functional
 
 ---
 
@@ -685,7 +685,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 | 6  | Approve button             | Sets status to VERIFIED, links profile | ✅ | Button functional and triggers approval |
 | 7  | Reject button              | Sets status to REJECTED with notes     | ✅ | Button functional and triggers rejection with notes stored |
 
-**Test 5.2 Result**: ✅ **PASS** — Claim detail page displays all required information and review controls
+**Test 5.2 Result**: ✅ — Claim detail page displays all required information and review controls
 
 ---
 
@@ -702,7 +702,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 | 5  | Back button/navigation     | Returns to queue, status persists      | ✅ | Navigation back to queue shows 2 pending remaining |
 | 6  | Email notification sent    | Claimer receives approval email        | ⚠️ | Not verified (email sending disabled in test config) |
 
-**Test 5.3 Result**: ✅ **PASS** — Approval workflow complete, status transitions and UI updates verified
+**Test 5.3 Result**: ✅ — Approval workflow complete, status transitions and UI updates verified
 
 ---
 
@@ -719,7 +719,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 | 5  | Back navigation            | Returns to queue, status persists      | ✅ | Rejected tab now shows 2 claims (original + newly rejected) |
 | 6  | Email notification sent    | Claimer receives rejection with reason | ⚠️ | Not verified (email sending disabled in test config) |
 
-**Test 5.4 Result**: ✅ **PASS** — Rejection workflow complete, status transitions and note storage verified
+**Test 5.4 Result**: ✅ — Rejection workflow complete, status transitions and note storage verified
 
 ---
 
@@ -735,7 +735,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 | 4  | Reason/comments visible    | Notes from admin action shown          | ✅ | reviewNotes: "Email verification token expired and could not be re-verified..." |
 | 5  | Full audit trail           | Complete action sequence visible       | ✅ | All fields properly persisted in claim_request table |
 
-**Test 5.5 Result**: ✅ **PASS** — Audit trail captures all required metadata (status, reviewer, notes, timestamp)
+**Test 5.5 Result**: ✅ — Audit trail captures all required metadata (status, reviewer, notes, timestamp)
 
 ---
 
@@ -845,7 +845,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) returns 3 different respo
 | 6.1.2 | `GET /api/v1/profiles/{unclaimed_slug}/public` | `ecosystem` | Ecosystem object only | ✅ | Unclaimed profile (yvonne-xie) verified; claimStatus: "unclaimed" |
 | 6.1.3 | `GET /api/v1/profiles/h4n0/public` | `redirect` | redirectTo: "/profile/alice_substrate" | ✅ | Claimed profile redirects to claimer correctly |
 
-**Test 6.1 Result**: ✅ **PASS** — All 3 union type scenarios verified
+**Test 6.1 Result**: ✅ — All 3 union type scenarios verified
 
 ---
 
@@ -866,7 +866,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) returns 3 different respo
 | 6.2.9 | Tab navigation | Tabs functional (Applications, Submissions, etc.) | ✅ | All activity tabs functional (All Activity, Applications, Submissions, Wins) |
 | 6.2.10 | OG meta tags | og:title, og:image, og:description in page source | ✅ | Meta tags for social sharing present |
 
-**Test 6.2 Result**: ✅ **PASS** — All 10 user profile features verified
+**Test 6.2 Result**: ✅ — All 10 user profile features verified
 
 ---
 
@@ -889,7 +889,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) returns 3 different respo
 
 **Known Issue:** toUpperCase() error may occur on other profiles with undefined claim status — documented as LOW priority
 
-**Test 6.3 Result**: ✅ **PASS** — Ecosystem profile page displays correctly; 9/10 features verified, 1 deferred to Phase 8
+**Test 6.3 Result**: ✅ — Ecosystem profile page displays correctly; 9/10 features verified, 1 deferred to Phase 8
 
 ---
 
@@ -903,7 +903,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) returns 3 different respo
 | 6.4.2 | Redirect status code | HTTP 302 or 307 (temporary, not permanent) | ✅ | API returns type: "redirect" with correct slug |
 | 6.4.3 | No 404 on redirect | Second request loads user profile (200 status) | ✅ | Final page loads without errors; no 404 status |
 
-**Test 6.4 Result**: ✅ **PASS** — All 3 redirect behavior checks verified
+**Test 6.4 Result**: ✅ — All 3 redirect behavior checks verified
 
 ---
 
@@ -951,7 +951,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) now returns a **union typ
 | 6.2.9 | Tab navigation | Tabs functional (Applications, Submissions, etc.) | ✅ | All activity tabs functional (All Activity, Applications, Submissions, Wins) |
 | 6.2.10 | OG meta tags | og:title, og:image, og:description in page source | ✅ | Meta tags for social sharing present |
 
-**Test 6.2 Result**: ✅ **PASS** — All 10 user profile features verified
+**Test 6.2 Result**: ✅ — All 10 user profile features verified
 
 ---
 
@@ -976,7 +976,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) now returns a **union typ
 
 **Known Issue:** toUpperCase() error may occur on other profiles with undefined claim status — documented as LOW priority
 
-**Test 6.3 Result**: ✅ **PASS** — Ecosystem profile page displays correctly; 9/10 features verified, 1 deferred to Phase 8
+**Test 6.3 Result**: ✅ — Ecosystem profile page displays correctly; 9/10 features verified, 1 deferred to Phase 8
 
 ---
 
@@ -992,7 +992,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) now returns a **union typ
 | 6.4.2 | Redirect status code | HTTP 302 or 307 (temporary, not permanent) | ✅ | API returns type: "redirect" with correct slug |
 | 6.4.3 | No 404 on redirect | Second request loads user profile (200 status) | ✅ | Final page loads without errors; no 404 status |
 
-**Test 6.4 Result**: ✅ **PASS** — All 3 redirect behavior checks verified
+**Test 6.4 Result**: ✅ — All 3 redirect behavior checks verified
 
 ---
 
@@ -1177,7 +1177,7 @@ See **PHASE_6_TEST_PROMPT.md** for comprehensive test cases, API examples, and d
 | 7.10 | Multiple Claims Same Profile | ✅ | PASS | Profile shows "Claim pending review" instead of claim button; prevents initiating second claim |
 
 **Phase 7 Completion**: 7/10 tests (70%)  
-**Status**: ✅ **COMPLETE** — Email flow fully tested; OAuth/Wallet methods not in current implementation; error handling and responsive design verified
+**Status**: ✅ — Email flow fully tested; OAuth/Wallet methods not in current implementation; error handling and responsive design verified
 
 ---
 
@@ -1345,11 +1345,11 @@ Timestamp: {epoch}
 
 ---
 
-## Phase 8: Summary & Status ✅ **COMPLETE**
+## Phase 8: Summary & Status ✅
 
 **Phase 8 Testing Date**: 2025-04-07 (Live testing with headful Chrome, screenshot quality verified)  
 **Test Coverage**: 22 tests total  
-**Overall Status**: ✅ **COMPLETE** — All 22 tests executed, 95% test coverage achieved (21/22 passing, 1 partial)  
+**Overall Status**: ✅ — All 22 tests executed, 95% test coverage achieved (21/22 passing, 1 partial)  
 **Screenshots Directory**: `.pr151-test-assets/screenshots/phase-8/` (6 total, all verified clean)  
 **Screenshot Quality**: ✅ All screenshots clean — no loading states, no shimmer loaders
 
@@ -2281,11 +2281,11 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 | 5  | Admin Claims | 11 tests | 9 captured | ✅ | Claims CRUD, approval workflow, status transitions, audit trail all working | Pending claim UI not tested (no test data) | Proceed to Phase 6 |
 | 6  | Web Profiles | 14 tests | 3 captured | ✅ | User profiles, ecosystem profiles, API union types, redirects, OG tags verified | None | Proceed to Phase 7 |
 | 7  | Claim Flow UI | 10 tests | 5 captured | ✅ | Auth pages, claim form, validation, navigation all functional on web | Wallet & email flows require external config | Proceed to Phase 8 |
-| 8  | Organizations & Grants | 22 tests | 6 captured | ✅ **COMPLETE** | All 22 tests executed: org directory, org detail, grants list, grant detail, grant applications all verified; 95% coverage (21/22 passing, 1 partial search) | None — all tests completed | Proceed to Phase 9 |
-| **9** | **API Stats & Redis** | **7 tests** | **0 pending** | ⬜ **READY** | Phase 8 complete; all blocking issues resolved (P8-1 ✅, P8-2 ✅); API stats endpoints ready for testing | None | **Begin Phase 9 testing immediately** |
-| **10** | **Admin Endpoints** | **23 tests** | **0 pending** | ✅ **PASSED** | All 21 admin API endpoints tested: stats, auth gates, users, orgs, profiles, grants, bounties, claims, imports. 96% pass rate (23/25). 1 known issue P5-1 (claim VERIFIED 500 error). 1 endpoint by-design not supported (bounty POST 405). | None — all functional tests complete | Ready for Phase 11 |
-| **11** | **Org Claim System** | **15 tests** | **0 pending** | ✅ **COMPLETE** | All 15/15 tests passed (9 API validation + 4 admin integration via seeded data). Org claim creation, validation, expiry, and admin workflow (accept/reject) all verified. Database layer fully functional. Admin UI endpoints documented as follow-up PR. | None — all testing complete | Phase 11 Complete → Proceed to Phase 12 |
-| **12** | **Production Seeding** | **9 tests** | **0 pending** | ✅ **COMPLETE** | W3F Kusama seed data (org, 3 grants, RFP), upsert idempotency, permission gates. All 9/9 tests passed (6 seed tests + 3 permission gate tests). | None — all tests passing | Phase 12 Complete → Proceed to Phase 13 |
+| 8  | Organizations & Grants | 22 tests | 6 captured | ✅ | All 22 tests executed: org directory, org detail, grants list, grant detail, grant applications all verified; 95% coverage (21/22 passing, 1 partial search) | None — all tests completed | Proceed to Phase 9 |
+| **9** | **API Stats & Redis** | **7 tests** | **0 pending** | ⬜ | Phase 8 complete; all blocking issues resolved (P8-1 ✅, P8-2 ✅); API stats endpoints ready for testing | None | **Begin Phase 9 testing immediately** |
+| **10** | **Admin Endpoints** | **23 tests** | **0 pending** | ✅ | All 21 admin API endpoints tested: stats, auth gates, users, orgs, profiles, grants, bounties, claims, imports. 96% pass rate (23/25). 1 known issue P5-1 (claim VERIFIED 500 error). 1 endpoint by-design not supported (bounty POST 405). | None — all functional tests complete | Ready for Phase 11 |
+| **11** | **Org Claim System** | **15 tests** | **0 pending** | ✅ | All 15/15 tests passed (9 API validation + 4 admin integration via seeded data). Org claim creation, validation, expiry, and admin workflow (accept/reject) all verified. Database layer fully functional. Admin UI endpoints documented as follow-up PR. | None — all testing complete | Phase 11 Complete → Proceed to Phase 12 |
+| **12** | **Production Seeding** | **9 tests** | **0 pending** | ✅ | W3F Kusama seed data (org, 3 grants, RFP), upsert idempotency, permission gates. All 9/9 tests passed (6 seed tests + 3 permission gate tests). | None — all tests passing | Phase 12 Complete → Proceed to Phase 13 |
 | **13** | **OG Images & SEO** | **9 tests** | **2 pending** | ⏳ **PARTIAL (7/9)** | Sitemap + static SEO fully working (15 routes, metadata, robots.txt). Email templates compile. Email preview server IMPLEMENTED ✅. OG endpoints + sitemap slugs pending (non-critical for MVP). | OG image endpoints (404), Sitemap slug endpoints (missing) | Phase 13 Partial → Proceed to Phase 14 (not blocked) |
 | **14** | **Security & Access** | **13 tests** | **5 pending** | ⏳ **PARTIAL (8/13)** | Admin middleware ✅, CORS ✅, claim ownership ✅, org isolation ✅, auth cookies ✅, RBAC foundation ✅. Missing: rate limiting (CRITICAL), audit logging (CRITICAL), session timeout. | Rate limiting (CRITICAL), Audit logging (CRITICAL), Session timeout | Phase 14 PARTIAL (not blocking 15) → Proceed to Phase 15 |
 | **15** | **Responsive Design** | **6 tests** | **0 pending** | ✅ **COMPLETE (36/36)** | All breakpoints verified (mobile 375px, tablet 768px, desktop 1920px). Tailwind responsive fully implemented. Typography scales properly. Layout stability verified (skeleton, aspect-ratio). Interactions keyboard accessible. Zero blockers. | None — all tests passing | Phase 15 Complete → Proceed to Phase 16 |
@@ -2342,7 +2342,7 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 - **End-to-end verification**: All critical paths tested (auth, CRUD, API, UI, database)
 - **Known issues tracked**: 1 (P5-1 — Claim VERIFIED returns 500)
 - **API endpoint coverage**: 21/21 admin endpoints verified (96% pass rate)
-- **Phase 8 status**: ✅ **COMPLETE** — 21/22 tests passing (95% of phase), 1 partial (org search)
+- **Phase 8 status**: ✅ — 21/22 tests passing (95% of phase), 1 partial (org search)
 - **Total coverage with Phase 8**: ~78% (exceeds 70% target)
 - **Phases complete**: 0–8 (8 more phases planned after)
 - **Current status**: ✅ **PHASE 8 COMPLETE — READY FOR PHASE 9** — All tests executed, no blockers
@@ -2401,7 +2401,7 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 ### Testing Roadmap — Phases 9–16
 
 #### Phase 9: API Stats & Redis Fallback (READY FOR TESTING)
-- **Status**: ⬜ **READY** — Phase 8 complete, no blockers remaining
+- **Status**: ⬜ — Phase 8 complete, no blockers remaining
 - **Test Coverage**: 7 tests planned
 - **Expected Screenshots**: 0 (API-only testing)
 - **Key Blockers**: None — Phase 8 complete (P8-1 ✅, P8-2 ✅)

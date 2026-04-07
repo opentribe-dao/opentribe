@@ -1080,9 +1080,41 @@ See **PHASE_6_TEST_PROMPT.md** for comprehensive test cases, API examples, and d
 
 ## Phase 7: Public Web — Claim Flow UI
 
-**URL:** `http://localhost:3000/profile/claim/{ecosystem-slug}`
+**URL:** `http://localhost:3000/[locale]/profile/claim/{ecosystem-slug}`
 
-> This is a **910-line client component** with full state management for 3 claim methods.
+**Status**: 🟢 **Ready to Begin** — All prerequisites met
+
+**Test Coverage**: 10 tests planned (10/10 — 0% complete)
+
+> This is a **910-line client component** with full state management for 3 claim methods (Email, GitHub OAuth, Wallet).
+
+### 📋 Phase 7 Detailed Test Prompt
+
+See **PHASE_7_TEST_PROMPT.md** for comprehensive test cases, API examples, and detailed test execution workflow.
+
+---
+
+## Phase 7 Summary
+
+| Test | Name | Status | Result |
+| ---- | ---- | ------ | ------ |
+| 7.1  | Claim Form Initial State | ⬜ | NOT STARTED |
+| 7.2  | Email Verification Method | ⬜ | NOT STARTED |
+| 7.3  | GitHub OAuth Method | ⬜ | NOT STARTED |
+| 7.4  | Wallet Signature Method | ⬜ | NOT STARTED |
+| 7.5  | Form Switching & State Preservation | ⬜ | NOT STARTED |
+| 7.6  | Error Handling | ⬜ | NOT STARTED |
+| 7.7  | Success Confirmation | ⬜ | NOT STARTED |
+| 7.8  | Responsive Design | ⬜ | NOT STARTED |
+| 7.9  | Navigation & Back Button | ⬜ | NOT STARTED |
+| 7.10 | Multiple Claims Same Profile | ⬜ | NOT STARTED |
+
+**Phase 7 Completion**: 0/10 tests (0%)  
+**Status**: 🟢 **Ready to Begin** — All prerequisites available
+
+---
+
+## DEPRECATED: Original Phase 7 Test Cases (Archived)
 
 ### Test 7.1: Claim Page Load (Unauthenticated)
 

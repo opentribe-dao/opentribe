@@ -1383,21 +1383,6 @@ Timestamp: {epoch}
 
 **Screenshot**: [8.5-grant-applications-list.png](./.pr151-test-assets/screenshots/phase-8/8.5-grant-applications-list.png) | Grant applications page fully loaded | ✅ VERIFIED CLEAN
 
-### Phase 8 Sub-Task Status Breakdown
-
-| Test ID | Sub-Task | Expected Behavior | Status | Non-Issue Findings | Screenshot Evidence |
-|---------|----------|-------------------|--------|-------------------|----------------------|
-| **8.4** | **Page Load** | Grant detail page loads without errors | ✅ **DONE** | Page loads successfully for valid grant slug | [8.4-grant-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.4-grant-detail-loaded.png) |
-| **8.4** | **Header Display** | Organization logo, title, status, location, applicant count visible | ✅ **DONE** | All header elements render correctly and data is accurate | [8.4-grant-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.4-grant-detail-loaded.png) |
-| **8.4** | **Content Sections** | Description, About, Resources, Funding info, Contact details all present | ✅ **DONE** | All content sections render fully with proper formatting | [8.4-grant-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.4-grant-detail-loaded.png) |
-| **8.4** | **Navigation Elements** | Share button, Apply Externally link, application count link functional | ✅ **DONE** | All navigation elements present and responsive | [8.4-grant-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.4-grant-detail-loaded.png) |
-| **8.5** | **Applications Page Load** | Grant applications page loads for valid grant | ✅ **DONE** | Page navigates successfully and loads without errors | [8.5-grant-applications-list.png](./.pr151-test-assets/screenshots/phase-8/8.5-grant-applications-list.png) |
-| **8.5** | **Page Structure** | Breadcrumb navigation, heading, application count display all visible | ✅ **DONE** | All structural elements render correctly with proper hierarchy | [8.5-grant-applications-list.png](./.pr151-test-assets/screenshots/phase-8/8.5-grant-applications-list.png) |
-| **8.5** | **Empty State** | "No applications yet" message and "Apply Now" link display correctly | ✅ **DONE** | Empty state handled gracefully with proper messaging | [8.5-grant-applications-list.png](./.pr151-test-assets/screenshots/phase-8/8.5-grant-applications-list.png) |
-| **8.5** | **Status Fields** | Link to grant detail page from breadcrumb visible and functional | ✅ **DONE** | Navigation links work correctly without errors | [8.5-grant-applications-list.png](./.pr151-test-assets/screenshots/phase-8/8.5-grant-applications-list.png) |
-
-**Summary**: All 8 sub-tasks (Test 8.4: 4 sub-tasks, Test 8.5: 4 sub-tasks) marked as ✅ **DONE** with **NO ISSUES** encountered.
-
 ### Detailed Test Coverage Table
 
 | Section | Tests | Pass | Partial | Blocked | Coverage |

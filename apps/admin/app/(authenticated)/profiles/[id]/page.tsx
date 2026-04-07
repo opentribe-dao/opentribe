@@ -42,6 +42,8 @@ export default function ProfileDetailPage() {
   const updateProfile = useUpdateProfile();
   const deleteProfile = useDeleteProfile();
   const [form, setForm] = useState<Record<string, unknown>>({});
+  const [mergeSearch, setMergeSearch] = useState("");
+  const [linkSearch, setLinkSearch] = useState("");
 
   const profile = (data as { data: Record<string, unknown> })?.data;
 
@@ -126,9 +128,6 @@ export default function ProfileDetailPage() {
     email: string;
   } | null;
 
-  // Merge & Link state
-  const [mergeSearch, setMergeSearch] = useState("");
-  const [linkSearch, setLinkSearch] = useState("");
   const mergeProfiles = useMergeProfiles();
   const linkToUser = useLinkProfileToUser();
 

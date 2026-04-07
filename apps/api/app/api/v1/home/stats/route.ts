@@ -161,7 +161,7 @@ async function calculatePlatformStats(): Promise<
     }),
   ]);
 
-  const bountyTotal = Number(bountyAgg?._sum?.amountUSD ?? bountyAgg?._sum?.amount ?? 0);
+  const bountyTotal = Number(bountyAgg?._sum?.amountUSD ?? 0);
   const grantTotal = Number(grantsAgg?._sum?.totalFundsUSD ?? grantsAgg?._sum?.totalFunds ?? 0);
   const totalRewards = formatCurrency(bountyTotal + grantTotal);
 

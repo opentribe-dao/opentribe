@@ -2272,10 +2272,10 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 | **11** | **Org Claim System** | **15 tests** | **0 pending** | ✅ **COMPLETE** | All 15/15 tests passed (9 API validation + 4 admin integration via seeded data). Org claim creation, validation, expiry, and admin workflow (accept/reject) all verified. Database layer fully functional. Admin UI endpoints documented as follow-up PR. | None — all testing complete | Phase 11 Complete → Proceed to Phase 12 |
 | **12** | **Production Seeding** | **9 tests** | **0 pending** | ✅ **COMPLETE** | W3F Kusama seed data (org, 3 grants, RFP), upsert idempotency, permission gates. All 9/9 tests passed (6 seed tests + 3 permission gate tests). | None — all tests passing | Phase 12 Complete → Proceed to Phase 13 |
 | **13** | **OG Images & SEO** | **9 tests** | **3 pending** | ⏳ **PARTIAL (6/9)** | Sitemap + static SEO fully working (15 routes, metadata, robots.txt). Email templates compile. OG image endpoints + sitemap slug endpoints pending implementation. See blocker analysis. | OG image routes missing, Sitemap slug endpoints missing | Phase 13 Partial → Proceed to Phase 14 (not blocked) |
-| **14** | **Security & Access** | **13 tests** | **0 pending** | ⬜ **PLANNED** | Admin middleware double-layer, access matrix, claim security, auth cookies | None | After Phase 13 testing |
+| **14** | **Security & Access** | **13 tests** | **6 pending** | ⏳ **PARTIAL (7/13)** | Admin middleware ✅, CORS ✅, claim ownership ✅, auth cookies ✅, permission matrix schema ✅. Missing: rate limiting, audit logging, session timeout, full RBAC endpoint tests. | 6 missing implementations (rate limiting, audit logging, session timeout) | Phase 14 PARTIAL (not blocking 15) → Proceed to Phase 15 |
 | **15** | **Responsive Design** | **6 tests** | **0 pending** | ⬜ **PLANNED** | Admin & web responsive on mobile (375px, tablet, desktop) | None | After Phase 14 completes |
 | **16** | **Package-Level** | **11 tests** | **0 pending** | ⬜ **PLANNED** | Better Auth upgrade, SIWP plugin, Prisma 7, auth modal, blog post | None | After Phase 15 completes |
-| **Totals** | **16 Phases** | **182 total tests** | **3 pending** | ✅ **12 COMPLETE** + ⏳ **1 PARTIAL (6/9)** + ⬜ **3 PLANNED** | **Phases 0–12 COMPLETE + Phase 13 PARTIAL.** Phases 1-12 (158 tests) + Phase 13 (6/9 tested) = 164 tests complete. 3 tests pending implementation. Phases 14–16 ready. Phase 13 not blocking Phase 14. | Blocker analysis available | **Ready for Phase 14 (Security) — Phase 13 pending impls can happen in parallel** |
+| **Totals** | **16 Phases** | **182 total tests** | **9 pending** | ✅ **12 COMPLETE** + ⏳ **2 PARTIAL (13/22)** + ⬜ **2 PLANNED** | **Phases 0–12 COMPLETE + Phases 13–14 PARTIAL.** Phases 1-12 (158 tests) + Phase 13 (6/9) + Phase 14 (7/13) = 171 tests complete. 9 tests pending implementation. Phases 15–16 ready. Phase 14 not blocking Phase 15. | Blocker analyses available | **Ready for Phase 15 (Responsive Design)** |
 
 ### Screenshot Evidence — Complete Inventory
 
@@ -2420,12 +2420,12 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 - **Blockers**: None
 - **Next Step**: After Phase 12 completion
 
-#### Phase 14: Security & Access Control (PLANNED)
-- **Status**: ⬜ **Planned for after Phase 13**
-- **Test Coverage**: 13 tests planned (middleware, access matrix, claim security, cookie security)
-- **Expected Screenshots**: 0–2 (access denial screens)
-- **Blockers**: None
-- **Next Step**: After Phase 13 completion
+#### Phase 14: Security & Access Control (PARTIAL - 7/13 PASSING)
+- **Status**: ⏳ **PARTIAL (7/13 tests passing)**
+- **Test Coverage**: 13 tests (7 passing, 6 pending implementation)
+- **Expected Screenshots**: 8 captured (middleware, CORS, claim system, schema verification)
+- **Blockers**: 6 missing features (rate limiting, audit logging, session timeout, full RBAC testing)
+- **Next Step**: Phase 14 NOT BLOCKING Phase 15 — Proceed with Phase 15 while security features implemented
 
 #### Phase 15: Responsive Design (PLANNED)
 - **Status**: ⬜ **Planned for after Phase 14**

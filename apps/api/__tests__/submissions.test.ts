@@ -1635,7 +1635,7 @@ describe("Submission System Tests", () => {
         isWinner: false,
         bounty: {
           status: "OPEN",
-          deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year in future
+          deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         },
       };
 

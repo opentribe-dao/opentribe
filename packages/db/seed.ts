@@ -1393,22 +1393,19 @@ Each tutorial includes:
   }
 
   // Seed organization claims (invitations with status = "claim_pending")
-  // This provides test data for Phase 11 testing (tests 11.12-11.15)
   const organizationClaims = await Promise.all([
-    // PENDING claim - Carol claiming Web3 Foundation (for test 11.12-11.13)
+    // PENDING claim - Carol claiming Web3 Foundation
     prisma.invitation.create({
       data: {
         organizationId: organizations[0].id, // Web3 Foundation
         email: users[2].email, // carol.writer@example.com
         role: "owner",
         status: "claim_pending",
-        inviterId: users[2].id, // Self-referential for claims
+        inviterId: users[2].id,
         expiresAt: daysFromNow(30),
-        // Proof text would be stored as a comment or custom field in real implementation
-        // For now, we document it here for reference
       },
     }),
-    // REJECTED claim - Frank's claim was rejected (for test 11.14 verification)
+    // REJECTED claim - Frank's claim was rejected
     prisma.invitation.create({
       data: {
         organizationId: organizations[1].id, // Moonbeam Network
@@ -1419,7 +1416,7 @@ Each tutorial includes:
         expiresAt: daysFromNow(25),
       },
     }),
-    // ACCEPTED claim - Emma's claim was approved (for test 11.13 verification)
+    // ACCEPTED claim - Emma's claim was approved
     prisma.invitation.create({
       data: {
         organizationId: organizations[2].id, // Acala Foundation
@@ -1432,8 +1429,9 @@ Each tutorial includes:
     }),
   ]);
 
-  console.log(`✅ Created ${organizationClaims.length} organization claims (seeded for Phase 11 testing)`);
+  console.log(`✅ Created ${organizationClaims.length} organization claims`);
 
+  // Create notification settings for users
   const notificationSettings = await Promise.all(
     users.slice(0, 3).flatMap((user) => [
       prisma.notificationSetting.create({

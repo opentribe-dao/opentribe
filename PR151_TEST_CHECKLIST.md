@@ -4,10 +4,10 @@
 **PR Author:** itsYogesh (@manofcode)  
 **Tester:** @itsTarun  
 **Branch:** `feat/admin-app` → `feat/kusama-production-upsert`  
-**Status:** ✅ Phase 4 Complete (85% Overall) — 2 Critical Bugs Found  
+**Status:** ✅ Phase 4 Complete (95% Overall) — 1 Remaining Issue (CORS in Settings)  
 **Last Updated:** 2026-04-07  
 **Testing Method:** Chrome DevTools MCP (browser-based automation)  
-**Latest commit:** `9bd26a2` — chore: update package configurations and dependencies
+**Latest commit:** `38c9703` — fix(admin): fix React Hook violation in ProfileDetailPage
 
 **PR Stats:** 119 files changed, +20,359 / −4,166 across 51 commits  
 **Note:** Build blockers (F1–F21) were fixed in post-PR commits. See [Known Bugs](#known-bugs) for the full list of what was fixed in code.
@@ -82,7 +82,7 @@ Then edit `apps/admin/.env.local` with these values (copy secrets from `apps/api
 # Server (copy from apps/api/.env.local)
 BETTER_AUTH_SECRET="<copy from api/.env.local>"
 BETTER_AUTH_URL="http://localhost:3002"
-DATABASE_URL="postgresql://tarun@localhost:5432/opentribe"
+DATABASE_URL="<copy from api/.env.local>"
 RESEND_FROM="hello@notifications.opentribe.io"
 RESEND_TOKEN="<copy from api/.env.local>"
 
@@ -409,16 +409,16 @@ FROM organization LIMIT 10;
 | 3  | Filter by claimed (yes/no) | Shows only claimed/unclaimed                          | `GET ...?claimed=true` | ✅ | Filter dropdown visible (Claimed/Unclaimed statuses) |
 | 4  | Click "Create Profile"     | Form: displayName, email, github, twitter, bio, source | — | ✅ | Create Profile button visible |
 | 5  | Submit create form         | Profile created, slug auto-generated from displayName | `POST /api/v1/admin/ecosystem-profiles` | ⬜ | Form exists but not submitted in test |
-| 6  | Click profile → detail     | Edit form, claim status, contributions, delete button | `GET /api/v1/admin/ecosystem-profiles/{id}` | ⁉️ | **BLOCKER**: React Hook error when loading detail page. ProfileDetailPage has conditional useState (line 130) violating Rules of Hooks. Page crashes with "a client-side exception has occurred" |
-| 7  | Edit profile fields        | Changes saved with toast                              | `PATCH /api/v1/admin/ecosystem-profiles/{id}` | ⬜ | Blocked by Test 6 hook error |
-| 8  | Delete profile             | Profile removed, redirected to list                   | `DELETE /api/v1/admin/ecosystem-profiles/{id}` | ⬜ | Blocked by Test 6 hook error |
+| 6  | Click profile → detail     | Edit form, claim status, contributions, delete button | `GET /api/v1/admin/ecosystem-profiles/{id}` | ✅ | **FIXED**: React Hook error resolved. useState() calls moved to component top level (lines 45-46) before conditional returns. Profile detail page now loads successfully |
+| 7  | Edit profile fields        | Changes saved with toast                              | `PATCH /api/v1/admin/ecosystem-profiles/{id}` | ✅ | **FIXED**: Can edit displayName, email, GitHub, Twitter, LinkedIn, website, bio, location, outreachStatus. Changes persist. Contactable toggle works |
+| 8  | Delete profile             | Profile removed, redirected to list                   | `DELETE /api/v1/admin/ecosystem-profiles/{id}` | ✅ | **FIXED**: Delete button accessible, confirmation dialog shows, deletion works and redirects to list |
 
 **Advanced operations (from detail page):**
 
 | #  | Action           | Expected                              | API Endpoint | Status | Known Issues & Findings |
 | -- | ---------------- | ------------------------------------- | ------------ | ------ | ----------------------- |
-| 9  | Link profile to user | Associates ecosystem profile with user | `POST .../link` | ⬜ | Blocked by Test 6 hook error |
-| 10 | Merge duplicate profiles | Consolidates two profiles into one | `POST .../merge` | ⬜ | Blocked by Test 6 hook error |
+| 9  | Link profile to user | Associates ecosystem profile with user | `POST .../link` | ✅ | **FIXED**: Link to User section visible when profile not claimed. Search and link functionality work. Users can be searched by name/email and linked |
+| 10 | Merge duplicate profiles | Consolidates two profiles into one | `POST .../merge` | ✅ | **FIXED**: Merge section visible. Can search for duplicate profiles and merge them. Confirmation dialog shows impact. Merge button functional |
 
 ### Test 4.6: Import Management
 
@@ -513,7 +513,7 @@ Admin API endpoints require valid session authentication:
 | Issue | Test(s) Affected | Severity | Root Cause | Status |
 |-------|------------------|----------|-----------|--------|
 | **4.1.4 Untestable** | 4.1.4, 4.1.7, 4.1.8 | Minor | No banned users in seed data (all 8 are Active) | Won't fix without data modification |
-| **4.5.6 React Hook Error** | 4.5.6-4.5.10 | **CRITICAL** | Conditional useState in ProfileDetailPage line 130 violates Rules of Hooks | **MUST FIX** before completing Phase 4 |
+| **4.5.6 React Hook Error** | 4.5.6-4.5.10 | **CRITICAL** | Conditional useState in ProfileDetailPage line 130 violates Rules of Hooks | ✅ **FIXED** — Commit `38c9703`: Moved useState to component top level (lines 45-46) before conditional returns |
 | **4.7.1 CORS Error** | 4.7.1 | High | API missing CORS headers for GET /api/auth/get-session | Requires API fix |
 | **4.2.5 Minor UX Lag** | 4.2.5 | Cosmetic | Brief "0 orgs" state after creation (React Query cache) | Expected behavior, not a bug |
 
@@ -524,8 +524,8 @@ Admin API endpoints require valid session authentication:
 - 4.5.5: Profile create form submit (form visible but not submitted)
 - 4.6.2: Import detail page (not navigated to)
 
-### **CRITICAL ACTION REQUIRED:**
-**Test 4.5.6 (Profile Detail Hook Error)** — React Hook error must be fixed in `apps/admin/app/(authenticated)/profiles/[id]/page.tsx` line 130. The page tries to call useState conditionally, which violates React Rules of Hooks. This blocks all profile detail page operations (edit, link, merge, delete).
+### **ACTION ITEMS:**
+**Test 4.7.1 (Settings Account Info CORS)** — API endpoint `/api/auth/get-session` missing CORS headers. Requires backend fix to add `Access-Control-Allow-Origin` header.
 
 ---
 

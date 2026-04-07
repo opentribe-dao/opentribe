@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
     "db:seed": "tsx ./seed.ts",
     "db:seed:auth": "tsx ./seed-auth.ts",
+    "db:seed:production": "tsx ./seed-production.ts",
     "db:reset": "prisma migrate reset --schema=./prisma/schema.prisma",
     "db:studio": "prisma studio"
   },

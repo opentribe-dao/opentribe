@@ -1,5 +1,0 @@
-  readonly organizationName: string;
-  readonly organizationLogo?: string;
-  organizationName,
-  organizationLogo,
-    preview={`You're invited to join ${organizationName} on Opentribe`}

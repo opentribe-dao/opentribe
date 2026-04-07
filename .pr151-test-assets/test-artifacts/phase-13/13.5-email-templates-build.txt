@@ -1,4 +1,0 @@
-
-> @packages/email@0.0.0 typecheck /Users/tarun/Downloads/projects/opentribe/packages/email
-> tsc --noEmit --emitDeclarationOnly false
-

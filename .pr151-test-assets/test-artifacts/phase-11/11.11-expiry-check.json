@@ -1,5 +1,0 @@
-            id             |      organizationId       |       email        |    status     |        expiresAt        | seconds_until_expiry | days_until_expiry 
----------------------------+---------------------------+--------------------+---------------+-------------------------+----------------------+-------------------
- cmnoi43020003kgs4ny83aw9w | cmnobnth900005f8op5v2v2m1 | bob.ui@example.com | claim_pending | 2026-05-07 10:53:35.665 |       2572150.298821 |                30
-(1 row)
-

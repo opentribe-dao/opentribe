@@ -2386,15 +2386,15 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 
 | Issue ID | Component | Problem | Impact | Resolution | Status |
 | -------- | --------- | ------- | ------ | ---------- | ------ |
-| P7-1 | Email Claim | Requires RESEND_TOKEN in .env | Cannot test email OTP flow locally | Configure RESEND_TOKEN in Phase 9 if testing email claims | ⏳ OPTIONAL |
-| P7-2 | Wallet Claim | Requires Polkadot.js/Talisman extension | Cannot test SIWP signature challenge flow | Browser extension installation required | ⏳ OPTIONAL |
-| P7-3 | Search Debounce | Shows "0 results" briefly after typing | Appears as loading state but is intentional | Expected behavior — not a blocker | ✅ INTENTIONAL |
+| P7-1 | Email Claim | Requires RESEND_TOKEN in .env | Cannot test email OTP flow locally | Configure RESEND_TOKEN in Phase 9 if testing email claims | ⏳ |
+| P7-2 | Wallet Claim | Requires Polkadot.js/Talisman extension | Cannot test SIWP signature challenge flow | Browser extension installation required | ⏳ |
+| P7-3 | Search Debounce | Shows "0 results" briefly after typing | Appears as loading state but is intentional | Expected behavior — not a blocker | ⁉️ |
 
 #### Phase 8: Organizations & Grants
 
 | Issue ID | Component | Problem | Impact | Resolution | Status |
 | -------- | --------- | ------- | ------ | ---------- | ------ |
-| P8-3 | Org Directory | Search functionality partial | Search UI verified but endpoint param not tested | Test search with actual query term | ⏳ OPTIONAL |
+| P8-3 | Org Directory | Search functionality partial | Search UI verified but endpoint param not tested | Test search with actual query term | ⏳ |
 
 ---
 

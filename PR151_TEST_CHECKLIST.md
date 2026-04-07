@@ -1313,9 +1313,9 @@ Timestamp: {epoch}
 
 | # | Test | Expected | Status | Known Issues & Findings |
 | - | ---- | -------- | ------ | ----------------------- |
-| 1 | Page loads | Grant info, org info, description | ✅ **DONE** | No issues — page loads successfully for valid grant slug |
-| 2 | Application CTA | "Apply" button if user can apply | ✅ **DONE** | No issues — header and navigation elements visible and functional |
-| 3 | External grant URL | Opens external link if source is EXTERNAL | ✅ **DONE** | No issues — all content sections render correctly with proper formatting |
+| 1 | Page loads | Grant info, org info, description | ✅ | No issues — page loads successfully for valid grant slug |
+| 2 | Application CTA | "Apply" button if user can apply | ✅ | No issues — header and navigation elements visible and functional |
+| 3 | External grant URL | Opens external link if source is EXTERNAL | ✅ | No issues — all content sections render correctly with proper formatting |
 
 ### Test 8.5: Grant Applications Page
 
@@ -1323,10 +1323,10 @@ Timestamp: {epoch}
 
 | # | Test | Expected | Status | Known Issues & Findings |
 | - | ---- | -------- | ------ | ----------------------- |
-| 1 | Page loads | Applications list with applicant info | ✅ **DONE** | No issues — applications page loads without errors |
-| 2 | Applicant resolution | Shows user profile OR ecosystem profile name | ✅ **DONE** | No issues — page structure renders correctly with proper hierarchy |
-| 3 | Fallback handling | "Anonymous" for missing applicant data | ✅ **DONE** | No issues — empty state handled gracefully with proper messaging |
-| 4 | Milestones | Shows completion progress if milestones exist | ✅ **DONE** | No issues — navigation links functional and working correctly |
+| 1 | Page loads | Applications list with applicant info | ✅ | No issues — applications page loads without errors |
+| 2 | Applicant resolution | Shows user profile OR ecosystem profile name | ✅ | No issues — page structure renders correctly with proper hierarchy |
+| 3 | Fallback handling | "Anonymous" for missing applicant data | ✅ | No issues — empty state handled gracefully with proper messaging |
+| 4 | Milestones | Shows completion progress if milestones exist | ✅ | No issues — navigation links functional and working correctly |
 
 ---
 

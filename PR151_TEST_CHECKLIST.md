@@ -2273,14 +2273,14 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 
 | Phase | Area | Test Cases | Screenshots | Status | Key Findings | Blockers / Issues | Next Steps |
 | ----- | ---- | ---------- | ----------- | ------ | ------------ | --------- | ------- |
-| 0  | Environment Setup | 5 checks | — | ✅ED | Ports verified, .env files created, pnpm v10 confirmed | None | Proceed to Phase 1 |
-| 1  | Build Validation | 4 tests | — | ✅ED | All builds compile, no TypeScript errors, tests passing | None | Proceed to Phase 2 |
-| 2  | Schema & Seed | 5 tests | — | ✅ED | Database schema deployed, seed data created (8 users, 4 orgs, 3 grants) | None | Proceed to Phase 3 |
-| 3  | Admin Auth & Nav | 15 tests | 3 captured | ✅ED | Superadmin auth working, sidebar nav verified, all 9 routes accessible | None | Proceed to Phase 4 |
-| 4  | Admin CRUD | 32 tests | 7 captured | ✅ED | Users, Organizations, Grants, Bounties, Profiles, Imports, Settings all functional | None | Proceed to Phase 5 |
-| 5  | Admin Claims | 11 tests | 9 captured | ✅ED | Claims CRUD, approval workflow, status transitions, audit trail all working | Pending claim UI not tested (no test data) | Proceed to Phase 6 |
-| 6  | Web Profiles | 14 tests | 3 captured | ✅ED | User profiles, ecosystem profiles, API union types, redirects, OG tags verified | None | Proceed to Phase 7 |
-| 7  | Claim Flow UI | 10 tests | 5 captured | ✅ED | Auth pages, claim form, validation, navigation all functional on web | Wallet & email flows require external config | Proceed to Phase 8 |
+| 0  | Environment Setup | 5 checks | — | ✅ | Ports verified, .env files created, pnpm v10 confirmed | None | Proceed to Phase 1 |
+| 1  | Build Validation | 4 tests | — | ✅ | All builds compile, no TypeScript errors, tests passing | None | Proceed to Phase 2 |
+| 2  | Schema & Seed | 5 tests | — | ✅ | Database schema deployed, seed data created (8 users, 4 orgs, 3 grants) | None | Proceed to Phase 3 |
+| 3  | Admin Auth & Nav | 15 tests | 3 captured | ✅ | Superadmin auth working, sidebar nav verified, all 9 routes accessible | None | Proceed to Phase 4 |
+| 4  | Admin CRUD | 32 tests | 7 captured | ✅ | Users, Organizations, Grants, Bounties, Profiles, Imports, Settings all functional | None | Proceed to Phase 5 |
+| 5  | Admin Claims | 11 tests | 9 captured | ✅ | Claims CRUD, approval workflow, status transitions, audit trail all working | Pending claim UI not tested (no test data) | Proceed to Phase 6 |
+| 6  | Web Profiles | 14 tests | 3 captured | ✅ | User profiles, ecosystem profiles, API union types, redirects, OG tags verified | None | Proceed to Phase 7 |
+| 7  | Claim Flow UI | 10 tests | 5 captured | ✅ | Auth pages, claim form, validation, navigation all functional on web | Wallet & email flows require external config | Proceed to Phase 8 |
 | 8  | Organizations & Grants | 22 tests | 6 captured | ✅ **COMPLETE** | All 22 tests executed: org directory, org detail, grants list, grant detail, grant applications all verified; 95% coverage (21/22 passing, 1 partial search) | None — all tests completed | Proceed to Phase 9 |
 | **9** | **API Stats & Redis** | **7 tests** | **0 pending** | ⬜ **READY** | Phase 8 complete; all blocking issues resolved (P8-1 ✅, P8-2 ✅); API stats endpoints ready for testing | None | **Begin Phase 9 testing immediately** |
 | **10** | **Admin Endpoints** | **23 tests** | **0 pending** | ✅ **PASSED** | All 21 admin API endpoints tested: stats, auth gates, users, orgs, profiles, grants, bounties, claims, imports. 96% pass rate (23/25). 1 known issue P5-1 (claim VERIFIED 500 error). 1 endpoint by-design not supported (bounty POST 405). | None — all functional tests complete | Ready for Phase 11 |

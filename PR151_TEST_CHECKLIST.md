@@ -1480,22 +1480,48 @@ Total: 12.4MB of test evidence
 
 All stats routes now **gracefully handle Redis unavailability** (try/catch around Redis calls).
 
-### Test 9.1: Stats Endpoints
+### Test 9.1: Stats Endpoints (WITH Redis Disabled — Database Fallback)
 
-| #  | Endpoint                       | Expected Response                             | Redis Down Behavior | Status | Known Issues & Findings |
-| -- | ------------------------------ | --------------------------------------------- | ------------------- | ------ | ----------------------- |
-| 1  | `GET /api/v1/bounties/stats`   | `{ total_bounties_count, total_rewards }`     | Falls back to DB    | ⬜ | - |
-| 2  | `GET /api/v1/grants/stats`     | `{ total_grants_count, total_funds }`         | Falls back to DB    | ⬜ | - |
-| 3  | `GET /api/v1/rfps/stats`       | `{ total_rfps_count, total_grants_count }`    | Falls back to DB    | ⬜ | - |
-| 4  | `GET /api/v1/home/stats`       | Combined platform stats                       | Falls back to DB    | ⬜ | - |
+| #  | Endpoint                       | Expected Response                             | Actual Response | Status | Known Issues & Findings |
+| -- | ------------------------------ | --------------------------------------------- | --------------- | ------ | ----------------------- |
+| 1  | `GET /api/v1/bounties/stats`   | `{ total_bounties_count, total_rewards }`     | `{ "total_bounties_count": 3, "total_rewards": 0 }` | ✅ | Returns correct count from database fallback. Response time acceptable (~150ms). |
+| 2  | `GET /api/v1/grants/stats`     | `{ total_grants_count, total_funds }`         | `{ "total_grants_count": 3, "total_funds": 100000 }` | ✅ | Returns correct count and total funding. No 500 errors. |
+| 3  | `GET /api/v1/rfps/stats`       | `{ total_rfps_count, total_grants_count }`    | `{ "total_rfps_count": 3, "total_grants_count": 7 }` | ✅ | RFP count correct. Grant count (7) includes RFPs from multiple orgs. |
+| 4  | `GET /api/v1/home/stats`       | Combined platform stats                       | `{ "data": { "platformStats": {...}, "featuredOrganizations": [...], "popularSkills": [...], "recentActivity": [...] } }` | ✅ | Returns comprehensive platform stats. UI displays stats correctly (screenshot: 9.1-home-stats-visible.png). |
 
 ### Test 9.2: Redis Fallback Verification
 
 | # | Test | Expected | Status | Known Issues & Findings |
 | - | ---- | -------- | ------ | ----------------------- |
-| 1 | Stats work WITH Redis configured | Fast response (cached) | ⬜ | - |
-| 2 | Stats work WITHOUT Redis (`UPSTASH_REDIS_*` commented out) | Slower but still returns data from DB | ⬜ | - |
-| 3 | No 500 errors when Redis unavailable | Graceful degradation | ⬜ | - |
+| 1 | Stats work WITH Redis configured | Fast response (cached) | ⬜ | Redis currently disabled in `.env.local` (UPSTASH_REDIS_* commented out). Will test with Redis enabled next. |
+| 2 | Stats work WITHOUT Redis (`UPSTASH_REDIS_*` commented out) | Slower but still returns data from DB | ✅ | **TESTED**: All 4 endpoints return 200 OK with data from DB. No 500 errors. Response times acceptable (~150-300ms). Database fallback working correctly. |
+| 3 | No 500 errors when Redis unavailable | Graceful degradation | ✅ | **TESTED**: Confirmed graceful degradation. All endpoints return valid JSON with data from database. Error handling verified. |
+
+### Phase 9 Summary
+
+**Status**: ⏳ IN PROGRESS (6/8 tests passing)
+
+**Tests Completed**:
+- ✅ Test 9.1.1: Bounties Stats endpoint
+- ✅ Test 9.1.2: Grants Stats endpoint
+- ✅ Test 9.1.3: RFPs Stats endpoint
+- ✅ Test 9.1.4: Home Stats endpoint (with UI verification)
+- ✅ Test 9.2.2: Stats WITHOUT Redis (graceful degradation confirmed)
+- ✅ Test 9.2.3: Graceful error handling (no 500 errors)
+
+**Tests Pending**:
+- ⬜ Test 9.2.1: Stats WITH Redis configured (Redis currently disabled — will enable and test)
+- ⬜ Test 9.3.1: Claim Expiry (requires database timestamp manipulation)
+
+**Evidence Files**:
+- Screenshots: `.pr151-test-assets/screenshots/phase-9/9.1-home-stats-visible.png`
+- API Responses: `.pr151-test-assets/screenshots/phase-9/9.1.1-bounties-stats.json`, `9.1.2-grants-stats.json`, `9.1.3-rfps-stats.json`, `9.1.4-home-stats.json`
+
+**Key Findings**:
+- All 4 stats endpoints working correctly with database fallback
+- No 500 errors when Redis disabled
+- Home page displays stats from API response correctly
+- Response times acceptable for API calls without caching
 
 ---
 

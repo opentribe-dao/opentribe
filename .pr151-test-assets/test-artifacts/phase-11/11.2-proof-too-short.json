@@ -1,0 +1,16 @@
+{
+  "error": "Validation failed",
+  "message": "proof: Please provide a detailed description of your proof of ownership",
+  "details": [
+    {
+      "origin": "string",
+      "code": "too_small",
+      "minimum": 10,
+      "inclusive": true,
+      "path": [
+        "proof"
+      ],
+      "message": "Please provide a detailed description of your proof of ownership"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "data": {
+    "id": "cmnobnti0000f5f8omqprbs1q",
+    "title": "KSM Art & Social Experiments Initiative",
+    "slug": "ksm-art-social-experiments",
+    "externalId": "kusama:ksm-art-social-experiments",
+    "logoUrl": null,
+    "bannerUrl": null,
+    "description": "Technology shapes society - but who shapes technology? This initiative funds artists, researchers, and cultural practitioners who explore that question through the lens of the cypherpunk movement.\n\nWe support projects that critically examine digital identity, privacy, censorship, surveillance, and the power dynamics between users and platforms. The work can live on-chain, off-chain, or somewhere in between. What matters is that it engages seriously with these themes and contributes to broader cultural discourse.\n\nWhat we fund:\n\n- Visual art - generative art, data art, painting, sculpture, digital installations, on-chain or hybrid works\n- Performance and live art - theatre, music, dance, immersive environments, site-specific interventions\n- Film, sound, and media - experimental cinema, audio works, publications, expanded media\n- Research and social experiments - academic inquiry, participatory projects, DAOs as artistic practice\n- Writing and criticism - essays, publications, and texts that engage with decentralized culture\n\nFunding is primarily available for projects up to 10,000 USD, paid in DOT on the Kusama network. Larger proposals are considered on a case-by-case basis.\n\nTo apply, submit a single PDF (maximum 15 pages, English language) containing: your contact details, a project description of 500 to 1000 words, a motivation letter of up to 400 words, supporting visual materials, documentation of at least three previous works, a budget overview, a project timeline, and a CV or portfolio link.\n\nApplications are reviewed on a rolling basis by a curatorial committee with backgrounds in art, research, culture, and decentralized technology. There is no fixed deadline.",
+    "summary": "Updated summary from Phase 10 admin test",
+    "instructions": null,
+    "resources": [
+      {
+        "url": "https://art.ksm.vision/#participate",
+        "title": "Original Grant Website",
+        "description": "Primary source page for the KSM Art initiative"
+      },
+      {
+        "url": "https://art.ksm.vision/basis-terms/",
+        "title": "Basis & Terms",
+        "description": "Full program terms, selection criteria, and legal conditions"
+      }
+    ],
+    "screening": null,
+    "applicationUrl": "https://ksmart.notion.site",
+    "token": "DOT",
+    "skills": [
+      "art",
+      "design",
+      "research",
+      "social-experiments",
+      "content-creation"
+    ],
+    "organizationId": "cmnobnth900005f8op5v2v2m1",
+    "minAmount": "1000",
+    "minAmountUSD": null,
+    "maxAmount": "10000",
+    "maxAmountUSD": null,
+    "totalFunds": "100000",
+    "totalFundsUSD": null,
+    "curatorFee": null,
+    "distributedAmount": null,
+    "status": "OPEN",
+    "visibility": "PUBLISHED",
+    "source": "EXTERNAL",
+    "fundingSource": "TREASURY",
+    "onChainRef": "kusama-referenda-404",
+    "onChainRefUrl": "https://kusama.subsquare.io/referenda/404",
+    "publishedAt": "2026-03-31T07:52:58.963Z",
+    "viewCount": 32,
+    "applicationCount": 0,
+    "rfpCount": 0,
+    "createdAt": "2026-04-07T07:52:59.160Z",
+    "updatedAt": "2026-04-07T10:39:50.350Z"
+  }
+}

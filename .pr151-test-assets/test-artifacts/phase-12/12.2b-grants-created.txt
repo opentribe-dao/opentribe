@@ -1,0 +1,7 @@
+                  title                  |            slug            | status 
+-----------------------------------------+----------------------------+--------
+ KSM Art & Social Experiments Initiative | ksm-art-social-experiments | OPEN
+ Kusama ZK Bounty                        | kusama-zk-bounty           | OPEN
+ Proof of Personhood Bounty              | proof-of-personhood-bounty | OPEN
+(3 rows)
+

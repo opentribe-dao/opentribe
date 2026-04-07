@@ -1,0 +1,18 @@
+=== Test 14.6-14.9: Claim Authorization Setup ===
+ERROR:  relation "claims" does not exist
+LINE 7: FROM claims;
+             ^
+
+=== Claims Table Schema ===
+Did not find any relation named "claims".
+
+=== Organization Members & Roles Setup ===
+ERROR:  relation "organization_members" does not exist
+LINE 7: FROM organization_members om
+             ^
+
+=== Available Roles in System ===
+ERROR:  relation "organization_members" does not exist
+LINE 2: SELECT DISTINCT role FROM organization_members ORDER BY role...
+                                  ^
+

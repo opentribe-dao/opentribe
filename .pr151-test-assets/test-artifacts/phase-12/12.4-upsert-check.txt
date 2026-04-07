@@ -1,0 +1,8 @@
+=== UPSERT CHECK (Verify no duplicates) ===
+
+Before first seed: 0 grants
+After first seed: 3 grants
+Before second seed: 3 grants  
+After second seed: 3 grants
+
+RESULT: ✅ PASS - No duplicates created. Upsert correctly updated existing records.

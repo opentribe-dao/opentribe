@@ -1,0 +1,92 @@
+{
+  "data": [
+    {
+      "id": "cmnobnthf00025f8oesd1gep7",
+      "name": "Moonbeam Network",
+      "slug": "moonbeam",
+      "logo": "https://avatars.githubusercontent.com/u/84856768",
+      "metadata": null,
+      "createdAt": "2026-04-07T07:52:59.128Z",
+      "updatedAt": "2026-04-07T07:52:59.128Z",
+      "legalName": null,
+      "headline": "Ethereum-compatible smart contract platform on Polkadot",
+      "description": "Moonbeam is a smart contract platform for building cross-chain connected applications that can access users, assets, and services on any chain.",
+      "industry": [],
+      "twitter": "MoonbeamNetwork",
+      "github": "PureStake",
+      "linkedin": null,
+      "location": "Boston, USA",
+      "websiteUrl": "https://moonbeam.network",
+      "email": null,
+      "visibility": "VERIFIED",
+      "isVerified": true,
+      "orgType": "COMPANY",
+      "managedByPlatform": false,
+      "claimableBy": null,
+      "ecosystemSource": null,
+      "members": [
+        {
+          "id": "cmnobnthh00035f8oiep08sm6",
+          "role": "owner",
+          "user": {
+            "id": "cll4GEKhI8Qch0RlU2oWZgskrgsyXmQ7",
+            "name": "Emma Wilson",
+            "email": "emma.moonbeam@example.com"
+          }
+        }
+      ],
+      "_count": {
+        "bounties": 0,
+        "grants": 1,
+        "members": 1
+      }
+    },
+    {
+      "id": "cmnobnth900005f8op5v2v2m1",
+      "name": "Web3 Foundation",
+      "slug": "web3-foundation",
+      "logo": "https://avatars.githubusercontent.com/u/30405397",
+      "metadata": null,
+      "createdAt": "2026-04-07T07:52:59.127Z",
+      "updatedAt": "2026-04-07T07:52:59.127Z",
+      "legalName": null,
+      "headline": "Funding the decentralized web",
+      "description": "The Web3 Foundation nurtures and stewards technologies and applications in the fields of decentralized web software protocols.",
+      "industry": [],
+      "twitter": "web3foundation",
+      "github": "w3f",
+      "linkedin": null,
+      "location": "Zug, Switzerland",
+      "websiteUrl": "https://web3.foundation",
+      "email": null,
+      "visibility": "VERIFIED",
+      "isVerified": true,
+      "orgType": "FOUNDATION",
+      "managedByPlatform": true,
+      "claimableBy": "github:w3f",
+      "ecosystemSource": "W3F_GRANTS",
+      "members": [
+        {
+          "id": "cmnobnthb00015f8o282x8o09",
+          "role": "owner",
+          "user": {
+            "id": "mBGC2BT1NCF8CakHQ5OtRvwOpYV6WuKW",
+            "name": "David Kim",
+            "email": "david.w3f@example.com"
+          }
+        }
+      ],
+      "_count": {
+        "bounties": 1,
+        "grants": 5,
+        "members": 1
+      }
+    }
+  ],
+  "pagination": {
+    "page": 2,
+    "limit": 2,
+    "total": 4,
+    "totalPages": 2
+  }
+}

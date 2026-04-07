@@ -1,0 +1,43 @@
+╔════════════════════════════════════════════════════════════════╗
+║         PHASE 14: SECURITY & ACCESS CONTROL TESTING            ║
+╚════════════════════════════════════════════════════════════════╝
+
+=== Test 14.1-14.2: Admin Middleware & Authorization ===
+✅ Port 3001 (Dashboard) redirects unauthenticated → /sign-in (307)
+✅ Port 3003 (Admin) redirects unauthenticated → /sign-in (307)
+✅ CORS properly configured on API (Access-Control-Allow-Origin)
+
+=== Test 14.6-14.9: Claim Authorization & Ownership ===
+Checking claim_request system...
+ERROR:  invalid input value for enum "ClaimStatus": "APPROVED"
+LINE 5:   COUNT(CASE WHEN status = 'APPROVED' THEN 1 END) as approve...
+                                   ^
+
+Organization and Member Setup:
+ERROR:  column m.organization_id does not exist
+LINE 8: LEFT JOIN member m ON o.id = m.organization_id
+                                     ^
+HINT:  Perhaps you meant to reference the column "m.organizationId".
+
+Available Member Roles:
+ role  
+-------
+ admin
+ owner
+(2 rows)
+
+
+=== Test 14.10: Auth Cookie Security ===
+Testing auth endpoint security headers...
+✅ Health endpoint returns clean headers (no Set-Cookie)
+
+=== Test 14.11: CORS Headers on API ===
+access-control-allow-credentials: true
+access-control-allow-headers: X-CSRF-Token,X-Requested-With,Accept,Accept-Version,Content-Length,Content-MD5,Content-Type,Date,X-Api-Version,Authorization,Cookie
+access-control-allow-methods: GET,DELETE,PATCH,POST,PUT,OPTIONS
+access-control-allow-origin: http://localhost:3000
+
+=== Test 14.12: Rate Limiting Check ===
+Checking for rate limiting middleware...
+⏳ Rate limiting not yet implemented
+

@@ -1,0 +1,22 @@
+{
+  "error": "Validation failed",
+  "message": "description: Invalid input: expected string, received undefined, organizationId: Invalid input: expected string, received undefined",
+  "details": [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "description"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "organizationId"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+}

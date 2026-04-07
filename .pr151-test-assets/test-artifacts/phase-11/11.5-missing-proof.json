@@ -1,0 +1,14 @@
+{
+  "error": "Validation failed",
+  "message": "proof: Invalid input: expected string, received undefined",
+  "details": [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "proof"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "error": "Validation failed",
+  "message": "sourceProfileId: Invalid input: expected string, received undefined",
+  "details": [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "sourceProfileId"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+
+> @packages/db@0.0.0 db:seed:production /Users/tarun/Downloads/projects/opentribe/packages/db
+> tsx ./seed-production.ts
+
+🌱 Starting production-safe Kusama upsert...
+✅ Upserted 1 organization
+✅ Upserted 3 grants
+✅ Upserted 1 RFP
+✅ Preserved unrelated production data
+🎉 Production-safe Kusama upsert completed successfully!

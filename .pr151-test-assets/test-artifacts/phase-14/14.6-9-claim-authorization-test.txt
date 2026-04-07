@@ -1,0 +1,24 @@
+=== Test 14.6-14.9: Claim Authorization Setup ===
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+
+=== Test 14.6: API /api/v1/organizations claims endpoint ===
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+Testing with Org ID: 
+
+Checking claims table schema...
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+
+=== Test 14.13: Permission Matrix Setup ===
+Checking organization roles...
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+
+=== Test 14.10-14.12: Security Configuration ===
+Checking .env.local for security settings...
+(No explicit security env vars found - using defaults)
+
+Checking middleware configuration in codebase...
+/Users/tarun/Downloads/projects/opentribe/apps/api/app/api/v1/organizations/[organizationId]/grants/route.ts:    // Get auth (middleware already validated membership)
+/Users/tarun/Downloads/projects/opentribe/apps/api/app/api/v1/organizations/[organizationId]/grants/route.ts:    // Get auth (middleware already validated membership)
+/Users/tarun/Downloads/projects/opentribe/apps/api/app/api/v1/organizations/[organizationId]/grants/[id]/route.ts:    // Get auth (middleware already validated membership)
+✅ Middleware files found
+

@@ -1,0 +1,106 @@
+{
+  "data": [
+    {
+      "id": "oDyyYseqsowK3h1E2bBp7jqxtNjSPcd5",
+      "name": "Tarun Sharma",
+      "email": "tarun@droidsize.com",
+      "image": "https://lh3.googleusercontent.com/a/ACg8ocK7-gjh1Zn69-Qlr5hVr4hVxcsukvlBOXbFUXQ6SO05avryZA=s96-c",
+      "role": "user",
+      "banned": false,
+      "profileCompleted": false,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T05:09:25.961Z",
+      "username": null
+    },
+    {
+      "id": "Em9nYvKQisyXNHGBy88S3zF3iPxxZEnl",
+      "name": "Admin User",
+      "email": "admin@opentribe.io",
+      "image": null,
+      "role": "superadmin",
+      "banned": false,
+      "profileCompleted": true,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T04:49:52.993Z",
+      "username": "admin"
+    },
+    {
+      "id": "0NdGjRp7a3oaOoFsX1daCbFzWUNSpaor",
+      "name": "Frank Zhang",
+      "email": "frank.acala@example.com",
+      "image": null,
+      "role": "admin",
+      "banned": false,
+      "profileCompleted": true,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T04:49:52.329Z",
+      "username": "frank_acala"
+    },
+    {
+      "id": "cll4GEKhI8Qch0RlU2oWZgskrgsyXmQ7",
+      "name": "Emma Wilson",
+      "email": "emma.moonbeam@example.com",
+      "image": null,
+      "role": "admin",
+      "banned": false,
+      "profileCompleted": true,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T04:49:51.407Z",
+      "username": "emma_moonbeam"
+    },
+    {
+      "id": "mBGC2BT1NCF8CakHQ5OtRvwOpYV6WuKW",
+      "name": "David Kim",
+      "email": "david.w3f@example.com",
+      "image": null,
+      "role": "admin",
+      "banned": false,
+      "profileCompleted": true,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T04:49:50.458Z",
+      "username": "david_w3f"
+    },
+    {
+      "id": "LtQjlsW2lBzYFMUb5abq7Co98EwmBSzY",
+      "name": "Carol Thompson",
+      "email": "carol.writer@example.com",
+      "image": null,
+      "role": "user",
+      "banned": false,
+      "profileCompleted": true,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T04:49:49.210Z",
+      "username": "carol_docs"
+    },
+    {
+      "id": "Vge7c8ddmEnMOEPBGH0pexAuLLk3pYf1",
+      "name": "Bob Martinez",
+      "email": "bob.ui@example.com",
+      "image": null,
+      "role": "user",
+      "banned": false,
+      "profileCompleted": true,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T04:49:48.687Z",
+      "username": "bob_designer"
+    },
+    {
+      "id": "X9Nq6DWilG4XgsUj4omG6DwAjtZJuI35",
+      "name": "Alice Chen",
+      "email": "alice.rust@example.com",
+      "image": null,
+      "role": "user",
+      "banned": false,
+      "profileCompleted": true,
+      "lastSeen": null,
+      "createdAt": "2026-03-19T04:49:47.583Z",
+      "username": "alice_substrate"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 8,
+    "totalPages": 1
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "data": {
+    "id": "cmnobnthk00055f8osr16cjz7",
+    "name": "Community DAO",
+    "slug": "community-dao",
+    "logo": "https://avatars.githubusercontent.com/u/89759498",
+    "metadata": null,
+    "createdAt": "2026-04-07T07:52:59.132Z",
+    "updatedAt": "2026-04-07T07:52:59.132Z",
+    "legalName": null,
+    "headline": "Supporting grassroots Polkadot initiatives",
+    "description": "A community-driven organization supporting small but impactful projects in the Polkadot ecosystem.",
+    "industry": [],
+    "twitter": null,
+    "github": null,
+    "linkedin": null,
+    "location": null,
+    "websiteUrl": null,
+    "email": null,
+    "visibility": "ACTIVE",
+    "isVerified": false,
+    "orgType": "COMPANY",
+    "managedByPlatform": false,
+    "claimableBy": null,
+    "ecosystemSource": null,
+    "members": [
+      {
+        "id": "cmnobnthm00085f8opxp1jxrk",
+        "organizationId": "cmnobnthk00055f8osr16cjz7",
+        "userId": "LtQjlsW2lBzYFMUb5abq7Co98EwmBSzY",
+        "role": "admin",
+        "createdAt": "2026-04-07T07:52:59.132Z",
+        "user": {
+          "id": "LtQjlsW2lBzYFMUb5abq7Co98EwmBSzY",
+          "name": "Carol Thompson",
+          "email": "carol.writer@example.com",
+          "image": null,
+          "role": "user"
+        }
+      },
+      {
+        "id": "cmnobnthm00075f8o6nqa5ku3",
+        "organizationId": "cmnobnthk00055f8osr16cjz7",
+        "userId": "Vge7c8ddmEnMOEPBGH0pexAuLLk3pYf1",
+        "role": "owner",
+        "createdAt": "2026-04-07T07:52:59.132Z",
+        "user": {
+          "id": "Vge7c8ddmEnMOEPBGH0pexAuLLk3pYf1",
+          "name": "Bob Martinez",
+          "email": "bob.ui@example.com",
+          "image": null,
+          "role": "user"
+        }
+      }
+    ],
+    "bounties": [
+      {
+        "id": "cmnobntia000k5f8ob2s6dfah",
+        "title": "Create Substrate Pallet Tutorial Series",
+        "status": "COMPLETED",
+        "visibility": "PUBLISHED",
+        "createdAt": "2026-04-07T07:52:59.170Z"
+      }
+    ],
+    "grants": [],
+    "_count": {
+      "bounties": 1,
+      "grants": 0,
+      "members": 2
+    }
+  }
+}

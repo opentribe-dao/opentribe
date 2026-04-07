@@ -1,0 +1,12 @@
+=== Database Connectivity ===
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+
+=== Existing Bounties and Grants ===
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+
+=== Organizations ===
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+
+=== Claim System Verification ===
+psql: error: connection to server on socket "/tmp/.s.PGSQL.5432" failed: FATAL:  database "tarun" does not exist
+

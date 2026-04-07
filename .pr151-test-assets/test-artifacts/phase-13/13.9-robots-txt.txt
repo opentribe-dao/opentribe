@@ -1,0 +1,18 @@
+User-Agent: *
+Allow: /
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /forgot-password
+Disallow: /verify-email
+Disallow: /reset-password
+Disallow: /onboarding
+Disallow: /settings
+Disallow: /en/sign-in
+Disallow: /en/sign-up
+Disallow: /en/forgot-password
+Disallow: /en/verify-email
+Disallow: /en/reset-password
+Disallow: /en/onboarding
+Disallow: /en/settings
+
+Sitemap: http://localhost:3000/sitemap.xml

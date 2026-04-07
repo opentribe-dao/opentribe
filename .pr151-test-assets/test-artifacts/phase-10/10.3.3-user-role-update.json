@@ -1,0 +1,18 @@
+{
+  "error": "Validation failed",
+  "message": "role: Invalid option: expected one of \"user\"|\"admin\"|\"superadmin\"",
+  "details": [
+    {
+      "code": "invalid_value",
+      "values": [
+        "user",
+        "admin",
+        "superadmin"
+      ],
+      "path": [
+        "role"
+      ],
+      "message": "Invalid option: expected one of \"user\"|\"admin\"|\"superadmin\""
+    }
+  ]
+}

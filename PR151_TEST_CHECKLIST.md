@@ -1433,7 +1433,7 @@ Timestamp: {epoch}
 All test phases from Environment Setup (Phase 0) through Organizations & Grants (Phase 8) have been completed and verified:
 
 - ✅ Phase 0: Environment Setup
-- ✅ Phase 1: Build Validation  
+- ⚠️ Phase 1: Build Validation  
 - ✅ Phase 2: Schema & Seed Verification
 - ✅ Phase 3: Admin App Auth & Navigation
 - ✅ Phase 4: Admin App CRUD Operations
@@ -2379,7 +2379,7 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 
 #### ✅ Feature Completeness (Phases 0–10 COMPLETE)
 - **Phase 0**: Environment fully configured (Node 18+, pnpm 10, PostgreSQL, .env files) ✅
-- **Phase 1**: Build system verified (pnpm build, pnpm test, linting all pass) ✅
+- **Phase 1**: Build system verification FAILED (docs Next.js build error: Invalid value for --ignoreDeprecations) ⚠️
 - **Phase 2**: Database schema deployed correctly; seed data populated ✅
 - **Phase 3**: Admin authentication & navigation — superadmin flow verified, all 9 sidebar routes accessible ✅
 - **Phase 4**: Admin CRUD operations — all entity types (users, orgs, grants, bounties, profiles) tested with full test data ✅
@@ -2993,11 +2993,11 @@ Answer: [ <copy from api/.env.local> ]
 - Database connectivity verified
 - pnpm 10.11.0 installed
 
-**Phase 1 - Build Validation:** ✅ All builds successful
-- pnpm clean/install: ✅
-- All 5 apps built (web, dashboard, api, admin, docs): ✅
-- 258 tests passing: ✅
-- 4 code issues identified and fixed: ✅
+**Phase 1 - Build Validation:** ⚠️ Build failed — docs app build failed (Next.js: Invalid value for --ignoreDeprecations)
+- pnpm install: ✅
+- Apps built: web, dashboard, api, admin: ✅
+- docs build: ❌ (Next.js error: Invalid value for --ignoreDeprecations)
+- Next step: Investigate Next.js build flags / workspace lockfiles
 
 **Phase 2 - Schema & Seed Verification:** ✅ Database ready
 - Prisma migrations applied successfully

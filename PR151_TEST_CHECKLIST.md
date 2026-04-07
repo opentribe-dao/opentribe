@@ -22,12 +22,14 @@
 | ⏳ | PENDING / IN PROGRESS / TODO | Test awaiting execution, feature in progress, task not started |
 | ⁉️ | KNOWN ISSUES / FINDINGS / BLOCKER / NOT DONE | Test found a problem, critical gap identified, unresolved issue |
 | ⬜ | PLANNED / NOT YET STARTED | Feature or test planned but not yet executed; zero progress |
+| ⚠️ | WARNING / LIMITATION / PARTIAL / DEFERRED | Test identified limitation or partial implementation; feature partially working or deferred to future phase |
 
 **Example usage in tables:**
 - `13.1 ✅` = Test 13.1 passed
 - `14.7 ⏳` = Test 14.7 pending (not yet implemented)
 - `14.8 ⁉️` = Test 14.8 identified critical issue
 - `16.1 ⬜` = Test 16.1 planned for future execution
+- `7.2 ⚠️` = Test 7.2 found limitation (e.g., partial implementation)
 
 ---
 

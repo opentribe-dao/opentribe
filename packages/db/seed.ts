@@ -37,6 +37,7 @@ async function main() {
     prisma.member.deleteMany(),
     prisma.organization.deleteMany(),
     prisma.invitation.deleteMany(),
+    prisma.claimRequest.deleteMany(),
     // Don't delete sessions, accounts, or users - they're managed by seed-auth.ts
   ]);
 
@@ -1300,7 +1301,98 @@ Each tutorial includes:
 
   console.log(`✅ Created ${votes.length} votes`);
 
-  // Create notification settings for users
+  // Create claims for ecosystem profiles
+  // Get some ecosystem profiles from the database
+  const ecosystemProfiles = await prisma.ecosystemProfile.findMany({
+    take: 5, // Get first 5 profiles for claims
+  });
+
+  if (ecosystemProfiles.length === 0) {
+    console.warn("⚠️  No ecosystem profiles found - skipping claims seeding");
+  } else {
+    const claimRequests = await Promise.all([
+      // PENDING claim - Alice claiming a profile
+      prisma.claimRequest.create({
+        data: {
+          ecosystemProfileId: ecosystemProfiles[0].id,
+          userId: users[0].id, // Alice
+          method: "GITHUB_OAUTH",
+          status: "PENDING",
+          expiresAt: daysFromNow(30),
+          verificationData: {
+            githubUsername: "alice_substrate",
+            githubId: "12345",
+            email: "alice.rust@example.com",
+          },
+        },
+      }),
+      // PENDING claim - Bob claiming a profile
+      prisma.claimRequest.create({
+        data: {
+          ecosystemProfileId: ecosystemProfiles[1].id,
+          userId: users[1].id, // Bob
+          method: "EMAIL_VERIFICATION",
+          status: "PENDING",
+          expiresAt: daysFromNow(7),
+          verificationData: {
+            email: "bob.ui@example.com",
+            verificationToken: "token_123456",
+          },
+        },
+      }),
+      // VERIFIED claim - Carol claiming a profile (already approved)
+      prisma.claimRequest.create({
+        data: {
+          ecosystemProfileId: ecosystemProfiles[2].id,
+          userId: users[2].id, // Carol
+          method: "WALLET_SIGNATURE",
+          status: "VERIFIED",
+          expiresAt: daysFromNow(365),
+          reviewedBy: users[6].id, // Admin approved it
+          reviewNotes: "Wallet signature verified and matches profile",
+          verificationData: {
+            wallet: "1AAAAA2222BBBBBccccDDDDDeeeee3333",
+            signature: "0x1234567890abcdef",
+          },
+        },
+      }),
+      // REJECTED claim - David's claim was rejected
+      prisma.claimRequest.create({
+        data: {
+          ecosystemProfileId: ecosystemProfiles[3].id,
+          userId: users[3].id, // David
+          method: "EMAIL_VERIFICATION",
+          status: "REJECTED",
+          expiresAt: daysFromNow(1),
+          reviewedBy: users[6].id, // Admin rejected it
+          reviewNotes:
+            "Email verification failed - no response from user after 2 attempts",
+          verificationData: {
+            email: "david.w3f@example.com",
+          },
+        },
+      }),
+      // PENDING claim - Emma claiming a profile (new claim)
+      prisma.claimRequest.create({
+        data: {
+          ecosystemProfileId: ecosystemProfiles[4].id,
+          userId: users[4].id, // Emma
+          method: "GITHUB_OAUTH",
+          status: "PENDING",
+          expiresAt: daysFromNow(14),
+          verificationData: {
+            githubUsername: "emma_moonbeam",
+            githubId: "54321",
+            email: "emma.moonbeam@example.com",
+          },
+        },
+      }),
+    ]);
+
+    console.log(`✅ Created ${claimRequests.length} claim requests`);
+  }
+
+
   const notificationSettings = await Promise.all(
     users.slice(0, 3).flatMap((user) => [
       prisma.notificationSetting.create({
@@ -1324,14 +1416,6 @@ Each tutorial includes:
           userId: user.id,
           channel: "EMAIL",
           type: "NEW_BOUNTY_MATCHING_SKILLS",
-          isEnabled: true,
-        },
-      }),
-      prisma.notificationSetting.create({
-        data: {
-          userId: user.id,
-          channel: "EMAIL",
-          type: "WEEKLY_DIGEST",
           isEnabled: true,
         },
       }),

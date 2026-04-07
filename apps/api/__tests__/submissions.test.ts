@@ -70,7 +70,7 @@ describe("Submission System Tests", () => {
         slug: "bounty-1",
         title: "Test Bounty",
         status: "OPEN",
-        deadline: new Date("2025-12-31"),
+        deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         visibility: "PUBLISHED",
       };
 
@@ -233,7 +233,7 @@ describe("Submission System Tests", () => {
         status: "OPEN",
         visibility: "PUBLISHED",
         organizationId: "org-1",
-        deadline: new Date("2025-12-31"),
+        deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       };
 
       const mockMembership = [
@@ -1635,7 +1635,7 @@ describe("Submission System Tests", () => {
         isWinner: false,
         bounty: {
           status: "OPEN",
-          deadline: new Date("2025-12-31"),
+          deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year in future
         },
       };
 
@@ -1688,7 +1688,7 @@ describe("Submission System Tests", () => {
         isWinner: true,
         bounty: {
           status: "OPEN",
-          deadline: new Date("2025-12-31"),
+          deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         },
       };
 
@@ -1736,7 +1736,7 @@ describe("Submission System Tests", () => {
         isWinner: false,
         bounty: {
           status: "OPEN",
-          deadline: new Date("2025-12-31"),
+          deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         },
       };
 
@@ -1775,7 +1775,7 @@ describe("Submission System Tests", () => {
         isWinner: false,
         bounty: {
           status: "OPEN",
-          deadline: new Date("2025-12-31"),
+          deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         },
       };
 
@@ -1813,7 +1813,7 @@ describe("Submission System Tests", () => {
         isWinner: true,
         bounty: {
           status: "OPEN",
-          deadline: new Date("2025-12-31"),
+          deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         },
       };
 

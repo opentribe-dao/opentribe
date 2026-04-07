@@ -4,7 +4,7 @@
 **PR Author:** itsYogesh (@manofcode)  
 **Tester:** @itsTarun  
 **Branch:** `feat/admin-app` → `feat/kusama-production-upsert`  
-**Status:** ✅ **Phases 0–12 & 15 COMPLETE** + ⏳ **Phases 13–14 PARTIAL** (96% complete, 15/16 phases)  
+**Status:** ✅ Phases 0–12 & 15 + ⏳ Phases 13–14 (96% complete, 15/16 phases)  
 **Last Updated:** 2026-04-07 (Phase 15: 36/36 responsive design tests passing — all breakpoints verified)  
 **Testing Method:** Chrome DevTools MCP (browser-based automation) + cURL API tests + Static code analysis  
 **Latest commit:** `7169831` — test(phase-15): responsive design testing complete - 36/36 tests passing (100%)
@@ -14,7 +14,22 @@
 
 ---
 
-## Table of Contents
+## Status Legend
+
+| Emoji | Meaning | Usage |
+|-------|---------|-------|
+| ✅ | PASS / COMPLETE / DONE / VERIFIED | Test passed, feature implemented, task completed |
+| ⏳ | PENDING / IN PROGRESS / TODO | Test awaiting execution, feature in progress, task not started |
+| ⁉️ | KNOWN ISSUES / FINDINGS / BLOCKER / NOT DONE | Test found a problem, critical gap identified, unresolved issue |
+| ⬜ | PLANNED / NOT YET STARTED | Feature or test planned but not yet executed; zero progress |
+
+**Example usage in tables:**
+- `13.1 ✅` = Test 13.1 passed
+- `14.7 ⏳` = Test 14.7 pending (not yet implemented)
+- `14.8 ⁉️` = Test 14.8 identified critical issue
+- `16.1 ⬜` = Test 16.1 planned for future execution
+
+---
 
 1. [Environment Setup](#phase-0-environment-setup)
 2. [Pre-Testing Build Validation](#phase-1-pre-testing-build-validation)
@@ -641,7 +656,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 
 ---
 
-### Test 5.1: Claims Queue Structure ✅ PASS
+### Test 5.1: Claims Queue Structure ✅
 
 | #  | Action                     | Expected                               | Status | Known Issues & Findings |
 | -- | -------------------------- | -------------------------------------- | ------ | ----------------------- |
@@ -654,7 +669,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 
 ---
 
-### Test 5.2: Claim Review (Admin Approval) ✅ PASS
+### Test 5.2: Claim Review (Admin Approval) ✅
 
 **URL:** `http://localhost:3003/claims/{id}`
 
@@ -674,7 +689,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 
 ---
 
-### Test 5.3: Approval Workflow ✅ PASS
+### Test 5.3: Approval Workflow ✅
 
 **Status:** ✅ Complete — Approval workflow verified
 
@@ -691,7 +706,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 
 ---
 
-### Test 5.4: Rejection Workflow ✅ PASS
+### Test 5.4: Rejection Workflow ✅
 
 **Status:** ✅ Complete — Rejection workflow verified
 
@@ -708,7 +723,7 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 
 ---
 
-### Test 5.5: Claim History & Audit Trail ✅ PASS
+### Test 5.5: Claim History & Audit Trail ✅
 
 **Status:** ✅ Complete — Audit trail verified in database
 
@@ -745,11 +760,11 @@ When proceeding to Phase 5 (Claims Management), the following Phase 4 items shou
 
 | Test | Name                      | Status | Result | Notes |
 |------|---------------------------|--------|--------|-------|
-| 5.1  | Claims Queue Structure    | ✅ PASS | UI loads with 5 test claims | All tabs functional (Pending, Approved, Rejected, All) |
-| 5.2  | Claim Review Detail       | ✅ PASS | Detail page displays all claim info | Approval/rejection controls fully functional |
-| 5.3  | Approval Workflow         | ✅ PASS | Han Zhao claim approved, moved to Approved tab | Status persists, UI auto-updates |
-| 5.4  | Rejection Workflow        | ✅ PASS | Yvonne Xie claim rejected with notes | Status persists, notes stored in reviewNotes |
-| 5.5  | Audit Trail               | ✅ PASS | Database captures all audit data | reviewedBy, reviewNotes, updatedAt all recorded |
+| 5.1  | Claims Queue Structure    | ✅ | UI loads with 5 test claims | All tabs functional (Pending, Approved, Rejected, All) |
+| 5.2  | Claim Review Detail       | ✅ | Detail page displays all claim info | Approval/rejection controls fully functional |
+| 5.3  | Approval Workflow         | ✅ | Han Zhao claim approved, moved to Approved tab | Status persists, UI auto-updates |
+| 5.4  | Rejection Workflow        | ✅ | Yvonne Xie claim rejected with notes | Status persists, notes stored in reviewNotes |
+| 5.5  | Audit Trail               | ✅ | Database captures all audit data | reviewedBy, reviewNotes, updatedAt all recorded |
 
 **Phase 5 Completion**: ✅ 5/5 tests (100%) Passing  
 **Blocker Status**: ✅ **Resolved** — Claims data successfully seeded and all workflows verified
@@ -810,7 +825,7 @@ Phase 6 tests the **public-facing profile routes** on the web app:
 - **Workaround:** Test with profiles that have known claims (Han Zhao, Shihao Zhao)
 - **Scope:** Outside Phase 6 — documented for awareness
 
-### Test 6.1: Profile API — Union Type Response ✅ PASS
+### Test 6.1: Profile API — Union Type Response ✅
 
 #### API Response Types
 
@@ -834,7 +849,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) returns 3 different respo
 
 ---
 
-### Test 6.2: User Profile Page ✅ PASS
+### Test 6.2: User Profile Page ✅
 
 #### User Profile Features
 
@@ -855,7 +870,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) returns 3 different respo
 
 ---
 
-### Test 6.3: Ecosystem Profile Page ✅ PASS
+### Test 6.3: Ecosystem Profile Page ✅
 
 #### Ecosystem Profile Features
 
@@ -878,7 +893,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) returns 3 different respo
 
 ---
 
-### Test 6.4: Claimed Profile Redirect ✅ PASS
+### Test 6.4: Claimed Profile Redirect ✅
 
 #### Redirect Behavior
 
@@ -907,7 +922,7 @@ Key sections:
 
 ---
 
-### Test 6.1: Profile API — Union Type Response ✅ PASS
+### Test 6.1: Profile API — Union Type Response ✅
 
 The profile API (`GET /api/v1/profiles/{slug}/public`) now returns a **union type** with 3 possible shapes:
 
@@ -917,7 +932,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) now returns a **union typ
 | `"ecosystem"` | Slug matches an ecosystem profile | `{ type: "ecosystem", data: {...} }` |
 | `"redirect"` | Ecosystem profile was claimed by a user | `{ type: "redirect", redirectTo: "/profile/{username}" }` |
 
-### Test 6.2: User Profile Page ✅ PASS
+### Test 6.2: User Profile Page ✅
 
 **URL:** `http://localhost:3000/[locale]/profile/{username}`
 
@@ -940,7 +955,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) now returns a **union typ
 
 ---
 
-### Test 6.3: Ecosystem Profile Page ✅ PASS
+### Test 6.3: Ecosystem Profile Page ✅
 
 **URL:** `http://localhost:3000/[locale]/profile/{ecosystem_slug}`
 
@@ -965,7 +980,7 @@ The profile API (`GET /api/v1/profiles/{slug}/public`) now returns a **union typ
 
 ---
 
-### Test 6.4: Claimed Profile Redirect ✅ PASS
+### Test 6.4: Claimed Profile Redirect ✅
 
 **URL:** `http://localhost:3000/[locale]/profile/{ecosystem_slug}`
 
@@ -1172,17 +1187,17 @@ See **PHASE_6_TEST_PROMPT.md** for comprehensive test cases, API examples, and d
 
 | # | Test | Expected | Status | Known Issues & Findings |
 | - | ---- | -------- | ------ | ----------------------- |
-| 1 | Navigate to `/profile/claim/{slug}` without login | Auth modal appears prompting sign-in | ✅ PASS | Verified: unauthenticated users can access claim form |
-| 2 | Sign in via modal | Redirects back to claim page with profile loaded | ✅ PASS | Verified: form displays "Verify via Email" after auth |
+| 1 | Navigate to `/profile/claim/{slug}` without login | Auth modal appears prompting sign-in | ✅ | Verified: unauthenticated users can access claim form |
+| 2 | Sign in via modal | Redirects back to claim page with profile loaded | ✅ | Verified: form displays "Verify via Email" after auth |
 
 ### Test 7.2: Claim Page Load (Authenticated)
 
 | # | Test | Expected | Status | Known Issues & Findings |
 | - | ---- | -------- | ------ | ----------------------- |
-| 1 | Profile data loads | Display name, bio, skills, source shown | ✅ PASS | Verified: louise-reed, katar-na-valov, name-of-team-leader profiles displayed correctly |
+| 1 | Profile data loads | Display name, bio, skills, source shown | ✅ | Verified: louise-reed, katar-na-valov, name-of-team-leader profiles displayed correctly |
 | 2 | Three method cards shown | GitHub OAuth, Wallet Signature, Email Verification | ⚠️ PARTIAL | Only Email method card shown; OAuth/Wallet cards not in current build |
-| 3 | Method availability | Only methods with matching profile data are enabled | ✅ PASS | Verified: Email button only shown for profiles with email addresses |
-| 4 | Already claimed check | If claimed, shows appropriate message | ✅ PASS | Verified: "Claim pending review" message shown after claim submitted |
+| 3 | Method availability | Only methods with matching profile data are enabled | ✅ | Verified: Email button only shown for profiles with email addresses |
+| 4 | Already claimed check | If claimed, shows appropriate message | ✅ | Verified: "Claim pending review" message shown after claim submitted |
 
 ### Test 7.3: GitHub OAuth Claim
 
@@ -1233,12 +1248,12 @@ Timestamp: {epoch}
 
 | #  | Test                                    | Expected                                              | Status | Known Issues & Findings |
 | -- | --------------------------------------- | ----------------------------------------------------- | ------ | ----------------------- |
-| 1  | Click Email method (no email on profile)| Returns error "no email address"                      | ✅ PASS | Verified: profiles without email show "contact support" message |
-| 2  | Click Email (profile has email)         | Verification email sent, masked email shown in UI     | ✅ PASS | Verified: louise-reed (louise@stayafloat.io → lo***e@stayafloat.io), katar-na-valov (valova.katarin@gmail.com → va***n@gmail.com) |
-| 3  | Email received                          | Contains 6-character alphanumeric code + token link   | ✅ PASS | Verified: code stored in `claim_request.verificationData.code` (ELN0SE, MARWEM, IAL6FF) |
-| 4  | Enter correct code                      | Email verified, but claim stays **PENDING**           | ✅ PASS | Verified: claim status remains PENDING after verification, awaiting admin review |
-| 5  | UI shows pending state                  | "Email verified. Pending admin review."               | ✅ PASS | Verified: "Claim Pending Review" heading + "Email verified. Your claim is now pending admin review." message shown |
-| 6  | Enter wrong code                        | Returns 400 "Invalid verification token or code"      | ✅ PASS | Verified: API returns 400 with error message; button disabled during submission |
+| 1  | Click Email method (no email on profile)| Returns error "no email address"                      | ✅ | Verified: profiles without email show "contact support" message |
+| 2  | Click Email (profile has email)         | Verification email sent, masked email shown in UI     | ✅ | Verified: louise-reed (louise@stayafloat.io → lo***e@stayafloat.io), katar-na-valov (valova.katarin@gmail.com → va***n@gmail.com) |
+| 3  | Email received                          | Contains 6-character alphanumeric code + token link   | ✅ | Verified: code stored in `claim_request.verificationData.code` (ELN0SE, MARWEM, IAL6FF) |
+| 4  | Enter correct code                      | Email verified, but claim stays **PENDING**           | ✅ | Verified: claim status remains PENDING after verification, awaiting admin review |
+| 5  | UI shows pending state                  | "Email verified. Pending admin review."               | ✅ | Verified: "Claim Pending Review" heading + "Email verified. Your claim is now pending admin review." message shown |
+| 6  | Enter wrong code                        | Returns 400 "Invalid verification token or code"      | ✅ | Verified: API returns 400 with error message; button disabled during submission |
 
 > ⁉️ **Important:** Email verification is the **weakest proof** — it NEVER auto-approves. After email is verified, the claim stays PENDING and requires admin approval (Phase 5.2). **CONFIRMED by testing.**
 
@@ -1260,7 +1275,7 @@ Timestamp: {epoch}
 
 | # | Step | Expected | Status | Known Issues & Findings |
 | - | ---- | -------- | ------ | ----------------------- |
-| 1 | EcosystemProfile updated | `claimedByUserId`, `claimedAt`, `claimMethod` set | ✅ PASS | Verified: Database records created with status PENDING; awaiting Phase 5 admin approval to trigger post-processing |
+| 1 | EcosystemProfile updated | `claimedByUserId`, `claimedAt`, `claimMethod` set | ✅ | Verified: Database records created with status PENDING; awaiting Phase 5 admin approval to trigger post-processing |
 | 2 | User profile data merged | **Non-destructive** — only fills empty user fields (github, twitter, bio, skills, etc.) | ⚠️ DEFERRED | Not tested yet; will be verified in Phase 5 when admin approves claim (status → VERIFIED) |
 | 3 | Grant applications backfilled | Applications linked to ecosystem contributions get `userId` set | ⚠️ DEFERRED | Not tested yet; depends on Phase 5 claim approval |
 | 4 | Existing user fields NOT overwritten | If user already has github/bio/etc., profile data does not replace it | ⚠️ DEFERRED | Not tested yet; will verify in Phase 5 |
@@ -1348,7 +1363,7 @@ Timestamp: {epoch}
 - ✅ Organization cards render with logo, name, description, counts
 - 🔍 Search functionality (UI verified, endpoint supports param)
 
-**Screenshot**: [8.1-organizations-page-load.png](./.pr151-test-assets/screenshots/phase-8/8.1-organizations-page-load.png) | Full page with 4 org cards | ✅ VERIFIED CLEAN
+**Screenshot**: [8.1-organizations-page-load.png](./.pr151-test-assets/screenshots/phase-8/8.1-organizations-page-load.png) | Full page with 4 org cards | ✅ CLEAN
 
 #### Test 8.2: Organization Detail ✅ **5/5 PASS**
 - ✅ Page loads for valid slug (No 404 — Phase 4 bug NOT present)
@@ -1357,7 +1372,7 @@ Timestamp: {epoch}
 - ✅ Grants section displays 5 grants with links: KSM Art, ZK Bounty, PoP Bounty, W3F Open Grants, Decentralized Futures
 - ✅ Member count verified (1 member for Web3 Foundation)
 
-**Screenshot**: [8.2-org-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.2-org-detail-loaded.png) | Org detail page with grants section | ✅ VERIFIED CLEAN
+**Screenshot**: [8.2-org-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.2-org-detail-loaded.png) | Org detail page with grants section | ✅ CLEAN
 
 #### Test 8.3: Grants Page ✅ **4/4 PASS**
 - ✅ Page loads with grant cards visible
@@ -1365,7 +1380,7 @@ Timestamp: {epoch}
 - 🔍 Search functionality and status filters (UI verified)
 - ✅ Grant cards show complete information structure
 
-**Screenshot**: [8.3-grants-page.png](./.pr151-test-assets/screenshots/phase-8/8.3-grants-page.png) | Grants list page | ✅ VERIFIED CLEAN
+**Screenshot**: [8.3-grants-page.png](./.pr151-test-assets/screenshots/phase-8/8.3-grants-page.png) | Grants list page | ✅ CLEAN
 
 #### Test 8.4: Grant Detail ✅ **3/3 PASS**
 - ✅ Page loads for valid grant slug (Proof of Personhood Bounty navigated successfully)
@@ -1373,7 +1388,7 @@ Timestamp: {epoch}
 - ✅ All grant content sections render: description, about, resources, funding info, contact details
 - ✅ Navigation elements present: Share button, Apply Externally button, application count link
 
-**Screenshot**: [8.4-grant-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.4-grant-detail-loaded.png) | Grant detail page fully loaded | ✅ VERIFIED CLEAN
+**Screenshot**: [8.4-grant-detail-loaded.png](./.pr151-test-assets/screenshots/phase-8/8.4-grant-detail-loaded.png) | Grant detail page fully loaded | ✅ CLEAN
 
 #### Test 8.5: Grant Applications ✅ **4/4 PASS**
 - ✅ Applications page loads for valid grant
@@ -1381,7 +1396,7 @@ Timestamp: {epoch}
 - ✅ Empty state handled gracefully: "No applications yet" message with "Apply Now" link
 - ✅ Status field visible: link to grant detail page from applications breadcrumb
 
-**Screenshot**: [8.5-grant-applications-list.png](./.pr151-test-assets/screenshots/phase-8/8.5-grant-applications-list.png) | Grant applications page fully loaded | ✅ VERIFIED CLEAN
+**Screenshot**: [8.5-grant-applications-list.png](./.pr151-test-assets/screenshots/phase-8/8.5-grant-applications-list.png) | Grant applications page fully loaded | ✅ CLEAN
 
 ### Detailed Test Coverage Table
 
@@ -1525,7 +1540,7 @@ All stats routes now **gracefully handle Redis unavailability** (try/catch aroun
 
 ### Phase 9 Summary
 
-**Status**: ✅ COMPLETE (8/8 tests passing, 100% coverage)
+**Status**: ✅ (8/8 tests passing, 100% coverage)
 
 **Tests Completed**:
 - ✅ Test 9.1.1: Bounties Stats endpoint
@@ -1795,7 +1810,7 @@ All test evidence saved to `.pr151-test-assets/screenshots/phase-10/` directory 
 | 11.4a | Proof minimum boundary (10 chars) | 201/200 | ✅ | `11.4a-proof-10chars.json` | Valid edge case (blocked by duplicate check from 11.1) |
 | 11.4b | Proof maximum boundary (2000 chars) | 201/200 | ✅ | `11.4b-proof-2000chars.json` | Valid edge case (blocked by duplicate check from 11.1) |
 | 11.5 | Missing proof field | 400 + "Required" error | ✅ | `11.5-missing-proof.json` | Returns "Invalid input: expected string" error |
-| 11.6 | Already a member | 409 "already a member" | ⏳ PENDING | — | Requires manual member setup (not tested yet) |
+| 11.6 | Already a member | 409 "already a member" | ⏳ | — | Requires manual member setup (not tested yet) |
 | 11.7 | Duplicate pending claim | 409 "pending claim exists" | ✅ | `11.7-duplicate-claim.json` | Second claim from same user blocked correctly |
 | 11.8 | Organization not found | 404 "org not found" | ✅ | `11.8-org-not-found.json` | Invalid org ID returns 404 |
 | 11.9 | Unauthenticated request | 401 "Unauthorized" | ✅ | `11.9-unauthorized.json` | No session returns 401 |
@@ -1855,7 +1870,7 @@ Proof Stored: "We own this domain: example.com and have team members who can ver
 
 **What was found:**
 
-1. **Organization Claim Creation:** ✅ COMPLETE
+1. **Organization Claim Creation:** ✅
    - Location: `/apps/api/app/api/v1/organizations/[organizationId]/claim/route.ts`
    - Creates Invitation with `status: "claim_pending"` and 30-day expiry
    - Message to user: "submitted for admin review"
@@ -1944,10 +1959,10 @@ Admin UI endpoints to display, approve, and reject organization claims do not ye
 
 | Component | Tests | Status | Details |
 |-----------|-------|--------|---------|
-| API Validation | 11.1-11.11 | ✅ COMPLETE (9/9) | All API tests passing, validation rules enforced |
-| Admin Integration | 11.12-11.15 | ✅ COMPLETE (4/4) | Verified via seeded database records |
+| API Validation | 11.1-11.11 | ✅ (9/9) | All API tests passing, validation rules enforced |
+| Admin Integration | 11.12-11.15 | ✅ (4/4) | Verified via seeded database records |
 | Test Coverage | 15/15 | ✅ 100% COMPLETE | All 15 tests executed and documented |
-| Evidence Captured | 11 files | ✅ COMPLETE | API responses + database verification + seed data |
+| Evidence Captured | 11 files | ✅ | API responses + database verification + seed data |
 
 **Result:** ✅ **PHASE 11 COMPLETE — All 15/15 tests passed**
 
@@ -1981,14 +1996,14 @@ Admin UI endpoints to display, approve, and reject organization claims do not ye
 **Status:** ✅ **COMPLETE (6/6 tests passing)**
 
 **Test Results:**
-- Test 12.1: Production seed script execution — ✅ PASS
-- Test 12.2A: Organization created (Web3 Foundation) — ✅ PASS
-- Test 12.2B: Grants created (3 Kusama grants) — ✅ PASS
-- Test 12.3: RFP created (KryptOS Privacy OS) — ✅ PASS
-- Test 12.4: Upsert idempotency (no duplicates) — ✅ PASS
-- Test 12.5: Dev environment permission (allowed) — ✅ PASS
-- Test 12.6: Production without flag (blocked) — ✅ PASS
-- Test 12.7: Production with flag (allowed) — ✅ PASS
+- Test 12.1: Production seed script execution — ✅
+- Test 12.2A: Organization created (Web3 Foundation) — ✅
+- Test 12.2B: Grants created (3 Kusama grants) — ✅
+- Test 12.3: RFP created (KryptOS Privacy OS) — ✅
+- Test 12.4: Upsert idempotency (no duplicates) — ✅
+- Test 12.5: Dev environment permission (allowed) — ✅
+- Test 12.6: Production without flag (blocked) — ✅
+- Test 12.7: Production with flag (allowed) — ✅
 
 **Evidence Files:**
 - `12.1-seed-output.txt` — Seed script execution output
@@ -2020,29 +2035,29 @@ Admin UI endpoints to display, approve, and reject organization claims do not ye
 
 | #  | Test                                    | Expected                               | Status | Known Issues & Findings |
 | -- | --------------------------------------- | -------------------------------------- | ------ | ----------------------- |
-| 1  | `/api/og/profile/{username}`            | 1200×630 generated image               | ⏳ PENDING | Missing implementation — endpoints don't exist. See blocker analysis |
-| 2  | User profile OG                         | Shows name, avatar, skills             | ⏳ PENDING | Requires `/api/og/profile/{username}` implementation |
-| 3  | Ecosystem profile OG                    | "Ecosystem Profile" badge, source tag  | ⏳ PENDING | Requires `/api/og/profile/{username}` implementation |
-| 4  | Cache headers                           | `Cache-Control: public, s-maxage=86400`| ⏳ PENDING | Will test once endpoint exists |
-| 5  | Fallback avatar                         | Initial letter with gradient           | ⏳ PENDING | Will test once endpoint exists |
-| 6  | Fonts                                   | Chakra Petch, Satoshi loaded           | ⏳ PENDING | Will test once endpoint exists |
+| 1  | `/api/og/profile/{username}`            | 1200×630 generated image               | ⏳ | Missing implementation — endpoints don't exist. See blocker analysis |
+| 2  | User profile OG                         | Shows name, avatar, skills             | ⏳ | Requires `/api/og/profile/{username}` implementation |
+| 3  | Ecosystem profile OG                    | "Ecosystem Profile" badge, source tag  | ⏳ | Requires `/api/og/profile/{username}` implementation |
+| 4  | Cache headers                           | `Cache-Control: public, s-maxage=86400`| ⏳ | Will test once endpoint exists |
+| 5  | Fallback avatar                         | Initial letter with gradient           | ⏳ | Will test once endpoint exists |
+| 6  | Fonts                                   | Chakra Petch, Satoshi loaded           | ⏳ | Will test once endpoint exists |
 
 ### Test 13.2: Dynamic Sitemap
 
 | # | Test | Expected | Status | Known Issues & Findings |
 | - | ---- | -------- | ------ | ----------------------- |
-| 1 | Navigate to `/sitemap.xml` | Valid XML sitemap | ✅ PASS | 15 static routes verified (home, blog, bounties, grants, rfps, orgs, changelog, etc.) |
-| 2 | Static routes present | Home, bounties, grants, organizations | ✅ PASS | All 15 static routes present with correct priority/changefreq |
-| 3 | Profile slugs present | Ecosystem profiles in sitemap | ⏳ PENDING | Missing `/api/v1/profiles/sitemap-slugs` endpoint |
-| 4 | Org slugs present | Organizations in sitemap | ⏳ PENDING | Missing `/api/v1/organizations/sitemap-slugs` endpoint |
-| 5 | Priority values | Home=1.0, profiles=0.7 | ⏳ PENDING | Static routes verified; dynamic routes awaiting endpoint implementation |
+| 1 | Navigate to `/sitemap.xml` | Valid XML sitemap | ✅ | 15 static routes verified (home, blog, bounties, grants, rfps, orgs, changelog, etc.) |
+| 2 | Static routes present | Home, bounties, grants, organizations | ✅ | All 15 static routes present with correct priority/changefreq |
+| 3 | Profile slugs present | Ecosystem profiles in sitemap | ⏳ | Missing `/api/v1/profiles/sitemap-slugs` endpoint |
+| 4 | Org slugs present | Organizations in sitemap | ⏳ | Missing `/api/v1/organizations/sitemap-slugs` endpoint |
+| 5 | Priority values | Home=1.0, profiles=0.7 | ⏳ | Static routes verified; dynamic routes awaiting endpoint implementation |
 
 ### Test 13.3: Email Templates
 
 | # | Template | Purpose | Status | Known Issues & Findings |
 | - | -------- | ------- | ------ | ----------------------- |
-| 1 | All email templates | TypeScript compilation and content structure | ✅ PASS | All 12+ templates type-check successfully. Content verified (welcome, password-reset, org-invite, etc.) |
-| 2 | Preview at `http://localhost:3005` | Email dev server (port 3005) | ⏳ PENDING | Preview server not exposed as HTTP endpoint. Templates compile and render correctly in tests. |
+| 1 | All email templates | TypeScript compilation and content structure | ✅ | All 12+ templates type-check successfully. Content verified (welcome, password-reset, org-invite, etc.) |
+| 2 | Preview at `http://localhost:3005` | Email dev server (port 3005) | ⏳ | Preview server not exposed as HTTP endpoint. Templates compile and render correctly in tests. |
 
 ### Phase 13 Summary
 
@@ -2258,14 +2273,14 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 
 | Phase | Area | Test Cases | Screenshots | Status | Key Findings | Blockers / Issues | Next Steps |
 | ----- | ---- | ---------- | ----------- | ------ | ------------ | --------- | ------- |
-| 0  | Environment Setup | 5 checks | — | ✅ PASSED | Ports verified, .env files created, pnpm v10 confirmed | None | Proceed to Phase 1 |
-| 1  | Build Validation | 4 tests | — | ✅ PASSED | All builds compile, no TypeScript errors, tests passing | None | Proceed to Phase 2 |
-| 2  | Schema & Seed | 5 tests | — | ✅ PASSED | Database schema deployed, seed data created (8 users, 4 orgs, 3 grants) | None | Proceed to Phase 3 |
-| 3  | Admin Auth & Nav | 15 tests | 3 captured | ✅ PASSED | Superadmin auth working, sidebar nav verified, all 9 routes accessible | None | Proceed to Phase 4 |
-| 4  | Admin CRUD | 32 tests | 7 captured | ✅ PASSED | Users, Organizations, Grants, Bounties, Profiles, Imports, Settings all functional | None | Proceed to Phase 5 |
-| 5  | Admin Claims | 11 tests | 9 captured | ✅ PASSED | Claims CRUD, approval workflow, status transitions, audit trail all working | Pending claim UI not tested (no test data) | Proceed to Phase 6 |
-| 6  | Web Profiles | 14 tests | 3 captured | ✅ PASSED | User profiles, ecosystem profiles, API union types, redirects, OG tags verified | None | Proceed to Phase 7 |
-| 7  | Claim Flow UI | 10 tests | 5 captured | ✅ PASSED | Auth pages, claim form, validation, navigation all functional on web | Wallet & email flows require external config | Proceed to Phase 8 |
+| 0  | Environment Setup | 5 checks | — | ✅ED | Ports verified, .env files created, pnpm v10 confirmed | None | Proceed to Phase 1 |
+| 1  | Build Validation | 4 tests | — | ✅ED | All builds compile, no TypeScript errors, tests passing | None | Proceed to Phase 2 |
+| 2  | Schema & Seed | 5 tests | — | ✅ED | Database schema deployed, seed data created (8 users, 4 orgs, 3 grants) | None | Proceed to Phase 3 |
+| 3  | Admin Auth & Nav | 15 tests | 3 captured | ✅ED | Superadmin auth working, sidebar nav verified, all 9 routes accessible | None | Proceed to Phase 4 |
+| 4  | Admin CRUD | 32 tests | 7 captured | ✅ED | Users, Organizations, Grants, Bounties, Profiles, Imports, Settings all functional | None | Proceed to Phase 5 |
+| 5  | Admin Claims | 11 tests | 9 captured | ✅ED | Claims CRUD, approval workflow, status transitions, audit trail all working | Pending claim UI not tested (no test data) | Proceed to Phase 6 |
+| 6  | Web Profiles | 14 tests | 3 captured | ✅ED | User profiles, ecosystem profiles, API union types, redirects, OG tags verified | None | Proceed to Phase 7 |
+| 7  | Claim Flow UI | 10 tests | 5 captured | ✅ED | Auth pages, claim form, validation, navigation all functional on web | Wallet & email flows require external config | Proceed to Phase 8 |
 | 8  | Organizations & Grants | 22 tests | 6 captured | ✅ **COMPLETE** | All 22 tests executed: org directory, org detail, grants list, grant detail, grant applications all verified; 95% coverage (21/22 passing, 1 partial search) | None — all tests completed | Proceed to Phase 9 |
 | **9** | **API Stats & Redis** | **7 tests** | **0 pending** | ⬜ **READY** | Phase 8 complete; all blocking issues resolved (P8-1 ✅, P8-2 ✅); API stats endpoints ready for testing | None | **Begin Phase 9 testing immediately** |
 | **10** | **Admin Endpoints** | **23 tests** | **0 pending** | ✅ **PASSED** | All 21 admin API endpoints tested: stats, auth gates, users, orgs, profiles, grants, bounties, claims, imports. 96% pass rate (23/25). 1 known issue P5-1 (claim VERIFIED 500 error). 1 endpoint by-design not supported (bounty POST 405). | None — all functional tests complete | Ready for Phase 11 |
@@ -2373,7 +2388,7 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 | -------- | --------- | ------- | ------ | ---------- | ------ |
 | P7-1 | Email Claim | Requires RESEND_TOKEN in .env | Cannot test email OTP flow locally | Configure RESEND_TOKEN in Phase 9 if testing email claims | ⏳ OPTIONAL |
 | P7-2 | Wallet Claim | Requires Polkadot.js/Talisman extension | Cannot test SIWP signature challenge flow | Browser extension installation required | ⏳ OPTIONAL |
-| P7-3 | Search Debounce | Shows "0 results" briefly after typing | Appears as loading state but is intentional | Expected behavior — not a blocker | ✅ VERIFIED INTENTIONAL |
+| P7-3 | Search Debounce | Shows "0 results" briefly after typing | Appears as loading state but is intentional | Expected behavior — not a blocker | ✅ INTENTIONAL |
 
 #### Phase 8: Organizations & Grants
 
@@ -2419,15 +2434,15 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 
 | Test # | Name | Expected | Status | Known Issues & Findings |
 |--------|------|----------|--------|------------------------|
-| 13.1 | Sitemap generation | 15 static routes, valid XML | ✅ PASS | Sitemap.xml generated correctly; all 15 static routes included |
-| 13.2 | Sitemap structure | `<lastmod>`, `<changefreq>`, `<priority>` present | ✅ PASS | All required XML elements present; lastmod auto-updated |
-| 13.3 | Default OG image | HTTP 200 at /opengraph-image.png | ✅ PASS | Default OG image served correctly (verified in web app) |
-| 13.4 | Dynamic OG endpoints | /api/og/bounties, /api/og/grants, etc. return 200 | ⏳ PENDING | Returns 404 (not implemented); social sharing without dynamic OG (acceptable MVP limitation) |
-| 13.5 | Email templates | Compile without TypeScript errors | ✅ PASS | 12+ email templates verified; `pnpm typecheck` passes |
-| 13.6 | Email preview server | HTTP 200 on port 3005 | ✅ PASS | **CRITICAL DISCOVERY**: Email preview server IS IMPLEMENTED (was marked pending in initial testing) |
-| 13.7 | Static SEO metadata | `<title>`, og:title, og:description, og:image | ✅ PASS | All SEO metadata correctly configured across routes |
-| 13.8 | robots.txt | User-agent, Allow/Disallow, Sitemap reference | ✅ PASS | robots.txt correctly configured; Sitemap reference included |
-| 13.9 | Sitemap dynamic slugs | Bounty/grant/profile slugs in sitemap | ⏳ PENDING | Dynamic slug routes missing (non-critical for MVP) |
+| 13.1 | Sitemap generation | 15 static routes, valid XML | ✅ | Sitemap.xml generated correctly; all 15 static routes included |
+| 13.2 | Sitemap structure | `<lastmod>`, `<changefreq>`, `<priority>` present | ✅ | All required XML elements present; lastmod auto-updated |
+| 13.3 | Default OG image | HTTP 200 at /opengraph-image.png | ✅ | Default OG image served correctly (verified in web app) |
+| 13.4 | Dynamic OG endpoints | /api/og/bounties, /api/og/grants, etc. return 200 | ⏳ | Returns 404 (not implemented); social sharing without dynamic OG (acceptable MVP limitation) |
+| 13.5 | Email templates | Compile without TypeScript errors | ✅ | 12+ email templates verified; `pnpm typecheck` passes |
+| 13.6 | Email preview server | HTTP 200 on port 3005 | ✅ | **CRITICAL DISCOVERY**: Email preview server IS IMPLEMENTED (was marked pending in initial testing) |
+| 13.7 | Static SEO metadata | `<title>`, og:title, og:description, og:image | ✅ | All SEO metadata correctly configured across routes |
+| 13.8 | robots.txt | User-agent, Allow/Disallow, Sitemap reference | ✅ | robots.txt correctly configured; Sitemap reference included |
+| 13.9 | Sitemap dynamic slugs | Bounty/grant/profile slugs in sitemap | ⏳ | Dynamic slug routes missing (non-critical for MVP) |
 
 **Phase 13 Key Findings**:
 - ✅ Core SEO infrastructure fully working (metadata, robots.txt, static sitemap)
@@ -2450,19 +2465,19 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 
 | Test # | Name | Expected | Status | Known Issues & Findings |
 |--------|------|----------|--------|------------------------|
-| 14.1 | Admin middleware | 307 redirect on unauthorized access | ✅ PASS | Dashboard (:3001) and Admin (:3003) correctly redirect unauthenticated requests |
-| 14.2 | CORS whitelist | Requests from whitelisted origins only | ✅ PASS | CORS configuration verified; not wildcard (specific origin check in middleware) |
-| 14.3 | Auth cookie security | HttpOnly, Secure, SameSite flags | ✅ PASS | Better Auth integrated; cookies configured correctly |
-| 14.4 | Claim ownership | Users can only access own claims | ✅ PASS | Database schema enforces userId foreign key; access controlled via middleware |
-| 14.5 | Organization isolation | Multi-tenancy enforced in queries | ✅ PASS | Schema verified; org_id enforces data isolation per organization |
-| 14.6 | RBAC foundation | Admin/Owner/Member roles implemented | ✅ PASS | 5 members across 3 orgs with appropriate roles; permission schema ready |
-| 14.7 | Rate limiting | Brute force protection (e.g., 10 req/min) | ⏳ PENDING | **CRITICAL**: NOT IMPLEMENTED; auth endpoints vulnerable to brute force attacks |
-| 14.8 | Audit logging | Log all sensitive operations (claims, org changes) | ⏳ PENDING | **CRITICAL**: NOT IMPLEMENTED; no compliance audit trail for transactions |
-| 14.9 | Session timeout | Inactive sessions expire after N minutes | ⏳ PENDING | NOT CONFIGURED; sessions remain valid indefinitely after creation |
-| 14.10 | Password hashing | bcrypt or Argon2 used for passwords | ✅ PASS | Better Auth uses bcrypt for password hashing |
-| 14.11 | SQL injection protection | Parameterized queries/ORM | ✅ PASS | Prisma ORM prevents SQL injection; all queries parameterized |
-| 14.12 | XSS protection | No unescaped user input in HTML | ✅ PASS | React/Next.js auto-escapes content; no raw HTML rendering |
-| 14.13 | CSRF protection | CSRF tokens on state-changing requests | ✅ PASS | Better Auth framework handles CSRF via session tokens |
+| 14.1 | Admin middleware | 307 redirect on unauthorized access | ✅ | Dashboard (:3001) and Admin (:3003) correctly redirect unauthenticated requests |
+| 14.2 | CORS whitelist | Requests from whitelisted origins only | ✅ | CORS configuration verified; not wildcard (specific origin check in middleware) |
+| 14.3 | Auth cookie security | HttpOnly, Secure, SameSite flags | ✅ | Better Auth integrated; cookies configured correctly |
+| 14.4 | Claim ownership | Users can only access own claims | ✅ | Database schema enforces userId foreign key; access controlled via middleware |
+| 14.5 | Organization isolation | Multi-tenancy enforced in queries | ✅ | Schema verified; org_id enforces data isolation per organization |
+| 14.6 | RBAC foundation | Admin/Owner/Member roles implemented | ✅ | 5 members across 3 orgs with appropriate roles; permission schema ready |
+| 14.7 | Rate limiting | Brute force protection (e.g., 10 req/min) | ⏳ | **CRITICAL**: NOT IMPLEMENTED; auth endpoints vulnerable to brute force attacks |
+| 14.8 | Audit logging | Log all sensitive operations (claims, org changes) | ⏳ | **CRITICAL**: NOT IMPLEMENTED; no compliance audit trail for transactions |
+| 14.9 | Session timeout | Inactive sessions expire after N minutes | ⏳ | NOT CONFIGURED; sessions remain valid indefinitely after creation |
+| 14.10 | Password hashing | bcrypt or Argon2 used for passwords | ✅ | Better Auth uses bcrypt for password hashing |
+| 14.11 | SQL injection protection | Parameterized queries/ORM | ✅ | Prisma ORM prevents SQL injection; all queries parameterized |
+| 14.12 | XSS protection | No unescaped user input in HTML | ✅ | React/Next.js auto-escapes content; no raw HTML rendering |
+| 14.13 | CSRF protection | CSRF tokens on state-changing requests | ✅ | Better Auth framework handles CSRF via session tokens |
 
 **Phase 14 Key Findings**:
 - ✅ Core security infrastructure solid: authentication, CORS, RBAC schema, claim ownership
@@ -2490,17 +2505,17 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 #### Phase 15: Responsive Design (COMPLETE - 36/36 PASSING)
 - **Status**: ✅ **COMPLETE (36/36 tests passing, 100%)**
 - **Test Results**:
-  - ✅ Test 15.1: Mobile Responsiveness (375px) — 6/6 PASS
+  - ✅ Test 15.1: Mobile Responsiveness (375px) [6/6 ✅]
     - Sidebar hamburger menu, table scroll, card stacking, mobile nav, touch targets (44px+), full-width forms
-  - ✅ Test 15.2: Tablet Responsiveness (768px) — 6/6 PASS
+  - ✅ Test 15.2: Tablet Responsiveness (768px) [6/6 ✅]
     - Sidebar visible, 2-column stats grid, 2-column web cards, responsive modals, single-column forms, navigation accessible
-  - ✅ Test 15.3: Desktop Responsiveness (1920px) — 6/6 PASS
+  - ✅ Test 15.3: Desktop Responsiveness (1920px) [6/6 ✅]
     - Sidebar + content layout, 3-4 column stats grid, 3-column web cards, full-width tables, constrained modals, readable typography
-  - ✅ Test 15.4: Typography Scaling — 6/6 PASS
+  - ✅ Test 15.4: Typography Scaling [6/6 ✅]
     - Responsive heading sizes, body text 14-18px, line-height 1.5-1.6, minimum 12px text, font inheritance, form labels readable
-  - ✅ Test 15.5: Layout Stability (CLS) — 6/6 PASS
+  - ✅ Test 15.5: Layout Stability (CLS) [6/6 ✅]
     - Skeleton prevents CLS, navbar stable height, image aspect-ratio, modal scroll lock, async loading placeholders, no ads/widgets
-  - ✅ Test 15.6: Interaction & Hover States — 6/6 PASS
+  - ✅ Test 15.6: Interaction & Hover States [6/6 ✅]
     - Button hover states, link hover effects, focus rings visible, dropdown keyboard nav, sidebar toggle, modal ESC key support
 - **Key Findings**:
   - ✓ All breakpoints properly configured (Tailwind sm:, md:, lg:, xl:)
@@ -2518,58 +2533,58 @@ All bugs below were discovered during @manofcode's test pass and fixed in the po
 ##### Phase 15 — Detailed Test Breakdown (36 Sub-tests)
 
 **15.1 Mobile Responsiveness (375px)**
-- ✅ 15.1.1: Sidebar hamburger menu — PASS (responsive toggle verified)
-- ✅ 15.1.2: Table horizontal scroll — PASS (overflow handling correct)
-- ✅ 15.1.3: Web card stacking — PASS (vertical grid on mobile)
-- ✅ 15.1.4: Mobile navigation — PASS (touch-optimized layout)
-- ✅ 15.1.5: Touch targets 44px+ — PASS (Tailwind padding classes verified)
-- ✅ 15.1.6: Full-width forms — PASS (mobile-optimized input layout)
-**Status: 6/6 PASS**
+- ✅ 15.1.1: Sidebar hamburger menu  — responsive toggle verified)
+- ✅ 15.1.2: Table horizontal scroll  — overflow handling correct)
+- ✅ 15.1.3: Web card stacking  — vertical grid on mobile)
+- ✅ 15.1.4: Mobile navigation  — touch-optimized layout)
+- ✅ 15.1.5: Touch targets 44px+  — Tailwind padding classes verified)
+- ✅ 15.1.6: Full-width forms  — mobile-optimized input layout)
+**Status: [6/6 ✅]**
 
 **15.2 Tablet Responsiveness (768px)**
-- ✅ 15.2.1: Sidebar visible — PASS (md: breakpoint shows sidebar)
-- ✅ 15.2.2: Stats grid 2-column — PASS (md:grid-cols-2 layout)
-- ✅ 15.2.3: Web cards 2-column — PASS (adaptive grid)
-- ✅ 15.2.4: Responsive modals — PASS (full-width with padding)
-- ✅ 15.2.5: Single-column forms — PASS (readable spacing)
-- ✅ 15.2.6: Navigation accessible — PASS (all items reachable)
-**Status: 6/6 PASS**
+- ✅ 15.2.1: Sidebar visible  — md: breakpoint shows sidebar)
+- ✅ 15.2.2: Stats grid 2-column  — md:grid-cols-2 layout)
+- ✅ 15.2.3: Web cards 2-column  — adaptive grid)
+- ✅ 15.2.4: Responsive modals  — full-width with padding)
+- ✅ 15.2.5: Single-column forms  — readable spacing)
+- ✅ 15.2.6: Navigation accessible  — all items reachable)
+**Status: [6/6 ✅]**
 
 **15.3 Desktop Responsiveness (1920px)**
-- ✅ 15.3.1: Sidebar + content layout — PASS (balanced 240-280px + flex grow)
-- ✅ 15.3.2: Stats cards 3-4 column grid — PASS (lg:/xl: breakpoints)
-- ✅ 15.3.3: Web bounties 3-column — PASS (optimal space usage)
-- ✅ 15.3.4: Full-width tables — PASS (proper row heights)
-- ✅ 15.3.5: Modal max-width constraint — PASS (600-800px limit)
-- ✅ 15.3.6: Typography line length — PASS (<75 chars readability)
-**Status: 6/6 PASS**
+- ✅ 15.3.1: Sidebar + content layout  — balanced 240-280px + flex grow)
+- ✅ 15.3.2: Stats cards 3-4 column grid  — lg:/xl: breakpoints)
+- ✅ 15.3.3: Web bounties 3-column  — optimal space usage)
+- ✅ 15.3.4: Full-width tables  — proper row heights)
+- ✅ 15.3.5: Modal max-width constraint  — 600-800px limit)
+- ✅ 15.3.6: Typography line length  — <75 chars readability)
+**Status: [6/6 ✅]**
 
 **15.4 Typography Scaling**
-- ✅ 15.4.1: Responsive heading sizes — PASS (h1: 28-32px, h2: 22-28px)
-- ✅ 15.4.2: Body text 14-18px — PASS (text-sm to text-lg range)
-- ✅ 15.4.3: Line-height 1.5-1.6 — PASS (leading classes configured)
-- ✅ 15.4.4: Minimum 12px text — PASS (text-xs floor respected)
-- ✅ 15.4.5: Font inheritance — PASS (links/buttons inherit properly)
-- ✅ 15.4.6: Form labels readable — PASS (all sizes visible)
-**Status: 6/6 PASS**
+- ✅ 15.4.1: Responsive heading sizes  — h1: 28-32px, h2: 22-28px)
+- ✅ 15.4.2: Body text 14-18px  — text-sm to text-lg range)
+- ✅ 15.4.3: Line-height 1.5-1.6  — leading classes configured)
+- ✅ 15.4.4: Minimum 12px text  — text-xs floor respected)
+- ✅ 15.4.5: Font inheritance  — links/buttons inherit properly)
+- ✅ 15.4.6: Form labels readable  — all sizes visible)
+**Status: [6/6 ✅]**
 
 **15.5 Layout Stability (CLS)**
-- ✅ 15.5.1: Skeleton prevents CLS — PASS (placeholder dimensions match)
-- ✅ 15.5.2: Navbar stable height — PASS (fixed positioning)
-- ✅ 15.5.3: Image aspect-ratio — PASS (prevents reflow)
-- ✅ 15.5.4: Modal scroll lock — PASS (body overflow hidden)
-- ✅ 15.5.5: Async loading — PASS (placeholders prevent shift)
-- ✅ 15.5.6: No ads/widgets — PASS (clean loading pattern)
-**Status: 6/6 PASS**
+- ✅ 15.5.1: Skeleton prevents CLS  — placeholder dimensions match)
+- ✅ 15.5.2: Navbar stable height  — fixed positioning)
+- ✅ 15.5.3: Image aspect-ratio  — prevents reflow)
+- ✅ 15.5.4: Modal scroll lock  — body overflow hidden)
+- ✅ 15.5.5: Async loading  — placeholders prevent shift)
+- ✅ 15.5.6: No ads/widgets  — clean loading pattern)
+**Status: [6/6 ✅]**
 
 **15.6 Interaction & Hover States**
-- ✅ 15.6.1: Button hover states — PASS (color/shadow change)
-- ✅ 15.6.2: Link hover effects — PASS (underline/color)
-- ✅ 15.6.3: Focus rings visible — PASS (3px+ contrast)
-- ✅ 15.6.4: Dropdown keyboard nav — PASS (Arrow keys, ESC)
-- ✅ 15.6.5: Sidebar toggle — PASS (works all sizes)
-- ✅ 15.6.6: Modal ESC key — PASS (ESC closes modal)
-**Status: 6/6 PASS**
+- ✅ 15.6.1: Button hover states  — color/shadow change)
+- ✅ 15.6.2: Link hover effects  — underline/color)
+- ✅ 15.6.3: Focus rings visible  — 3px+ contrast)
+- ✅ 15.6.4: Dropdown keyboard nav  — Arrow keys, ESC)
+- ✅ 15.6.5: Sidebar toggle  — works all sizes)
+- ✅ 15.6.6: Modal ESC key  — ESC closes modal)
+**Status: [6/6 ✅]**
 
 **Phase 15 Summary**: ✅ All 36 sub-tests PASSING (6 test categories × 6 sub-tests)
 **Completion**: 100% | **Production Ready**: YES | **Blockers**: NONE
@@ -2627,11 +2642,11 @@ It captures:
 6. ✅ All testing progress (live log that evolves as phases complete)
 
 **Current Status**:
-- **Phases 0–12**: ✅ COMPLETE (158 tests)
-- **Phase 13**: ⏳ PARTIAL (7/9 tests) — Email preview discovered, 2 OG/sitemap routes pending
-- **Phase 14**: ⏳ PARTIAL (8/13 tests) — Core security verified, rate limiting + audit logging CRITICAL
-- **Phase 15**: ✅ COMPLETE (36/36 tests) — All responsive breakpoints verified
-- **Phase 16**: ⬜ PLANNED (11 tests) — Package-level changes (final phase before merge)
+- **Phases 0–12**: ✅ (158 tests)
+- **Phase 13**: ⏳ (7/9 tests) — Email preview discovered, 2 OG/sitemap routes pending
+- **Phase 14**: ⏳ (8/13 tests) — Core security verified, rate limiting + audit logging CRITICAL
+- **Phase 15**: ✅ (36/36 tests) — All responsive breakpoints verified
+- **Phase 16**: ⬜ (11 tests) — Package-level changes (final phase before merge)
 
 **Overall Progress**: 209+ tests complete, 7 tests pending, 0 blockers for Phase 16
 
@@ -2851,7 +2866,7 @@ Organization and grant features tested:
 
 All phases 0–8 fully documented with:
 - Comprehensive test case listings
-- Test execution results (✅ PASS / ⚠️ LIMITATIONS / 🔍 COMPLETE)
+- Test execution results (✅ / ⚠️ LIMITATIONS / 🔍 COMPLETE)
 - 38 verified screenshot artifacts (phases 3–8)
 - Known issues and limitations clearly noted
 - Test coverage metrics (117 tests, 78% coverage)
@@ -3071,35 +3086,35 @@ All test evidence screenshots are stored in `.pr151-test-assets/screenshots/` or
 
 | Phase | Status | Tests | Pass Rate | Key Achievement |
 |-------|--------|-------|-----------|-----------------|
-| 0 | ✅ COMPLETE | 5 | 100% | Environment verified |
-| 1 | ✅ COMPLETE | 4 | 100% | Build validation |
-| 2 | ✅ COMPLETE | 5 | 100% | Schema & seed |
-| 3 | ✅ COMPLETE | 15 | 100% | Admin auth & nav |
-| 4 | ✅ COMPLETE | 32 | 100% | Admin CRUD |
-| 5 | ✅ COMPLETE | 11 | 100% | Admin claims workflow |
-| 6 | ✅ COMPLETE | 14 | 100% | Web profiles |
-| 7 | ✅ COMPLETE | 10 | 100% | Claim flow UI |
-| 8 | ✅ COMPLETE | 22 | 95% | Organizations & grants |
-| 9 | ✅ COMPLETE | 7 | 100% | API stats & Redis |
-| 10 | ✅ COMPLETE | 23 | 92% | Admin endpoints |
-| 11 | ✅ COMPLETE | 15 | 100% | Org claim system |
-| 12 | ✅ COMPLETE | 9 | 100% | Production seeding |
-| 15 | ✅ COMPLETE | 36 | 100% | Responsive design (all breakpoints) |
+| 0 | ✅ | 5 | 100% | Environment verified |
+| 1 | ✅ | 4 | 100% | Build validation |
+| 2 | ✅ | 5 | 100% | Schema & seed |
+| 3 | ✅ | 15 | 100% | Admin auth & nav |
+| 4 | ✅ | 32 | 100% | Admin CRUD |
+| 5 | ✅ | 11 | 100% | Admin claims workflow |
+| 6 | ✅ | 14 | 100% | Web profiles |
+| 7 | ✅ | 10 | 100% | Claim flow UI |
+| 8 | ✅ | 22 | 95% | Organizations & grants |
+| 9 | ✅ | 7 | 100% | API stats & Redis |
+| 10 | ✅ | 23 | 92% | Admin endpoints |
+| 11 | ✅ | 15 | 100% | Org claim system |
+| 12 | ✅ | 9 | 100% | Production seeding |
+| 15 | ✅ | 36 | 100% | Responsive design (all breakpoints) |
 | **SUBTOTAL** | **✅ 13 PHASES** | **218 TESTS** | **98.6%** | **Core product ready** |
 
 ### ⏳ Testing Partial: Phases 13–14
 
 | Phase | Status | Tests | Pass Rate | Key Findings | Blockers |
 |-------|--------|-------|-----------|--------------|----------|
-| 13 | ⏳ PARTIAL | 9 | 77.8% (7/9) | Sitemap + SEO ✅, Email templates ✅, Email preview server ✅. OG endpoints (404), Sitemap slugs (missing). Non-critical for MVP. | 2 OG/sitemap endpoints |
-| 14 | ⏳ PARTIAL | 13 | 61.5% (8/13) | Core security ✅ (auth, CORS, RBAC, claim ownership). Missing: rate limiting (CRITICAL), audit logging (CRITICAL), session timeout. | 3 critical security features |
+| 13 | ⏳ | 9 | 77.8% (7/9) | Sitemap + SEO ✅, Email templates ✅, Email preview server ✅. OG endpoints (404), Sitemap slugs (missing). Non-critical for MVP. | 2 OG/sitemap endpoints |
+| 14 | ⏳ | 13 | 61.5% (8/13) | Core security ✅ (auth, CORS, RBAC, claim ownership). Missing: rate limiting (CRITICAL), audit logging (CRITICAL), session timeout. | 3 critical security features |
 | **SUBTOTAL** | **⏳ 2 PHASES** | **22 TESTS** | **69.6%** | **Core works, enhancements pending** | **Security gaps identified** |
 
 ### ⬜ Testing Planned: Phase 16
 
 | Phase | Status | Tests | Scope | Critical Path |
 |-------|--------|-------|-------|----------------|
-| 16 | ⬜ PLANNED | 11 | Better Auth, SIWP, Prisma 7, auth modal, blog | Final phase before merge |
+| 16 | ⬜ | 11 | Better Auth, SIWP, Prisma 7, auth modal, blog | Final phase before merge |
 
 ---
 

@@ -37,8 +37,7 @@ async function getProfile(slug: string): Promise<ProfileResponse | null> {
     const res = await fetch(
       `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${slug}/public`,
       {
-        next: { revalidate: 300 },
-        cache: "force-cache",
+        next: { revalidate: 60 },
       }
     );
     if (!res.ok) return null;
@@ -64,17 +63,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {};
   }
 
+  const userData = profile.type === "user" ? (profile.data.user || profile.data) : null;
   const name =
     profile.type === "user"
-      ? profile.data.user.name
+      ? userData?.name || "Unknown"
       : profile.data.displayName;
   const bio =
     profile.type === "user"
-      ? profile.data.user.headline || profile.data.user.bio
+      ? userData?.headline || userData?.bio
       : profile.data.bio;
   const skills =
     profile.type === "user"
-      ? profile.data.user.skills
+      ? userData?.skills
       : profile.data.skills;
 
   const title = clampTitle(`${name} | Opentribe Profile`);
@@ -109,10 +109,49 @@ export default async function ProfilePage({ params }: Props) {
   }
 
   if (profile.type === "ecosystem") {
-    return <EcosystemProfile profile={profile.data} />;
+    // Map API contribution shape to component's expected shape
+    const mappedProfile = {
+      ...profile.data,
+      contributions: (profile.data.contributions || []).map((c: any) => ({
+        id: c.id,
+        title: c.grantApplication?.title || "Unknown",
+        role: c.role,
+        status: c.grantApplication?.status || "PENDING",
+        milestoneCount: c.grantApplication?.milestones?.length || 0,
+        completedMilestones: (c.grantApplication?.milestones || []).filter(
+          (m: any) => m.status === "ACCEPTED" || m.status === "COMPLETED"
+        ).length,
+        grant: c.grantApplication?.grant
+          ? {
+              id: c.grantApplication.grant.id,
+              slug: c.grantApplication.grant.slug,
+              title: c.grantApplication.grant.title,
+            }
+          : undefined,
+      })),
+    };
+    return <EcosystemProfile profile={mappedProfile} />;
   }
 
+  // API returns user data directly in profile.data (no .user wrapper)
+  const userData = profile.data.user || profile.data;
+
+  // Private profiles return minimal data — show a simple private notice
+  if (userData.private) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="mb-2 font-bold text-2xl text-white">
+            {userData.username ? `@${userData.username}` : "Private Profile"}
+          </h1>
+          <p className="text-white/60">This profile is private.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const stats = profile.data.stats || {};
   return (
-    <UserProfile profile={profile.data.user} stats={profile.data.stats} />
+    <UserProfile profile={userData} stats={stats} />
   );
 }

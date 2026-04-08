@@ -10,17 +10,22 @@ import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, customSession, organization } from "better-auth/plugins";
+import { adminAc } from "better-auth/plugins/admin/access";
+import { siwp } from "@zig-zag/better-siwp";
 
 export const trustedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:3002",
+  "http://localhost:3003",
   "https://opentribe.io",
   "https://api.opentribe.io",
   "https://dashboard.opentribe.io",
+  "https://admin.opentribe.io",
   "https://dev.opentribe.io",
   "https://api.dev.opentribe.io",
   "https://dashboard.dev.opentribe.io",
+  "https://admin.dev.opentribe.io",
 ];
 
 /**
@@ -88,9 +93,15 @@ const authOptions = {
           : "localhost",
     },
     defaultCookieAttributes: {
-      secure: true,
+      secure:
+        process.env.VERCEL_TARGET_ENV === "production" ||
+        process.env.VERCEL_TARGET_ENV === "staging",
       httpOnly: true,
-      sameSite: "none",
+      sameSite:
+        process.env.VERCEL_TARGET_ENV === "production" ||
+        process.env.VERCEL_TARGET_ENV === "staging"
+          ? "none" as const
+          : "lax" as const,
     },
   },
   trustedOrigins: [
@@ -208,8 +219,20 @@ const authOptions = {
 
   plugins: [
     nextCookies(),
+    siwp({
+      domain:
+        process.env.VERCEL_TARGET_ENV === "production"
+          ? "opentribe.io"
+          : process.env.VERCEL_TARGET_ENV === "staging"
+            ? "dev.opentribe.io"
+            : "localhost:3000", // Web app domain — SIWP message is signed here, not on the API port
+    }),
     admin({
       defaultRole: "user",
+      roles: {
+        admin: adminAc,
+        superadmin: adminAc,
+      },
       adminRoles: ["admin", "superadmin"],
     }),
     organization({
@@ -252,7 +275,7 @@ const authOptions = {
   ],
 } satisfies BetterAuthOptions;
 
-export const auth: ReturnType<typeof betterAuth> = betterAuth({
+export const auth = betterAuth({
   ...authOptions,
   plugins: [
     ...authOptions.plugins,

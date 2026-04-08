@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -722,6 +721,7 @@ enum NotificationType {
   BOUNTY_SUBMISSION
   COMMENT_REPLY
   NEW_BOUNTY_MATCHING_SKILLS
+  WEEKLY_DIGEST
 }
 
 enum CommentType {
@@ -841,6 +841,7 @@ enum ClaimMethod {
   GITHUB_OAUTH
   WALLET_SIGNATURE
   EMAIL_VERIFICATION
+  ADMIN_LINK
 }
 
 enum ClaimStatus {

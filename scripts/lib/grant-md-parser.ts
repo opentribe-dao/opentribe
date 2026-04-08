@@ -228,6 +228,39 @@ function extractSummary(sections: Section[]): string | undefined {
 
 // --- Contact Info ---
 
+/** Clean a raw email value from markdown: strips markdown links, angle brackets, obfuscation, takes first from comma list */
+function cleanEmail(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  let email = raw.trim();
+
+  // Skip non-email values
+  if (/^\(provided|^N\/A$|^-$/i.test(email)) return undefined;
+
+  // Extract from markdown link: [email](mailto:email)
+  const mdMatch = email.match(/\[([^\]]+@[^\]]+)\]\(mailto:/);
+  if (mdMatch) email = mdMatch[1];
+
+  // Extract from angle brackets: <email>
+  email = email.replace(/^<|>$/g, "");
+
+  // Fix obfuscated: name (dot) name (@) domain
+  email = email.replace(/\s*\(dot\)\s*/gi, ".").replace(/\s*\(@\)\s*/gi, "@");
+
+  // Strip prefix junk: "- (personal)email" → "email"
+  const emailMatch = email.match(
+    /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/
+  );
+  if (emailMatch) email = emailMatch[1];
+
+  // Take first email if comma-separated
+  if (email.includes(",")) email = email.split(",")[0].trim();
+
+  // Final validation
+  if (!email.includes("@")) return undefined;
+
+  return email.toLowerCase().trim();
+}
+
 function extractContact(sections: Section[]): ParsedContact {
   const contactSection = findSectionContent(sections, "contact");
   // Also check the team section header area (Fast Grants puts contact inline)
@@ -238,9 +271,10 @@ function extractContact(sections: Section[]): ParsedContact {
     name:
       extractBulletValue(searchText, "contact name") ||
       extractBulletValue(searchText, "name"),
-    email:
+    email: cleanEmail(
       extractBulletValue(searchText, "contact email") ||
-      extractBulletValue(searchText, "email"),
+        extractBulletValue(searchText, "email")
+    ),
     website:
       extractBulletValue(searchText, "website") ||
       extractBulletValue(searchText, "web"),
@@ -295,6 +329,70 @@ function extractTeamMembers(sections: Section[]): ParsedTeamMember[] {
   return Array.from(members.values());
 }
 
+/** Lines that are section headers or descriptive text, not team member names */
+const JUNK_LINE_PATTERNS = [
+  /^team(?:'s)?\s+(?:members?|experience|code\s*repos?|website|linkedin|github)/i,
+  /^code\s*repos?$/i,
+  /^experience$/i,
+  /^linkedin\s*profiles?/i,
+  /^github\s*(?:profiles?|accounts?)?$/i,
+  /^please\s+also/i,
+  /^note:/i,
+  /^names?\s+of\s+team/i,
+  /^dev\s+team\s+members/i,
+  /^team\s+website/i,
+  /^(?:fontend|frontend|backend)\s+developer\s+team/i,
+  /^(?:code\s*)?repos?$/i,
+  /^experience$/i,
+  /^website$/i,
+  /^members$/i,
+  /^open[- ]source\s+code\s*repos?$/i,
+  /^team\s+lead(?:er)?s?$/i,
+  /^\w+\s+dev\s+team$/i,
+  /^\w+\s+team\s+members?\s+including/i,
+  /^\d+(?:\.\d+)?\s*x\s+/i, // "0.5 x Project Manager", "2 x Engineers"
+  /^\(development/i,
+  /^02-6\d{2}\s+warsaw/i, // Address lines
+  /^\d{2,5}\s+\w+,\s*\w+/i, // Generic addresses
+  /^the\s+team\s+/i,
+  /^our\s+team\s+/i,
+  /^we\s+(have|are|will)/i,
+  /^(?:discord|telegram|email|twitter|medium|element|signal|matrix|slack|riot)$/i, // Contact channels, not people
+  /^(?:team\s*name|team\s*repos?|accounts?|organisation|founder|--+|\(personal\))$/i, // Placeholder entries
+  /^[a-g]\.\s+(?:contact|website|linkedin|email|github|telegram)/i, // Lettered list items (a. Contact Email, g. LinkedIn)
+];
+
+function isJunkTeamLine(line: string): boolean {
+  const lower = line.toLowerCase().replace(/\*\*/g, "").trim();
+  return JUNK_LINE_PATTERNS.some((p) => p.test(lower));
+}
+
+/** Strip emoji prefixes from names (👨‍💻, 👩‍💼, etc.) */
+function stripEmoji(str: string): string {
+  return str
+    .replace(
+      /^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0FF}\u{1F100}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{200D}\u{20E3}\u{FE0F}\u{2060}]+/gu,
+      ""
+    )
+    .trim();
+}
+
+/** Clean a parsed name: strip emoji, remove trailing role in parens/brackets, trim */
+function cleanParsedName(name: string): string {
+  let cleaned = stripEmoji(name);
+  // Remove "(Github)", "(Github / Website)", "(Team Lead)", etc.
+  cleaned = cleaned.replace(/\s*\((?:Github|GitHub|Website|Team\s*Lead(?:er)?|CEO|CTO|COO|CFO)[\s/]*(?:Github|GitHub|Website)?\)\s*$/i, "");
+  // Remove "Linkedin GitHub" suffix
+  cleaned = cleaned.replace(/\s+(?:Linkedin|LinkedIn)\s+(?:GitHub|Github)\s*$/i, "");
+  // Handle em-dash role: "Name – Role" or "Name — Role"
+  cleaned = cleaned.replace(/\s*[–—]\s+(?:CEO|CTO|COO|CFO|Lead|Manager|Developer|Engineer|Architect|Founder|Director|Design|Product).*$/i, "");
+  // Remove trailing periods
+  cleaned = cleaned.replace(/\.\s*$/, "").trim();
+  // Remove "Mr.", "Mrs.", "Dr." prefix but keep the name
+  // (already handled in parseTeamMemberLine)
+  return cleaned;
+}
+
 function parseTeamMembersList(
   content: string,
   members: Map<string, ParsedTeamMember>
@@ -314,11 +412,12 @@ function parseTeamMembersList(
     if (cleaned.startsWith("#")) continue;
     if (cleaned.startsWith("|")) continue;
     if (cleaned.startsWith("```")) continue;
-    if (cleaned.startsWith("Please also")) continue;
-    if (cleaned.startsWith("Note:")) continue;
+    if (cleaned.startsWith(">")) continue;
     if (cleaned.length < 3 || cleaned.length > 200) continue;
-    // Skip bold key-value lines (Contact Name, Email, etc.) but NOT bold names like "**Clink Li**"
+    // Skip bold key-value lines (Contact Name, Email, etc.)
     if (/^\*\*(?:Contact|Registered|Website|Email|Legal)[^*]*\*\*/.test(cleaned)) continue;
+    // Skip section headers that get parsed as names
+    if (isJunkTeamLine(cleaned)) continue;
 
     // Try: "Role: Name URL" or "Name: Role URL" or "Name - Role. University"
     const member = parseTeamMemberLine(cleaned);
@@ -419,23 +518,59 @@ function parseTeamMemberLine(line: string): ParsedTeamMember | null {
 
   // Clean up name
   if (name) {
+    name = cleanParsedName(name);
     name = name.replace(/^\*+|\*+$/g, "").trim();
+
+    // Split "Name, Role" — "Aaron Chen, CTO" → name="Aaron Chen", role="CTO"
+    const commaRole = name.match(
+      /^([A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F]+){0,3}),\s+(.+)/
+    );
+    if (commaRole && !role) {
+      const possibleRole = commaRole[2].trim();
+      // Only split if the part after comma looks like a role (contains role keywords)
+      if (/(?:CEO|CTO|COO|CFO|Lead|Manager|Developer|Engineer|Architect|Founder|Director|Head|VP|Designer|Researcher)/i.test(possibleRole)) {
+        name = commaRole[1].trim();
+        role = possibleRole;
+      }
+    }
+
+    // Split "Name (Role)" — "Abdul Hakim (Blockchain Developer)" → name="Abdul Hakim"
+    const parenRole = name.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+    if (parenRole && !role) {
+      const inner = parenRole[2].trim();
+      if (/(?:Developer|Engineer|Lead|Manager|Founder|Designer|Researcher|team)/i.test(inner)) {
+        name = parenRole[1].trim();
+        role = inner;
+      }
+    }
+
     // Truncate at first sentence-ending period followed by space+uppercase (role description leak)
     const periodSplit = name.match(/^(.+?)\.\s+[A-Z]/);
     if (periodSplit && periodSplit[1].length >= 3) {
-      // Only truncate if what's before the period looks like a name (2-4 words)
       const wordCount = periodSplit[1].split(/\s+/).length;
       if (wordCount <= 5) {
         name = periodSplit[1].trim();
       }
     }
 
-    if (name.length < 2 || name.length > 80) return null;
+    // Final cleanup
+    name = name.replace(/\.\s*$/, "").trim(); // trailing period
+    name = name.replace(/\s*<br\s*\/?>.*$/i, "").trim(); // HTML breaks
+
+    if (name.length < 2 || name.length > 60) return null;
     // Skip lines that are clearly not names
-    if (/^(http|github|linkedin|none|n\/a|tbd|please|note)/i.test(name)) return null;
-    // Skip lines that look like descriptions (too many lowercase words)
+    if (/^(http|github|linkedin|none|n\/a|tbd|please|note|the\s|our\s|we\s)/i.test(name)) return null;
+    // Skip exact section header words
+    const nameLower = name.toLowerCase();
+    if (["code repos", "experience", "members", "website", "team lead", "team leader", "team leaders",
+         "open-source code repos", "team website", "team members"].includes(nameLower)) return null;
+    // Skip lines with "team" that are descriptions not names
+    if (/^.*\bteam\b.*$/i.test(name) && !/^[A-Z][a-z]+\s+[A-Z]/.test(name)) return null;
+    // Skip lines that look like descriptions (too many words)
     const words = name.split(/\s+/);
-    if (words.length > 6) return null;
+    if (words.length > 5) return null;
+    // Skip lines that are clearly org/team descriptions
+    if (/(?:'s development|'s QA|division|department)/i.test(name)) return null;
   }
 
   if (!name) return null;

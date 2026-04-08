@@ -32,6 +32,9 @@ export const config: NextConfig = {
     ];
   },
 
+  // Turbopack config (Next.js 16 default bundler)
+  turbopack: {},
+
   webpack(config, { isServer }) {
     if (isServer) {
       config.plugins = config.plugins || [];

@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
 
     // Try to get from cache first
     if (!refresh) {
-      const cached = await redis.get<BountyStatsResponse | string>(CACHE_KEY);
+      let cached: BountyStatsResponse | string | null = null;
+      try { cached = await redis.get<BountyStatsResponse | string>(CACHE_KEY); } catch { /* Redis unavailable */ }
       if (cached) {
         const data: BountyStatsResponse =
           typeof cached === "string"
@@ -31,10 +32,12 @@ export async function GET(request: NextRequest) {
     // Fetch fresh data
     const stats = await getBountyStats();
 
-    // Store in cache
-    await redis.set(CACHE_KEY, JSON.stringify(stats), {
-      ex: CACHE_TTL_SECONDS,
-    });
+    // Store in cache (graceful if Redis unavailable)
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(stats), {
+        ex: CACHE_TTL_SECONDS,
+      });
+    } catch {}
 
     return withHeaders(NextResponse.json(stats));
   } catch (error) {

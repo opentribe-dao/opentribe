@@ -88,6 +88,9 @@ describe("Grant Stats API", () => {
           status: "OPEN",
         },
         _sum: {
+          maxAmount: true,
+          maxAmountUSD: true,
+          totalFunds: true,
           totalFundsUSD: true,
         },
       });
@@ -366,6 +369,9 @@ describe("Grant Stats API", () => {
           status: "OPEN",
         },
         _sum: {
+          maxAmount: true,
+          maxAmountUSD: true,
+          totalFunds: true,
           totalFundsUSD: true,
         },
       });

@@ -84,23 +84,28 @@ export default function GrantDetailPage({
     notFound();
   }
 
-  // Calculate date range
+  // Calculate date range from grant data
   const getDateRange = () => {
+    const formatDate = (d: Date) =>
+      d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+    // Use actual grant dates if available
+    if (grant.deadline) {
+      const startDate = grant.publishedAt ? new Date(grant.publishedAt) : new Date(grant.createdAt);
+      return { start: formatDate(startDate), end: formatDate(new Date(grant.deadline)), isRolling: false };
+    }
+
+    // External/rolling grants with no deadline
+    if (grant.source === "EXTERNAL" || !grant.deadline) {
+      const startDate = grant.publishedAt ? new Date(grant.publishedAt) : new Date(grant.createdAt);
+      return { start: formatDate(startDate), end: "No Deadline", isRolling: true };
+    }
+
+    // Fallback
     const start = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 3);
-    return {
-      start: start.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      end: end.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-    };
+    return { start: formatDate(start), end: formatDate(end), isRolling: false };
   };
 
   const dateRange = getDateRange();
@@ -151,13 +156,16 @@ export default function GrantDetailPage({
 
               {/* Actions */}
               <div className="mt-4 grid grid-cols-2 gap-4 md:mt-0">
-                {/* Application count badge */}
-                <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
+                {/* Application count badge — links to applications list */}
+                <Link
+                  href={`/grants/${grantId}/applications`}
+                  className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm hover:bg-white/20 transition-colors"
+                >
                   <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
                   <span className="font-medium text-sm">
-                    {grant._count.applications} applications
+                    {grant._count?.applications ?? grant.applicationCount ?? 0} applications
                   </span>
-                </div>
+                </Link>
 
                 <ShareButton url={`/grants/${grantId}`} />
                 <div className="col-span-2 w-full">
@@ -322,14 +330,18 @@ export default function GrantDetailPage({
                       in {grant.token || "DOT"} capital, designed to help teams
                       scale.
                     </>
-                  ) : (
+                  ) : grant.totalFunds && Number(grant.totalFunds) > 0 ? (
                     <>
                       Total funding available:{" "}
                       {formatCurrency(
-                        Number(grant.totalFunds || 0),
+                        Number(grant.totalFunds),
                         String(grant.token)
-                      )}{" "}
-                      {grant.token || "DOT"}
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      Funding varies by proposal. Review the grant details and
+                      apply with your budget estimate.
                     </>
                   )}
                 </p>
@@ -383,8 +395,13 @@ export default function GrantDetailPage({
                       String(grant.token)
                     )}
                   </>
+                ) : grant.totalFunds ? (
+                  formatCurrency(
+                    Number(grant.totalFunds),
+                    String(grant.token)
+                  )
                 ) : (
-                  "Variable"
+                  "Varies by proposal"
                 )}
               </div>
             </div>
@@ -392,7 +409,7 @@ export default function GrantDetailPage({
             {/* Grant Validity Card */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
               <h3 className="mb-3 flex items-center gap-2 font-medium text-sm text-white/60">
-                <Clock className="h-4 w-4" /> Grant Validity
+                <Clock className="h-4 w-4" /> {dateRange.isRolling ? "Grant Validity — Rolling" : "Grant Validity"}
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">

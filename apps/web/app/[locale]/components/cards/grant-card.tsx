@@ -1,6 +1,7 @@
 import { Badge } from "@packages/base/components/ui/badge";
 import { Card } from "@packages/base/components/ui/card";
-import { FileText } from "lucide-react";
+import { formatCurrency } from "@packages/base/lib/utils";
+import { FileText, Wallet } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -91,16 +92,14 @@ export function GrantCard({
           <div className="flex items-center gap-4">
             {(minAmount || maxAmount) && (
               <span className="flex items-center gap-1">
-                {/* <DollarSign className='h-4 w-4' /> */}
+                <Wallet className="h-4 w-4" />
                 {minAmount && maxAmount ? (
                   <>
-                    {minAmount.toLocaleString()} - {maxAmount.toLocaleString()}{" "}
-                    {token}
+                    {formatCurrency(Number(minAmount), token)} -{" "}
+                    {formatCurrency(Number(maxAmount), token)}
                   </>
                 ) : (
-                  <>
-                    {(minAmount || maxAmount)?.toLocaleString()} {token}
-                  </>
+                  formatCurrency(Number(minAmount || maxAmount), token)
                 )}
               </span>
             )}

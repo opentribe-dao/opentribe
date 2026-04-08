@@ -41,6 +41,7 @@ const { values: args } = parseArgs({
     verbose: { type: "boolean", default: false },
     output: { type: "string" }, // Export parsed data to JSON file for review
     "from-file": { type: "string" }, // Import from a reviewed JSON file instead of fetching
+    "local-repos": { type: "string" }, // Base path for local cloned repos (e.g., /tmp/opentribe-repos)
   },
 });
 
@@ -50,6 +51,7 @@ const skipGitHub = args["skip-github"] ?? false;
 const verbose = args.verbose ?? false;
 const outputFile = args.output;
 const fromFile = args["from-file"];
+const localReposBase = args["local-repos"];
 
 const logger = {
   log: (msg: string) => console.log(msg),
@@ -57,6 +59,81 @@ const logger = {
   error: (msg: string, err?: unknown) =>
     console.error(`[ERROR] ${msg}`, err ?? ""),
 };
+
+// --- Local Repo Reading ---
+
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { execSync } from "node:child_process";
+
+const LOCAL_REPO_MAP: Record<string, string> = {
+  w3f: "w3f-grants",
+  "open-source": "open-source",
+  "fast-grants": "fast-grants",
+  "ink-bounty": "ink-bounty",
+};
+
+const DELIVERY_REPO_MAP: Record<string, string> = {
+  w3f: "w3f-deliveries",
+};
+
+function readLocalFiles(
+  repoBase: string,
+  repoDir: string,
+  subPath: string
+): { name: string; content: string }[] {
+  const dir = join(repoBase, repoDir, subPath);
+  try {
+    return readdirSync(dir)
+      .filter((f) => f.endsWith(".md") && f !== "README.md" && !f.startsWith("_"))
+      .map((name) => ({
+        name,
+        content: readFileSync(join(dir, name), "utf-8"),
+      }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Get the original author of a file from git log (first commit that added it).
+ * Returns GitHub username extracted from noreply email, or commit author name.
+ */
+function getFileAuthorFromGit(
+  repoBase: string,
+  repoDir: string,
+  filePath: string
+): { username: string | null; date: string | null } {
+  const repoPath = join(repoBase, repoDir);
+  try {
+    const result = execSync(
+      `git log --diff-filter=A --follow --format="%ae|%an|%aI" -- "${filePath}"`,
+      { cwd: repoPath, encoding: "utf-8", timeout: 5000 }
+    ).trim();
+
+    const lastLine = result.split("\n").pop();
+    if (!lastLine) return { username: null, date: null };
+
+    const [email, name, date] = lastLine.split("|");
+
+    // Extract GitHub username from noreply email: 12345+username@users.noreply.github.com
+    const noreplyMatch = email?.match(/\d+\+([^@]+)@users\.noreply\.github\.com/);
+    if (noreplyMatch) {
+      return { username: noreplyMatch[1], date };
+    }
+
+    // Try plain username@users.noreply.github.com
+    const simpleNoreply = email?.match(/^([^@]+)@users\.noreply\.github\.com/);
+    if (simpleNoreply) {
+      return { username: simpleNoreply[1], date };
+    }
+
+    // Fall back to author name (not ideal but better than nothing)
+    return { username: null, date };
+  } catch {
+    return { username: null, date: null };
+  }
+}
 
 // --- GitHub API Fetching ---
 
@@ -94,6 +171,59 @@ async function fetchRepoFiles(
       name: f.name,
       download_url: f.download_url,
     }));
+}
+
+/**
+ * Fetch the GitHub username of the author who added a file (first commit).
+ * Uses the commits API with path filter.
+ */
+async function fetchFileAuthor(
+  owner: string,
+  repo: string,
+  filePath: string,
+  branch: string
+): Promise<{ username: string; date: string } | null> {
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits?path=${encodeURIComponent(filePath)}&sha=${branch}&per_page=1&page=1`;
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github.v3+json",
+    "User-Agent": "opentribe-import",
+  };
+  if (process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+
+  try {
+    // The commits API returns newest first. We want the oldest (first commit).
+    // Use per_page=1 and get the Link header to find the last page.
+    const response = await fetch(url, { headers });
+    if (!response.ok) return null;
+
+    // Check Link header for last page
+    const linkHeader = response.headers.get("Link");
+    let commits: any[] = await response.json();
+
+    if (linkHeader) {
+      // Parse last page URL from Link header
+      const lastMatch = linkHeader.match(/<([^>]+)>;\s*rel="last"/);
+      if (lastMatch) {
+        const lastResponse = await fetch(lastMatch[1], { headers });
+        if (lastResponse.ok) {
+          commits = await lastResponse.json();
+        }
+      }
+    }
+
+    // Get the last commit (oldest = file creation)
+    const lastCommit = commits[commits.length - 1];
+    if (!lastCommit) return null;
+
+    return {
+      username: lastCommit.author?.login || lastCommit.commit?.author?.name || null,
+      date: lastCommit.commit?.author?.date || lastCommit.commit?.committer?.date || null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function fetchFileContent(url: string): Promise<string> {
@@ -154,10 +284,31 @@ async function importSource(config: SourceConfig): Promise<{
   }
 
   try {
-    // 2. Fetch application files (or load from file)
+    // 2. Fetch application files (local repos or GitHub API)
     let files: { name: string; download_url: string }[] = [];
+    let localFiles: { name: string; content: string }[] = [];
+    const useLocal = !!(localReposBase && LOCAL_REPO_MAP[config.source]);
 
-    if (!fromFile) {
+    if (fromFile) {
+      // Load from reviewed JSON file — handled below
+    } else if (useLocal) {
+      const repoDir = LOCAL_REPO_MAP[config.source];
+      logger.log(`Reading from local repo: ${repoDir}/${config.applicationsDir}`);
+      localFiles = readLocalFiles(localReposBase, repoDir, config.applicationsDir);
+      localFiles = localFiles.filter(
+        (f) =>
+          !f.name.includes("template") &&
+          !f.name.includes("maintenance") &&
+          !f.name.startsWith(".") &&
+          f.name !== "index.md" &&
+          !f.name.startsWith("_")
+      );
+      logger.log(`Found ${localFiles.length} application files locally`);
+      if (limit) {
+        localFiles = localFiles.slice(0, limit);
+        logger.log(`Limiting to ${limit} files`);
+      }
+    } else {
       logger.log("Fetching application files from GitHub...");
       files = await fetchRepoFiles(
         config.repoOwner,
@@ -165,8 +316,6 @@ async function importSource(config: SourceConfig): Promise<{
         config.applicationsDir,
         config.branch
       );
-
-      // Filter out template, index, and special files
       files = files.filter(
         (f) =>
           !f.name.includes("template") &&
@@ -174,9 +323,7 @@ async function importSource(config: SourceConfig): Promise<{
           !f.name.startsWith(".") &&
           f.name !== "index.md"
       );
-
       logger.log(`Found ${files.length} application files`);
-
       if (limit) {
         files = files.slice(0, limit);
         logger.log(`Limiting to ${limit} files`);
@@ -298,8 +445,28 @@ async function importSource(config: SourceConfig): Promise<{
           logger.error(`Failed to parse ${file.name}:`, err);
         }
       }
+    } else if (useLocal && localFiles.length > 0) {
+      // Parse from local cloned repo
+      logger.log("\nParsing application files (local)...");
+
+      for (const file of localFiles) {
+        try {
+          const app = parseGrantApplication(file.content, file.name);
+          parsed.push({ filename: file.name, app });
+          stats.processed++;
+
+          if (verbose) {
+            logger.log(
+              `  Parsed: ${file.name} → ${app.title} (${app.teamMembers.length} members, ${app.milestones.length} milestones)`
+            );
+          }
+        } catch (err) {
+          stats.errors++;
+          logger.error(`Failed to parse ${file.name}:`, err);
+        }
+      }
     } else {
-      // Parse from GitHub directly
+      // Parse from GitHub API
       logger.log("\nParsing application files...");
 
       for (const file of files) {
@@ -418,6 +585,34 @@ async function importSource(config: SourceConfig): Promise<{
         try {
           const externalId = `${config.source}:${app.slug}`;
 
+          // Get the PR author who submitted this application
+          let prAuthor: { username: string | null; date: string | null } | null = null;
+          if (useLocal && localReposBase) {
+            // Fast: read from local git log
+            const repoDir = LOCAL_REPO_MAP[config.source];
+            prAuthor = getFileAuthorFromGit(
+              localReposBase,
+              repoDir,
+              `${config.applicationsDir}/${filename}`
+            );
+            if (prAuthor?.username && verbose) {
+              logger.log(`  Author for ${filename}: ${prAuthor.username} (${prAuthor.date})`);
+            }
+          } else if (!skipGitHub) {
+            // Slow: fetch from GitHub API
+            prAuthor = await fetchFileAuthor(
+              config.repoOwner,
+              config.repoName,
+              `${config.applicationsDir}/${filename}`,
+              config.branch
+            );
+            if (prAuthor && verbose) {
+              logger.log(`  PR author for ${filename}: ${prAuthor.username} (${prAuthor.date})`);
+            }
+          }
+
+          const submittedAt = prAuthor?.date ? new Date(prAuthor.date) : new Date();
+
           // Create GrantApplication
           const application = await database.grantApplication.upsert({
             where: {
@@ -438,7 +633,8 @@ async function importSource(config: SourceConfig): Promise<{
                 ? parseBudget(app.totalCosts)
                 : undefined,
               paymentAddress: app.paymentAddress,
-              status: "APPROVED", // All imported apps are accepted
+              status: "APPROVED",
+              submittedAt,
             },
             create: {
               grantId,
@@ -452,11 +648,20 @@ async function importSource(config: SourceConfig): Promise<{
               paymentAddress: app.paymentAddress,
               status: "APPROVED",
               label: "Reviewed",
-              submittedAt: new Date(),
-              decidedAt: new Date(),
+              submittedAt,
+              decidedAt: submittedAt,
             },
           });
           stats.applications++;
+
+          // If the first team member (applicant) has no GitHub, use the PR author
+          if (
+            prAuthor?.username &&
+            app.teamMembers.length > 0 &&
+            !app.teamMembers[0].github
+          ) {
+            app.teamMembers[0].github = prAuthor.username;
+          }
 
           // Create EcosystemProfiles + Contributions for team members
           for (let i = 0; i < app.teamMembers.length; i++) {
@@ -586,15 +791,24 @@ async function importDeliveries(
   logger.log("\nImporting milestone deliveries...");
 
   try {
-    // Fetch delivery files
-    const deliveryFiles = await fetchRepoFiles(
-      config.deliveryRepoOwner,
-      config.deliveryRepoName,
-      "deliveries",
-      "master"
-    );
+    // Fetch delivery files (local or API)
+    const deliveryRepoDir = DELIVERY_REPO_MAP[config.source];
+    const useLocalDelivery = !!(localReposBase && deliveryRepoDir);
+    let deliveryLocalFiles: { name: string; content: string }[] = [];
+    let deliveryFiles: { name: string; download_url: string }[] = [];
 
-    logger.log(`Found ${deliveryFiles.length} delivery files`);
+    if (useLocalDelivery) {
+      deliveryLocalFiles = readLocalFiles(localReposBase, deliveryRepoDir, "deliveries");
+      logger.log(`Found ${deliveryLocalFiles.length} delivery files (local)`);
+    } else {
+      deliveryFiles = await fetchRepoFiles(
+        config.deliveryRepoOwner!,
+        config.deliveryRepoName!,
+        "deliveries",
+        "master"
+      );
+      logger.log(`Found ${deliveryFiles.length} delivery files`);
+    }
 
     // Build a map of application slug → application ID
     const applications = await database.grantApplication.findMany({
@@ -612,7 +826,11 @@ async function importDeliveries(
     let matched = 0;
     let unmatched = 0;
 
-    for (const file of deliveryFiles) {
+    const allDeliveryItems = useLocalDelivery
+      ? deliveryLocalFiles.map((f) => ({ name: f.name, content: f.content }))
+      : [];
+
+    for (const file of useLocalDelivery ? allDeliveryItems : deliveryFiles) {
       try {
         const parsed = parseDeliveryFilename(file.name);
         if (!parsed) continue;
@@ -628,12 +846,12 @@ async function importDeliveries(
           continue;
         }
 
-        // Fetch and parse the delivery file
-        const content = await fetchFileContent(file.download_url);
+        const content = "content" in file
+          ? file.content
+          : await fetchFileContent((file as any).download_url);
         const delivery = parseDeliveryFile(content, file.name);
         if (!delivery) continue;
 
-        // Update the corresponding GrantMilestone
         await database.grantMilestone.updateMany({
           where: {
             grantApplicationId: appId,
@@ -659,18 +877,28 @@ async function importDeliveries(
 
     // Fetch evaluation files
     logger.log("Importing evaluations...");
-    const evalFiles = await fetchRepoFiles(
-      config.deliveryRepoOwner,
-      config.deliveryRepoName,
-      "evaluations",
-      "master"
-    );
+    let evalLocalFiles: { name: string; content: string }[] = [];
+    let evalFiles: { name: string; download_url: string }[] = [];
 
-    logger.log(`Found ${evalFiles.length} evaluation files`);
+    if (useLocalDelivery) {
+      evalLocalFiles = readLocalFiles(localReposBase!, deliveryRepoDir, "evaluations");
+      logger.log(`Found ${evalLocalFiles.length} evaluation files (local)`);
+    } else {
+      evalFiles = await fetchRepoFiles(
+        config.deliveryRepoOwner!,
+        config.deliveryRepoName!,
+        "evaluations",
+        "master"
+      );
+      logger.log(`Found ${evalFiles.length} evaluation files`);
+    }
 
     let evalMatched = 0;
+    const allEvalItems = useLocalDelivery
+      ? evalLocalFiles.map((f) => ({ name: f.name, content: f.content }))
+      : [];
 
-    for (const file of evalFiles) {
+    for (const file of useLocalDelivery ? allEvalItems : evalFiles) {
       try {
         const parsed = parseEvaluationFilename(file.name);
         if (!parsed) continue;
@@ -679,14 +907,19 @@ async function importDeliveries(
         const appId = appMap.get(normalizedSlug);
         if (!appId) continue;
 
-        // Fetch and parse
-        const content = await fetchFileContent(file.download_url);
+        const content = "content" in file
+          ? file.content
+          : await fetchFileContent((file as any).download_url);
         const evaluation = parseEvaluationFile(content, file.name);
         if (!evaluation) continue;
 
         // Update milestone with evaluation data
         const newStatus =
-          evaluation.status === "accepted" ? "ACCEPTED" : "REJECTED";
+          evaluation.status === "accepted"
+            ? "ACCEPTED"
+            : evaluation.status === "rejected"
+              ? "REJECTED"
+              : "UNDER_REVIEW";
 
         await database.grantMilestone.updateMany({
           where: {

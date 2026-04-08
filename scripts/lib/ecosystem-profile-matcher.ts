@@ -136,7 +136,32 @@ export class EcosystemProfileMatcher {
       }
     }
 
-    // 4. No match found — create new profile
+    // 4. Try match by displayName + source (fallback for profiles without identifiers)
+    if (member.name) {
+      const existing = await this.db.ecosystemProfile.findFirst({
+        where: {
+          displayName: { equals: member.name, mode: "insensitive" },
+          source: ecosystemSource as any,
+        },
+        select: { id: true, slug: true },
+      });
+      if (existing) {
+        // Enrich with any new data
+        const updates: Record<string, any> = {};
+        if (githubAccountId) updates.githubAccountId = githubAccountId;
+        if (member.github) updates.github = member.github.toLowerCase().replace(/^@/, "");
+        if (isApplicant && contact?.email) updates.email = contact.email.toLowerCase();
+        if (Object.keys(updates).length > 0) {
+          await this.db.ecosystemProfile.update({
+            where: { id: existing.id },
+            data: updates,
+          });
+        }
+        return { id: existing.id, slug: existing.slug, isNew: false };
+      }
+    }
+
+    // 5. No match found — create new profile
     const slug = this.generateSlug(member.name, member.github);
     const normalizedGithub = member.github
       ?.toLowerCase()

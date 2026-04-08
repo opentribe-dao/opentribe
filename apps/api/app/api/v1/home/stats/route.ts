@@ -49,21 +49,32 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const refresh = searchParams.get("refresh") === "true";
 
+    // Try Redis cache first, but gracefully handle Redis being unavailable
     if (!refresh) {
-      const cached = await redis.get<HomepageStatsResponse | string>(CACHE_KEY);
-      if (cached) {
-        const data: HomepageStatsResponse =
-          typeof cached === "string"
-            ? (JSON.parse(cached) as HomepageStatsResponse)
-            : (cached as HomepageStatsResponse);
-        return withHeaders(NextResponse.json({ data }));
+      try {
+        const cached = await redis.get<HomepageStatsResponse | string>(CACHE_KEY);
+        if (cached) {
+          const data: HomepageStatsResponse =
+            typeof cached === "string"
+              ? (JSON.parse(cached) as HomepageStatsResponse)
+              : (cached as HomepageStatsResponse);
+          return withHeaders(NextResponse.json({ data }));
+        }
+      } catch {
+        // Redis unavailable — skip cache, calculate fresh
       }
     }
 
     const stats = await calculateHomepageStats();
-    await redis.set(CACHE_KEY, JSON.stringify(stats), {
-      ex: CACHE_TTL_SECONDS,
-    });
+
+    // Try to cache, but don't fail if Redis is unavailable
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(stats), {
+        ex: CACHE_TTL_SECONDS,
+      });
+    } catch {
+      // Redis unavailable — continue without caching
+    }
 
     return withHeaders(NextResponse.json({ data: stats }));
   } catch (error) {
@@ -133,7 +144,7 @@ async function calculatePlatformStats(): Promise<
   ]);
   const uniqueBuilderIds = new Set<string>([
     ...submissionUsers.map((u) => u.userId),
-    ...applicationUsers.map((u) => u.userId),
+    ...applicationUsers.map((u) => u.userId).filter((id): id is string => id !== null),
   ]);
 
   const [bountyAgg, grantsAgg] = await Promise.all([
@@ -145,13 +156,13 @@ async function calculatePlatformStats(): Promise<
       },
     }),
     database.grant.aggregate({
-      _sum: { totalFundsUSD: true },
+      _sum: { totalFundsUSD: true, totalFunds: true },
       where: { visibility: "PUBLISHED", status: "OPEN" },
     }),
   ]);
 
   const bountyTotal = Number(bountyAgg?._sum?.amountUSD ?? 0);
-  const grantTotal = Number(grantsAgg?._sum?.totalFundsUSD ?? 0);
+  const grantTotal = Number(grantsAgg?._sum?.totalFundsUSD ?? grantsAgg?._sum?.totalFunds ?? 0);
   const totalRewards = formatCurrency(bountyTotal + grantTotal);
 
   return {

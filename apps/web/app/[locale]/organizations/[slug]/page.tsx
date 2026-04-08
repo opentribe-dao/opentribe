@@ -31,7 +31,11 @@ interface OrgGrant {
   token?: string | null;
   minAmount?: number | null;
   maxAmount?: number | null;
-  _count: {
+  applicationCount?: number;
+  rfpCount?: number;
+  summary?: string | null;
+  skills?: string[];
+  _count?: {
     applications: number;
   };
 }
@@ -298,8 +302,8 @@ export default async function OrganizationDetailPage({ params }: Props) {
                                 </span>
                               )}
                               <span>
-                                {grant._count.applications} application
-                                {grant._count.applications !== 1 ? "s" : ""}
+                                {grant.applicationCount ?? grant._count?.applications ?? 0} application
+                                {(grant.applicationCount ?? grant._count?.applications ?? 0) !== 1 ? "s" : ""}
                               </span>
                             </div>
                           </div>

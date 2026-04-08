@@ -23,20 +23,28 @@ export async function GET(request: NextRequest) {
     const refresh = searchParams.get("refresh") === "true";
 
     if (!refresh) {
-      const cached = await redis.get<TopBounty[] | string>(CACHE_KEY);
-      if (cached) {
-        const data: TopBounty[] =
-          typeof cached === "string"
-            ? (JSON.parse(cached) as TopBounty[])
-            : (cached as TopBounty[]);
-        return withHeaders(NextResponse.json({ data }));
+      try {
+        const cached = await redis.get<TopBounty[] | string>(CACHE_KEY);
+        if (cached) {
+          const data: TopBounty[] =
+            typeof cached === "string"
+              ? (JSON.parse(cached) as TopBounty[])
+              : (cached as TopBounty[]);
+          return withHeaders(NextResponse.json({ data }));
+        }
+      } catch {
+        // Redis unavailable — skip cache
       }
     }
 
     const topBounties = await getTopBounties();
-    await redis.set(CACHE_KEY, JSON.stringify(topBounties), {
-      ex: CACHE_TTL_SECONDS,
-    });
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(topBounties), {
+        ex: CACHE_TTL_SECONDS,
+      });
+    } catch {
+      // Redis unavailable — skip caching
+    }
 
     return withHeaders(NextResponse.json({ data: topBounties }));
   } catch (error) {

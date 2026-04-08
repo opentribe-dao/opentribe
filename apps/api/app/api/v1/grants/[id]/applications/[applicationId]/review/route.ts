@@ -108,21 +108,24 @@ export async function PATCH(
     });
 
     // Send email notification to applicant about the decision
-    try {
-      await sendGrantStatusUpdateEmail(
-        {
-          email: updatedApplication.applicant.email,
-          username: updatedApplication.applicant.username || undefined,
-          firstName: updatedApplication.applicant.firstName || undefined,
-        },
-        updatedApplication.title,
-        validatedData.status,
-        validatedData.feedback,
-        `${env.NEXT_PUBLIC_WEB_URL}/grants/${updatedApplication.grantId}/applications/${updatedApplication.id}`
-      );
-    } catch (emailError) {
-      console.error("Failed to send status update email:", emailError);
-      // Don't fail the request if email fails
+    // Skip if userId is null (imported ecosystem applications have no linked user)
+    if (updatedApplication.userId && updatedApplication.applicant) {
+      try {
+        await sendGrantStatusUpdateEmail(
+          {
+            email: updatedApplication.applicant.email,
+            username: updatedApplication.applicant.username || undefined,
+            firstName: updatedApplication.applicant.firstName || undefined,
+          },
+          updatedApplication.title,
+          validatedData.status,
+          validatedData.feedback,
+          `${env.NEXT_PUBLIC_WEB_URL}/grants/${updatedApplication.grantId}/applications/${updatedApplication.id}`
+        );
+      } catch (emailError) {
+        console.error("Failed to send status update email:", emailError);
+        // Don't fail the request if email fails
+      }
     }
 
     return NextResponse.json({

@@ -2,6 +2,7 @@ import { auth } from "@packages/auth/server";
 import { database } from "@packages/db";
 import { sendGrantFirstApplicationEmail } from "@packages/email";
 import { formatZodError } from "@/lib/zod-errors";
+import { resolveApplicationApplicantBatch } from "@/lib/resolve-applicant";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -74,7 +75,7 @@ export async function GET(
     // Fetch applications (only submitted ones for public view)
     const applications = await database.grantApplication.findMany({
       where: {
-        grantId,
+        grantId: grant.id,
         status: {
           not: "DRAFT",
         },
@@ -86,7 +87,14 @@ export async function GET(
             username: true,
             firstName: true,
             lastName: true,
+            email: true,
             image: true,
+            bio: true,
+            location: true,
+            skills: true,
+            github: true,
+            linkedin: true,
+            website: true,
           },
         },
         rfp: {
@@ -108,7 +116,15 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ applications });
+    // Resolve applicants (handles both User-linked and EcosystemProfile-linked apps)
+    const applicantMap = await resolveApplicationApplicantBatch(applications);
+
+    const transformedApplications = applications.map((app) => ({
+      ...app,
+      applicant: applicantMap.get(app.id) ?? app.applicant,
+    }));
+
+    return NextResponse.json({ applications: transformedApplications });
   } catch (error) {
     console.error("Error fetching applications:", error);
     return NextResponse.json(
@@ -258,7 +274,6 @@ export async function POST(
         summary: validatedData.summary,
         description: validatedData.description,
         timeline: validatedData.timeline || undefined,
-        milestones: validatedData.milestones || undefined,
         budget: validatedData.budget || undefined,
         responses: validatedData.responses || undefined,
         status: "SUBMITTED",
@@ -343,8 +358,8 @@ export async function POST(
                   ? `$${application.budget.toLocaleString()}`
                   : "Not specified",
                 applicant: {
-                  firstName: application.applicant.firstName || undefined,
-                  username: application.applicant.username || "Anonymous",
+                  firstName: application.applicant?.firstName || undefined,
+                  username: application.applicant?.username || "Anonymous",
                 },
               }
             );

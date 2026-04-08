@@ -1,6 +1,7 @@
 import { Badge } from "@packages/base/components/ui/badge";
 import { Card } from "@packages/base/components/ui/card";
-import { FileText } from "lucide-react";
+import { formatCurrency } from "@packages/base/lib/utils";
+import { FileText, Wallet } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -20,6 +21,7 @@ interface GrantCardProps {
   token: string;
   rfpCount: number;
   applicationCount: number;
+  source: string;
   status: string;
   summary: string;
   skills: string[];
@@ -36,6 +38,7 @@ export function GrantCard({
   token,
   rfpCount,
   applicationCount,
+  source,
   status,
   summary,
 }: GrantCardProps) {
@@ -89,16 +92,14 @@ export function GrantCard({
           <div className="flex items-center gap-4">
             {(minAmount || maxAmount) && (
               <span className="flex items-center gap-1">
-                {/* <DollarSign className='h-4 w-4' /> */}
+                <Wallet className="h-4 w-4" />
                 {minAmount && maxAmount ? (
                   <>
-                    {minAmount.toLocaleString()} - {maxAmount.toLocaleString()}{" "}
-                    {token}
+                    {formatCurrency(Number(minAmount), token)} -{" "}
+                    {formatCurrency(Number(maxAmount), token)}
                   </>
                 ) : (
-                  <>
-                    {(minAmount || maxAmount)?.toLocaleString()} {token}
-                  </>
+                  formatCurrency(Number(minAmount || maxAmount), token)
                 )}
               </span>
             )}
@@ -107,7 +108,11 @@ export function GrantCard({
               {rfpCount} RFPs
             </span>
           </div>
-          <span className="text-pink-400">{applicationCount} applications</span>
+          {source !== "EXTERNAL" && (
+            <span className="text-pink-400">
+              {applicationCount} applications
+            </span>
+          )}
         </div>
       </Card>
     </Link>

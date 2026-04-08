@@ -180,7 +180,7 @@ export function OrganizationSwitcher({
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Organizations
             </DropdownMenuLabel>
-            {organizations?.map((org, index) => (
+            {organizations?.map((org: { id: string; name: string; logo?: string | null; slug: string }, index: number) => (
               <DropdownMenuItem
                 className="gap-2 p-2"
                 key={org.id}

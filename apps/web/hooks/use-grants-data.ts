@@ -24,6 +24,7 @@ interface Grant {
   rfpCount: number;
   applicationCount: number;
   status: string;
+  source: string;
   summary: string;
   skills: string[];
   createdAt: string;

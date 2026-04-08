@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -57,6 +56,8 @@ model User {
   submissions          Submission[]          @relation("SubmissionSubmitter")
   wonSubmissions       Submission[]          @relation("BountyWinnerSubmission")
   votes                Vote[]                @relation("UserVote")
+  claimedProfiles      EcosystemProfile[]    @relation("ClaimedProfiles")
+  claimRequests        ClaimRequest[]        @relation("UserClaimRequests")
 
   @@map("user")
 }
@@ -111,30 +112,34 @@ model Verification {
 }
 
 model Organization {
-  id          String              @id @default(cuid())
-  name        String
-  slug        String              @unique
-  logo        String?
-  metadata    String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  legalName   String?
-  headline    String?
-  description String?
-  industry    String[]            @default([])
-  twitter     String?
-  github      String?
-  linkedin    String?
-  location    String?
-  websiteUrl  String?
-  email       String?
-  visibility  OrgVisibilityStatus @default(ACTIVE)
-  isVerified  Boolean             @default(false)
-  bounties    Bounty[]            @relation("OrgCreatedBounty")
-  grants      Grant[]             @relation("OrganizationGrants")
-  invitations Invitation[]        @relation("OrganizationInvitations")
-  members     Member[]            @relation("OrganizationMembers")
-  payments    Payment[]           @relation("OrganizationPayments")
+  id                String              @id @default(cuid())
+  name              String
+  slug              String              @unique
+  logo              String?
+  metadata          String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  legalName         String?
+  headline          String?
+  description       String?
+  industry          String[]            @default([])
+  twitter           String?
+  github            String?
+  linkedin          String?
+  location          String?
+  websiteUrl        String?
+  email             String?
+  visibility        OrgVisibilityStatus @default(ACTIVE)
+  isVerified        Boolean             @default(false)
+  orgType           OrgType             @default(COMPANY)
+  managedByPlatform Boolean             @default(false)
+  claimableBy       String?
+  ecosystemSource   String?
+  bounties          Bounty[]            @relation("OrgCreatedBounty")
+  grants            Grant[]             @relation("OrganizationGrants")
+  invitations       Invitation[]        @relation("OrganizationInvitations")
+  members           Member[]            @relation("OrganizationMembers")
+  payments          Payment[]           @relation("OrganizationPayments")
 
   @@map("organization")
 }
@@ -171,39 +176,45 @@ model Invitation {
 }
 
 model Grant {
-  id               String                 @id @default(cuid())
-  title            String
-  slug             String                 @unique
-  logoUrl          String?
-  bannerUrl        String?
-  description      String
-  summary          String?
-  instructions     String?
-  resources        Json?
-  screening        Json?
-  applicationUrl   String?
-  token            String?                @default("DOT")
-  skills           String[]               @default([])
-  organizationId   String
-  minAmount        Decimal?
-  minAmountUSD     Decimal?
-  maxAmount        Decimal?
-  maxAmountUSD     Decimal?
-  totalFunds       Decimal?
-  totalFundsUSD    Decimal?
-  status           GrantStatus            @default(OPEN)
-  visibility       GrantVisibilityStatus? @default(DRAFT)
-  source           GrantSource            @default(NATIVE)
-  publishedAt      DateTime?
-  viewCount        Int                    @default(0)
-  applicationCount Int                    @default(0)
-  rfpCount         Int                    @default(0)
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  curators         Curator[]              @relation("GrantCurators")
-  organization     Organization           @relation("OrganizationGrants", fields: [organizationId], references: [id], onDelete: Cascade)
-  applications     GrantApplication[]     @relation("GrantApplications")
-  rfps             RFP[]                  @relation("GrantRFPs")
+  id                String                 @id @default(cuid())
+  title             String
+  slug              String                 @unique
+  externalId        String?                @unique
+  logoUrl           String?
+  bannerUrl         String?
+  description       String
+  summary           String?
+  instructions      String?
+  resources         Json?
+  screening         Json?
+  applicationUrl    String?
+  token             String?                @default("DOT")
+  skills            String[]               @default([])
+  organizationId    String
+  minAmount         Decimal?
+  minAmountUSD      Decimal?
+  maxAmount         Decimal?
+  maxAmountUSD      Decimal?
+  totalFunds        Decimal?
+  totalFundsUSD     Decimal?
+  curatorFee        Decimal?
+  distributedAmount Decimal?
+  status            GrantStatus            @default(OPEN)
+  visibility        GrantVisibilityStatus? @default(DRAFT)
+  source            GrantSource            @default(NATIVE)
+  fundingSource     FundingSource          @default(SELF_FUNDED)
+  onChainRef        String?
+  onChainRefUrl     String?
+  publishedAt       DateTime?
+  viewCount         Int                    @default(0)
+  applicationCount  Int                    @default(0)
+  rfpCount          Int                    @default(0)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  curators          Curator[]              @relation("GrantCurators")
+  organization      Organization           @relation("OrganizationGrants", fields: [organizationId], references: [id], onDelete: Cascade)
+  applications      GrantApplication[]     @relation("GrantApplications")
+  rfps              RFP[]                  @relation("GrantRFPs")
 
   @@index([organizationId])
   @@index([organizationId, status, visibility])
@@ -264,6 +275,9 @@ model Bounty {
   updatedAt                DateTime               @updatedAt
   lastReminderSentAt       DateTime?
   lastWinnerReminderSentAt DateTime?
+  fundingSource            FundingSource          @default(SELF_FUNDED)
+  onChainRef               String?
+  onChainRefUrl            String?
   organization             Organization           @relation("OrgCreatedBounty", fields: [organizationId], references: [id], onDelete: Cascade)
   comments                 Comment[]              @relation("BountyComments")
   curators                 Curator[]              @relation("BountyCurators")
@@ -277,34 +291,37 @@ model Bounty {
 }
 
 model GrantApplication {
-  id           String                 @id @default(cuid())
-  userId       String
-  grantId      String
-  rfpId        String?
-  title        String
-  summary      String?
-  description  String
-  timeline     Json?
-  milestones   Json?
-  budget       Decimal?
-  responses    Json?
-  status       GrantApplicationStatus @default(DRAFT)
-  label        ApplicationLabel?
-  approverId   String?
-  notes        String?
-  likesCount   Int                    @default(0)
-  viewCount    Int                    @default(0)
-  commentCount Int                    @default(0)
-  submittedAt  DateTime?
-  reviewedAt   DateTime?
-  decidedAt    DateTime?
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  comments     Comment[]              @relation("GrantAppComments")
-  grant        Grant                  @relation("GrantApplications", fields: [grantId], references: [id], onDelete: Cascade)
-  rfp          RFP?                   @relation("BasedOnRFP", fields: [rfpId], references: [id])
-  applicant    User                   @relation("GrantApplicant", fields: [userId], references: [id], onDelete: Cascade)
-  likes        Like[]                 @relation("GrantAppLikes")
+  id                      String                  @id @default(cuid())
+  userId                  String?
+  grantId                 String
+  rfpId                   String?
+  externalId              String?
+  title                   String
+  summary                 String?
+  description             String
+  timeline                Json?
+  budget                  Decimal?
+  paymentAddress          String?
+  responses               Json?
+  status                  GrantApplicationStatus  @default(DRAFT)
+  label                   ApplicationLabel?
+  approverId              String?
+  notes                   String?
+  likesCount              Int                     @default(0)
+  viewCount               Int                     @default(0)
+  commentCount            Int                     @default(0)
+  submittedAt             DateTime?
+  reviewedAt              DateTime?
+  decidedAt               DateTime?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  comments                Comment[]               @relation("GrantAppComments")
+  grant                   Grant                   @relation("GrantApplications", fields: [grantId], references: [id], onDelete: Cascade)
+  rfp                     RFP?                    @relation("BasedOnRFP", fields: [rfpId], references: [id])
+  applicant               User?                   @relation("GrantApplicant", fields: [userId], references: [id], onDelete: Cascade)
+  likes                   Like[]                  @relation("GrantAppLikes")
+  grantMilestones         GrantMilestone[]         @relation("ApplicationMilestones")
+  ecosystemContributions  EcosystemContribution[] @relation("EcosystemContributions")
 
   @@index([grantId, status])
   @@index([userId])
@@ -394,19 +411,24 @@ model Payment {
 }
 
 model Curator {
-  id        String   @id @default(cuid())
-  userId    String
-  grantId   String?
-  bountyId  String?
-  contact   String?
-  createdAt DateTime @default(now())
-  bounty    Bounty?  @relation("BountyCurators", fields: [bountyId], references: [id], onDelete: Cascade)
-  grant     Grant?   @relation("GrantCurators", fields: [grantId], references: [id], onDelete: Cascade)
-  user      User     @relation("UserCurations", fields: [userId], references: [id], onDelete: Cascade)
+  id                  String            @id @default(cuid())
+  userId              String?
+  ecosystemProfileId  String?
+  name                String?
+  walletAddress       String?
+  grantId             String?
+  bountyId            String?
+  contact             String?
+  createdAt           DateTime          @default(now())
+  bounty              Bounty?           @relation("BountyCurators", fields: [bountyId], references: [id], onDelete: Cascade)
+  grant               Grant?            @relation("GrantCurators", fields: [grantId], references: [id], onDelete: Cascade)
+  user                User?             @relation("UserCurations", fields: [userId], references: [id], onDelete: Cascade)
+  ecosystemProfile    EcosystemProfile? @relation("EcosystemCurator", fields: [ecosystemProfileId], references: [id], onDelete: SetNull)
 
   @@index([grantId])
   @@index([bountyId])
   @@index([userId])
+  @@index([ecosystemProfileId])
   @@map("curator")
 }
 
@@ -500,6 +522,160 @@ model BouncedEmail {
   @@map("bounced_email")
 }
 
+// --- Ecosystem Pre-Population Models ---
+
+model EcosystemProfile {
+  id               String          @id @default(cuid())
+  displayName      String
+  slug             String          @unique
+  email            String?
+  github           String?
+  githubAccountId  String?
+  twitter          String?
+  linkedin         String?
+  website          String?
+  telegram         String?
+  walletAddresses  String[]        @default([])
+  onChainName      String?
+  onChainVerified  Boolean         @default(false)
+  bio              String?
+  skills           String[]        @default([])
+  location         String?
+  source           EcosystemSource @default(MANUAL_ADMIN)
+  sourceData       Json?
+  contactable      Boolean         @default(false)
+  outreachStatus   String?
+  outreachSentAt   DateTime?
+  claimedByUserId  String?
+  claimedAt        DateTime?
+  claimMethod      ClaimMethod?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  claimedBy        User?           @relation("ClaimedProfiles", fields: [claimedByUserId], references: [id])
+  contributions    EcosystemContribution[] @relation("ProfileContributions")
+  curations        Curator[]       @relation("EcosystemCurator")
+  claimRequests    ClaimRequest[]  @relation("ProfileClaimRequests")
+
+  @@index([email])
+  @@index([github])
+  @@index([githubAccountId])
+  @@index([claimedByUserId])
+  @@index([outreachStatus])
+  @@index([walletAddresses], type: Gin)
+  @@map("ecosystem_profile")
+}
+
+model EcosystemContribution {
+  id                  String            @id @default(cuid())
+  ecosystemProfileId  String
+  grantApplicationId  String?
+  role                ContributionRole  @default(APPLICANT)
+  createdAt           DateTime          @default(now())
+  ecosystemProfile    EcosystemProfile  @relation("ProfileContributions", fields: [ecosystemProfileId], references: [id], onDelete: Cascade)
+  grantApplication    GrantApplication? @relation("EcosystemContributions", fields: [grantApplicationId], references: [id], onDelete: Cascade)
+
+  @@unique([ecosystemProfileId, grantApplicationId])
+  @@index([grantApplicationId])
+  @@index([ecosystemProfileId])
+  @@map("ecosystem_contribution")
+}
+
+model GrantMilestone {
+  id                   String                 @id @default(cuid())
+  grantApplicationId   String
+  number               Int
+  title                String
+  description          String?
+  deliverables         Json?
+  amount               Decimal?
+  amountUSD            Decimal?
+  token                String?
+  status               MilestoneStatus        @default(PENDING)
+  deliveryUrl          String?
+  evaluationUrl        String?
+  evaluationResult     String?
+  evaluatorName        String?
+  paymentStatus        MilestonePaymentStatus @default(UNPAID)
+  paymentAddress       String?
+  paymentTxHash        String?
+  paymentBlockNumber   Int?
+  paymentAmount        Decimal?
+  paymentToken         String?
+  paymentChain         String?
+  payerAddress         String?
+  paidAt               DateTime?
+  submittedAt          DateTime?
+  reviewedAt           DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  grantApplication     GrantApplication       @relation("ApplicationMilestones", fields: [grantApplicationId], references: [id], onDelete: Cascade)
+
+  @@unique([grantApplicationId, number])
+  @@index([grantApplicationId])
+  @@map("grant_milestone")
+}
+
+model ImportJob {
+  id          String       @id @default(cuid())
+  source      String
+  status      ImportStatus @default(IMPORT_PENDING)
+  totalItems  Int          @default(0)
+  processed   Int          @default(0)
+  errors      Int          @default(0)
+  errorLog    Json?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdBy   String?
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("import_job")
+}
+
+model ClaimRequest {
+  id                  String           @id @default(cuid())
+  ecosystemProfileId  String
+  userId              String
+  method              ClaimMethod
+  status              ClaimStatus      @default(PENDING)
+  verificationData    Json?
+  expiresAt           DateTime
+  reviewedBy          String?
+  reviewNotes         String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  ecosystemProfile    EcosystemProfile @relation("ProfileClaimRequests", fields: [ecosystemProfileId], references: [id], onDelete: Cascade)
+  user                User             @relation("UserClaimRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([ecosystemProfileId, userId])
+  @@index([userId])
+  @@index([status])
+  @@map("claim_request")
+}
+
+model Campaign {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  type            String
+  status          String    @default("draft")
+  audienceFilter  Json?
+  recipientCount  Int       @default(0)
+  sentCount       Int       @default(0)
+  openCount       Int       @default(0)
+  claimCount      Int       @default(0)
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("campaign")
+}
+
+// --- Existing Enums ---
+
 enum OrgVisibilityStatus {
   ACTIVE
   UNDER_REVIEW
@@ -545,6 +721,7 @@ enum NotificationType {
   BOUNTY_SUBMISSION
   COMMENT_REPLY
   NEW_BOUNTY_MATCHING_SKILLS
+  WEEKLY_DIGEST
 }
 
 enum CommentType {
@@ -617,4 +794,74 @@ enum PaymentStatus {
   PROCESSING
   CONFIRMED
   FAILED
+}
+
+// --- Ecosystem Pre-Population Enums ---
+
+enum OrgType {
+  COMPANY
+  DAO
+  FOUNDATION
+  CURATOR_GROUP
+}
+
+enum FundingSource {
+  SELF_FUNDED
+  TREASURY
+}
+
+enum EcosystemSource {
+  W3F_GRANTS
+  POLKADOT_OPEN_SOURCE
+  FAST_GRANTS
+  ON_CHAIN_BOUNTY
+  HACKATHON
+  PBA
+  FELLOWSHIP
+  MANUAL_ADMIN
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+}
+
+enum MilestonePaymentStatus {
+  UNPAID
+  PENDING_PAYMENT
+  CONFIRMED
+  FAILED
+}
+
+enum ClaimMethod {
+  GITHUB_OAUTH
+  WALLET_SIGNATURE
+  EMAIL_VERIFICATION
+  ADMIN_LINK
+}
+
+enum ClaimStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum ImportStatus {
+  IMPORT_PENDING
+  RUNNING
+  COMPLETED
+  IMPORT_FAILED
+  PARTIAL
+}
+
+enum ContributionRole {
+  APPLICANT
+  TEAM_MEMBER
+  EVALUATOR
+  CURATOR
 }

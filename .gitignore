@@ -36,6 +36,7 @@ Temporary Items
 /node_modules
 /.pnp
 .pnp.js
+.pnpm-store/**/*
 
 # testing
 /coverage
@@ -312,3 +313,6 @@ frontend_todos.md
 GEMINI.md
 WARP.md
 *.mdc
+
+# Import data (contains emails/PII)
+data/

@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
 
     // Try to get from cache first
     if (!refresh) {
-      const cached = await redis.get<GrantStatsResponse | string>(CACHE_KEY);
+      let cached: GrantStatsResponse | string | null = null;
+      try {
+        cached = await redis.get<GrantStatsResponse | string>(CACHE_KEY);
+      } catch { /* Redis unavailable */ }
       if (cached) {
         const data: GrantStatsResponse =
           typeof cached === "string"
@@ -32,9 +35,9 @@ export async function GET(request: NextRequest) {
     const stats = await getGrantStats();
 
     // Store in cache
-    await redis.set(CACHE_KEY, JSON.stringify(stats), {
-      ex: CACHE_TTL_SECONDS,
-    });
+    try {
+      await redis.set(CACHE_KEY, JSON.stringify(stats), { ex: CACHE_TTL_SECONDS });
+    } catch { /* Redis unavailable */ }
 
     return withHeaders(NextResponse.json(stats));
   } catch (error) {
@@ -71,6 +74,7 @@ async function getGrantStats(): Promise<GrantStatsResponse> {
   });
 
   // Get total funds from published grants
+  // Priority: totalFundsUSD > totalFunds > sum of maxAmounts as indicator
   const grantsAggregate = await database.grant.aggregate({
     where: {
       visibility: "PUBLISHED",
@@ -78,10 +82,17 @@ async function getGrantStats(): Promise<GrantStatsResponse> {
     },
     _sum: {
       totalFundsUSD: true,
+      totalFunds: true,
+      maxAmountUSD: true,
+      maxAmount: true,
     },
   });
 
-  const totalFunds = grantsAggregate._sum.totalFundsUSD || 0;
+  const totalFunds = grantsAggregate._sum.totalFundsUSD
+    || grantsAggregate._sum.totalFunds
+    || grantsAggregate._sum.maxAmountUSD
+    || grantsAggregate._sum.maxAmount
+    || 0;
 
   return {
     total_grants_count: totalGrantsCount,

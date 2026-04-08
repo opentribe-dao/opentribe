@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { ViewManager } from "@/lib/views";
+import { resolveApplicationApplicant } from "@/lib/resolve-applicant";
 
 export async function OPTIONS() {
   return NextResponse.json({});
@@ -96,6 +97,9 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Resolve applicant (handles both User-linked and EcosystemProfile-linked apps)
+    const resolvedApplicant = await resolveApplicationApplicant(application);
+
     // Transform the application data
     const transformedApplication = {
       id: application.id,
@@ -110,12 +114,7 @@ export async function GET(
       answers: application.responses as Record<string, unknown>,
       files: [], // TODO: Implement file attachments
       grant: application.grant,
-      applicant: {
-        ...application.applicant,
-        skills: Array.isArray(application.applicant.skills)
-          ? application.applicant.skills
-          : (application.applicant.skills as string[] | null) || [],
-      },
+      applicant: resolvedApplicant,
     };
 
     // Record view using ViewManager (userId preferred, else ip)

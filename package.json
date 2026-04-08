@@ -5,8 +5,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "email:dev": "email dev --port 3003 --dir packages/email/templates",
-    "db:studio": "prisma studio --schema packages/db/prisma/schema.prisma",
+    "email:dev": "email dev --port 3005 --dir packages/email/templates",
+    "db:studio": "pnpm --filter @packages/db db:studio",
     "lint": "ultracite check",
     "lint:fix": "ultracite fix",
     "format": "ultracite fix",
@@ -18,7 +18,8 @@
     "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/base",
     "migrate": "cd packages/db && npx prisma format && npx prisma generate && npx prisma db push",
     "clean": "git clean -xdf node_modules",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prisma": "prisma"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,md}": [
@@ -26,16 +27,18 @@
     ]
   },
   "devDependencies": {
-    "@octokit/rest": "^22.0.0",
     "@auto-it/first-time-contributor": "^11.3.0",
     "@biomejs/biome": "2.3.4",
+    "@octokit/rest": "^22.0.0",
     "@tooling/typescript-config": "workspace:*",
     "@turbo/gen": "^2.5.3",
     "@types/node": "^24.5.2",
+    "dotenv": "^17.3.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "react-email": "^4.2.11",
     "tsup": "^8.5.0",
+    "tsx": "^4.19.2",
     "turbo": "^2.5.3",
     "typescript": "^5.8.3",
     "ultracite": "^6.3.2",
@@ -45,5 +48,11 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@10.11.0",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@prisma/adapter-pg": "7.5.0",
+    "@talismn/siws": "^1.0.0",
+    "@zig-zag/better-siwp": "^0.1.2",
+    "@zig-zag/chains": "^1.1.0"
+  }
 }

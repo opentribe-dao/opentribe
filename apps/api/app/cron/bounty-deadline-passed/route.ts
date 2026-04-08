@@ -88,9 +88,10 @@ export const GET = async () => {
         try {
           const totalPrize = bounty.amount ? bounty.amount.toString() : "0";
 
+          if (!curator.user) return null;
           await sendBountyWinnerReminderEmail(
             {
-              email: curator.user.email,
+              email: curator.user?.email,
               firstName: curator.user.firstName || undefined,
               username: curator.user.username || undefined,
             },
@@ -105,11 +106,11 @@ export const GET = async () => {
           );
 
           console.log(
-            `Sent winner reminder email for bounty ${bounty.id} to ${curator.user.email}`
+            `Sent winner reminder email for bounty ${bounty.id} to ${curator.user?.email}`
           );
         } catch (error) {
           console.error(
-            `Failed to send email for bounty ${bounty.id} to ${curator.user.email}:`,
+            `Failed to send email for bounty ${bounty.id} to ${curator.user?.email}:`,
             error
           );
         }

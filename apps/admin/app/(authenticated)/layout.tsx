@@ -6,6 +6,10 @@ import type { ReactNode } from "react";
 import { env } from "@/env";
 import { AdminSidebar } from "./components/sidebar";
 
+// Force dynamic rendering — the layout uses auth.api.getSession() which needs
+// runtime request headers and DB access. Prevents build-time Prisma init failures.
+export const dynamic = "force-dynamic";
+
 type AppLayoutProperties = {
   readonly children: ReactNode;
 };

@@ -64,6 +64,18 @@ export default function ProfileDetailPage() {
     }
   }, [profile]);
 
+  // Hooks must be called unconditionally — declared before any early return
+  const mergeProfiles = useMergeProfiles();
+  const linkToUser = useLinkProfileToUser();
+  const { data: mergeResults } = useAdminProfiles({
+    search: mergeSearch,
+    limit: 5,
+  });
+  const { data: userResults } = useAdminUsers({
+    search: linkSearch,
+    limit: 5,
+  });
+
   if (isLoading) {
     return (
       <>
@@ -127,18 +139,6 @@ export default function ProfileDetailPage() {
     name: string;
     email: string;
   } | null;
-
-  const mergeProfiles = useMergeProfiles();
-  const linkToUser = useLinkProfileToUser();
-
-  const { data: mergeResults } = useAdminProfiles({
-    search: mergeSearch,
-    limit: 5,
-  });
-  const { data: userResults } = useAdminUsers({
-    search: linkSearch,
-    limit: 5,
-  });
 
   const mergeProfilesList = (mergeResults as any)?.data?.filter(
     (p: any) => p.id !== id

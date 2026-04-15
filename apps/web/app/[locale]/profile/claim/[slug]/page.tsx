@@ -76,49 +76,21 @@ export default function ClaimProfilePage() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        // First try the ecosystem profiles API directly by slug
+        // The public resolver accepts both slug and cuid (ID)
         const res = await fetch(
-          `${env.NEXT_PUBLIC_API_URL}/api/v1/ecosystem/profiles?query=${encodeURIComponent(slug)}&pageSize=1`,
+          `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${encodeURIComponent(slug)}/public`,
           { credentials: "include" }
         );
         if (res.ok) {
           const data = await res.json();
-          const profiles = data.profiles || [];
-          const match = profiles.find(
-            (p: any) => p.slug === slug || p.slug?.toLowerCase() === slug.toLowerCase()
-          );
-          if (match) {
-            // Fetch full profile details via the resolver
-            const detailRes = await fetch(
-              `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${slug}/public`,
-              { credentials: "include" }
-            );
-            if (detailRes.ok) {
-              const detailData = await detailRes.json();
-              if (detailData.type === "ecosystem") {
-                setProfile(detailData.data);
-              } else if (detailData.type === "user" && detailData.data?.claimableProfile) {
-                // User exists with same slug — use the claimable profile data
-                setProfile({
-                  ...detailData.data.claimableProfile,
-                  contributions: [],
-                });
-              }
-            }
-          }
-        }
-
-        // Fallback: try the profile resolver directly
-        if (!profile) {
-          const fallbackRes = await fetch(
-            `${env.NEXT_PUBLIC_API_URL}/api/v1/profiles/${slug}/public`,
-            { credentials: "include" }
-          );
-          if (fallbackRes.ok) {
-            const data = await fallbackRes.json();
-            if (data.type === "ecosystem") {
-              setProfile(data.data);
-            }
+          if (data.type === "ecosystem") {
+            setProfile(data.data);
+          } else if (data.type === "user" && data.data?.claimableProfile) {
+            // User exists with same slug — use the claimable profile data
+            setProfile({
+              ...data.data.claimableProfile,
+              contributions: [],
+            });
           }
         }
       } catch (error) {

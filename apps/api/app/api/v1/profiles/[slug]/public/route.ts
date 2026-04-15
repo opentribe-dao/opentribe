@@ -122,14 +122,12 @@ export async function GET(
       });
     }
 
-    // 2. Try to find an EcosystemProfile by slug
+    // 2. Try to find an EcosystemProfile by slug, or by ID if slug looks like a cuid
+    const isCuid = /^c[a-z0-9]{24}$/.test(slug);
     const ecosystemProfile = await database.ecosystemProfile.findFirst({
-      where: {
-        slug: {
-          equals: slug,
-          mode: "insensitive",
-        },
-      },
+      where: isCuid
+        ? { OR: [{ id: slug }, { slug: { equals: slug, mode: "insensitive" } }] }
+        : { slug: { equals: slug, mode: "insensitive" } },
       include: {
         claimedBy: {
           select: {

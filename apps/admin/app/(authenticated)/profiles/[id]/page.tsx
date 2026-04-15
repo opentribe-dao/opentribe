@@ -196,6 +196,53 @@ export default function ProfileDetailPage() {
         </div>
       </Header>
       <div className="flex flex-1 flex-col gap-6 p-6">
+        {/* Identifiers */}
+        <Card className="border-white/10 bg-white/5 backdrop-blur-[10px]">
+          <CardHeader>
+            <CardTitle className="text-white">Identifiers & Links</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label className="text-xs text-white/40">Slug</Label>
+                <div className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-2 font-mono text-sm text-white">
+                  {(profile.slug as string) || "—"}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-white/40">ID</Label>
+                <div className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-2 font-mono text-xs text-white/70">
+                  {profile.id as string}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-white/40">Public Profile</Label>
+              <a
+                className="block truncate rounded-md bg-white/5 px-3 py-2 font-mono text-sm text-[#E6007A] hover:underline"
+                href={`https://dev.opentribe.io/profile/${profile.slug || profile.id}`}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://dev.opentribe.io/profile/{(profile.slug as string) || (profile.id as string)}
+              </a>
+            </div>
+            {!claimedBy && (
+              <div className="space-y-1">
+                <Label className="text-xs text-white/40">Claim URL</Label>
+                <a
+                  className="block truncate rounded-md bg-white/5 px-3 py-2 font-mono text-sm text-[#E6007A] hover:underline"
+                  href={`https://dev.opentribe.io/profile/claim/${profile.slug || profile.id}`}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  https://dev.opentribe.io/profile/claim/{(profile.slug as string) || (profile.id as string)}
+                </a>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Edit Form */}
         <Card className="border-white/10 bg-white/5 backdrop-blur-[10px]">
           <CardHeader>

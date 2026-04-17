@@ -1,4 +1,5 @@
 import { requireSuperAdmin, unauthorizedResponse } from "@/lib/admin-auth";
+import { auditLog } from "@/lib/audit-log";
 import { formatZodError } from "@/lib/zod-errors";
 import { database } from "@packages/db";
 import type { NextRequest } from "next/server";
@@ -146,6 +147,14 @@ export async function POST(
           },
         },
       });
+    });
+
+    await auditLog({
+      action: "profile.merge",
+      actorId: admin.userId,
+      targetId: targetId,
+      targetType: "ecosystem_profile",
+      metadata: { sourceProfileId },
     });
 
     return NextResponse.json({ data: result });

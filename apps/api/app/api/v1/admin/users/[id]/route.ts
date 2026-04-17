@@ -1,4 +1,5 @@
 import { requireSuperAdmin, unauthorizedResponse } from "@/lib/admin-auth";
+import { auditLog } from "@/lib/audit-log";
 import { formatZodError } from "@/lib/zod-errors";
 import { database } from "@packages/db";
 import type { NextRequest } from "next/server";
@@ -99,6 +100,14 @@ export async function PATCH(
         banExpires: validated.banned === false ? null : undefined,
         banReason: validated.banned === false ? null : validated.banReason,
       },
+    });
+
+    await auditLog({
+      action: "user.role_change",
+      actorId: admin.userId,
+      targetId: id,
+      targetType: "user",
+      metadata: validated,
     });
 
     return NextResponse.json({ data: user });

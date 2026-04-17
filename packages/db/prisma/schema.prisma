@@ -865,3 +865,19 @@ enum ContributionRole {
   EVALUATOR
   CURATOR
 }
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // e.g. "claim.approve", "user.role_change"
+  actorId    String   // admin user ID
+  targetId   String   // affected resource ID
+  targetType String   // "claim", "user", "profile", "grant", etc.
+  metadata   Json?    // before/after values
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([targetId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}

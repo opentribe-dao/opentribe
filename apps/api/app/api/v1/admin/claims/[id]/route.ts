@@ -1,5 +1,6 @@
 import { requireSuperAdmin, unauthorizedResponse } from "@/lib/admin-auth";
 import { processVerifiedClaim } from "@/lib/claim-processing";
+import { auditLog } from "@/lib/audit-log";
 import { formatZodError } from "@/lib/zod-errors";
 import { database } from "@packages/db";
 import type { NextRequest } from "next/server";
@@ -108,6 +109,14 @@ export async function PATCH(
         "ADMIN_LINK"
       );
 
+      await auditLog({
+        action: "claim.approve",
+        actorId: admin.userId,
+        targetId: id,
+        targetType: "claim",
+        metadata: { reviewNotes: validated.reviewNotes },
+      });
+
       const result = await database.claimRequest.findUnique({
         where: { id },
         include: {
@@ -127,6 +136,14 @@ export async function PATCH(
         reviewNotes: validated.reviewNotes,
         reviewedBy: admin.userId,
       },
+    });
+
+    await auditLog({
+      action: validated.status === "REJECTED" ? "claim.reject" : "claim.approve",
+      actorId: admin.userId,
+      targetId: id,
+      targetType: "claim",
+      metadata: { status: validated.status, reviewNotes: validated.reviewNotes },
     });
 
     return NextResponse.json({ data: updatedClaim });

@@ -1,5 +1,6 @@
 import { requireSuperAdmin, unauthorizedResponse } from "@/lib/admin-auth";
 import { processVerifiedClaim } from "@/lib/claim-processing";
+import { auditLog } from "@/lib/audit-log";
 import { formatZodError } from "@/lib/zod-errors";
 import { database } from "@packages/db";
 import type { NextRequest } from "next/server";
@@ -74,6 +75,14 @@ export async function POST(
       profileId,
       "ADMIN_LINK"
     );
+
+    await auditLog({
+      action: "profile.link",
+      actorId: admin.userId,
+      targetId: profileId,
+      targetType: "ecosystem_profile",
+      metadata: { userId: validated.userId, claimId: claim.id },
+    });
 
     const updated = await database.ecosystemProfile.findUnique({
       where: { id: profileId },
